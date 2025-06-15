@@ -261,65 +261,6 @@
     </div>
 </div>
 
-<!-- Success and Error Notifications -->
-@if(session('success'))
-<div id="successNotification" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Berhasil!</p>
-            <p>{{ session('success') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('successNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
-
-@if(session('error'))
-<div id="errorNotification" class="fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50" role="alert">
-    <div class="flex items-center">
-        <div class="py-1">
-            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold">Gagal!</p>
-            <p>{{ session('error') }}</p>
-        </div>
-        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        const notification = document.getElementById('errorNotification');
-        if (notification) {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-            setTimeout(function() {
-                notification.remove();
-            }, 500);
-        }
-    }, 5000); // Hide after 5 seconds
-</script>
-@endif
-
 <!-- Delete Procurement Modal -->
 <div id="deleteProcurementModal" class="fixed inset-0 z-50 hidden">
     <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -369,9 +310,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Permission-based initialization
         @if(!hasPermission('procurement:create'))
-        // Hide create button if user doesn't have permission
         const createButtons = document.querySelectorAll('a[href*="procurement.form-request"]');
         createButtons.forEach(btn => {
             if (btn) btn.style.display = 'none';
@@ -379,7 +318,6 @@
         @endif
 
         @if(!hasPermission('procurement:edit'))
-        // Hide edit buttons if user doesn't have permission
         const editButtons = document.querySelectorAll('.edit-request-btn');
         editButtons.forEach(btn => {
             if (btn) btn.style.display = 'none';
@@ -387,21 +325,17 @@
         @endif
 
         @if(!hasPermission('procurement:delete'))
-        // Hide delete buttons if user doesn't have permission
         const deleteButtons = document.querySelectorAll('.delete-request-btn');
         deleteButtons.forEach(btn => {
             if (btn) btn.style.display = 'none';
         });
         @endif
 
-        // Add toast container to the body
         const toastContainer = document.createElement('div');
         toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-4';
         document.body.appendChild(toastContainer);
 
-        // Show toast notification
         window.showToast = function(message, type = 'info') {
-            // Create toast element
             const toast = document.createElement('div');
             let bgColor, borderColor, textColor, icon;
 
@@ -431,7 +365,6 @@
             toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
             toast.setAttribute('role', 'alert');
 
-            // Create toast content
             toast.innerHTML = `
                 <div class="flex items-center">
                     <div class="py-1">
@@ -445,16 +378,13 @@
                 </div>
             `;
 
-            // Add to container
             toastContainer.appendChild(toast);
 
-            // Animate in
             setTimeout(() => {
                 toast.classList.remove('opacity-0');
                 toast.classList.add('opacity-100');
             }, 10);
 
-            // Remove after 5 seconds
             setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
@@ -466,49 +396,37 @@
             }, 5000);
         }
 
-        // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const sortOrder = document.getElementById('sortOrder');
 
-        // Function to handle search and filtering
         function applyFilters() {
             const searchValue = searchInput?.value.trim() || '';
             const statusValue = statusFilter?.value || '';
             const sortValue = sortOrder?.value || '';
-
-            // Create URL with filter parameters
             const url = new URL(window.location.href);
 
-            // Clear existing parameters we're going to set
             ['search', 'status', 'sort', 'page'].forEach(param => {
                 url.searchParams.delete(param);
             });
 
-            // Add new parameters if they have values
             if (searchValue) url.searchParams.set('search', searchValue);
             if (statusValue) url.searchParams.set('status', statusValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
 
-            // Reset to page 1 when filters change
             url.searchParams.set('page', 1);
-
-            // Navigate to the new URL
             window.location.href = url.toString();
         }
 
-        // Add event listeners with debounce for search
         let searchTimeout;
         searchInput?.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // Add event listeners for select filters
         statusFilter?.addEventListener('change', applyFilters);
         sortOrder?.addEventListener('change', applyFilters);
 
-        // Set initial values from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         if (searchInput) searchInput.value = urlParams.get('search') || '';
         if (statusFilter) {
@@ -524,7 +442,6 @@
             }
         }
 
-        // Pagination functions
         window.changePage = function(page) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('page', page);
@@ -534,11 +451,10 @@
         window.changeRequestPerPage = function(limit) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('limit', limit);
-            urlParams.set('page', 1); // Reset to first page when changing limit
+            urlParams.set('page', 1);
             window.location.href = '{{ route("procurement.request") }}?' + urlParams.toString();
         };
 
-        // Modal functions
         window.openModal = function(modal, content) {
             modal.classList.remove('hidden');
             setTimeout(() => {
@@ -555,7 +471,6 @@
             }, 300);
         };
 
-        // Add event listener for edit buttons
         document.querySelectorAll('.edit-request-btn').forEach(function(button) {
             button.addEventListener('click', function() {
                 const procurementId = this.getAttribute('data-id');
@@ -563,7 +478,6 @@
             });
         });
 
-        // Add event listener for delete buttons
         document.addEventListener('click', function(event) {
             const deleteButton = event.target.closest('.delete-request-btn');
             if (!deleteButton) return;
@@ -584,20 +498,17 @@
             }
         });
 
-        // Handle delete form submission
         const deleteForm = document.getElementById('deleteProcurementForm');
         if (deleteForm) {
-            let isSubmitting = false; // Flag to prevent multiple submissions
+            let isSubmitting = false;
             
             deleteForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Prevent multiple submissions
                 if (isSubmitting) {
                     return;
                 }
-                
-                // Set submitting flag and disable submit button
+
                 isSubmitting = true;
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
@@ -618,52 +529,37 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Store message in localStorage
                         localStorage.setItem('procurement_message', data.message || 'Permintaan pengadaan berhasil dihapus');
                         localStorage.setItem('procurement_action', 'success');
 
-                        // Close the modal
                         const modal = document.getElementById('deleteProcurementModal');
                         const content = document.getElementById('deleteProcurementModalContent');
                         if (modal && content) {
                             closeModal(modal, content);
                         }
 
-                        // Reload the page - toast will show after reload
                         window.location.reload();
                     } else {
-                        // Reset submission state
                         isSubmitting = false;
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
-                        
-                        // Store error message in localStorage
                         localStorage.setItem('procurement_message', data.message || 'Gagal menghapus permintaan pengadaan');
                         localStorage.setItem('procurement_action', 'error');
-
-                        // Show error message immediately
                         showToast(data.message || 'Gagal menghapus permintaan pengadaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    
-                    // Reset submission state
                     isSubmitting = false;
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
-                    
-                    // Store error message in localStorage
                     localStorage.setItem('procurement_message', 'Terjadi kesalahan saat menghapus permintaan pengadaan');
                     localStorage.setItem('procurement_action', 'error');
-
-                    // Show error message immediately
                     showToast('Terjadi kesalahan saat menghapus permintaan pengadaan', 'error');
                 });
             });
         }
 
-        // Close modal handlers
         document.querySelectorAll('.close-modal').forEach(button => {
             button.addEventListener('click', function() {
                 const modal = this.closest('[id$="Modal"]');
@@ -674,7 +570,6 @@
             });
         });
 
-        // Handle click outside modal
         const modals = document.querySelectorAll('[id$="Modal"]');
         modals.forEach(modal => {
             modal.addEventListener('click', function(e) {
@@ -687,25 +582,20 @@
             });
         });
 
-        // Check for procurement message in localStorage
         const message = localStorage.getItem('procurement_message');
         const action = localStorage.getItem('procurement_action');
 
         if (message && action) {
-            // If the message contains "berhasil" but the action is "error",
-            // correct the action to "success" to match the message
             if (message.toLowerCase().includes('berhasil') && action === 'error') {
                 showToast(message, 'success');
             } else {
                 showToast(message, action);
             }
 
-            // Clear the message after showing
             localStorage.removeItem('procurement_message');
             localStorage.removeItem('procurement_action');
         }
 
-        // Display session-based success/error messages if they exist
         @if(session('success'))
             showToast('{{ session('success') }}', 'success');
         @endif

@@ -280,7 +280,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Fetch a fresh CSRF token before form submission
             const refreshCsrfToken = async () => {
                 try {
                     const response = await fetch('/csrf-token-refresh', {
@@ -294,13 +293,11 @@
                     if (response.ok) {
                         const data = await response.json();
                         if (data.token) {
-                            // Update the meta tag
                             const metaToken = document.querySelector('meta[name="csrf-token"]');
                             if (metaToken) {
                                 metaToken.content = data.token;
                             }
 
-                            // Update the form token
                             const tokenInput = document.querySelector('input[name="_token"]');
                             if (tokenInput) {
                                 tokenInput.value = data.token;
@@ -312,10 +309,8 @@
                 }
             };
 
-            // Refresh token when page loads
             refreshCsrfToken();
 
-            // Check for token expiration info in cookie
             function checkTokenExpiration() {
                 try {
                     const payloadCookie = getCookie('access_token_payload');
@@ -329,7 +324,6 @@
                     const timeRemaining = expiryTime - currentTime;
 
                     if (timeRemaining <= 0) {
-                        // Token has expired - display a message
                         const errorContainer = document.querySelector('.bg-red-50') ||
                             createErrorContainer();
 
@@ -348,7 +342,6 @@
                 }
             }
 
-            // Helper to get a cookie by name
             function getCookie(name) {
                 const value = `; ${document.cookie}`;
                 const parts = value.split(`; ${name}=`);
@@ -356,7 +349,6 @@
                 return null;
             }
 
-            // Helper to create error container if it doesn't exist
             function createErrorContainer() {
                 const form = document.getElementById('loginForm');
                 const container = document.createElement('div');
@@ -365,10 +357,8 @@
                 return container;
             }
 
-            // Run the check when page loads
             checkTokenExpiration();
 
-            // Toggle password visibility
             const togglePassword = document.getElementById('togglePassword');
             const password = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
@@ -386,16 +376,13 @@
                 }
                 password.focus();
             });
-
-            // Show loading state on form submission
             const loginForm = document.getElementById('loginForm');
             const loginButton = document.getElementById('loginButton');
 
             loginForm.addEventListener('submit', async function (e) {
                 if (loginForm.checkValidity()) {
-                    e.preventDefault(); // Prevent default submission
+                    e.preventDefault();
 
-                    // Show loading state
                     loginButton.innerHTML = `
                         <div class="flex items-center justify-center">
                             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -407,10 +394,8 @@
                     `;
                     loginButton.disabled = true;
 
-                    // Refresh CSRF token before submission
                     await refreshCsrfToken();
 
-                    // Submit the form
                     loginForm.submit();
                 }
             });

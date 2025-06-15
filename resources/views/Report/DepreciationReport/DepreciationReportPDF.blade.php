@@ -167,17 +167,14 @@
     <div class="subtitle">
         Tanggal Laporan:
         @php
-            // Define Indonesian month names
             $months = [
                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
                 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
                 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
             ];
 
-            // Check if as_of_date exists and use current date as fallback
             $formattedDate = '';
             try {
-                // Use current date if as_of_date is not set
                 $dateStr = isset($as_of_date) ? $as_of_date : date('Y-m-d');
                 $date = new DateTime($dateStr);
                 $day = $date->format('d');
@@ -185,7 +182,6 @@
                 $year = $date->format('Y');
                 $formattedDate = "$day $month $year";
             } catch (\Exception $e) {
-                // If date parsing fails, use current date
                 $now = new DateTime();
                 $day = $now->format('d');
                 $month = $months[(int)$now->format('m')];
@@ -330,7 +326,6 @@
                     <td>
                         @php
                             try {
-                                // Parse the month_and_year
                                 if (isset($item['month_and_year']) && !empty($item['month_and_year'])) {
                                     $dateObj = DateTime::createFromFormat('F Y', $item['month_and_year']);
                                     if ($dateObj) {

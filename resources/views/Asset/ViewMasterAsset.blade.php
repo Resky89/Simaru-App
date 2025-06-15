@@ -424,9 +424,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Permission-aware initialization
         @if(!hasPermission('asset-master:edit'))
-        // Disable edit functionality if user doesn't have permission
         const editButtons = document.querySelectorAll('.edit-master-asset-btn');
         editButtons.forEach(btn => {
             if (btn) {
@@ -435,22 +433,17 @@
         });
         @endif
 
-        // Custom select dropdown functionality
         function initCustomSelects() {
             document.querySelectorAll('.custom-select-container').forEach(container => {
                 const searchInput = container.querySelector('.search-input');
                 const hiddenInput = container.querySelector('input[type="hidden"]');
                 const optionsContainer = container.querySelector('.options-container');
-
-                // Determine what kind of dropdown this is
                 const isSubcategory = hiddenInput.id === 'edit_subcategory_id';
                 const isBrand = hiddenInput.id === 'edit_brand_id';
 
-                // Show options when input is clicked (not on focus)
                 searchInput.addEventListener('click', () => {
                     optionsContainer.classList.remove('hidden');
 
-                    // Load data if needed
                     if (isSubcategory) {
                         const assetType = document.getElementById('edit_asset_type').value;
                         if (assetType) {
@@ -461,14 +454,12 @@
                     }
                 });
 
-                // Hide options when clicking outside
                 document.addEventListener('click', (e) => {
                     if (!container.contains(e.target)) {
                         optionsContainer.classList.add('hidden');
                     }
                 });
 
-                // Search functionality with debounce
                 let debounceTimeout;
                 searchInput.addEventListener('input', function() {
                     clearTimeout(debounceTimeout);
@@ -484,12 +475,11 @@
                         } else if (isBrand) {
                             fetchBrands(searchValue, hiddenInput.id);
                         }
-                    }, 300); // 300ms debounce
+                    }, 300);
                 });
             });
         }
 
-        // Edit Master Asset Functionality
         const editButtons = document.querySelectorAll('.edit-master-asset-btn');
         const editModal = document.getElementById('editMasterAssetModal');
         const editModalContent = document.getElementById('editMasterAssetModalContent');
@@ -498,7 +488,6 @@
         const editFormSpinner = document.getElementById('edit-loading');
         const editFormContent = document.getElementById('edit-form-content');
 
-        // Form validation for Edit Master Asset
         editForm.addEventListener('submit', function(event) {
             const assetNameInput = document.getElementById('edit_asset_name');
             const assetTypeInput = document.getElementById('edit_asset_type');
@@ -507,19 +496,16 @@
 
             let isValid = true;
 
-            // Validate asset name
             if (!assetNameInput.value.trim()) {
                 showFieldError(assetNameInput);
                 isValid = false;
             }
 
-            // Validate asset type
             if (!assetTypeInput.value) {
                 showFieldError(assetTypeInput);
                 isValid = false;
             }
 
-            // Validate subcategory
             if (!subcategoryInput.value) {
                 const subcategoryContainer = subcategoryInput.closest('.custom-select-container');
                 const searchInput = subcategoryContainer.querySelector('.search-input');
@@ -527,7 +513,6 @@
                 isValid = false;
             }
 
-            // Validate brand
             if (!brandInput.value) {
                 const brandContainer = brandInput.closest('.custom-select-container');
                 const searchInput = brandContainer.querySelector('.search-input');
@@ -537,21 +522,17 @@
 
             if (!isValid) {
                 event.preventDefault();
-                // Show error toast
                 showToast('Silakan isi semua field yang diperlukan', 'error');
-                // Reset submit button if validation fails
                 resetSubmitButton();
                 return;
             }
 
-            // Prevent multiple form submissions
             const submitBtn = document.getElementById('edit-submit-btn');
             if (submitBtn.disabled) {
                 event.preventDefault();
-                return; // Form is already being submitted
+                return;
             }
 
-            // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = `
                 <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -561,34 +542,28 @@
                 Menyimpan...
             `;
 
-            // Let the form submit proceed
         });
 
-        // Function to show field error
         function showFieldError(field) {
             field.classList.add('border-red-500');
             const errorElement = field.closest('.space-y-2').querySelector('.error-message');
             if (errorElement) errorElement.classList.remove('hidden');
         }
 
-        // Function to clear field error
         function clearFieldError(field) {
             field.classList.remove('border-red-500');
             const errorElement = field.closest('.space-y-2').querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         }
 
-        // Add input event listeners to clear error styling when typing
         document.getElementById('edit_asset_name').addEventListener('input', function() {
             clearFieldError(this);
         });
 
-        // Asset type change should filter subcategories
         document.getElementById('edit_asset_type').addEventListener('change', function() {
             const selectedType = this.value;
             clearFieldError(this);
 
-            // Reset subcategory selection
             const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
             const searchInput = container.querySelector('.search-input');
             const hiddenInput = document.getElementById('edit_subcategory_id');
@@ -596,11 +571,9 @@
             searchInput.value = '';
             hiddenInput.value = '';
 
-            // Enable or disable subcategory search based on asset type
             if (selectedType) {
                 searchInput.disabled = false;
                 searchInput.placeholder = "Cari kategori...";
-                // Load subcategories for the new asset type
                 fetchCategories(selectedType, " ", 'edit_subcategory_id');
             } else {
                 searchInput.disabled = true;
@@ -608,7 +581,6 @@
             }
         });
 
-        // Modal Open/Close functions
         const openModal = function(modal, content) {
             modal.classList.remove('hidden');
             setTimeout(() => {
@@ -632,29 +604,25 @@
         function resetEditMasterAssetForm() {
             editForm.reset();
 
-            // Hide image preview if exists
             const imagePreview = document.getElementById('edit-image-container');
             if (imagePreview) {
                 imagePreview.classList.add('hidden');
             }
 
-            // Remove any hidden input for image removal
             const removeImageInput = editForm.querySelector('input[name="remove_image"]');
             if (removeImageInput) {
                 removeImageInput.remove();
             }
         }
 
-        // Close modal when clicking on the background
         editModal.addEventListener('mousedown', function(event) {
             if (event.target === this) {
                 closeEditModal();
                 resetEditMasterAssetForm();
-                resetSubmitButton(); // Reset submit button state
+                resetSubmitButton();
             }
         });
 
-        // Open edit modal when clicking edit button
         editButtons.forEach(button => {
             console.log('Button attached:', button);
             button.addEventListener('click', function() {
@@ -666,34 +634,29 @@
                     return;
                 }
 
-                // Show modal & spinner first
                 editFormSpinner.classList.remove('hidden');
                 editFormContent.classList.add('hidden');
                 editForm.action = `/asset-master/${assetId}`;
                 openModal(editModal, editModalContent);
 
-                // Fetch asset data
                 fetchMasterAssetDetails(assetId);
             });
         });
 
-        // Close modal when clicking close button
         closeButtons.forEach(button => {
             button.addEventListener('click', function() {
                 closeEditModal();
                 resetEditMasterAssetForm();
-                resetSubmitButton(); // Reset submit button state
+                resetSubmitButton();
             });
         });
 
-        // Reset submit button to original state
         function resetSubmitButton() {
             const submitBtn = document.getElementById('edit-submit-btn');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Perbarui';
         }
 
-        // Fetch master asset details from the server
         function fetchMasterAssetDetails(assetId) {
             fetch(`/asset-master/${assetId}/edit`, {
                 method: 'GET',
@@ -705,18 +668,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.masterAsset) {
-                    // First set the asset type to filter subcategories properly
                     document.getElementById('edit_asset_type').value = data.masterAsset.asset_type || '';
 
-                    // Initialize custom selects
                     initCustomSelects();
 
-                    // Load brands
                     fetchBrands('', 'edit_brand_id');
 
-                    // Load subcategories based on the asset type
                     if (data.masterAsset.asset_type) {
-                        // Enable subcategory input
                         const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
                         const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
                         subcategorySearchInput.disabled = false;
@@ -725,10 +683,8 @@
                         fetchCategories(data.masterAsset.asset_type, '', 'edit_subcategory_id');
                     }
 
-                    // Then populate other form fields
                     populateEditForm(data.masterAsset);
 
-                    // Hide spinner, show form
                     editFormSpinner.classList.add('hidden');
                     editFormContent.classList.remove('hidden');
                 } else {
@@ -744,15 +700,11 @@
             });
         }
 
-        // Populate the edit form with data
         function populateEditForm(masterAsset) {
-            // Basic fields
             document.getElementById('edit_asset_name').value = masterAsset.asset_name || '';
             document.getElementById('edit_description').value = masterAsset.description || '';
 
-            // Wait a bit for dropdowns to load their data
             setTimeout(() => {
-                // Set subcategory and brand using helper functions
                 if (masterAsset.subcategory_id && masterAsset.subcategory_name) {
                     setSelectValue('edit_subcategory_id', masterAsset.subcategory_id, masterAsset.subcategory_name);
                 }
@@ -762,7 +714,6 @@
                 }
             }, 500);
 
-            // Checkboxes with toggle switch display
             const isDepreciable = document.getElementById('edit_is_depreciable');
             isDepreciable.checked = !!masterAsset.is_depreciable;
             document.querySelector('#editMasterAssetModal .depreciation-status').textContent =
@@ -773,7 +724,6 @@
             document.querySelector('#editMasterAssetModal .calibration-status').textContent =
                 masterAsset.needs_calibration ? 'Ya' : 'Tidak';
 
-            // Image preview
             if (masterAsset.reference_image_path) {
                 const imageContainer = document.getElementById('edit-image-container');
                 const imageElement = imageContainer.querySelector('img');
@@ -787,7 +737,6 @@
             }
         }
 
-        // Helper function to set dropdown values
         function setSelectValue(id, value, displayText) {
             const hiddenInput = document.getElementById(id);
             if (!hiddenInput) return;
@@ -798,13 +747,11 @@
             hiddenInput.value = value;
             searchInput.value = displayText;
 
-            // Clear any error styling
             searchInput.classList.remove('border-red-500');
             const errorElement = container.closest('.space-y-2').querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         }
 
-        // Image change
         document.getElementById('edit_image_file').addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const file = this.files[0];
@@ -817,7 +764,6 @@
                     imageElement.src = e.target.result;
                     imageContainer.classList.remove('hidden');
 
-                    // If there's a remove image checkbox, uncheck it
                     const removeCheckbox = document.getElementById('edit_remove_image');
                     if (removeCheckbox) {
                         removeCheckbox.checked = false;
@@ -828,17 +774,14 @@
             }
         });
 
-        // Handle remove image button
         const removeImageBtns = document.querySelectorAll('.remove-image-btn');
         removeImageBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 const imageContainer = document.getElementById('edit-image-container');
                 imageContainer.classList.add('hidden');
 
-                // Clear the file input
                 document.getElementById('edit_image_file').value = '';
 
-                // Add a hidden input to signal image removal
                 let removeImageInput = editForm.querySelector('input[name="remove_image"]');
                 if (!removeImageInput) {
                     removeImageInput = document.createElement('input');
@@ -850,7 +793,6 @@
             });
         });
 
-        // Toggle switches
         document.getElementById('edit_is_depreciable').addEventListener('change', function() {
             const statusText = document.querySelector('#editMasterAssetModal .depreciation-status');
             statusText.textContent = this.checked ? 'Ya' : 'Tidak';
@@ -861,25 +803,21 @@
             statusText.textContent = this.checked ? 'Ya' : 'Tidak';
         });
 
-        // Initialize back-end URL from meta tag
         window.appConfig = {
             backendUrl: '{{ config('app.backend_url') }}'
         };
 
-        // Initialize custom selects on page load
         initCustomSelects();
 
-        // Tambahkan di bagian akhir script
         window.testModal = function() {
             console.log('Testing modal manually');
             const modal = document.getElementById('editMasterAssetModal');
             const content = document.getElementById('editMasterAssetModalContent');
-            modal.style.display = 'block'; // Force display block
+            modal.style.display = 'block';
             content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
             content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
         }
 
-        // Function to show toast notifications
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
@@ -907,7 +845,6 @@
 
             document.body.appendChild(toast);
 
-            // Auto-remove the toast after 5 seconds
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
@@ -916,7 +853,6 @@
             }, 5000);
         }
 
-        // Show toast notifications for session messages on page load
         @if(session('success'))
             showToast("{{ session('success') }}", 'success');
         @endif
@@ -925,7 +861,6 @@
             showToast("{{ session('error') }}", 'error');
         @endif
 
-        // Function to fetch brands with search parameter
         function fetchBrands(searchTerm = '', targetId = '') {
             if (!targetId) return;
 
@@ -933,11 +868,8 @@
             const optionsContainer = container.querySelector('.options-container');
             const searchInput = container.querySelector('.search-input');
             const hiddenInput = container.querySelector('input[type="hidden"]');
-
-            // Special case: If it's just a space, we'll treat it as a request to show all options
             const isShowAll = searchTerm === " ";
 
-            // Don't show loading or open dropdown if no search term (except for our special case)
             if (!searchTerm.trim() && !isShowAll) {
                 optionsContainer.classList.add('hidden');
                 return;
@@ -946,12 +878,10 @@
             optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat data merk...</div>';
             optionsContainer.classList.remove('hidden');
 
-            // Build query parameters
             let queryParams = new URLSearchParams();
             queryParams.append('json', 'true');
             queryParams.append('limit', '50');
 
-            // Only add search parameter if it's not our special "show all" case
             if (searchTerm.trim() && !isShowAll) {
                 queryParams.append('search', searchTerm.trim());
             }
@@ -995,7 +925,6 @@
                 return;
             }
 
-            // Add search help text
             const searchHelp = document.createElement('div');
             searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
             searchHelp.textContent = 'Ketik untuk mencari merk...';
@@ -1030,12 +959,10 @@
                     searchInputElem.value = this.textContent;
                     resultsElem.classList.add('hidden');
 
-                    // Clear any error styling
                     searchInputElem.classList.remove('border-red-500');
                     const errorElement = searchInputElem.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
 
-                    // Trigger change event
                     const event = new Event('change', { bubbles: true });
                     idInputElem.dispatchEvent(event);
                 });
@@ -1051,7 +978,6 @@
             }
         }
 
-        // Function to fetch categories with search parameter based on asset type
         function fetchCategories(assetType, searchTerm = '', targetId = '') {
             if (!assetType || !targetId) return;
 
@@ -1059,11 +985,8 @@
             const optionsContainer = container.querySelector('.options-container');
             const searchInput = container.querySelector('.search-input');
             const hiddenInput = container.querySelector('input[type="hidden"]');
-
-            // Special case: If it's just a space, we'll treat it as a request to show all options
             const isShowAll = searchTerm === " ";
 
-            // Don't show loading or open dropdown if no search term (except for our special case)
             if (!searchTerm.trim() && !isShowAll) {
                 optionsContainer.classList.add('hidden');
                 return;
@@ -1072,13 +995,11 @@
             optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
             optionsContainer.classList.remove('hidden');
 
-            // Build query parameters
             let queryParams = new URLSearchParams();
             queryParams.append('json', 'true');
             queryParams.append('asset_type', assetType);
             queryParams.append('limit', '50');
 
-            // Only add search parameter if it's not our special "show all" case
             if (searchTerm.trim() && !isShowAll) {
                 queryParams.append('search', searchTerm.trim());
             }
@@ -1122,7 +1043,6 @@
                 return;
             }
 
-            // Add search help text
             const searchHelp = document.createElement('div');
             searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
             searchHelp.textContent = 'Ketik untuk mencari kategori...';
@@ -1146,7 +1066,6 @@
                 });
             }
 
-            // Add asset type title
             const typeTitle = document.createElement('div');
             typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b';
             typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
@@ -1162,16 +1081,10 @@
                 div.addEventListener('click', function() {
                     idInputElem.value = this.getAttribute('data-value');
                     searchInputElem.value = this.textContent;
-
-                    // Clear any error styling
                     searchInputElem.classList.remove('border-red-500');
                     const errorElement = searchInputElem.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
-
-                    // Explicitly hide the dropdown
                     resultsElem.classList.add('hidden');
-
-                    // Trigger change event
                     const event = new Event('change', { bubbles: true });
                     idInputElem.dispatchEvent(event);
                 });

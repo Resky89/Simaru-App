@@ -20,7 +20,8 @@
     </div>
 
     <!-- Error message container -->
-    <div id="documentErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="documentErrorMessage"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
     <!-- Content sections -->
@@ -34,7 +35,8 @@
                         <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Nama File</th>
                         <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Catatan</th>
                         <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left">Tanggal Upload</th>
-                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Aksi</th>
+                        <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-16 md:w-20">Aksi
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="documentTableBody">
@@ -199,9 +201,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Function to show toast notifications
         function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -210,17 +210,14 @@
                 document.body.appendChild(toastContainer);
             }
 
-            // Create the toast element
             const toast = document.createElement('div');
 
-            // Set classes based on type
             if (type === 'success') {
                 toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
             } else {
                 toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
             }
 
-            // Add content
             toast.innerHTML = `
             <div class="py-1">
                 <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,10 +233,8 @@
             <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
         `;
 
-            // Add to container
             toastContainer.appendChild(toast);
 
-            // Auto-remove after 5 seconds
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
@@ -248,10 +243,8 @@
             }, 5000);
         }
 
-        // Make showToast available to the DocumentSystem
         window.showToast = showToast;
 
-        // Define a global openDocumentModal function first
         window.openDocumentModal = function () {
             @if(hasPermission('asset:document:create'))
                 const modal = document.getElementById('addDocumentModal');
@@ -261,12 +254,10 @@
                 const fileNamePreview = document.getElementById('file-name');
 
                 if (modal && modalContent) {
-                    // Reset form and previews
                     if (documentForm) {
                         documentForm.reset();
                     }
 
-                    // Hide all preview elements
                     if (imagePreview) {
                         imagePreview.classList.add('hidden');
                     }
@@ -275,7 +266,6 @@
                         fileNamePreview.classList.add('hidden');
                     }
 
-                    // Reset progress bar if visible
                     const progressContainer = document.getElementById('uploadProgressContainer');
                     const progressBar = document.getElementById('uploadProgressBar');
                     if (progressContainer) {
@@ -287,7 +277,6 @@
                         progressBar.classList.add('bg-[#213268]');
                     }
 
-                    // Open modal
                     modal.classList.remove('hidden');
                     setTimeout(function () {
                         modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
@@ -299,7 +288,6 @@
             @endif
     };
 
-        // File upload preview functionality
         const fileInput = document.getElementById('file');
         const imagePreview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
@@ -309,12 +297,10 @@
         const removeFileBtn = document.getElementById('remove-file');
         const removeImageBtn = document.getElementById('remove-image');
 
-        // Check if a file is an image
         function isImageFile(file) {
             return file && file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/i);
         }
 
-        // Handle file selection
         if (fileInput) {
             fileInput.addEventListener('change', function () {
                 if (this.files && this.files[0]) {
@@ -323,9 +309,7 @@
                     const fileSize = (file.size / 1024).toFixed(1) + ' KB';
                     const fileExt = fileName.split('.').pop().toLowerCase();
 
-                    // Check if it's an image file
                     if (isImageFile(file)) {
-                        // Show image preview
                         const reader = new FileReader();
                         reader.onload = function (e) {
                             previewImg.src = e.target.result;
@@ -334,25 +318,18 @@
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        // Show file icon based on extension
                         fileNameText.textContent = fileName;
-
-                        // Get the appropriate icon based on file type
                         fileIconContainer.innerHTML = DocumentSystem.getFileIconByType(fileExt);
-
-                        // Show file preview
                         fileNamePreview.classList.remove('hidden');
                         imagePreview.classList.add('hidden');
                     }
                 } else {
-                    // No file selected, hide previews
                     imagePreview.classList.add('hidden');
                     fileNamePreview.classList.add('hidden');
                 }
             });
         }
 
-        // Remove file buttons
         if (removeFileBtn) {
             removeFileBtn.addEventListener('click', function () {
                 fileInput.value = '';
@@ -367,7 +344,6 @@
             });
         }
 
-        // Set up the document form handler
         const documentForm = document.getElementById('addDocumentForm');
         if (documentForm) {
             documentForm.addEventListener('submit', function (e) {
@@ -380,7 +356,6 @@
                 const statusMessage = document.getElementById('uploadStatusMessage');
                 const formData = new FormData(this);
 
-                // Validate required fields manually
                 if (!formData.get('document_title')) {
                     showToast('Document title is required', 'error');
                     return;
@@ -391,20 +366,16 @@
                     return;
                 }
 
-                // Show loading state
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                // Show progress container
                 progressContainer.classList.remove('hidden');
                 progressBar.style.width = '0%';
                 progressText.textContent = '0%';
                 statusMessage.textContent = 'Mempersiapkan untuk mengupload...';
 
-                // Use XMLHttpRequest for better progress tracking
                 const xhr = new XMLHttpRequest();
 
-                // Set up upload progress handler
                 xhr.upload.addEventListener('progress', function (e) {
                     if (e.lengthComputable) {
                         const percentComplete = Math.round((e.loaded / e.total) * 100);
@@ -419,23 +390,18 @@
                     }
                 });
 
-                // Handle response
                 xhr.addEventListener('load', function () {
                     let result;
                     try {
                         result = JSON.parse(xhr.responseText);
 
-                        // Check if there's a message property in the response
                         if (xhr.status >= 200 && xhr.status < 300) {
-                            // Successful API call
                             if (result.success === true) {
-                                // Success response
                                 progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
                                 progressBar.classList.add('bg-green-500');
                                 statusMessage.textContent = 'Upload berhasil!';
                                 showToast(result.message || 'Dokumen berhasil diupload!', 'success');
 
-                                // Close modal and reload after success
                                 setTimeout(() => {
                                     const modal = document.getElementById('addDocumentModal');
                                     if (modal) {
@@ -443,10 +409,8 @@
                                         closeModal(modal, modalContent);
                                     }
 
-                                    // Reset form
                                     documentForm.reset();
 
-                                    // Reload documents
                                     if (typeof DocumentSystem !== 'undefined' &&
                                         typeof DocumentSystem.loadDocuments === 'function') {
                                         DocumentSystem.loadDocuments();
@@ -455,17 +419,14 @@
                                     }
                                 }, 1000);
                             } else {
-                                // API returned error status
                                 progressBar.classList.remove('bg-[#213268]');
                                 progressBar.classList.add('bg-red-500');
 
-                                // Extract error message - handle both errors object and string
                                 let errorMessage = 'Server error';
                                 if (result.errors) {
                                     if (typeof result.errors === 'string') {
                                         errorMessage = result.errors;
                                     } else if (typeof result.errors === 'object') {
-                                        // Get first error message from the object
                                         const firstErrorKey = Object.keys(result.errors)[0];
                                         if (firstErrorKey) {
                                             const firstError = result.errors[firstErrorKey];
@@ -479,17 +440,14 @@
                                 showToast(errorMessage || 'Gagal mengupload dokumen', 'error');
                             }
                         } else {
-                            // HTTP error
                             progressBar.classList.remove('bg-[#213268]');
                             progressBar.classList.add('bg-red-500');
 
-                            // Try to get error message from response if available
                             let errorMessage = 'Server error: ' + xhr.status;
                             if (result.errors) {
                                 if (typeof result.errors === 'string') {
                                     errorMessage = result.errors;
                                 } else if (typeof result.errors === 'object') {
-                                    // Get first error message from the object
                                     const firstErrorKey = Object.keys(result.errors)[0];
                                     if (firstErrorKey) {
                                         const firstError = result.errors[firstErrorKey];
@@ -503,7 +461,6 @@
                             showToast(errorMessage, 'error');
                         }
                     } catch (e) {
-                        // Response parse error
                         console.error('Error parsing server response:', e);
                         progressBar.classList.remove('bg-[#213268]');
                         progressBar.classList.add('bg-red-500');
@@ -512,14 +469,12 @@
                         showToast('Server error: Format respons tidak valid', 'error');
                     }
 
-                    // Reset button state
                     setTimeout(() => {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Simpan';
                     }, 1000);
                 });
 
-                // Handle network errors
                 xhr.addEventListener('error', function () {
                     progressBar.classList.remove('bg-[#213268]');
                     progressBar.classList.add('bg-red-500');
@@ -532,7 +487,6 @@
                     submitBtn.innerHTML = 'Simpan';
                 });
 
-                // Open and send request
                 xhr.open('POST', this.action);
                 xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -541,7 +495,6 @@
             });
         }
 
-        // Direct approach for button click handling
         var addBtn = document.getElementById('addDocumentBtn');
 
         if (addBtn) {
@@ -551,12 +504,10 @@
             });
         }
 
-        // Rest of your original code...
         const DocumentSystem = {
             initialized: false,
             assetId: {{ $asset['asset_id'] ?? 'null' }},
             apiBaseUrl: "{{ config('app.api_url', '') }}",
-            // Permission flags
             hasCreatePermission: {{ hasPermission('asset:document:create') ? 'true' : 'false' }},
             hasDownloadPermission: {{ hasPermission('asset:document:download') ? 'true' : 'false' }},
             selectors: {
@@ -584,7 +535,6 @@
             },
 
             setupModalHelpers() {
-                // Define openModal and closeModal functions if not already defined
                 window.openModal = window.openModal || function (modal, content) {
                     modal.classList.remove('hidden');
                     setTimeout(() => {
@@ -603,35 +553,29 @@
             },
 
             setupEventListeners() {
-                // Add Document Button - we already handled this above, so just ensure it works with the system
                 const addBtn = document.querySelector(this.selectors.addBtn);
                 if (this.hasCreatePermission && addBtn) {
-                    // Ensure we don't duplicate click handlers
                     addBtn.onclick = null;
                     addBtn.addEventListener('click', () => {
                         window.openDocumentModal();
                     });
                 }
 
-                // Close Modal Buttons
                 document.querySelectorAll('.close-modal').forEach(button => {
                     button.addEventListener('click', () => {
                         const modalId = button.getAttribute('data-modal') || button.closest('[id$="Modal"]').id;
                         const modal = document.getElementById(modalId);
                         const content = document.getElementById(modalId + 'Content');
 
-                        // Reset form if it's the document modal
                         if (modalId === 'addDocumentModal') {
                             const form = document.getElementById('addDocumentForm');
                             if (form) form.reset();
 
-                            // Hide previews
                             const imagePreview = document.getElementById('image-preview');
                             const fileNamePreview = document.getElementById('file-name');
                             if (imagePreview) imagePreview.classList.add('hidden');
                             if (fileNamePreview) fileNamePreview.classList.add('hidden');
 
-                            // Reset progress elements
                             const progressContainer = document.getElementById('uploadProgressContainer');
                             if (progressContainer) progressContainer.classList.add('hidden');
                         }
@@ -653,19 +597,14 @@
 
                 if (!fileInput || !previewContainer) return;
 
-                // Set up clear button functionality
                 if (clearBtn) {
                     clearBtn.addEventListener('click', function (e) {
                         e.preventDefault();
                         e.stopPropagation();
 
-                        // Clear the file input
                         fileInput.value = '';
 
-                        // Hide the preview container
                         previewContainer.classList.add('hidden');
-
-                        // Reset required state
                         fileInput.required = true;
                     });
                 }
@@ -677,15 +616,12 @@
                         return;
                     }
 
-                    // Update preview container with file details
                     previewName.textContent = file.name;
                     previewSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
 
-                    // Set appropriate icon based on file type
                     const fileExt = file.name.split('.').pop().toLowerCase();
                     previewIcon.innerHTML = this.getFileIconByType(fileExt);
 
-                    // Show preview container
                     previewContainer.classList.remove('hidden');
                 });
             },
@@ -710,7 +646,6 @@
             },
 
             getFileIconByType(fileExt) {
-                // Get appropriate icon based on file extension
                 if (['pdf'].includes(fileExt)) {
                     return this.getPdfIcon();
                 } else if (['doc', 'docx'].includes(fileExt)) {
@@ -724,7 +659,6 @@
                 }
             },
 
-            // Document icon SVG templates
             getDocumentIcon() {
                 return `<svg class="w-8 h-8 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -763,10 +697,8 @@
                 const tableBody = document.querySelector(this.selectors.tableBody);
                 if (!tableBody) return;
 
-                // Display loading indicator
                 this.showLoading();
 
-                // Fetch documents using the new endpoint
                 fetch(`/asset-documents/asset/${this.assetId}/all-documents`, {
                     method: 'GET',
                     headers: {
@@ -776,18 +708,15 @@
                 })
                     .then(response => response.json())
                     .then(result => {
-                        console.log('Document API response:', result);
 
                         if (!result.success) {
                             console.error('Document API error:', result);
 
-                            // Extract error message from the response
                             let errorMessage = 'Error loading documents';
                             if (result.errors) {
                                 if (typeof result.errors === 'string') {
                                     errorMessage = result.errors;
                                 } else if (typeof result.errors === 'object') {
-                                    // Get first error message from the object
                                     const firstErrorKey = Object.keys(result.errors)[0];
                                     if (firstErrorKey) {
                                         const firstError = result.errors[firstErrorKey];
@@ -800,12 +729,10 @@
                             return;
                         }
 
-                        // Get all document types from the response
                         const regularDocuments = result.data.documents || [];
                         const calibrationDocuments = result.data.calibrationDocuments || [];
                         const maintenanceDocuments = result.data.maintenanceDocuments || [];
 
-                        // Combine all document types with a source identifier
                         const allDocuments = [
                             ...regularDocuments.map(doc => ({ ...doc, source: 'regular' })),
                             ...calibrationDocuments.map(doc => ({ ...doc, source: 'calibration' })),
@@ -847,31 +774,23 @@
                     const uploadDate = doc.upload_date ? new Date(doc.upload_date).toLocaleDateString() : '-';
                     const fileExt = fileName.split('.').pop().toLowerCase();
 
-                    // Determine the proper URL based on file type and source
                     let previewUrl;
                     if (doc.full_path) {
-                        // Use full path if provided
                         previewUrl = doc.full_path;
                     } else {
-                        // Otherwise construct URL based on file type
                         if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                            // Use image URL format with standard naming pattern
                             previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/${fileName}`;
-                            // If the filename doesn't contain proper image identifier pattern, use the example format
                             if (!fileName.includes('image-')) {
                                 previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/image-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
                             }
                         } else {
-                            // Use document URL format with standard naming pattern
                             previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/${fileName}`;
-                            // If the filename doesn't contain proper document identifier pattern, use the example format
                             if (!fileName.includes('asset-doc-')) {
                                 previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/asset-doc-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
                             }
                         }
                     }
 
-                    // Add badge for document type
                     let badgeHtml = '';
                     if (doc.source === 'calibration') {
                         badgeHtml = '<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Kalibrasi</span>';
@@ -911,13 +830,10 @@
             },
         };
 
-        // Initialize the Document System
         DocumentSystem.init();
 
-        // Ensure DocumentSystem is made available globally
         window.DocumentSystem = DocumentSystem;
 
-        // Emergency fix for document form submission
         const submitBtn = document.getElementById('addDocumentSubmitBtn');
         const form = document.getElementById('addDocumentForm');
 
@@ -925,15 +841,12 @@
             submitBtn.addEventListener('click', function (e) {
                 e.preventDefault();
 
-                // Get the CSRF token
                 const token = document.querySelector('meta[name="csrf-token"]')?.content;
                 const formData = new FormData(form);
 
-                // Create loading state
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                // Use fetch to submit the form with AJAX
                 fetch(form.action, {
                     method: 'POST',
                     headers: {
@@ -949,18 +862,13 @@
                         }
 
                         if (result.success) {
-                            // Success
                             showToast('Dokumen berhasil diupload!', 'success');
 
-                            // Close modal and reload documents
                             setTimeout(() => {
                                 const modal = document.getElementById('addDocumentModal');
                                 if (modal) modal.classList.add('hidden');
-
-                                // Reset form
                                 form.reset();
 
-                                // Reload documents
                                 if (typeof DocumentSystem !== 'undefined' && typeof DocumentSystem.loadDocuments === 'function') {
                                     DocumentSystem.loadDocuments();
                                 } else {
@@ -968,13 +876,11 @@
                                 }
                             }, 1000);
                         } else {
-                            // Error from server
                             let errorMessage = 'Gagal mengupload dokumen';
                             if (result.errors) {
                                 if (typeof result.errors === 'string') {
                                     errorMessage = result.errors;
                                 } else if (typeof result.errors === 'object') {
-                                    // Get first error message from the object
                                     const firstErrorKey = Object.keys(result.errors)[0];
                                     if (firstErrorKey) {
                                         const firstError = result.errors[firstErrorKey];
@@ -986,12 +892,10 @@
                         }
                     })
                     .catch(error => {
-                        // Network or other error
                         console.error('Upload error:', error);
                         showToast('Error mengupload dokumen: ' + (error.message || 'Error tidak diketahui'), 'error');
                     })
                     .finally(() => {
-                        // Reset button state
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Simpan';
                     });

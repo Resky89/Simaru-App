@@ -43,9 +43,7 @@
                 </div>
 
                 @if(isset($comparison) && !empty($comparison))
-                <!-- Request Details - Two Column Layout -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Left Column - Comparison Information -->
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Perbandingan</h2>
                         
@@ -81,7 +79,6 @@
                         </div>
                     </div>
 
-                    <!-- Right Column - Personnel Information -->
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil & Status</h2>
                         
@@ -172,7 +169,6 @@
                                                 @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
                                                 <div class="flex items-center gap-2">
                                                     @php
-                                                    // Find vendor_offer_id and agreement_id for this vendor
                                                     $vendorOfferId = null;
                                                     $agreementId = null;
                                                     $vendorOfferIds = [];
@@ -319,25 +315,20 @@
                                     <td colspan="2" class="p-3 text-sm text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
-                                        // Find vendor delivery terms for this vendor
                                         $vendorDeliveryTerms = null;
 
-                                        // Look through all items and their offers
                                         if(isset($comparison['items']) && is_array($comparison['items'])) {
                                             foreach($comparison['items'] as $item) {
                                                 if(isset($item['vendor_offers']) && is_array($item['vendor_offers'])) {
                                                     foreach($item['vendor_offers'] as $offer) {
                                                         if(isset($offer['vendor']) && $offer['vendor']['vendor_id'] === $vendor['vendor_id']) {
-                                                            // Found an offer from this vendor
-                                                            // Try to get delivery terms from vendor offer directly first
                                                             $vendorDeliveryTerms = $offer['delivery_terms'] ?? null;
 
-                                                            // If not found, try to get it from the agreement object
                                                             if(!$vendorDeliveryTerms && isset($offer['agreement']) && isset($offer['agreement']['delivery_terms'])) {
                                                                 $vendorDeliveryTerms = $offer['agreement']['delivery_terms'];
                                                             }
 
-                                                            break 2; // Exit both loops
+                                                            break 2;
                                                         }
                                                     }
                                                 }
@@ -354,25 +345,17 @@
                                     <td colspan="2" class="p-3 text-sm text-[#666666]"></td>
                                     @foreach($uniqueVendors as $vendor)
                                     @php
-                                        // Find notes for this vendor
                                         $vendorNotes = null;
-
-                                        // Look through all items and their offers
                                         if(isset($comparison['items']) && is_array($comparison['items'])) {
                                             foreach($comparison['items'] as $item) {
                                                 if(isset($item['vendor_offers']) && is_array($item['vendor_offers'])) {
                                                     foreach($item['vendor_offers'] as $offer) {
                                                         if(isset($offer['vendor']) && $offer['vendor']['vendor_id'] === $vendor['vendor_id']) {
-                                                            // Found an offer from this vendor
-                                                            // Try to get notes from vendor offer directly first
                                                             $vendorNotes = $offer['notes'] ?? null;
-
-                                                            // If not found, try to get it from the agreement object
                                                             if(!$vendorNotes && isset($offer['agreement']) && isset($offer['agreement']['notes'])) {
                                                                 $vendorNotes = $offer['agreement']['notes'];
                                                             }
-
-                                                            break 2; // Exit both loops
+                                                            break 2;
                                                         }
                                                     }
                                                 }
@@ -391,7 +374,6 @@
                 <!-- Navigation Buttons -->
                 @if(!isset($comparison['status']) || $comparison['status'] !== 'Completed')
                 <div class="flex flex-wrap gap-4 mt-8">
-                        <!-- Complete button only shown when not yet completed, has permission, and has vendors -->
                         @if(hasPermission('price-comparison:complete') && $hasVendors)
                         <button id="completeBtn" type="button"
                                 class="px-6 py-3 bg-green-600 text-white rounded-lg text-base hover:bg-green-700 transform active:scale-[0.98] transition-all duration-200 uppercase"
@@ -420,14 +402,12 @@
     </div>
 </div>
 
-<!-- Toast container (kept for compatibility) -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 hidden"></div>
 @endsection
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Show SweetAlert notifications for session messages on page load
         @if(session('success'))
             showSweetAlert("{{ session('success') }}", 'success');
         @endif
@@ -437,7 +417,6 @@
         @endif
 
         @if(!hasPermission('price-comparison:complete'))
-        // Hide complete button if user doesn't have permission
         let completeBtn = document.getElementById('completeBtn');
         if (completeBtn) {
             completeBtn.style.display = 'none';
@@ -445,7 +424,6 @@
         @endif
 
         @if(!hasPermission('price-comparison:vendor-offer:edit'))
-        // Hide edit buttons if user doesn't have permission
         const editButtons = document.querySelectorAll('form[id^="edit-vendor-form-"]');
         editButtons.forEach(btn => {
             if (btn) {
@@ -455,7 +433,6 @@
         @endif
 
         @if(!hasPermission('price-comparison:vendor-offer:delete'))
-        // Hide delete buttons if user doesn't have permission
         let deleteButtons = document.querySelectorAll('.delete-vendor-btn');
         deleteButtons.forEach(btn => {
             if (btn) {
@@ -464,7 +441,6 @@
         });
         @endif
 
-        // Function to show SweetAlert notifications
         function showSweetAlert(message, type = 'success', options = {}) {
             const iconMap = {
                 success: 'success',
@@ -474,7 +450,6 @@
                 question: 'question'
             };
 
-            // Default options
             const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
@@ -497,26 +472,20 @@
                 }
             };
 
-            // Merge with custom options
             const mergedOptions = { ...defaultOptions, ...options };
 
-            // Add specific options based on alert type
             if (type === 'success' && options.timer === undefined) {
-                // Auto close success messages after 2.5 seconds
                 mergedOptions.timer = 2500;
                 mergedOptions.timerProgressBar = true;
             } else if (type === 'error' && options.showCloseButton === undefined) {
-                // Make error alerts more prominent
                 mergedOptions.confirmButtonColor = '#d33';
                 mergedOptions.showCloseButton = true;
             }
 
-            // Add custom styles for SweetAlert
             if (!document.getElementById('swal-custom-styles')) {
                 const styleTag = document.createElement('style');
                 styleTag.id = 'swal-custom-styles';
                 styleTag.innerHTML = `
-                    /* SweetAlert Custom Styles */
                     .swal2-popup {
                         border-radius: 15px;
                         padding: 1.5rem;
@@ -555,7 +524,6 @@
                 document.head.appendChild(styleTag);
             }
 
-            // Add animate.css CDN for animations if not already loaded
             if (!document.getElementById('animate-css')) {
                 const animateLink = document.createElement('link');
                 animateLink.id = 'animate-css';
@@ -564,16 +532,13 @@
                 document.head.appendChild(animateLink);
             }
 
-            // Fire the alert and return the Promise for chaining
             return Swal.fire(mergedOptions);
         }
 
-        // Backward compatibility - map showToast to showSweetAlert
         function showToast(message, type = 'success') {
             showSweetAlert(message, type);
         }
 
-        // Handle delete vendor button clicks
         deleteButtons = document.querySelectorAll('.delete-vendor-btn');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -589,7 +554,6 @@
                     return;
                 }
 
-                // Use SweetAlert for confirmation
                 Swal.fire({
                     title: 'Hapus Penawaran Vendor',
                     html: `<p>Apakah Anda yakin ingin menghapus penawaran dari vendor <strong>${vendorName}</strong>?</p>
@@ -603,12 +567,10 @@
                     focusCancel: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Form data for deletion
                 const formData = {
                     comparison_id: comparisonId
                 };
 
-                        // Send DELETE request
                         fetch(`/procurement/price-comparison/vendor-offer/${agreementId}`, {
                     method: 'DELETE',
                     headers: {
@@ -650,19 +612,16 @@
             });
         });
 
-        // Handle Complete button
         completeBtn = document.getElementById('completeBtn');
 
         if (completeBtn) {
             let isSubmitting = false;
 
             completeBtn.addEventListener('click', function() {
-                // Prevent multiple submissions
                 if (isSubmitting) {
                     return;
                 }
 
-                // Use SweetAlert for confirmation
                 Swal.fire({
                     title: 'Konfirmasi',
                     text: 'Apakah Anda yakin ingin menyelesaikan perbandingan harga ini? Tindakan ini tidak dapat dibatalkan.',
@@ -674,7 +633,6 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                // Set submitting flag and update button
                 isSubmitting = true;
                 const originalText = completeBtn.innerHTML;
                 completeBtn.disabled = true;
@@ -686,10 +644,8 @@
                     MENYELESAIKAN...
                 `;
 
-                // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                // Send the request to complete the price comparison
                 fetch('{{ url("procurement/price-comparison/{$id}/complete") }}', {
                     method: 'POST',
                     headers: {
@@ -701,7 +657,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Show success message with automatic redirect
                                 showSweetAlert(data.message || 'Perbandingan harga telah berhasil diselesaikan!', 'success', {
                                     timer: 1500,
                                     timerProgressBar: true,
@@ -711,7 +666,6 @@
                                     }
                                 });
                     } else {
-                        // Reset button and show error
                         isSubmitting = false;
                         completeBtn.disabled = false;
                         completeBtn.innerHTML = originalText;
@@ -726,7 +680,6 @@
                 .catch(error => {
                     console.error('Error completing price comparison:', error);
 
-                    // Reset button and show error
                     isSubmitting = false;
                     completeBtn.disabled = false;
                     completeBtn.innerHTML = originalText;

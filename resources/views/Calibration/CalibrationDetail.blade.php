@@ -5,11 +5,8 @@
 @section('content')
     @include('Layout.loading')
     <div class="h-full">
-        <!-- Calibration Details Section -->
         <div class="flex flex-col gap-6 p-4 md:p-7 bg-base-100 rounded-xl">
-            <!-- Header with status banner -->
             <div class="relative">
-                <!-- Status banner at top -->
                 @php
                     $statusClass = 'bg-gray-100 text-gray-800';
                     $statusText = 'Tidak Diketahui';
@@ -388,7 +385,6 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Export PDF functionality
             const exportBtn = document.querySelector('a[href*="calibration.detail.export.pdf"]');
             if (exportBtn) {
                 exportBtn.addEventListener('click', function(e) {
@@ -399,11 +395,7 @@
                         console.error('Calibration ID not available');
                         return;
                     }
-
-                    // Create the PDF export URL
                     const exportUrl = "{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}";
-
-                    // Open in new tab
                     window.open(exportUrl, '_blank');
                 });
             }

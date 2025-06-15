@@ -368,7 +368,7 @@
                             @php
                                 $currentPage = $pagination['current_page'] ?? 1;
                                 $totalPages = $pagination['total_pages'] ?? 1;
-                                $maxPagesShown = 5; // Show max 5 pages at once
+                                $maxPagesShown = 5;
                                 $startPage = max(1, $currentPage - 2);
                                 $endPage = min($totalPages, $startPage + $maxPagesShown - 1);
 
@@ -451,31 +451,22 @@
         const clearSearchButton = document.getElementById('clear-search');
         const statusFilterButtons = document.querySelectorAll('.status-filter-btn');
 
-        // Add click event listeners to status filter buttons
         statusFilterButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // Add loading state
                 this.classList.add('opacity-75');
-
-                // Create a ripple effect
                 const ripple = document.createElement('span');
                 ripple.classList.add('absolute', 'inset-0', 'bg-white', 'bg-opacity-30', 'rounded-md', 'animate-ripple');
                 this.appendChild(ripple);
-
-                // Navigate to the URL after a short delay for animation
                 const url = this.getAttribute('data-url');
                 setTimeout(() => {
                     window.location.href = url;
                 }, 150);
-
-                // Remove ripple after animation completes
                 setTimeout(() => {
                     ripple.remove();
                 }, 600);
             });
         });
 
-        // Add debounce function to limit how often search is performed
         function debounce(func, wait) {
             let timeout;
             return function(...args) {
@@ -484,12 +475,10 @@
             };
         }
 
-        // Function to filter table rows based on search term
         const filterTable = debounce(function() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             let matchFound = false;
 
-            // If search is empty, show all rows
             if (searchTerm === '') {
                 assetRows.forEach(row => {
                     row.style.display = '';
@@ -498,7 +487,6 @@
                 return;
             }
 
-            // Loop through all rows and hide those that don't match the search term
             assetRows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 if (text.includes(searchTerm)) {
@@ -509,23 +497,18 @@
                 }
             });
 
-            // Show "no results" message if no matches found
             if (!matchFound && assetRows.length > 0) {
                 if (noResultsRow) noResultsRow.style.display = 'table-row';
                 if (emptyTableRow) emptyTableRow.style.display = 'none';
             } else {
                 if (noResultsRow) noResultsRow.style.display = 'none';
-                // Only show empty table row if we have no asset rows at all
                 if (emptyTableRow) emptyTableRow.style.display = assetRows.length === 0 ? 'table-row' : 'none';
             }
         }, 300);
 
-        // Add event listener to search input
         if (searchInput) {
             searchInput.addEventListener('input', filterTable);
         }
-
-        // Add event listener to clear search button
         if (clearSearchButton) {
             clearSearchButton.addEventListener('click', function() {
                 if (searchInput) searchInput.value = '';

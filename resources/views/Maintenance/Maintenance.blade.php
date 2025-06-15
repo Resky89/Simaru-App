@@ -986,9 +986,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Apply permissions-based restrictions
             @if(!hasPermission('maintenance:create'))
-            // Hide/disable create-related elements
             const createButtons = document.querySelectorAll('#addMaintenanceBtn, #addAssetsBtn');
             createButtons.forEach(btn => {
                 if (btn) {
@@ -998,7 +996,6 @@
             @endif
 
             @if(!hasPermission('maintenance:edit'))
-            // Hide/disable edit-related elements
             const editButtons = document.querySelectorAll('.edit-maintenance-btn');
             editButtons.forEach(btn => {
                 if (btn) {
@@ -1008,7 +1005,6 @@
             @endif
 
             @if(!hasPermission('maintenance:delete'))
-            // Hide/disable delete-related elements
             const deleteButtons = document.querySelectorAll('.delete-maintenance-btn');
             deleteButtons.forEach(btn => {
                 if (btn) {
@@ -1018,7 +1014,6 @@
             @endif
 
             @if(!hasPermission('maintenance:export'))
-            // Hide/disable export-related elements
             const exportButtons = document.querySelectorAll('#exportBtn');
             exportButtons.forEach(btn => {
                 if (btn) {
@@ -1027,7 +1022,6 @@
             });
             @endif
 
-            // Define validateField function early, before any usage
             function validateField(field, isValid = null) {
                 let isFieldValid = isValid;
                 let fieldParent, errorElement;
@@ -1075,12 +1069,10 @@
                 const assetType = btn.closest('tr').querySelector('td:nth-child(5)');
                 let isMedical = false;
 
-                // Determine if it's a medical asset based on text in the asset type column
                 if (assetType && assetType.textContent.trim().toLowerCase().includes('medical')) {
                     isMedical = true;
                 }
 
-                // Check if user has the appropriate permission
                 @if(!hasPermission('maintenance-report:medical'))
                 if (isMedical) {
                     btn.style.display = 'none';
@@ -1094,10 +1086,7 @@
                 @endif
             });
 
-            // Prevent selecting past dates for date inputs
-            const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-
-            // Set min attribute for date inputs in add maintenance modal
+            const today = new Date().toISOString().split('T')[0];
             const startDateInput = document.getElementById('start_date');
             if (startDateInput) {
                 startDateInput.setAttribute('min', today);
@@ -1108,18 +1097,14 @@
                 endDateInput.setAttribute('min', today);
             }
 
-            // Helper function to prevent multiple form submissions
             function preventMultipleSubmits(form, buttonSelector) {
                 if (!form) return;
 
                 form.addEventListener('submit', function(e) {
-                    // Find the submit button
                     const submitBtn = this.querySelector(buttonSelector);
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable the button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
@@ -1129,7 +1114,6 @@
                             </div>
                         `;
 
-                        // Re-enable button after 10 seconds as a failsafe
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -1141,24 +1125,19 @@
                 });
             }
 
-            // Apply to all forms that need prevention of multiple submissions
             preventMultipleSubmits(document.getElementById('addMaintenanceForm'), 'button[type="submit"]');
             preventMultipleSubmits(document.getElementById('editMaintenanceForm'), 'button[type="submit"]');
             preventMultipleSubmits(document.getElementById('deleteMaintenanceForm'), 'button[type="submit"]');
             preventMultipleSubmits(document.getElementById('createReportForm'), 'button[type="submit"]');
 
-            // Add event listener to ensure end date is not before start date
             if (startDateInput && endDateInput) {
                 startDateInput.addEventListener('change', function() {
-                    // When start date changes, set it as minimum for end date
                     endDateInput.setAttribute('min', this.value);
 
-                    // If end date is now less than start date, update it
                     if (endDateInput.value && endDateInput.value < this.value) {
                         endDateInput.value = this.value;
                     }
 
-                    // If interval is DAILY or ONCE, also update end date to match start date
                     const currentInterval = document.getElementById('interval').value;
                     if (currentInterval === 'DAILY' || currentInterval === 'ONCE') {
                         endDateInput.value = this.value;
@@ -1166,20 +1145,16 @@
                 });
             }
 
-            // Set similar behavior for edit modal
             const editStartDateInput = document.getElementById('edit_start_date');
             const editEndDateInput = document.getElementById('edit_end_date');
             if (editStartDateInput && editEndDateInput) {
                 editStartDateInput.addEventListener('change', function() {
-                    // When start date changes, set it as minimum for end date
                     editEndDateInput.setAttribute('min', this.value);
 
-                    // If end date is now less than start date, update it
                     if (editEndDateInput.value && editEndDateInput.value < this.value) {
                         editEndDateInput.value = this.value;
                     }
 
-                    // If interval is DAILY or ONCE, also update end date to match start date
                     const currentEditInterval = document.getElementById('edit_interval').value;
                     if (currentEditInterval === 'DAILY' || currentEditInterval === 'ONCE') {
                         editEndDateInput.value = this.value;
@@ -1187,7 +1162,6 @@
                 });
             }
 
-            // Function to toggle end date field visibility based on interval
             function toggleEndDateVisibility(intervalValue, formType = 'add') {
                 const endDateField = formType === 'add'
                     ? document.getElementById('end_date').closest('.flex.items-center.gap-4')
@@ -1197,38 +1171,30 @@
                     : document.getElementById('edit_end_date');
 
                                 if (intervalValue === 'DAILY' || intervalValue === 'ONCE') {
-                    // Hide end date field for daily and once intervals
                     endDateField.style.display = 'none';
-                    // Remove required attribute when hidden
                     endDateInput.removeAttribute('required');
 
-                    // Set end date equal to start date for data consistency
                     const startDateValue = formType === 'add'
                         ? document.getElementById('start_date').value
                         : document.getElementById('edit_start_date').value;
                     endDateInput.value = startDateValue;
                 } else {
-                    // Show end date field for other intervals
                     endDateField.style.display = 'flex';
-                    // Add required attribute when visible
                     endDateInput.setAttribute('required', 'required');
                 }
             }
 
-            // Add interval change event listener for Add Maintenance modal
             const intervalSelect = document.getElementById('interval');
             if (intervalSelect) {
                 intervalSelect.addEventListener('change', function() {
                     toggleEndDateVisibility(this.value, 'add');
                 });
 
-                // Set initial state
                 if (intervalSelect.value === 'DAILY') {
                     toggleEndDateVisibility('DAILY', 'add');
                 }
             }
 
-            // Add interval change event listener for Edit Maintenance modal
             const editIntervalSelect = document.getElementById('edit_interval');
             if (editIntervalSelect) {
                 editIntervalSelect.addEventListener('change', function() {
@@ -1236,7 +1202,6 @@
                 });
             }
 
-            // Debounce utility function to limit how often a function can be called
             function debounce(func, wait, immediate) {
                 let timeout;
                 return function() {
@@ -1252,15 +1217,12 @@
                 };
             }
 
-            // Utility function to parse error responses from the server
-            // This ensures error arrays are properly passed to the catch block
             function handleApiResponse(response) {
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
                     return response.json().then(data => {
                         if (!response.ok) {
                             console.error('Server error response:', data);
-                            // Preserve the full error data structure
                             data.status = response.status;
                             return Promise.reject(data);
                         }
@@ -1273,23 +1235,18 @@
                 return Promise.resolve({ success: true });
             }
 
-            // Show toast notification function
             window.showToast = function(message, type = 'success') {
-                // Remove existing notifications with the same type
                 const existingNotification = document.getElementById(type === 'success' ? 'successNotification' : 'errorNotification');
                 if (existingNotification) {
                     existingNotification.remove();
                 }
 
-                // Create the notification element
                 const notification = document.createElement('div');
                 notification.id = type === 'success' ? 'successNotification' : 'errorNotification';
                 notification.className = `fixed top-4 right-4 bg-${type === 'success' ? 'green' : 'red'}-100 border-l-4 border-${type === 'success' ? 'green' : 'red'}-500 text-${type === 'success' ? 'green' : 'red'}-700 p-4 rounded shadow-md z-50`;
                 notification.setAttribute('role', 'alert');
 
-                // Check if message is an object or array (for detailed error messages)
                 if (typeof message === 'object' && message !== null) {
-                    // If it's an error object with nested errors
                     if (message.errors && typeof message.errors === 'object') {
                         messageContent = '<ul class="list-disc pl-5 mt-2">';
                         for (const field in message.errors) {
@@ -1298,7 +1255,6 @@
                                     messageContent += `<li>${error}</li>`;
                                 });
                             } else if (typeof message.errors[field] === 'object') {
-                                // Handle nested objects
                                 for (const subField in message.errors[field]) {
                                     messageContent += `<li>${subField}: ${message.errors[field][subField]}</li>`;
                                 }
@@ -1308,34 +1264,27 @@
                         }
                         messageContent += '</ul>';
                     } else if (Array.isArray(message)) {
-                        // If it's an array of error messages
                         messageContent = '<ul class="list-disc pl-5 mt-2">';
 
-                        // First process and display general errors at the top
                         const generalErrors = message.filter(error =>
                             typeof error === 'object' && error !== null &&
                             error.path === 'general' && error.message
                         );
 
-                        // Then process field-specific errors
                         const fieldErrors = message.filter(error =>
                             typeof error === 'object' && error !== null &&
                             error.path && error.path !== 'general' && error.message
                         );
 
-                        // Handle string errors or other formats
                         const otherErrors = message.filter(error =>
                             !(typeof error === 'object' && error !== null && error.path && error.message)
                         );
 
-                        // Display general errors first with stronger styling
                         generalErrors.forEach(error => {
                             messageContent += `<li class="font-medium text-red-800 mb-2">${error.message}</li>`;
                         });
 
-                        // Display field errors with translated field names
                         fieldErrors.forEach(error => {
-                            // Convert field names to readable format
                             let readableField = error.path;
                             if (error.path === 'start_date') readableField = 'Tanggal Mulai';
                             else if (error.path === 'end_date') readableField = 'Tanggal Selesai';
@@ -1351,30 +1300,24 @@
                             messageContent += `<li><strong>${readableField}:</strong> ${error.message}</li>`;
                         });
 
-                        // Display other error formats
                         otherErrors.forEach(error => {
                             if (typeof error === 'string') {
                                 messageContent += `<li>${error}</li>`;
                             } else {
-                                // Generic object representation
                                 messageContent += `<li>${JSON.stringify(error)}</li>`;
                             }
                         });
 
                         messageContent += '</ul>';
                     } else if (message.message) {
-                        // If it has a message property (common in Error objects)
                         messageContent = message.message;
                     } else if (message.error) {
-                        // If it has an error property
                         messageContent = message.error;
                     } else {
-                        // Try to prettify the object for better readability
                         try {
-                            // Create a formatted message showing each property
                             messageContent = '<ul class="list-disc pl-5 mt-2">';
                             Object.entries(message).forEach(([key, value]) => {
-                                if (key !== 'stack' && key !== '__proto__') { // Skip non-helpful properties
+                                if (key !== 'stack' && key !== '__proto__') {
                                     if (typeof value === 'object' && value !== null) {
                                         messageContent += `<li>${key}: ${JSON.stringify(value)}</li>`;
                                     } else {
@@ -1384,7 +1327,6 @@
                             });
                             messageContent += '</ul>';
 
-                            // If there were no properties to show, fallback to stringify
                             if (messageContent === '<ul class="list-disc pl-5 mt-2"></ul>') {
                                 messageContent = JSON.stringify(message);
                             }
@@ -1393,11 +1335,9 @@
                         }
                     }
                 } else {
-                    // Simple string message
                     messageContent = message;
                 }
 
-                // Set inner HTML
                 notification.innerHTML = `
                     <div class="flex items-center">
                         <div class="py-1">
@@ -1414,10 +1354,8 @@
                     </div>
                 `;
 
-                // Add to document
                 document.body.appendChild(notification);
 
-                // Auto-hide after 5 seconds
                 setTimeout(function() {
                     if (document.getElementById(notification.id)) {
                         notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
@@ -1432,7 +1370,6 @@
                 return notification;
             };
 
-            // Show flash messages with the showToast function
             @if(session('success'))
             showToast("{{ session('success') }}", 'success');
             @endif
@@ -1441,14 +1378,12 @@
             showToast("{{ session('error') }}", 'error');
             @endif
 
-            // Function to change items per page
             window.changePerPage = function (limit) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('limit', limit);
                 window.location.href = url.toString();
             }
 
-            // Status filter - apply immediately on change
             const statusFilterSelect = document.getElementById('statusFilter');
             if (statusFilterSelect) {
                 statusFilterSelect.addEventListener('change', function() {
@@ -1456,7 +1391,6 @@
                 });
             }
 
-            // Sort order - apply immediately on change
             const sortOrderSelect = document.getElementById('sortOrder');
             if (sortOrderSelect) {
                 sortOrderSelect.addEventListener('change', function() {
@@ -1464,33 +1398,25 @@
                 });
             }
 
-            // Function to apply all filters and sorting
             function applyFilters() {
                 const searchTerm = document.getElementById('searchInput').value;
                 const statusFilter = document.getElementById('statusFilter').value;
                 const sortOrder = document.getElementById('sortOrder').value;
 
-                // For AJAX-based filtering
                 if (document.getElementById('ajaxFilterButton')) {
-                    // If we have an AJAX filter button, use it to filter without page reload
                     fetchMaintenanceData(1, searchTerm, statusFilter, sortOrder);
                     return;
                 }
 
-                // Fall back to traditional page reload for the main list
                 const url = new URL(window.location.href);
 
-                // Set search parameter
                 if (searchTerm) url.searchParams.set('search', searchTerm);
                 else url.searchParams.delete('search');
 
-                // Set status parameter
                 if (statusFilter) url.searchParams.set('status', statusFilter);
                 else url.searchParams.delete('status');
 
-                // Set sort parameter based on selected option
                 if (sortOrder) {
-                    // Map front-end sort values to backend expected values
                     let sortBy, sortDirection;
 
                     switch(sortOrder) {
@@ -1509,8 +1435,6 @@
 
                     url.searchParams.set('sort_by', sortBy);
                     url.searchParams.set('sort_order', sortDirection);
-
-                    // Keep the frontend sort value for the select element
                     url.searchParams.set('sort', sortOrder);
                 } else {
                     url.searchParams.delete('sort_by');
@@ -1518,16 +1442,11 @@
                     url.searchParams.delete('sort');
                 }
 
-                // Reset to first page on filter change
                 url.searchParams.set('page', 1);
-
-                // Redirect to new URL with filters
                 window.location.href = url.toString();
             }
 
-            // Function to fetch maintenance data with AJAX (for future use)
             function fetchMaintenanceData(page = 1, search = '', status = '', sort = '') {
-                // Show loading state
                 const tableBody = document.querySelector('table tbody');
                 if (tableBody) {
                     tableBody.innerHTML = `
@@ -1543,21 +1462,17 @@
                 }
             }
 
-            // Search input - apply filters on debounce
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                // Fill the search input with the value from URL if it exists
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('search')) {
                     searchInput.value = urlParams.get('search');
                 }
 
-                // Add debounced event listener for input
                 searchInput.addEventListener('input', debounce(function() {
                     applyFilters();
                 }, 500));
 
-                // Also handle Enter key press
                 searchInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -1566,27 +1481,20 @@
                 });
             }
 
-            // Set existing values from URL for filters
             const urlParams = new URLSearchParams(window.location.search);
-
-            // Set sort value
             const sortSelect = document.getElementById('sortOrder');
             if (sortSelect) {
-                // Remove disabled and selected from all options first
                 Array.from(sortSelect.options).forEach(option => {
                     option.removeAttribute('selected');
                 });
 
-                // Get the sort value from URL
                 if (urlParams.has('sort') && urlParams.get('sort')) {
                     sortSelect.value = urlParams.get('sort');
 
-                    // If no matching option found, set to first non-placeholder option
                     if (sortSelect.selectedIndex === -1) {
-                        sortSelect.selectedIndex = 1; // Index 1 is "Newest First"
+                        sortSelect.selectedIndex = 1;
                     }
                 } else {
-                    // If there's no sort value but there is sort_by/sort_order, try to map back
                     const sortBy = urlParams.get('sort_by');
                     const sortOrder = urlParams.get('sort_order');
 
@@ -1597,16 +1505,13 @@
                             sortSelect.value = 'oldest';
                         }
                     } else {
-                        // Default to "Newest First" if no sort specified
                         sortSelect.selectedIndex = 1;
                     }
                 }
             }
 
-            // Set status filter value
             const statusSelect = document.getElementById('statusFilter');
             if (statusSelect) {
-                // Remove selected from all options first
                 Array.from(statusSelect.options).forEach(option => {
                     option.removeAttribute('selected');
                 });
@@ -1614,17 +1519,14 @@
                 if (urlParams.has('status') && urlParams.get('status')) {
                     statusSelect.value = urlParams.get('status');
 
-                    // If no matching option found, set to first non-placeholder option
                     if (statusSelect.selectedIndex === -1) {
-                        statusSelect.selectedIndex = 1; // Index 1 is "All Status"
+                        statusSelect.selectedIndex = 1;
                     }
                 } else {
-                    // Default to "All Status" if no status specified
                     statusSelect.selectedIndex = 1;
                 }
             }
 
-            // Modal handling
             const modals = {
                 add: document.getElementById('addMaintenanceModal'),
                 assetSelection: document.getElementById('assetSelectionModal'),
@@ -1640,7 +1542,6 @@
                 report: document.getElementById('createReportModalContent')
             };
 
-            // Function to open modal
             function openModal(modal, modalContent) {
                 if (modal && modalContent) {
                     modal.classList.remove('hidden');
@@ -1652,7 +1553,6 @@
                 }
             }
 
-            // Function to close modal
             function closeModal(modal, modalContent) {
                 if (modal && modalContent) {
                     modalContent.classList.remove('opacity-100', 'scale-100');
@@ -1660,21 +1560,16 @@
                     setTimeout(() => {
                         modal.classList.add('hidden');
                         document.body.classList.remove('overflow-hidden');
-
-                        // Reset based on which modal is being closed
                         const modalId = modal.id;
 
                         if (modalId === 'addMaintenanceModal') {
-                            // Reset add maintenance form
                             const form = document.getElementById('addMaintenanceForm');
                             if (form) {
                                 form.reset();
 
-                                // Reset selected assets
                                 selectedAssets = [];
                                 updateSelectedAssetsList();
 
-                                // Clear any validation styles
                                 form.querySelectorAll('input, select, textarea').forEach(field => {
                                     field.classList.remove('border-red-500');
                                 });
@@ -1682,31 +1577,26 @@
                                     error.classList.add('hidden');
                                 });
 
-                                // Reset interval-based fields
                                 const endDateField = document.getElementById('end_date').closest('.flex.items-center.gap-4');
                                 if (endDateField) endDateField.style.display = 'flex';
                             }
                         }
                         else if (modalId === 'assetSelectionModal') {
-                            // Clear asset search input
                             const assetSearchInput = document.getElementById('assetSearchInput');
                             if (assetSearchInput) {
                                 assetSearchInput.value = '';
                             }
 
-                            // Reset "Select All" checkbox
                             const selectAllCheckbox = document.getElementById('selectAllAssets');
                             if (selectAllCheckbox) {
                                 selectAllCheckbox.checked = false;
                             }
                         }
                         else if (modalId === 'editMaintenanceModal') {
-                            // Reset edit maintenance form
                             const form = document.getElementById('editMaintenanceForm');
                             if (form) {
                                 form.reset();
 
-                                // Clear any validation styles
                                 form.querySelectorAll('input, select, textarea').forEach(field => {
                                     field.classList.remove('border-red-500');
                                 });
@@ -1714,22 +1604,18 @@
                                     error.classList.add('hidden');
                                 });
 
-                                // Reset interval-based fields
                                 const endDateField = document.getElementById('edit_end_date').closest('.flex.items-center.gap-4');
                                 if (endDateField) endDateField.style.display = 'flex';
                             }
                         }
                         else if (modalId === 'createReportModal') {
-                            // Reset report form
                             const form = document.getElementById('createReportForm');
                             if (form) {
                                 form.reset();
 
-                                // Reset file upload preview
                                 const imagePreview = document.getElementById('image-preview');
                                 if (imagePreview) imagePreview.classList.add('hidden');
 
-                                // Clear any validation styles
                                 form.querySelectorAll('input, textarea').forEach(field => {
                                     field.classList.remove('border-red-500');
                                 });
@@ -1737,14 +1623,12 @@
                                     error.classList.add('hidden');
                                 });
 
-                                // Set default date to today
                                 const todayDate = new Date().toISOString().split('T')[0];
                                 const maintenanceDate = document.getElementById('maintenance_date');
                                 if (maintenanceDate) maintenanceDate.value = todayDate;
                             }
                         }
                         else if (modalId === 'deleteMaintenanceModal') {
-                            // Reset delete form
                             const form = document.getElementById('deleteMaintenanceForm');
                             if (form) {
                                 form.reset();
@@ -1755,7 +1639,6 @@
                 }
             }
 
-            // Close modal buttons
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', function() {
                     const modalId = this.getAttribute('data-modal');
@@ -1765,7 +1648,6 @@
                 });
             });
 
-            // Add maintenance click handler
             const addMaintenanceBtn = document.getElementById('addMaintenanceBtn');
             if (addMaintenanceBtn) {
                 addMaintenanceBtn.addEventListener('click', function() {
@@ -1773,16 +1655,14 @@
             });
             }
 
-            // Add Assets button click handler - opens the asset selection modal
             const addAssetsBtn = document.getElementById('addAssetsBtn');
             if (addAssetsBtn) {
                 addAssetsBtn.addEventListener('click', function() {
                 openModal(modals.assetSelection, modalContents.assetSelection);
-                loadAssets(1); // Load the first page of assets
+                loadAssets(1);
             });
             }
 
-            // Handle asset search with debounce
             const assetSearchInput = document.getElementById('assetSearchInput');
             if (assetSearchInput) {
                 assetSearchInput.addEventListener('input', debounce(function() {
@@ -1790,7 +1670,6 @@
             }, 500));
             }
 
-            // Handle asset per page change
             const assetModalPerPageSelect = document.getElementById('assetModalPerPageSelect');
             if (assetModalPerPageSelect) {
                 assetModalPerPageSelect.addEventListener('change', function() {
@@ -1798,7 +1677,6 @@
             });
             }
 
-            // Select button click handler
             const selectAssetsBtn = document.getElementById('selectAssetsBtn');
             if (selectAssetsBtn) {
                 selectAssetsBtn.addEventListener('click', function() {
@@ -1807,11 +1685,9 @@
             });
             }
 
-            // Handle selected assets per page change
             const selectedAssetsPerPage = document.getElementById('selectedAssetsPerPage');
             if (selectedAssetsPerPage) {
                 selectedAssetsPerPage.addEventListener('change', function() {
-                // Reset to page 1 when changing items per page
                 const selectedAssetsList = document.getElementById('selectedAssetsList');
                 if (selectedAssetsList) {
                     selectedAssetsList.setAttribute('data-current-page', '1');
@@ -1820,18 +1696,14 @@
             });
             }
 
-            // Asset selection handling
             let selectedAssets = [];
 
-            // Function to validate asset before adding to selection
             function validateAsset(asset) {
-                // Check if asset has id
                 if (!asset.id) {
                     console.error('Asset is missing ID:', asset);
                     return false;
                 }
 
-                // Make sure ID is valid
                 const id = parseInt(asset.id, 10);
                 if (isNaN(id)) {
                     console.error('Asset has invalid ID:', asset.id);
@@ -1841,26 +1713,20 @@
                 return true;
             }
 
-            // Load assets for selection
             function loadAssets(page = 1) {
                 const searchTerm = document.getElementById('assetSearchInput').value;
                 const limit = document.getElementById('assetModalPerPageSelect').value;
-
-                // Get asset type from the selected permission radio
                 const selectedRadio = document.querySelector('input[name="permission_filter"]:checked');
                 const assetType = selectedRadio ? selectedRadio.getAttribute('data-asset-type') : 'medical';
 
-                // Show loading state
                 document.getElementById('assetSelectionList').innerHTML = `
                     <tr>
                         <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
                     </tr>
                 `;
 
-                // Fetch assets from API with type filter
                 let url = `/assets?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`;
 
-                // Add asset_type parameter
                 if (assetType) {
                     url += `&asset_type=${assetType}`;
                 }
@@ -1888,20 +1754,14 @@
                             return;
                         }
 
-                        // Render assets
                         let html = '';
                         assets.forEach(asset => {
                             const isSelected = selectedAssets.some(selectedAsset => selectedAsset.id === asset.asset_id);
-
-                            // Get asset name - check both direct property and nested structure
                             const assetName = asset.asset_master_name ||
                                            (asset.asset_master && asset.asset_master.asset_name) ||
                                            '-';
-
-                            // Get asset code
                             const assetCode = asset.asset_code || '-';
 
-                            // Get asset type based on asset_master_code pattern
                             let assetType = 'Non Medical';
                             if (asset.asset_master && asset.asset_master.asset_master_code) {
                                 const code = asset.asset_master.asset_master_code;
@@ -1909,12 +1769,8 @@
                                     assetType = 'Medical';
                                 }
                             }
-
-                            // Get category name from asset_master if it exists
                             const categoryName = asset.asset_master && asset.asset_master.subcategory_name ?
                                                 asset.asset_master.subcategory_name : '-';
-
-                            // Get description
                             const description = asset.asset_master && asset.asset_master.description ?
                                                 asset.asset_master.description : '-';
 
@@ -2311,14 +2167,12 @@
             });
 
             document.addEventListener('click', function(e) {
-                // Check for vendorSearchInput and vendorResults
                 if (vendorSearchInput && vendorResults) {
                 if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                     vendorResults.style.display = 'none';
                 }
                 }
 
-                // Check for editVendorSearchInput and editVendorResults
                 if (editVendorSearchInput && editVendorResults) {
                 if (e.target !== editVendorSearchInput && !editVendorResults.contains(e.target)) {
                     editVendorResults.style.display = 'none';
@@ -2470,12 +2324,10 @@
 
                 searchInput.addEventListener('input', debouncedSearch);
 
-                // Add event listeners for permission radio buttons
                 const isEditMode = searchInputId === 'edit_user_search';
                 const permissionRadios = document.querySelectorAll(isEditMode ? '.edit-permission-radio' : '.permission-radio');
                 permissionRadios.forEach(radio => {
                     radio.addEventListener('change', function() {
-                        // Clear user list and re-fetch with new permission
                         userList.innerHTML = '';
                         loadUsers(searchInput.value);
                     });
@@ -2496,7 +2348,6 @@
                 }
                 queryParams.append('limit', 20);
 
-                    // Get selected permission from radio buttons
                     const isEditMode = searchInputId === 'edit_user_search';
                     const selectedPermission = document.querySelector(
                         isEditMode ? 'input[name="edit_permission_filter"]:checked' : 'input[name="permission_filter"]:checked'
@@ -2512,7 +2363,6 @@
                     return;
                 }
 
-                    // Fetch users with the selected permission
                     fetch(`/user/by-permission/${selectedPermission}?${queryParams.toString()}`, {
                         headers: {
                             'Accept': 'application/json',
@@ -2543,7 +2393,6 @@
                             noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin yang dipilih';
                         userList.appendChild(noResults);
                     } else {
-                            // Sort users by employee number or name
                             users.sort((a, b) => {
                             if (a.employee_number && b.employee_number) {
                                 return a.employee_number.localeCompare(b.employee_number);
@@ -2553,7 +2402,6 @@
                             return 0;
                         });
 
-                            // Add each user to the dropdown
                             users.forEach(user => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
@@ -2588,11 +2436,8 @@
                             userList.appendChild(li);
                         });
 
-                            // Add count summary at bottom
                         const countDiv = document.createElement('li');
                         countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-
-                            // Get readable permission name
                             let permissionText = selectedPermission === 'maintenance-report:medical' ?
                                 'izin pemeliharaan medis' : 'izin pemeliharaan non-medis';
 
@@ -2656,7 +2501,6 @@
                     return;
                 }
 
-                // Create FormData from the form
                 const formData = new FormData(this);
                 const jsonData = {};
 
@@ -3078,26 +2922,24 @@
             const createReportForm = document.getElementById('createReportForm');
             if (createReportForm) {
                 createReportForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+                    e.preventDefault();
 
-                const maintenanceId = document.getElementById('report_maintenance_id').value;
-                const description = document.getElementById('description');
-                const maintenanceDate = document.getElementById('maintenance_date');
+                    const maintenanceId = document.getElementById('report_maintenance_id').value;
+                    const description = document.getElementById('description');
+                    const maintenanceDate = document.getElementById('maintenance_date');
 
-                if (!maintenanceId) {
-                    showToast('ID pemeliharaan tidak ada', 'error');
+                    if (!maintenanceId) {
+                        showToast('ID pemeliharaan tidak ada', 'error');
 
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Kirim Laporan';
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = 'Kirim Laporan';
+                        }
+
+                        return;
                     }
-
-                    return;
-                }
-                    // Rest of submission code...
-                    // ... existing code ...
                 });
             }
 
@@ -3137,7 +2979,6 @@
                 });
             }
 
-            // Other event listeners with null checks
             const intervalElement = document.getElementById('interval');
             if (intervalElement) {
                 intervalElement.addEventListener('change', function() {
@@ -3226,25 +3067,19 @@
             });
             }
 
-            // Add event listener to permission radio buttons to also trigger asset reload when opening asset selection
             document.addEventListener('DOMContentLoaded', function() {
-                // ... existing code
-
-                // Add event listener to permission radios to update asset type filter
                 document.querySelectorAll('.permission-radio, .edit-permission-radio').forEach(radio => {
                     radio.addEventListener('change', function() {
-                        // Store the selected asset type to use it later when loading assets
                         localStorage.setItem('selectedAssetType', this.getAttribute('data-asset-type'));
                     });
                 });
 
-                // Modify the addAssetsBtn click handler
                 const addAssetsBtn = document.getElementById('addAssetsBtn');
                 if (addAssetsBtn) {
                     const originalAddAssetsClick = addAssetsBtn.onclick;
                     addAssetsBtn.addEventListener('click', function() {
                         openModal(modals.assetSelection, modalContents.assetSelection);
-                        loadAssets(1); // This will now use the asset type from the selected permission radio
+                        loadAssets(1);
                     });
                 }
             });

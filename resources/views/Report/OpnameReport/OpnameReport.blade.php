@@ -36,7 +36,8 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $opname['total_assets'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $opname['scanned_assets'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ \Carbon\Carbon::parse($opname['created_at'])->locale('id')->isoFormat('D MMMM Y') }}</td>
+                                            {{ \Carbon\Carbon::parse($opname['created_at'])->locale('id')->isoFormat('D MMMM Y') }}
+                                        </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
                                                 <a href="{{ route('opnames.detail', $opname['opname_id']) }}"
@@ -78,7 +79,7 @@
                                 @php
                                     $currentPage = $pagination['current_page'] ?? 1;
                                     $lastPage = $pagination['last_page'] ?? 1;
-                                    $maxPagesShown = 5; // Show max 5 pages at once
+                                    $maxPagesShown = 5;
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
 
@@ -161,18 +162,15 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // Function to change items per page
                 window.changePerPage = function (limit) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('limit', limit);
                     window.location.href = url.toString();
                 }
 
-                // Function to change items per page
                 window.changeOpnamePerPage = function (limit) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('limit', limit);
-                    // Reset to page 1 when changing limit
                     url.searchParams.set('page', 1);
                     window.location.href = url.toString();
                 }

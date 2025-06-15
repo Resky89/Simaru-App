@@ -51,7 +51,8 @@
 
                             <div class="flex">
                                 <button id="searchBtn" type="button"
-                                    class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451] {{ isset($comparison) ? 'opacity-60 cursor-not-allowed' : '' }}" {{ isset($comparison) ? 'disabled' : '' }}>
+                                    class="bg-[#213268] text-white px-4 rounded-r-lg hover:bg-[#152451] {{ isset($comparison) ? 'opacity-60 cursor-not-allowed' : '' }}"
+                                    {{ isset($comparison) ? 'disabled' : '' }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -179,30 +180,24 @@
             const selectedRequestId = document.getElementById('selected_request_id');
             const requestDetails = document.getElementById('requestDetails');
 
-            // Add a flag to track if we're currently submitting/redirecting to prevent unwanted navigation
             let isNavigatingAway = false;
             let isSubmitting = false;
             let formHasBeenFilled = false;
 
-            // Check if we're in edit mode
             const isEditMode = {{ isset($comparison) ? 'true' : 'false' }};
             const comparisonId = {{ $comparison['comparison_id'] ?? 'null' }};
 
-            // If in edit mode and there's a procurement ID, load its details
             if (isEditMode && selectedRequestId.value) {
                 fetchProcurementDetails(parseInt(selectedRequestId.value, 10));
             }
 
-            // Function to format date in Indonesian
             function formatDateIndonesian(dateString) {
                 if (!dateString) return '';
 
                 try {
-                    // Parse the date string
                     const date = new Date(dateString);
                     if (isNaN(date)) return dateString;
 
-                    // Indonesian month names
                     const months = [
                         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -219,7 +214,6 @@
                 }
             }
 
-            // Function to show SweetAlert notifications
             function showSweetAlert(message, type = 'success', options = {}) {
                 const iconMap = {
                     success: 'success',
@@ -229,7 +223,6 @@
                     question: 'question'
                 };
 
-                // Default options
                 const defaultOptions = {
                     title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                     html: message,
@@ -252,65 +245,58 @@
                     }
                 };
 
-                // Merge with custom options
                 const mergedOptions = { ...defaultOptions, ...options };
 
-                // Add specific options based on alert type
                 if (type === 'success' && options.timer === undefined) {
-                    // Auto close success messages after 2.5 seconds
                     mergedOptions.timer = 2500;
                     mergedOptions.timerProgressBar = true;
                 } else if (type === 'error' && options.showCloseButton === undefined) {
-                    // Make error alerts more prominent
                     mergedOptions.confirmButtonColor = '#d33';
                     mergedOptions.showCloseButton = true;
                 }
 
-                // Add custom styles for SweetAlert
                 if (!document.getElementById('swal-custom-styles')) {
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                                /* SweetAlert Custom Styles */
-                                .swal2-popup {
-                                    border-radius: 15px;
-                                    padding: 1.5rem;
-                                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                                }
-                                .swal-custom-title {
-                                    font-weight: 600;
-                                    font-size: 1.5rem;
-                                    color: #333;
-                                }
-                                .swal-custom-content {
-                                    font-size: 1rem;
-                                    color: #555;
-                                    margin-top: 0.5rem;
-                                }
-                                .swal-custom-content ul {
-                                    text-align: left;
-                                    margin-top: 1rem;
-                                    margin-bottom: 1rem;
-                                }
-                                .swal-custom-confirm {
-                                    padding: 0.5rem 1.5rem;
-                                    font-weight: 500;
-                                }
-                                .swal-custom-cancel {
-                                    padding: 0.5rem 1.5rem;
-                                    font-weight: 500;
-                                }
-                                .swal2-timer-progress-bar {
-                                    background: rgba(33, 50, 104, 0.5);
-                                }
-                                .swal2-icon {
-                                    margin: 1rem auto;
-                                }
-                            `;
+                                    .swal2-popup {
+                                        border-radius: 15px;
+                                        padding: 1.5rem;
+                                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                    }
+                                    .swal-custom-title {
+                                        font-weight: 600;
+                                        font-size: 1.5rem;
+                                        color: #333;
+                                    }
+                                    .swal-custom-content {
+                                        font-size: 1rem;
+                                        color: #555;
+                                        margin-top: 0.5rem;
+                                    }
+                                    .swal-custom-content ul {
+                                        text-align: left;
+                                        margin-top: 1rem;
+                                        margin-bottom: 1rem;
+                                    }
+                                    .swal-custom-confirm {
+                                        padding: 0.5rem 1.5rem;
+                                        font-weight: 500;
+                                    }
+                                    .swal-custom-cancel {
+                                        padding: 0.5rem 1.5rem;
+                                        font-weight: 500;
+                                    }
+                                    .swal2-timer-progress-bar {
+                                        background: rgba(33, 50, 104, 0.5);
+                                    }
+                                    .swal2-icon {
+                                        margin: 1rem auto;
+                                    }
+                                `;
                     document.head.appendChild(styleTag);
                 }
 
-                // Add animate.css CDN for animations if not already loaded
                 if (!document.getElementById('animate-css')) {
                     const animateLink = document.createElement('link');
                     animateLink.id = 'animate-css';
@@ -319,11 +305,9 @@
                     document.head.appendChild(animateLink);
                 }
 
-                // Fire the alert and return the Promise for chaining
                 return Swal.fire(mergedOptions);
             }
 
-            // Show SweetAlert notifications for session messages on page load
             @if(session('success'))
                 showSweetAlert("{{ session('success') }}", 'success');
             @endif
@@ -332,7 +316,6 @@
                 showSweetAlert("{{ session('error') }}", 'error');
             @endif
 
-            // Helper function to check if the form has any changes
             function formHasChanges() {
                 return formHasBeenFilled ||
                     document.getElementById('comparisonTitle').value.trim() ||
@@ -340,18 +323,14 @@
                     document.getElementById('requestNumber').value.trim();
             }
 
-            // Improve navigation handling with SweetAlert for internal links
             document.addEventListener('click', function (e) {
-                // Skip if we're already navigating away or submitting
                 if (isSubmitting || isNavigatingAway) {
                     return;
                 }
 
-                // Find closest anchor tag if the click was on a child element
                 const anchor = e.target.closest('a');
-                if (!anchor) return; // Not clicking on a link
+                if (!anchor) return;
 
-                // Skip links without href or with href="#" or javascript:void(0)
                 if (!anchor.href ||
                     anchor.href === window.location.href ||
                     anchor.href === window.location.href + '#' ||
@@ -359,22 +338,18 @@
                     return;
                 }
 
-                // Skip links with specific data attributes (e.g., download links, modals)
                 if (anchor.hasAttribute('data-skip-confirm') ||
                     anchor.hasAttribute('download') ||
                     anchor.target === '_blank') {
                     return;
                 }
 
-                // Skip if the form has no changes
                 if (!formHasChanges()) {
                     return;
                 }
 
-                // Prevent the default navigation
                 e.preventDefault();
 
-                // Show SweetAlert confirmation
                 showSweetAlert('Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman ini?', 'warning', {
                     title: 'Perubahan Belum Disimpan',
                     showCancelButton: true,
@@ -384,11 +359,9 @@
                     cancelButtonColor: '#d33'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // User confirmed leaving, set flag and navigate
                         isNavigatingAway = true;
                         window.location.href = anchor.href;
                     }
-                    // If not confirmed, do nothing - user stays on page
                 });
             });
 
@@ -400,7 +373,6 @@
                 }
             });
 
-            // Function to validate field
             function validateField(field) {
                 const parent = field.closest('.flex-col');
                 const errorElement = parent ? parent.querySelector('.error-message') : field.closest('.space-y-2').querySelector('.error-message');
@@ -416,9 +388,7 @@
                 }
             }
 
-            // Add input event listeners to clear error styling and track changes
             comparisonTitle.addEventListener('input', function () {
-                // Immediately clear any validation styling
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
@@ -426,24 +396,19 @@
             });
 
             requestNumber.addEventListener('input', function () {
-                // Immediately clear any validation styling
                 this.classList.remove('border-red-500');
                 const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                 if (errorElement) errorElement.classList.add('hidden');
                 formHasBeenFilled = true;
             });
 
-            // Search button click event
             searchBtn.addEventListener('click', function () {
-                // Skip if in edit mode
                 if (isEditMode) {
                     return;
                 }
 
-                // Store original button content (we don't need to regenerate this every time)
                 const originalBtnContent = searchBtn.innerHTML;
 
-                // Clear any existing validation errors
                 requestNumber.classList.remove('border-red-500');
                 const parent = requestNumber.closest('.flex-col');
                 const errorElement = parent ? parent.querySelector('.error-message') : null;
@@ -451,7 +416,6 @@
                     errorElement.classList.add('hidden');
                 }
 
-                // Validate inputs - important to do this BEFORE changing the button state
                 if (!requestNumber.value.trim()) {
                     requestNumber.classList.add('border-red-500');
                     if (errorElement) errorElement.classList.remove('hidden');
@@ -459,31 +423,25 @@
                     return;
                 }
 
-                // If a selected ID is available, ensure it's a valid number
                 if (selectedRequestId.value && isNaN(parseInt(selectedRequestId.value, 10))) {
                     showSweetAlert('ID Pengajuan tidak valid', 'error');
                     return;
                 }
 
-                // Only change button appearance AFTER validation passes
                 searchBtn.disabled = true;
                 searchBtn.innerHTML = `
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        `;
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            `;
 
-                // Get the procurement ID directly from the request number
                 const procurementCode = requestNumber.value.trim();
 
-                // If the user has selected an ID from the dropdown, use that
                 if (selectedRequestId.value) {
                     fetchProcurementDetails(parseInt(selectedRequestId.value, 10))
                         .finally(() => {
-                            // Reset button state to original content
                             searchBtn.disabled = false;
                             searchBtn.innerHTML = originalBtnContent;
                         });
                 } else {
-                    // Otherwise, try to fetch by code
                     fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(procurementCode)}&status=approved`)
                         .then(response => {
                             if (!response.ok) throw new Error('Gagal mencari data pengajuan');
@@ -491,11 +449,8 @@
                         })
                         .then(result => {
                             if (result.success && result.data && result.data.length > 0) {
-                                // Get all approved procurements
                                 let procurements = result.data;
 
-                                // Fetch price comparisons to check which procurements to exclude
-                                // Use search parameter with procurement code for more efficient searching
                                 return fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(procurementCode)}`, {
                                     headers: {
                                         'Accept': 'application/json',
@@ -509,10 +464,8 @@
                                         return comparisonResponse.json();
                                     })
                                     .then(comparisonResult => {
-                                        // Create a Set of procurement IDs that already have price comparisons
                                         const procurementsWithComparisons = new Set();
 
-                                        // Get comparisons from the response
                                         let comparisons = [];
                                         if (comparisonResult && comparisonResult.success === true && Array.isArray(comparisonResult.data)) {
                                             comparisons = comparisonResult.data;
@@ -520,7 +473,6 @@
                                             comparisons = comparisonResult.comparisons;
                                         }
 
-                                        // Extract procurement IDs that already have comparisons
                                         if (comparisons && comparisons.length > 0) {
                                             comparisons.forEach(comparison => {
                                                 if (comparison && comparison.procurement_id) {
@@ -529,9 +481,6 @@
                                             });
                                         }
 
-                                        console.log('Found ' + procurementsWithComparisons.size + ' procurements with existing price comparisons');
-
-                                        // Filter procurements to only show those without existing comparisons
                                         const filteredProcurements = procurements.filter(procurement =>
                                             !procurementsWithComparisons.has(procurement.procurement_id)
                                         );
@@ -540,7 +489,6 @@
                                             throw new Error('Tidak ada permintaan yang tersedia untuk perbandingan harga atau nomor permintaan sudah memiliki perbandingan harga');
                                         }
 
-                                        // Find exact match by code if possible
                                         const exactMatch = filteredProcurements.find(item =>
                                             item.procurement_code &&
                                             item.procurement_code.toLowerCase() === procurementCode.toLowerCase() &&
@@ -551,7 +499,6 @@
                                             selectedRequestId.value = exactMatch.procurement_id;
                                             return fetchProcurementDetails(parseInt(exactMatch.procurement_id, 10));
                                         } else {
-                                            // Find the first approved result
                                             const approvedMatch = filteredProcurements.find(item =>
                                                 item.status &&
                                                 item.status.toLowerCase() === 'approved');
@@ -572,18 +519,15 @@
                             console.error('Error searching for procurement:', error);
                             showSweetAlert(error.message || 'Terjadi kesalahan saat mencari data pengajuan', 'error');
 
-                            // Hide details section if there was an error
                             requestDetails.classList.add('hidden');
                         })
                         .finally(() => {
-                            // Reset button state to original content
                             searchBtn.disabled = false;
                             searchBtn.innerHTML = originalBtnContent;
                         });
                 }
             });
 
-            // Debounce function to limit how often a function can be called
             function debounce(func, wait, immediate) {
                 let timeout;
                 return function () {
@@ -599,41 +543,34 @@
                 };
             }
 
-            // Toggle dropdown visibility on focus
             requestNumber.addEventListener('focus', function () {
-                // Don't show dropdown in edit mode
                 if (!isEditMode) {
                     procurementDropdown.classList.remove('hidden');
                     if (procurementList.children.length === 0) {
-                        loadProcurements(''); // Initial load on focus
+                        loadProcurements('');
                     }
                 }
             });
 
-            // Hide dropdown when clicking outside
             document.addEventListener('click', function (e) {
                 if (!requestNumber.contains(e.target) && !procurementDropdown.contains(e.target) && !searchBtn.contains(e.target)) {
                     procurementDropdown.classList.add('hidden');
                 }
             });
 
-            // Search input handler with debounce
             const debouncedSearch = debounce(function (e) {
-                if (!isEditMode) { // Only load in create mode
+                if (!isEditMode) {
                     loadProcurements(e.target.value);
                 }
             }, 300);
 
             requestNumber.addEventListener('input', debouncedSearch);
 
-            // Function to load procurement requests
             async function loadProcurements(searchTerm) {
-                // Show loading indicator
                 if (procurementLoading) procurementLoading.classList.remove('hidden');
                 procurementList.innerHTML = '';
 
                 try {
-                    // Fetch procurement data from API with approved status filter
                     const response = await fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(searchTerm)}&status=approved`);
 
                     if (!response.ok) {
@@ -643,8 +580,6 @@
                     const result = await response.json();
                     let procurements = result.data || [];
 
-                    // Now fetch all existing price comparisons to check which procurements to exclude
-                    // Use the same search term for more efficient filtering
                     const comparisonResponse = await fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
                             'Accept': 'application/json',
@@ -657,11 +592,8 @@
                     }
 
                     const comparisonResult = await comparisonResponse.json();
-
-                    // Create a Set of procurement IDs that already have price comparisons
                     const procurementsWithComparisons = new Set();
 
-                    // Get comparisons from the response
                     let comparisons = [];
                     if (comparisonResult && comparisonResult.success === true && Array.isArray(comparisonResult.data)) {
                         comparisons = comparisonResult.data;
@@ -669,7 +601,6 @@
                         comparisons = comparisonResult.comparisons;
                     }
 
-                    // Extract procurement IDs that already have comparisons
                     if (comparisons && comparisons.length > 0) {
                         comparisons.forEach(comparison => {
                             if (comparison && comparison.procurement_id) {
@@ -678,14 +609,10 @@
                         });
                     }
 
-                    console.log('Found ' + procurementsWithComparisons.size + ' procurements with existing price comparisons');
-
-                    // Filter procurements to only show those without existing comparisons
                     const filteredProcurements = procurements.filter(procurement =>
                         !procurementsWithComparisons.has(procurement.procurement_id)
                     );
 
-                    // Populate dropdown
                     procurementList.innerHTML = '';
 
                     if (filteredProcurements.length === 0) {
@@ -695,7 +622,6 @@
                         procurementList.appendChild(noResults);
                     } else {
                         filteredProcurements.forEach(procurement => {
-                            // Skip non-approved procurements (extra safety check)
                             if (procurement.status && procurement.status.toLowerCase() !== 'approved') {
                                 return;
                             }
@@ -703,7 +629,6 @@
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            // Format display text - only show procurement code
                             const displayText = procurement.procurement_code || '';
 
                             li.textContent = displayText;
@@ -714,14 +639,9 @@
                             li.setAttribute('data-date', procurement.created_at || '');
 
                             li.addEventListener('click', function () {
-                                // Set the selected procurement values
                                 selectedRequestId.value = this.getAttribute('data-id');
                                 requestNumber.value = this.getAttribute('data-code');
-
-                                // Track that the form has been changed
                                 formHasBeenFilled = true;
-
-                                // Hide dropdown
                                 procurementDropdown.classList.add('hidden');
                             });
 
@@ -739,13 +659,10 @@
                 }
             }
 
-            // Function to fetch procurement details by ID
             async function fetchProcurementDetails(procurementId) {
                 try {
-                    // Show loading state
                     if (submitBtn) submitBtn.disabled = true;
 
-                    // Clear existing data in case of re-fetch
                     document.getElementById('assetListTableBody').innerHTML = '';
 
                     const response = await fetch(`{{ url('procurement/request') }}/${procurementId}`);
@@ -762,17 +679,12 @@
 
                     const procurement = result.data;
 
-                    console.log('Procurement data:', procurement);
-
-                    // Update the form with procurement details
                     document.getElementById('displayRequestNumber').textContent = procurement.procurement_code || '';
                     document.getElementById('displayRequestName').textContent = procurement.title || procurement.procurement_name || '';
                     document.getElementById('displayUserInput').textContent = procurement.requester?.employee_number || procurement.user_name || 'Karyawan';
 
-                    // Format date properly
                     let displayDate = procurement.request_date || procurement.created_at || '';
                     if (displayDate) {
-                        // Try to format the date if possible
                         try {
                             const date = new Date(displayDate);
                             if (!isNaN(date)) {
@@ -784,19 +696,14 @@
                     }
                     document.getElementById('displayInputDate').textContent = displayDate;
 
-                    // Get items from the right property (either details or items)
                     const items = procurement.details || procurement.items || [];
 
-                    // Populate asset list table
                     populateAssetList(items);
 
-                    // Show the request details section
                     requestDetails.classList.remove('hidden');
 
-                    // Mark the form as having changes
                     formHasBeenFilled = true;
 
-                    // Re-enable the submit button if it exists
                     if (submitBtn) submitBtn.disabled = false;
                 } catch (error) {
                     console.error('Error fetching procurement details:', error);
@@ -804,7 +711,6 @@
                 }
             }
 
-            // Function to populate asset list table
             function populateAssetList(items) {
                 const tableBody = document.getElementById('assetListTableBody');
                 tableBody.innerHTML = '';
@@ -812,7 +718,6 @@
                 let grandTotal = 0;
 
                 if (!items || items.length === 0) {
-                    // If no items, show a message
                     const row = document.createElement('tr');
                     row.className = 'border-t border-[#EEF1F4]';
 
@@ -826,24 +731,16 @@
                     return;
                 }
 
-                // Add each item as a row
                 items.forEach(item => {
                     const row = document.createElement('tr');
                     row.className = 'border-t border-[#EEF1F4]';
-
-                    // Format item data
                     const assetName = item.asset_name || 'Aset Tidak Diketahui';
                     const specification = item.specifications || item.specification || '';
                     const quantity = item.quantity || 0;
-
-                    // Format currency
                     const unitPrice = parseFloat(item.estimated_unit_price || item.unit_price || 0);
                     const total = quantity * unitPrice;
                     grandTotal += total;
-
                     const formatter = new Intl.NumberFormat('id-ID');
-
-                    // Create and append cells
                     const nameCell = document.createElement('td');
                     nameCell.className = 'p-3 text-sm text-[#666666]';
                     nameCell.textContent = assetName;
@@ -872,7 +769,6 @@
                     tableBody.appendChild(row);
                 });
 
-                // Add grand total row
                 const totalRow = document.createElement('tr');
                 totalRow.className = 'border-t border-[#EEF1F4]';
 
@@ -890,15 +786,12 @@
                 tableBody.appendChild(totalRow);
             }
 
-            // Submit button click event
             if (submitBtn) {
                 submitBtn.addEventListener('click', function () {
-                    // Prevent multiple submissions
                     if (isSubmitting) {
                         return;
                     }
 
-                    // Validate inputs
                     if (!comparisonTitle.value.trim()) {
                         showSweetAlert('Mohon masukkan judul penawaran', 'error');
                         return;
@@ -909,34 +802,28 @@
                         return;
                     }
 
-                    // Create form data
                     const formData = new FormData();
                     formData.append('title', comparisonTitle.value);
                     formData.append('procurement_id', parseInt(selectedRequestId.value, 10));
 
-                    // If editing, add the comparison ID to the form data
                     if (isEditMode) {
-                        formData.append('_method', 'PUT'); // Laravel method spoofing for PUT requests
+                        formData.append('_method', 'PUT');
                     }
 
-                    // Set submitting flag and disable button
                     isSubmitting = true;
 
-                    // Disable submit button during submission
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                ${isEditMode ? 'MENYIMPAN...' : 'MENGIRIM...'}
-                            `;
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    ${isEditMode ? 'MENYIMPAN...' : 'MENGIRIM...'}
+                                `;
 
-                    // Determine the endpoint based on whether we're creating or editing
                     const endpoint = isEditMode
                         ? `{{ url('procurement/price-comparison') }}/${comparisonId}`
                         : '{{ route('procurement.store-price-comparison') }}';
 
-                    // Submit the form via AJAX
                     fetch(endpoint, {
-                        method: isEditMode ? 'POST' : 'POST', // Using POST with _method for PUT
+                        method: isEditMode ? 'POST' : 'POST',
                         body: formData,
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -952,7 +839,6 @@
                         })
                         .then(data => {
                             if (data.success) {
-                                // Show success message with automatic redirect
                                 showSweetAlert(
                                     data.message || (isEditMode ? 'Perbandingan harga berhasil diperbarui!' : 'Perbandingan harga berhasil dibuat!'),
                                     'success',
@@ -961,28 +847,22 @@
                                         timerProgressBar: true,
                                         showConfirmButton: false,
                                         didOpen: () => {
-                                            // Set flag to indicate we're navigating away intentionally
                                             isNavigatingAway = true;
                                         },
                                         willClose: () => {
-                                            // Redirect after toast closes
                                             window.location.href = data.redirect_url || '{{ route("procurement.price-comparison") }}';
                                         }
                                     }
                                 );
                             } else {
-                                // Reset submission status and re-enable the button
                                 isSubmitting = false;
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
-
                                 const errorData = data.errors || {};
 
-                                // Initialize error message
                                 let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
                                 let errorList = [];
 
-                                // Handle array-formatted errors
                                 if (Array.isArray(errorData)) {
                                     errorData.forEach(error => {
                                         if (error.path && error.message) {
@@ -992,26 +872,20 @@
                                         }
                                     });
                                 }
-                                // Handle object-formatted errors (backward compatibility)
                                 else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
-                                    // Process each error field
                                     Object.entries(errorData).forEach(([field, errors]) => {
                                         if (Array.isArray(errors)) {
-                                            // Multiple errors for this field
                                             errors.forEach(err => {
                                                 errorList.push(`${err}`);
                                             });
                                         } else if (typeof errors === 'string') {
-                                            // Single error string
                                             errorList.push(`${errors}`);
                                         }
                                     });
                                 } else if (typeof errorData === 'string') {
-                                    // Single error string
                                     errorMessage = errorData;
                                 }
 
-                                // Format error message with list if we have specific errors
                                 if (errorList.length > 0) {
                                     errorMessage += '<ul class="mt-2 list-disc pl-5">';
                                     errorList.forEach(err => {
@@ -1026,17 +900,14 @@
                         .catch(error => {
                             console.error(`Error ${isEditMode ? 'updating' : 'creating'} price comparison:`, error);
 
-                            // Reset flag and button on error
                             isSubmitting = false;
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = isEditMode ? 'SIMPAN' : 'KIRIM';
 
-                            // Handle structured errors similar to above
                             let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
                             let errorList = [];
 
                             if (error.errors) {
-                                // Handle array-formatted errors
                                 if (Array.isArray(error.errors)) {
                                     error.errors.forEach(err => {
                                         if (err.path && err.message) {
@@ -1046,7 +917,6 @@
                                         }
                                     });
                                 }
-                                // Handle object-formatted errors
                                 else if (typeof error.errors === 'object' && Object.keys(error.errors).length > 0) {
                                     Object.entries(error.errors).forEach(([field, errors]) => {
                                         if (Array.isArray(errors)) {
@@ -1064,7 +934,6 @@
                                 errorMessage = error.message;
                             }
 
-                            // Format error message with list if we have specific errors
                             if (errorList.length > 0) {
                                 errorMessage += '<ul class="mt-2 list-disc pl-5">';
                                 errorList.forEach(err => {
@@ -1078,7 +947,6 @@
                 });
             }
 
-            // Handle back button click
             document.getElementById('backButton').addEventListener('click', function (e) {
                 if (formHasChanges()) {
                     e.preventDefault();
@@ -1100,30 +968,28 @@
                 }
             });
 
-            // Add slide-in animation styling
             document.head.insertAdjacentHTML('beforeend', `
-                        <style>
-                            @keyframes slideInRight {
-                                from { transform: translateX(100%); }
-                                to { transform: translateX(0); }
-                            }
-                            .animate-slide-in-right {
-                                animation: slideInRight 0.3s ease-out forwards;
-                            }
+                            <style>
+                                @keyframes slideInRight {
+                                    from { transform: translateX(100%); }
+                                    to { transform: translateX(0); }
+                                }
+                                .animate-slide-in-right {
+                                    animation: slideInRight 0.3s ease-out forwards;
+                                }
 
-                            /* Styling for error messages with HTML content */
-                            .error-message ul {
-                                margin-top: 0.5rem;
-                                padding-left: 1.5rem;
-                            }
-                            .error-message ul li {
-                                margin-bottom: 0.25rem;
-                            }
-                            .error-message ul li:last-child {
-                                margin-bottom: 0;
-                            }
-                        </style>
-                    `);
+                                .error-message ul {
+                                    margin-top: 0.5rem;
+                                    padding-left: 1.5rem;
+                                }
+                                .error-message ul li {
+                                    margin-bottom: 0.25rem;
+                                }
+                                .error-message ul li:last-child {
+                                    margin-bottom: 0;
+                                }
+                            </style>
+                        `);
         });
     </script>
 @endpush

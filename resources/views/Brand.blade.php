@@ -237,7 +237,8 @@
 
                         <!-- Form -->
                         <div class="p-6">
-                            <form action="{{ route('brands.store') }}" method="POST" id="addBrandForm" data-no-loading novalidate>
+                            <form action="{{ route('brands.store') }}" method="POST" id="addBrandForm" data-no-loading
+                                novalidate>
                                 @csrf
                                 <div class="space-y-4 max-w-[400px] mx-auto">
                                     <!-- Brand Input -->
@@ -573,10 +574,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Add JavaScript initialization here for permission awareness
-
             @if(!hasPermission('brand:create'))
-                // Disable related elements if user doesn't have permission
                 const addButtons = document.querySelectorAll('#addBrandBtn');
                 addButtons.forEach(btn => {
                     if (btn) {
@@ -586,7 +584,6 @@
             @endif
 
                 @if(!hasPermission('brand:import'))
-                    // Disable import functionality if user doesn't have permission
                     const importButtons = document.querySelectorAll('#importBrandBtn');
                     importButtons.forEach(btn => {
                         if (btn) {
@@ -596,7 +593,6 @@
                 @endif
 
                 @if(!hasPermission('brand:edit'))
-                    // Disable edit functionality if user doesn't have permission
                     const editButtons = document.querySelectorAll('.edit-brand-btn');
                     editButtons.forEach(btn => {
                         if (btn) {
@@ -606,7 +602,6 @@
                 @endif
 
                 @if(!hasPermission('brand:delete'))
-                    // Disable delete functionality if user doesn't have permission
                     const deleteButtons = document.querySelectorAll('.delete-brand-btn');
                     deleteButtons.forEach(btn => {
                         if (btn) {
@@ -615,64 +610,55 @@
                     });
                 @endif
 
-            // Define the showToast function first
             window.showToast = function(message, type = 'success') {
-                // Create the notification element
                 const notification = document.createElement('div');
-                notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                notification.id = type + 'Notification' + Date.now();
                 notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
                 notification.role = 'alert';
 
-                // Check if message contains HTML
                 const hasHTML = /<[a-z][\s\S]*>/i.test(message);
 
                 if (type === 'success') {
                     notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                     notification.innerHTML = `
-                            <div class="flex items-start">
-                <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div class="flex-1">
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-                        `;
+                                        <div class="flex items-start">
+                            <div class="py-1">
+                                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                                <p class="font-bold">Berhasil!</p>
+                                                <div>${message}</div>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                        </div>
+                                    `;
                 } else {
                     notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
-                    // Structure for the notification
                     const wrapper = document.createElement('div');
                     wrapper.className = 'flex items-start';
 
-                    // Icon container
                     const iconContainer = document.createElement('div');
                     iconContainer.className = 'py-1 flex-shrink-0';
                     iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        `;
+                                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    `;
 
-                    // Content container
                     const contentContainer = document.createElement('div');
                     contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
 
-                    // Title
                     const title = document.createElement('p');
                     title.className = 'font-bold';
                     title.textContent = 'Gagal!';
                     contentContainer.appendChild(title);
 
-                    // Message container
                     const messageContainer = document.createElement('div');
                     messageContainer.className = 'error-message';
 
-                    // Handle HTML content
                     if (hasHTML) {
                         messageContainer.innerHTML = message;
                     } else {
@@ -681,7 +667,6 @@
 
                     contentContainer.appendChild(messageContainer);
 
-                    // Close button
                     const closeBtn = document.createElement('span');
                     closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                     closeBtn.textContent = '×';
@@ -689,96 +674,80 @@
                         notification.remove();
                     };
 
-                    // Assemble the notification
                     wrapper.appendChild(iconContainer);
                     wrapper.appendChild(contentContainer);
                     wrapper.appendChild(closeBtn);
                     notification.appendChild(wrapper);
                 }
 
-                // Add to document
                 document.body.appendChild(notification);
 
-                // Auto-remove notification after 5 seconds for success, 10 seconds for error
                 setTimeout(() => {
                     notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                     setTimeout(() => notification.remove(), 500);
                 }, type === 'success' ? 5000 : 10000);
             };
 
-            // Add slide-in animation and styling for error messages to CSS
             document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes slideInRight {
-                            from { transform: translateX(100%); }
-                            to { transform: translateX(0); }
-                        }
-                        .animate-slide-in-right {
-                            animation: slideInRight 0.3s ease-out forwards;
-                        }
+                                <style>
+                                    @keyframes slideInRight {
+                                        from { transform: translateX(100%); }
+                                        to { transform: translateX(0); }
+                                    }
+                                    .animate-slide-in-right {
+                                        animation: slideInRight 0.3s ease-out forwards;
+                                    }
 
-                        /* Styling for error messages with HTML content */
-                        .error-message ul {
-                            margin-top: 0.5rem;
-                            padding-left: 1.5rem;
-                        }
-                        .error-message ul li {
-                            margin-bottom: 0.25rem;
-                        }
-                        .error-message ul li:last-child {
-                            margin-bottom: 0;
-                        }
-                    </style>
-                `);
+                                    .error-message ul {
+                                        margin-top: 0.5rem;
+                                        padding-left: 1.5rem;
+                                    }
+                                    .error-message ul li {
+                                        margin-bottom: 0.25rem;
+                                    }
+                                    .error-message ul li:last-child {
+                                        margin-bottom: 0;
+                                    }
+                                </style>
+                            `);
 
-            // Now we can call the function with session data
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
             @endif
 
-                @if(session('error'))
-                    showToast({!! json_encode(session('error')) !!}, 'error');
-                @endif
+                            @if(session('error'))
+                                showToast({!! json_encode(session('error')) !!}, 'error');
+                            @endif
 
-                // Search and filter functionality
-                const searchInput = document.getElementById('searchInput');
+                            const searchInput = document.getElementById('searchInput');
             const sortOrder = document.getElementById('sortOrder');
 
-            // Function to handle search and filtering
             function applyFilters() {
                 const searchValue = searchInput?.value.trim() || '';
                 const sortValue = sortOrder?.value || '';
 
-                // Create URL with filter parameters
                 const url = new URL(window.location.href);
 
-                // Clear existing parameters we're going to set
                 ['search', 'sort', 'page'].forEach(param => {
                     url.searchParams.delete(param);
                 });
 
-                // Add new parameters if they have values
                 if (searchValue) url.searchParams.set('search', searchValue);
                 if (sortValue) url.searchParams.set('sort', sortValue);
 
-                // Reset to page 1 when filters change
                 url.searchParams.set('page', 1);
 
-                // Navigate to the new URL
                 window.location.href = url.toString();
             }
 
-            // Add event listeners with debounce for search
             let searchTimeout;
             searchInput?.addEventListener('input', function () {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(applyFilters, 500);
             });
 
-            // Add event listeners for select filters
             sortOrder?.addEventListener('change', applyFilters);
 
-            // Set initial values from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             if (searchInput) searchInput.value = urlParams.get('search') || '';
             if (sortOrder) {
@@ -788,7 +757,6 @@
                 }
             }
 
-            // Page navigation functions
             window.changePage = function (page) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('page', page);
@@ -798,12 +766,10 @@
             window.changeBrandPerPage = function (limit) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('limit', limit);
-                // Reset to page 1 when changing limit
                 url.searchParams.set('page', 1);
                 window.location.href = url.toString();
             }
 
-            // Modal functionality
             function openModal(modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -818,13 +784,11 @@
                 setTimeout(() => {
                     modal.classList.add('hidden');
 
-                    // Reset forms when closing modals
                     if (modal.id === 'addBrandModal') {
                         resetForm('addBrandForm');
                     } else if (modal.id === 'editBrandModal') {
                         resetForm('editBrandForm');
                     } else if (modal.id === 'importBrandModal') {
-                        // Reset the import form
                         if (document.getElementById('brand_excel_file')) {
                             document.getElementById('brand_excel_file').value = '';
                         }
@@ -838,7 +802,6 @@
                             document.getElementById('brand-preview-btn').disabled = true;
                         }
 
-                        // Show step 1, hide step 2 and 3
                         if (document.getElementById('import-brand-step-1')) {
                             document.getElementById('import-brand-step-1').classList.remove('hidden');
                         }
@@ -852,15 +815,12 @@
                 }, 300);
             }
 
-            // Function to reset a form and clear validation errors
             function resetForm(formId) {
                 const form = document.getElementById(formId);
                 if (!form) return;
 
-                // Reset the form fields
                 form.reset();
 
-                // Clear validation errors
                 form.querySelectorAll('input, select, textarea').forEach(field => {
                     field.classList.remove('border-red-500');
                     const errorElement = field.nextElementSibling;
@@ -870,7 +830,6 @@
                 });
             }
 
-            // Handle Edit Brand button click
             document.querySelectorAll('.edit-brand-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const brandId = this.getAttribute('data-brand-id');
@@ -886,21 +845,17 @@
                 });
             });
 
-            // Handle Delete Brand button click
             document.querySelectorAll('.delete-brand-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const brandId = this.getAttribute('data-brand-id');
                     const brandName = this.getAttribute('data-brand-name');
 
-                    // Set brand name in confirmation message
                     document.getElementById('delete_brand_name').textContent = brandName;
 
-                    // Update form action with the correct route and log it
                     const formAction = "{{ url('brands') }}/" + brandId;
                     document.getElementById('deleteBrandForm').action = formAction;
                     console.log('Delete form action set to:', formAction);
 
-                    // Set brand ID in hidden input
                     document.getElementById('deleteBrandId').value = brandId;
 
                     const modal = document.getElementById('deleteBrandModal');
@@ -909,7 +864,6 @@
                 });
             });
 
-            // Handle Add Brand button click
             const addBrandBtn = document.getElementById('addBrandBtn');
             if (addBrandBtn) {
                 addBrandBtn.addEventListener('click', function () {
@@ -919,7 +873,6 @@
                 });
             }
 
-            // Import Brand button click
             const importBrandBtn = document.getElementById('importBrandBtn');
             if (importBrandBtn) {
                 importBrandBtn.addEventListener('click', function () {
@@ -929,7 +882,6 @@
                 });
             }
 
-            // Close buttons
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', function () {
                     const modal = this.closest('[id$="Modal"]');
@@ -940,10 +892,8 @@
                 });
             });
 
-            // Close modal when clicking on background or overlay
             document.querySelectorAll('[id$="Modal"]').forEach(modal => {
                 modal.addEventListener('click', function (e) {
-                    // Check if the click is directly on the modal's overlay area
                     if (e.target === this.querySelector('.fixed.inset-0.z-50.overflow-y-auto') ||
                         e.target === this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50')) {
                         const content = this.querySelector('[id$="ModalContent"]');
@@ -952,7 +902,6 @@
                 });
             });
 
-            // Close on Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     document.querySelectorAll('[id$="Modal"]').forEach(modal => {
@@ -964,8 +913,6 @@
                 }
             });
 
-            // ===== IMPORT BRAND FUNCTIONALITY =====
-            // File input handling for brands
             const brandExcelFile = document.getElementById('brand_excel_file');
             const brandFileNameContainer = document.getElementById('brand-excel-file-name');
             const brandFileNameText = document.getElementById('brand-file-name-text');
@@ -1012,7 +959,6 @@
                 });
             }
 
-            // Preview button for brands
             if (brandPreviewBtn) {
                 brandPreviewBtn.addEventListener('click', function () {
                     if (!brandExcelFile || !brandExcelFile.files || !brandExcelFile.files[0]) {
@@ -1032,27 +978,21 @@
 
                     reader.onload = function (e) {
                         try {
-                            // Use XLSX.js to parse Excel data
                             const data = new Uint8Array(e.target.result);
                             const workbook = XLSX.read(data, { type: 'array' });
 
-                            // Get first sheet
                             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-                            // Convert to JSON
                             const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-                            // Process data
                             if (rows.length < 2) {
                                 throw new Error('File tidak berisi data atau header tidak ditemukan.');
                             }
 
-                            // Process the Excel data for brands
                             processBrandExcelData(rows);
 
                             if (brandExcelLoading) brandExcelLoading.classList.add('hidden');
 
-                            // Show step 2
                             document.getElementById('import-brand-step-1').classList.add('hidden');
                             document.getElementById('import-brand-step-2').classList.remove('hidden');
                         } catch (error) {
@@ -1078,7 +1018,6 @@
                 });
             }
 
-            // Back button for brand import
             const brandBackBtn = document.getElementById('brand-back-to-upload-btn');
             if (brandBackBtn) {
                 brandBackBtn.addEventListener('click', function () {
@@ -1087,14 +1026,10 @@
                 });
             }
 
-            // Function to process Excel data for brands
             function processBrandExcelData(data) {
-                // Get headers (first row)
                 const headers = data[0];
-                // Remove empty rows
                 const rows = data.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== null && cell !== ''));
 
-                // Map headers to normalized names
                 const headerMap = {};
                 headers.forEach((header, index) => {
                     if (header) {
@@ -1105,14 +1040,12 @@
                     }
                 });
 
-                // Transform data for preview
                 const previewData = [];
                 const warnings = [];
 
                 rows.forEach((row, rowIndex) => {
                     const item = {};
 
-                    // Helper function to get value by possible header names
                     const getValue = (possibleNames) => {
                         for (const name of possibleNames) {
                             const normalizedName = name.toLowerCase().trim()
@@ -1126,21 +1059,17 @@
                         return null;
                     };
 
-                    // Map values to normalized fields
                     item.brand_name = getValue(['brand_name', 'brand name', 'name', 'nama brand', 'nama_brand', 'nama merk', 'merk']);
 
-                    // Validate required fields
                     if (!item.brand_name) {
                         warnings.push(`Baris ${rowIndex + 2}: Nama Merk tidak ditemukan`);
                     }
 
-                    // Add row index for reference
-                    item._rowNum = rowIndex + 2; // +2 because we've removed the header row and arrays are 0-indexed
+                    item._rowNum = rowIndex + 2;
 
                     previewData.push(item);
                 });
 
-                // Check for duplicate brand names
                 const brandNameMap = {};
                 previewData.forEach(item => {
                     if (item.brand_name) {
@@ -1152,21 +1081,17 @@
                     }
                 });
 
-                // Add duplicate warnings
                 Object.entries(brandNameMap).forEach(([key, rows]) => {
                     if (rows.length > 1) {
                         warnings.push(`Nama Merk duplikat "${key}" ditemukan di baris: ${rows.join(', ')}`);
                     }
                 });
 
-                // Update hidden field with JSON data for form submission
                 document.getElementById('brand_excel_data').value = JSON.stringify(previewData);
 
-                // Show preview with warnings
                 showBrandDataPreview(previewData, warnings);
             }
 
-            // Function to show data preview for brands
             function showBrandDataPreview(data, warnings) {
                 const previewTableBody = document.getElementById('brand-preview-table-body');
                 const previewCount = document.getElementById('brand-preview-count');
@@ -1175,26 +1100,21 @@
 
                 if (!previewTableBody || !previewCount) return;
 
-                // Clear previous content
                 previewTableBody.innerHTML = '';
                 if (warningsList) warningsList.innerHTML = '';
                 if (warningsContainer) warningsContainer.classList.add('hidden');
 
-                // Update count
                 previewCount.textContent = `${data.length} item ditemukan`;
 
-                // Generate table rows
                 data.forEach((item, index) => {
                     const row = document.createElement('tr');
                     row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
 
-                    // Add row number
                     const indexCell = document.createElement('td');
                     indexCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
                     indexCell.textContent = index + 1;
                     row.appendChild(indexCell);
 
-                    // Add data cells
                     const brandNameCell = document.createElement('td');
                     brandNameCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
                     brandNameCell.textContent = item.brand_name || '-';
@@ -1203,7 +1123,6 @@
                     previewTableBody.appendChild(row);
                 });
 
-                // Show warnings if any
                 if (warnings && warnings.length > 0 && warningsList && warningsContainer) {
                     warnings.forEach(warning => {
                         const li = document.createElement('li');
@@ -1212,7 +1131,6 @@
                     });
                     warningsContainer.classList.remove('hidden');
 
-                    // Disable import button if there are critical warnings
                     const importBtn = document.getElementById('brand-import-btn');
                     const hasCriticalWarnings = warnings.some(warning =>
                         warning.includes('Nama Merk tidak ditemukan')
@@ -1228,32 +1146,27 @@
                 }
             }
 
-            // Handle brand import form submission with AJAX
             const brandImportForm = document.getElementById('brand-import-form');
             brandImportForm?.addEventListener('submit', function (e) {
-                e.preventDefault(); // Prevent traditional form submission
+                e.preventDefault();
 
-                // Get form data
                 const formData = new FormData(this);
 
-                // Add the Excel file to the form data if needed
                 const originalFileInput = document.getElementById('brand_excel_file');
                 if (originalFileInput && originalFileInput.files.length > 0) {
                     formData.append('excel_file', originalFileInput.files[0]);
                 }
 
-                // Show loading state
                 const importBtn = document.getElementById('brand-import-btn');
                 const originalBtnText = importBtn.innerHTML;
                 importBtn.disabled = true;
                 importBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Mengimpor...</span>
-                        </div>
-                    `;
+                                    <div class="flex items-center justify-center">
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        <span>Mengimpor...</span>
+                                    </div>
+                                `;
 
-                // Send AJAX request
                 fetch('{{ route('brands.import') }}', {
                     method: 'POST',
                     body: formData,
@@ -1263,45 +1176,35 @@
                     }
                 })
                     .then(response => {
-                        // Check if response is JSON
                         const contentType = response.headers.get('content-type');
                         if (contentType && contentType.includes('application/json')) {
                             return response.json().then(data => {
-                                // Add status to the data object
                                 data.status = response.status;
                                 return data;
                             });
                         } else {
-                            // If not JSON, it's likely an error page or redirect
                             throw new Error('Format respons tidak valid');
                         }
                     })
                     .then(data => {
-                        // Reset button state
                         importBtn.disabled = false;
                         importBtn.innerHTML = originalBtnText;
 
                         if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                            // Close the modal
                             const modal = document.getElementById('importBrandModal');
                             closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
 
-                            // Show success notification
                             showToast('Merk berhasil diimpor!', 'success');
 
-                            // Reload the page to show updated data
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1000);
                         } else {
-                            // Error response
                             console.error('Import error:', data);
 
-                            // Try to get more detailed error if available
                             let errorMessage = data.message || 'Terjadi kesalahan selama pengimporan.';
                             let errorDetails = [];
 
-                            // Add validation errors if present
                             if (data.data && data.data.errors) {
                                 console.log('Server returned detailed errors:', data.data.errors);
 
@@ -1322,7 +1225,6 @@
                                 }
                             }
 
-                            // Create HTML content for the error message
                             if (errorDetails.length > 0) {
                                 errorMessage = `${errorMessage}<ul class="mt-2 ml-4 list-disc">`;
                                 errorDetails.forEach(detail => {
@@ -1335,7 +1237,6 @@
                         }
                     })
                     .catch(error => {
-                        // Reset button state
                         importBtn.disabled = false;
                         importBtn.innerHTML = originalBtnText;
 
@@ -1344,7 +1245,6 @@
                     });
             });
 
-            // Form validation for Add Brand
             const addBrandForm = document.getElementById('addBrandForm');
             if (addBrandForm) {
                 addBrandForm.addEventListener('submit', function (event) {
@@ -1355,23 +1255,19 @@
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
                     } else {
-                        // Prevent multiple submissions by disabling the button
                         const submitBtn = this.querySelector('button[type="submit"]');
                         if (submitBtn && !submitBtn.disabled) {
-                            // Save original button text
                             const originalText = submitBtn.innerHTML;
 
-                            // Disable the button and show loading state
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                            <div class="flex items-center justify-center">
+                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                <span>Memproses...</span>
+                                            </div>
+                                        `;
 
-                            // Re-enable button after 10 seconds as a failsafe
                             setTimeout(() => {
                                 if (submitBtn) {
                                     submitBtn.disabled = false;
@@ -1384,7 +1280,6 @@
                 });
             }
 
-            // Form validation for Edit Brand
             const editBrandForm = document.getElementById('editBrandForm');
             if (editBrandForm) {
                 editBrandForm.addEventListener('submit', function (event) {
@@ -1395,23 +1290,19 @@
                         event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
                     } else {
-                        // Prevent multiple submissions by disabling the button
                         const submitBtn = this.querySelector('button[type="submit"]');
                         if (submitBtn && !submitBtn.disabled) {
-                            // Save original button text
                             const originalText = submitBtn.innerHTML;
 
-                            // Disable the button and show loading state
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                            <div class="flex items-center justify-center">
+                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                <span>Memproses...</span>
+                                            </div>
+                                        `;
 
-                            // Re-enable button after 10 seconds as a failsafe
                             setTimeout(() => {
                                 if (submitBtn) {
                                     submitBtn.disabled = false;
@@ -1424,27 +1315,22 @@
                 });
             }
 
-            // Prevent multiple submissions for Delete Brand form
             const deleteBrandForm = document.getElementById('deleteBrandForm');
             if (deleteBrandForm) {
                 deleteBrandForm.addEventListener('submit', function (event) {
-                    // Prevent multiple submissions by disabling the button
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable the button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Menghapus...</span>
-                            </div>
-                        `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Menghapus...</span>
+                                        </div>
+                                    `;
 
-                        // Re-enable button after 10 seconds as a failsafe
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -1456,7 +1342,6 @@
                 });
             }
 
-            // Function to validate field and show error styling
             function validateField(field) {
                 if (!field) return false;
 
@@ -1475,7 +1360,6 @@
                 }
             }
 
-            // Add input event listeners to clear error styling when typing
             const addBrandNameInput = document.getElementById('add_brand_name');
             if (addBrandNameInput) {
                 addBrandNameInput.addEventListener('input', function () {
@@ -1497,6 +1381,5 @@
             }
         });
     </script>
-    <!-- Include XLSX.js library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 @endsection

@@ -65,9 +65,12 @@
                                 class="w-[160px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" {{ ($status ?? '') == '' ? 'selected' : '' }}>Semua Status</option>
                                 <option value="new" {{ ($status ?? '') == 'new' ? 'selected' : '' }}>Baru</option>
-                                <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang Diproses</option>
-                                <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai</option>
-                                <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="in progress" {{ ($status ?? '') == 'in progress' ? 'selected' : '' }}>Sedang
+                                    Diproses</option>
+                                <option value="finished" {{ ($status ?? '') == 'finished' ? 'selected' : '' }}>Selesai
+                                </option>
+                                <option value="approved" {{ ($status ?? '') == 'approved' ? 'selected' : '' }}>Disetujui
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -158,17 +161,17 @@
                                                 </button>
                                                 @if(hasPermission('repair:medical') || hasPermission('repair:non-medical'))
                                                     @if($complaint['status'] == 'new' || $complaint['status'] == 'in progress')
-                                                    <button
-                                                        class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
-                                                        data-id="{{ $complaint['id'] }}"
-                                                        data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                        title="Lakukan Perbaikan">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                                        </svg>
-                                                    </button>
+                                                        <button
+                                                            class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
+                                                            data-id="{{ $complaint['id'] }}"
+                                                            data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
+                                                            title="Lakukan Perbaikan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                                            </svg>
+                                                        </button>
                                                     @endif
                                                 @endif
                                                 @if(hasPermission('complaint:delete'))
@@ -656,40 +659,7 @@
         </div>
     @endif
 
-    @if(session('success'))
-        <div id="successNotification"
-            class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50"
-            role="alert">
-            <div class="flex items-center">
-                <div class="py-1">
-                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">Berhasil!</p>
-                    <p>{{ session('success') }}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-            </div>
-        </div>
-
-        <script>
-            setTimeout(function () {
-                const notification = document.getElementById('successNotification');
-                if (notification) {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                    setTimeout(function () {
-                        notification.remove();
-                    }, 500);
-                }
-            }, 5000); // Hide after 5 seconds
-        </script>
-    @endif
-
     <script>
-        // Define showToast function first
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
@@ -701,19 +671,19 @@
             }
 
             toast.innerHTML = `
-                <div class="py-1">
-                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${type === 'success'
+                    <div class="py-1">
+                        <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            ${type === 'success'
                     ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
                     : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                    <p>${message}</p>
-                </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-            `;
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                        <p>${message}</p>
+                    </div>
+                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+                `;
 
             document.body.appendChild(toast);
 
@@ -727,9 +697,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Add JavaScript initialization for permission awareness
             @if(!hasPermission('complaint:create'))
-                // Hide create complaint button if user doesn't have permission
                 const createButtons = document.querySelectorAll('#createComplaintBtn');
                 createButtons.forEach(btn => {
                     if (btn) {
@@ -739,7 +707,6 @@
             @endif
 
                 @if(!hasPermission('complaint:export'))
-                    // Hide export button if user doesn't have permission
                     const exportButtons = document.querySelectorAll('#exportBtn');
                     exportButtons.forEach(btn => {
                         if (btn) {
@@ -749,7 +716,6 @@
                 @endif
 
                 @if(!hasPermission('complaint:delete'))
-                    // Hide delete buttons if user doesn't have permission
                     const deleteButtons = document.querySelectorAll('.delete-complaint-btn');
                     deleteButtons.forEach(btn => {
                         if (btn) {
@@ -759,7 +725,6 @@
                 @endif
 
                 @if(!hasPermission('repair:medical') && !hasPermission('repair:non-medical'))
-                    // Hide repair buttons if user doesn't have either permission
                     const repairButtons = document.querySelectorAll('.repair-complaint-btn');
                     repairButtons.forEach(btn => {
                         if (btn) {
@@ -768,9 +733,7 @@
                     });
                 @endif
 
-            // ===== VARIABLE DECLARATIONS =====
-            // DOM Elements
-            const imageFile = document.getElementById('imageFile');
+                const imageFile = document.getElementById('imageFile');
             const previewImg = document.getElementById('previewImg');
             const imagePreview = document.getElementById('imagePreview');
             const removeImage = document.getElementById('removeImage');
@@ -805,7 +768,6 @@
             const repairAssetName = document.getElementById('repairAssetName');
             const repairImagePreview = document.getElementById('repairImagePreview');
 
-            // Check for flash messages from session and show toast notifications
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
             @endif
@@ -814,8 +776,6 @@
                 showToast("{{ session('error') }}", 'error');
             @endif
 
-                // ===== UTILITY FUNCTIONS =====
-                // Modal functions
                 function openModal(modal, content) {
                     if (!modal || !content) return;
 
@@ -836,7 +796,6 @@
                 }, 300);
             }
 
-            // Debounce function to limit how often search is triggered
             function debounce(func, wait) {
                 let timeout;
                 return function () {
@@ -849,7 +808,6 @@
                 };
             }
 
-            // Function to apply filters
             function applyFilters() {
                 const searchTerm = searchInput?.value || '';
                 const sort_order = sortOrder?.value || '';
@@ -858,36 +816,28 @@
 
                 const url = new URL(window.location.href);
 
-                // Set search parameter
                 if (searchTerm) url.searchParams.set('search', searchTerm);
                 else url.searchParams.delete('search');
 
-                // Set sort parameter
                 if (sort_order) url.searchParams.set('sort_order', sort_order);
                 else url.searchParams.delete('sort_order');
 
-                // Set status parameter
                 if (status) url.searchParams.set('status', status);
                 else url.searchParams.delete('status');
 
-                // Set limit parameter
                 url.searchParams.set('limit', limit);
 
-                // Reset to first page when filters change
                 url.searchParams.set('page', 1);
 
-                // Redirect to new URL with filters
                 window.location.href = url.toString();
             }
 
-            // Function to change items per page - make it global to match other pages
             window.changePerPage = function (limit) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('limit', limit);
                 window.location.href = url.toString();
             }
 
-            // Image file handling
             if (imageFile) {
                 imageFile.addEventListener('change', function () {
                     const file = this.files[0];
@@ -918,12 +868,10 @@
                 });
             }
 
-            // Modal Controls
             if (createComplaintBtn && createComplaintModal && createComplaintModalContent) {
                 createComplaintBtn.addEventListener('click', function () {
                     openModal(createComplaintModal, createComplaintModalContent);
 
-                    // Clear form and error messages
                     if (complaintForm) {
                         complaintForm.reset();
                     }
@@ -931,14 +879,12 @@
                         errorMsgDiv.innerHTML = '';
                     }
 
-                    // Reset image preview
                     if (imagePreview) {
                         imagePreview.classList.add('hidden');
                     }
                 });
             }
 
-            // Modal close buttons
             if (closeModalBtns && closeModalBtns.length > 0) {
                 closeModalBtns.forEach(btn => {
                     btn.addEventListener('click', function () {
@@ -951,7 +897,6 @@
                 });
             }
 
-            // Close modal when clicking outside
             if (createComplaintModal) {
                 createComplaintModal.addEventListener('click', function (event) {
                     if (event.target === this && createComplaintModalContent) {
@@ -960,7 +905,6 @@
                 });
             }
 
-            // Search and Filtering
             if (searchInput) {
                 searchInput.addEventListener('input', debounce(function () {
                     applyFilters();
@@ -979,34 +923,18 @@
                 });
             }
 
-            // Per page selection is handled via the onchange attribute
-
-            // Export PDF functionality
             if (exportBtn) {
                 exportBtn.addEventListener('click', () => {
-                    // Get current URL parameters
                     const url = new URL(window.location.href);
                     const searchParams = url.searchParams;
-
-                    // Create the PDF export URL with the same parameters
                     const exportUrl = "{{ route('complaint.export.pdf') }}?" + searchParams.toString();
-
-                    // Open in a new window/tab, not replacing the current one
                     window.open(exportUrl, '_blank', 'noopener,noreferrer');
                 });
             }
 
-            // ===== ASSET SEARCH FUNCTIONALITY WITH DEBOUNCE =====
             const assets = @json($assets ?? []);
             let assetSearchTimeout;
 
-            // Log available assets data to console for debugging
-            console.log('Assets loaded:', assets.length);
-            if (assets.length > 0) {
-                console.log('First asset sample:', assets[0]);
-            }
-
-            // Close dropdown when clicking outside
             if (assetSearch && assetDropdown) {
                 document.addEventListener('click', function (e) {
                     if (!assetSearch.contains(e.target) && !assetDropdown.contains(e.target)) {
@@ -1015,127 +943,100 @@
                 });
             }
 
-            // Open dropdown when focusing on search input
             if (assetSearch && assetDropdown && assetId && assetLoadingIndicator && assetNoResults && assetDropdownContent) {
                 assetSearch.addEventListener('focus', function () {
-                    // Only show dropdown if we haven't selected an asset yet
                     if (!assetId.value) {
-                        // Show loading indicator initially
                         assetLoadingIndicator.classList.remove('hidden');
                         assetNoResults.classList.add('hidden');
                         assetDropdownContent.innerHTML = '';
                         assetDropdown.classList.remove('hidden');
-
-                        // Load initial assets (empty search)
                         searchAssets('');
                     }
                 });
             }
 
-            // Handle asset search with debounce
             if (assetSearch && assetLoadingIndicator && assetNoResults && assetDropdownContent && assetDropdown) {
                 assetSearch.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase().trim();
-
-                    // Show loading indicator and dropdown
                     assetLoadingIndicator.classList.remove('hidden');
                     assetNoResults.classList.add('hidden');
                     assetDropdownContent.innerHTML = '';
                     assetDropdown.classList.remove('hidden');
-
-                    // Clear any existing timeout
                     clearTimeout(assetSearchTimeout);
-
-                    // Set new timeout for debounce (300ms)
                     assetSearchTimeout = setTimeout(function () {
-                        // Search assets using server-side API
                         searchAssets(searchTerm);
                     }, 300);
                 });
             }
 
-            // Function to search assets using server API
             function searchAssets(searchTerm) {
-                // Check if required elements exist
                 if (!assetLoadingIndicator || !assetNoResults || !assetDropdownContent) {
                     console.error('Required DOM elements for asset search are missing');
                     return;
                 }
 
-                // Show loading state
                 assetLoadingIndicator.classList.remove('hidden');
                 assetNoResults.classList.add('hidden');
                 assetDropdownContent.innerHTML = '';
 
-                // Build the search URL with parameters
                 const searchUrl = `/assets?json=true&search=${encodeURIComponent(searchTerm)}&limit=20`;
 
-                // Make the API request
                 fetch(searchUrl, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server responded with status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Process the response
-                    let fetchedAssets = [];
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let fetchedAssets = [];
 
-                    // Handle different response formats
-                    if (Array.isArray(data)) {
-                        fetchedAssets = data;
-                    } else if (data.assets && Array.isArray(data.assets)) {
-                        fetchedAssets = data.assets;
-                    } else if (data.data && Array.isArray(data.data)) {
-                        fetchedAssets = data.data;
-                    }
-
-                    // Display the results
-                    displayFilteredAssets(fetchedAssets, searchTerm);
-                })
-                .catch(error => {
-                    console.error('Error searching assets:', error);
-                    if (assetLoadingIndicator) {
-                        assetLoadingIndicator.classList.add('hidden');
-                    }
-
-                    // Show error message
-                    if (assetDropdownContent) {
-                        assetDropdownContent.innerHTML = `
-                            <div class="p-2 text-center text-red-500">
-                                Gagal mencari aset. Silakan coba lagi.
-                            </div>
-                        `;
-                    }
-
-                    // If we have local assets data, fall back to client-side filtering
-                    if (assets && assets.length > 0) {
-                        // Filter assets by name, code or ID
-                        let filteredAssets = assets;
-                        if (searchTerm) {
-                            filteredAssets = assets.filter(asset =>
-                                (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                                (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                                (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                                (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
-                            );
+                        if (Array.isArray(data)) {
+                            fetchedAssets = data;
+                        } else if (data.assets && Array.isArray(data.assets)) {
+                            fetchedAssets = data.assets;
+                        } else if (data.data && Array.isArray(data.data)) {
+                            fetchedAssets = data.data;
                         }
 
-                        // Display fallback results
-                        displayFilteredAssets(filteredAssets, searchTerm);
-                    }
-                });
+                        displayFilteredAssets(fetchedAssets, searchTerm);
+                    })
+                    .catch(error => {
+                        console.error('Error searching assets:', error);
+                        if (assetLoadingIndicator) {
+                            assetLoadingIndicator.classList.add('hidden');
+                        }
+
+                        if (assetDropdownContent) {
+                            assetDropdownContent.innerHTML = `
+                                <div class="p-2 text-center text-red-500">
+                                    Gagal mencari aset. Silakan coba lagi.
+                                </div>
+                            `;
+                        }
+
+                        if (assets && assets.length > 0) {
+                            let filteredAssets = assets;
+                            if (searchTerm) {
+                                filteredAssets = assets.filter(asset =>
+                                    (asset.asset_name && asset.asset_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                    (asset.asset_master_name && asset.asset_master_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                    (asset.asset_code && asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                    (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
+                                );
+                            }
+
+                            displayFilteredAssets(filteredAssets, searchTerm);
+                        }
+                    });
             }
 
-            // Function to display filtered assets in dropdown
             function displayFilteredAssets(filteredAssets, searchTerm) {
-                // Check if required elements exist
                 if (!assetDropdownContent || !assetLoadingIndicator || !assetNoResults) {
                     console.error('Required DOM elements for displaying assets are missing');
                     return;
@@ -1155,9 +1056,9 @@
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                     div.innerHTML = `
-                        <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
-                        <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
-                    `;
+                            <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
+                            <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
+                        `;
 
                     div.addEventListener('click', function () {
                         selectAsset(asset);
@@ -1166,7 +1067,6 @@
                     assetDropdownContent.appendChild(div);
                 });
 
-                // Show count if there are many results
                 if (filteredAssets.length > 10) {
                     const countDiv = document.createElement('div');
                     countDiv.className = 'p-2 text-center text-xs text-gray-500 border-t';
@@ -1175,7 +1075,6 @@
                 }
             }
 
-            // Function to select an asset
             function selectAsset(asset) {
                 if (!assetId || !assetSearch || !assetDropdown || !selectedAssetName ||
                     !selectedAssetId || !selectedAssetInfo) {
@@ -1187,26 +1086,21 @@
                 assetSearch.value = asset.asset_master_name || asset.asset_name;
                 assetDropdown.classList.add('hidden');
 
-                // Show selected asset info
                 selectedAssetName.textContent = asset.asset_master_name || asset.asset_name;
                 selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
                 selectedAssetInfo.classList.remove('hidden');
             }
 
-            // Clear asset selection
             clearAssetSelection?.addEventListener('click', function () {
                 assetId.value = '';
                 assetSearch.value = '';
                 selectedAssetInfo.classList.add('hidden');
             });
 
-            // ===== FORM SUBMISSION =====
             if (complaintForm) {
                 complaintForm.addEventListener('submit', function (e) {
-                    // Prevent default submission to validate first
                     e.preventDefault();
 
-                    // Validate all required fields
                     const assetSearchInput = document.getElementById('assetSearch');
                     const descriptionInput = document.getElementById('description');
                     const imageFileInput = document.getElementById('imageFile');
@@ -1220,9 +1114,7 @@
                     const isDescriptionValid = validateField(descriptionInput);
                     const isImageValid = validateField(imageFileInput, imageFileInput.files && imageFileInput.files.length > 0);
 
-                    // If any validation fails, show error and stop submission
                     if (!isAssetValid || !isDescriptionValid || !isImageValid) {
-                        // Focus on the first invalid field
                         if (!isAssetValid) assetSearchInput.focus();
                         else if (!isDescriptionValid) descriptionInput.focus();
                         else if (!isImageValid) imageFileInput.focus();
@@ -1231,20 +1123,18 @@
                         return false;
                     }
 
-                    // Find the submit button and show loading state
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                        // Re-enable button after 10 seconds as a failsafe
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -1254,17 +1144,14 @@
                         }, 10000);
                     }
 
-                    // Continue with form submission
                     this.submit();
                 });
             }
 
-            // Repair form submission validation
             if (repairForm) {
                 repairForm.addEventListener('submit', function (e) {
                     e.preventDefault();
 
-                    // Validate all required fields
                     const repairDescription = document.getElementById('repairDescription');
                     const finalResult = document.getElementById('finalResult');
                     const repairCost = document.getElementById('repairCost');
@@ -1282,26 +1169,23 @@
                     const isPartsValid = validateField(partsReplaced);
                     const isImageValid = validateField(repairImageFile, repairImageFile.files && repairImageFile.files.length > 0);
 
-                    // If any validation fails, show error and stop submission
                     if (!isDescriptionValid || !isResultValid || !isCostValid || !isPartsValid || !isImageValid) {
                         showToast('Silakan isi semua field yang diperlukan', 'error');
                         return false;
                     }
 
-                    // Find the submit button and show loading state
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                        // Re-enable button after 10 seconds as a failsafe
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -1311,79 +1195,62 @@
                         }, 10000);
                     }
 
-                    // Continue with form submission
                     this.submit();
                 });
             }
 
-            // Delete button click handlers
             document.querySelectorAll('.delete-complaint-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const complaintId = button.getAttribute('data-id');
                     const complaintName = button.getAttribute('data-name');
-
-                    // Set the complaint ID for later use
                     const deleteComplaintForm = document.getElementById('deleteComplaintForm');
                     if (deleteComplaintForm) {
                         deleteComplaintForm.setAttribute('data-id', complaintId);
                     }
 
-                    // Show asset name in confirmation modal if available
                     const deleteComplaintName = document.getElementById('deleteComplaintName');
                     if (complaintName && deleteComplaintName) {
                         deleteComplaintName.textContent = complaintName;
                     }
 
-                    // Open delete modal
                     if (deleteComplaintModal && deleteComplaintModalContent) {
                         openModal(deleteComplaintModal, deleteComplaintModalContent);
                     }
                 });
             });
 
-            // Close modal when clicking outside
             deleteComplaintModal?.addEventListener('click', function (event) {
                 if (event.target === this) {
                     closeModal(deleteComplaintModal, deleteComplaintModalContent);
                 }
             });
 
-            // Close repair modal when clicking outside
             repairComplaintModal?.addEventListener('click', function (event) {
                 if (event.target === this) {
                     closeModal(repairComplaintModal, repairComplaintModalContent);
                 }
             });
 
-            // Repair button click handlers
             document.querySelectorAll('.repair-complaint-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     const complaintId = button.getAttribute('data-id');
                     const assetName = button.getAttribute('data-asset');
-
-                    // Set form data
                     const repairComplaintId = document.getElementById('repairComplaintId');
                     const repairAssetName = document.getElementById('repairAssetName');
 
                     if (repairComplaintId && repairAssetName) {
                         repairComplaintId.value = complaintId;
                         repairAssetName.textContent = assetName;
-
-                        // Reset form and error messages
                         if (repairForm) {
                             repairForm.reset();
                         }
                         if (repairErrorMsgDiv) {
                             repairErrorMsgDiv.innerHTML = '';
                         }
-
-                        // Reset image preview
                         const repairImagePreview = document.getElementById('repairImagePreview');
                         if (repairImagePreview) {
                             repairImagePreview.classList.add('hidden');
                         }
-
-                        // Open repair modal
                         if (repairComplaintModal && repairComplaintModalContent) {
                             openModal(repairComplaintModal, repairComplaintModalContent);
                         }
@@ -1391,13 +1258,11 @@
                 });
             });
 
-            // Form submission handler for delete
             const deleteComplaintForm = document.getElementById('deleteComplaintForm');
             if (deleteComplaintForm) {
                 deleteComplaintForm.addEventListener('submit', function (e) {
                     e.preventDefault();
 
-                    // Get the complaint ID from the data attribute
                     const complaintId = this.getAttribute('data-id');
 
                     if (!complaintId) {
@@ -1405,21 +1270,19 @@
                         return;
                     }
 
-                    // Find the submit button and show loading state
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
                     }
 
-                    // Make the POST request to delete
                     fetch(`complaint-repair/complaints/${complaintId}`, {
                         method: 'DELETE',
                         headers: {
@@ -1429,54 +1292,47 @@
                         },
                         body: JSON.stringify({ complaint_id: complaintId })
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.message || `Server responded with status ${response.status}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Close the modal
-                        if (deleteComplaintModal && deleteComplaintModalContent) {
-                            closeModal(deleteComplaintModal, deleteComplaintModalContent);
-                        }
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(data => {
+                                    throw new Error(data.message || `Server responded with status ${response.status}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (deleteComplaintModal && deleteComplaintModalContent) {
+                                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                            }
 
-                        if (data.success) {
-                            // Show success toast
-                            showToast(data.message || 'Keluhan berhasil dihapus', 'success');
+                            if (data.success) {
+                                showToast(data.message || 'Keluhan berhasil dihapus', 'success');
 
-                            // Reload the page after a short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            showToast(data.message || 'Gagal menghapus keluhan', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Delete request failed:', error);
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                showToast(data.message || 'Gagal menghapus keluhan', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Delete request failed:', error);
 
-                        // Close the modal
-                        if (deleteComplaintModal && deleteComplaintModalContent) {
-                            closeModal(deleteComplaintModal, deleteComplaintModalContent);
-                        }
+                            if (deleteComplaintModal && deleteComplaintModalContent) {
+                                closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                            }
 
-                        // Show error toast
-                        showToast(error.message || 'Gagal menghapus keluhan', 'error');
+                            showToast(error.message || 'Gagal menghapus keluhan', 'error');
 
-                        // Reset submit button
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
-                        }
-                    });
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        });
                 });
             }
 
-            // Function to validate field and show error styling
             function validateField(field, isValid = null) {
                 if (!field) return true;
 
@@ -1484,7 +1340,6 @@
                     ? field.parentElement?.parentElement?.querySelector('.error-message')
                     : field.parentElement?.querySelector('.error-message');
 
-                // If no explicit valid state is passed, check based on field type
                 if (isValid === null) {
                     if (field.type === 'select-one') {
                         isValid = field.value !== '';
@@ -1497,7 +1352,6 @@
                     }
                 }
 
-                // Apply styling based on validation result
                 if (!isValid) {
                     field.classList.add('border-red-500');
                     if (errorElement) errorElement.classList.remove('hidden');
@@ -1509,7 +1363,6 @@
                 }
             }
 
-            // Add input event listeners to clear error styling when typing/changing
             if (assetSearch) {
                 assetSearch.addEventListener('input', function () {
                     this.classList.remove('border-red-500');
@@ -1574,12 +1427,10 @@
             const repairImageFile = document.getElementById('repairImageFile');
             if (repairImageFile) {
                 repairImageFile.addEventListener('change', function () {
-                    // Clear error styling
                     this.classList.remove('border-red-500');
                     const errorElement = this.parentElement?.parentElement?.querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
 
-                    // Handle image preview
                     const file = this.files[0];
                     if (file) {
                         const reader = new FileReader();
@@ -1618,9 +1469,7 @@
             }
         });
 
-        // Function to view complaint details - defined globally
-        window.viewComplaintDetails = function(id) {
-            // Redirect to the complaint detail page
+        window.viewComplaintDetails = function (id) {
             window.location.href = "{{ url('complaint-repair/detail') }}/" + id;
         }
     </script>

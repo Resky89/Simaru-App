@@ -7,7 +7,6 @@
     <title>@yield('title', 'Asset Monitoring')</title>
     <link rel="icon" href="http://web-magangunbin2025.rsummi.co.id/images/logo.png" type="image/png">
     <!-- Tailwind CSS -->
-    <!-- Note: For production, install Tailwind as a PostCSS plugin -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

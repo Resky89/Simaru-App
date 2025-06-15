@@ -20,7 +20,8 @@
     </div>
 
     <!-- Error message container -->
-    <div id="financeErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="financeErrorMessage"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
     <!-- Content sections -->
@@ -54,7 +55,8 @@
                             <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Tanggal</th>
                             <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-2/12">Tipe</th>
                             <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-right w-3/12">Nominal</th>
-                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan</th>
+                            <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-left w-3/12">Keterangan
+                            </th>
                             <th class="bg-[#213268] text-white p-2 md:p-3 font-bold text-xs text-center w-1/12">Aksi</th>
                         </tr>
                     </thead>
@@ -421,23 +423,19 @@
 <!-- Toast Notification Container -->
 <div id="finance-toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2"></div>
 
-<!-- Add JavaScript for Transaction functionality -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Function to show loading state
         function showLoading() {
             document.getElementById('financeLoadingIndicator').classList.remove('hidden');
             document.getElementById('financeContentSections').classList.add('hidden');
             document.getElementById('financeErrorMessage').classList.add('hidden');
         }
 
-        // Function to hide loading state
         function hideLoading() {
             document.getElementById('financeLoadingIndicator').classList.add('hidden');
             document.getElementById('financeContentSections').classList.remove('hidden');
         }
 
-        // Function to show error message
         function showError(message) {
             const errorDiv = document.getElementById('financeErrorMessage');
             errorDiv.textContent = message;
@@ -446,7 +444,6 @@
             document.getElementById('financeContentSections').classList.add('hidden');
         }
 
-        // Initialize toast container or make sure it exists
         const initializeToastContainer = () => {
             let toastContainer = document.getElementById('finance-toast-container');
             if (!toastContainer) {
@@ -457,29 +454,23 @@
             }
         };
 
-        // Initialize on page load
         initializeToastContainer();
 
-        // Also initialize when this tab becomes active (if we're in a tabbed interface)
         const tabTriggers = document.querySelectorAll('[data-tab]');
         if (tabTriggers.length > 0) {
             tabTriggers.forEach(trigger => {
                 trigger.addEventListener('click', function (e) {
                     const tabId = this.getAttribute('data-tab');
                     if (tabId === 'finance') {
-                        // If this is the finance tab being activated
                         setTimeout(initializeToastContainer, 100);
                     }
                 });
             });
         }
 
-        // Function to show toast notifications
         function showToast(message, type = 'success') {
-            // Ensure container exists
             initializeToastContainer();
 
-            // Get toast container
             let toastContainer = document.getElementById('finance-toast-container');
             if (!toastContainer) {
                 console.error('Toast container still not found!');
@@ -489,17 +480,14 @@
                 document.body.appendChild(toastContainer);
             }
 
-            // Create the toast element
             const toast = document.createElement('div');
 
-            // Set classes based on type
             if (type === 'success') {
                 toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
             } else {
                 toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
             }
 
-            // Add content
             toast.innerHTML = `
                 <div class="py-1">
                     <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -515,10 +503,8 @@
                 <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
             `;
 
-            // Add to container
             toastContainer.appendChild(toast);
 
-            // Auto-remove after 5 seconds
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
@@ -527,12 +513,9 @@
             }, 5000);
         }
 
-        // Make showToast available globally but with unique name to avoid conflicts
         window.financeShowToast = showToast;
-        // Also maintain compatibility with existing calls
         window.showToast = showToast;
 
-        // Define a global openTransactionModal function
         window.openTransactionModal = function () {
             const modal = document.getElementById('addTransactionModal');
             const modalContent = document.getElementById('addTransactionModalContent');
@@ -545,9 +528,7 @@
             }
         };
 
-        // Set up modal helpers
         function setupModalHelpers() {
-            // Define openModal and closeModal functions
             window.openModal = window.openModal || function (modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -565,15 +546,11 @@
             };
         }
 
-        // Initialize modal helpers
         setupModalHelpers();
 
-        // Set up event listeners
         function setupEventListeners() {
-            // Add Transaction Button
             const addBtn = document.getElementById('addTransactionBtn');
             if (addBtn) {
-                // Ensure we don't duplicate click handlers
                 addBtn.onclick = null;
                 addBtn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -586,7 +563,6 @@
                 });
             }
 
-            // Close Modal Buttons
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', () => {
                     const modalId = button.getAttribute('data-modal') || button.closest('[id$="Modal"]').id;
@@ -598,9 +574,7 @@
                 });
             });
 
-            // Event delegation for edit and delete buttons
             document.addEventListener('click', (e) => {
-                // Edit transaction button handling
                 if (e.target.closest('.edit-transaction')) {
                     @if(hasPermission('asset:transaction:edit'))
                         e.preventDefault();
@@ -613,7 +587,6 @@
                     @endif
                 }
 
-                // Delete transaction button handling
                 if (e.target.closest('.delete-transaction')) {
                     @if(hasPermission('asset:transaction:delete'))
                         e.preventDefault();
@@ -627,29 +600,23 @@
                 }
             });
 
-            // Tambahkan fungsi ini di bagian setupEventListeners
             setupAmountInputs();
         }
 
-        // DOM Elements
         const assetId = document.getElementById('asset-id')?.value || '{{ $asset['asset_id'] ?? "" }}';
         const transactionItems = document.getElementById('transaction-items');
         const filterType = document.getElementById('filter-type');
         const sortBy = document.getElementById('sort-by');
 
-        // Finance summary elements
         const expenseTotal = document.getElementById('expense-total');
         const incomeTotal = document.getElementById('income-total');
         const balanceTotal = document.getElementById('balance-total');
         const transactionCount = document.getElementById('transaction-count');
 
-        // Current page for pagination
         let currentPage = 1;
 
-        // Current transaction being deleted
         let currentDeleteId = null;
 
-        // Format currency function
         function formatCurrency(amount) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -659,32 +626,26 @@
             }).format(amount).replace('IDR', 'Rp');
         }
 
-        // Format date as DD MMM YYYY
         function formatDate(dateString) {
             const options = { day: 'numeric', month: 'short', year: 'numeric' };
             return new Date(dateString).toLocaleDateString('id-ID', options);
         }
 
-        // Load transactions function
         function loadTransactions() {
-            // Check if asset ID is available
             if (!assetId) {
                 showError('Gagal memuat transaksi: ID Aset diperlukan');
                 return;
             }
 
-            // Show loading state
             showLoading();
 
             if (transactionItems) {
                 transactionItems.innerHTML = '';
             }
 
-            // Get filter and sort values
             const filterValue = filterType?.value || 'all';
             const sortValue = sortBy?.value || 'newest';
 
-            // Apply visual filter indication
             if (filterValue !== 'all') {
                 filterType.classList.add('border-[#213268]', 'bg-blue-50');
                 const filterLabel = filterValue === 'income' ? 'Pemasukan' : 'Pengeluaran';
@@ -693,12 +654,9 @@
                 filterType.classList.remove('border-[#213268]', 'bg-blue-50');
             }
 
-            // Apply visual sort indication
             if (sortBy) {
-                // Add a border to indicate active sort
                 sortBy.classList.add('border-[#213268]', 'bg-blue-50');
 
-                // Add visual indicator to show which sort is active
                 let sortLabel = '';
                 switch (sortValue) {
                     case 'newest':
@@ -716,7 +674,6 @@
                 }
             }
 
-            // Build query parameters
             let queryParams = `?page=${currentPage}`;
 
             if (filterValue !== 'all') {
@@ -727,10 +684,6 @@
                 queryParams += `&sort=${sortValue}`;
             }
 
-            // Make API request with console logging for debugging
-            console.log(`Fetching transactions with params: ${queryParams}`);
-
-            // Make sure assetId is not empty
             if (!assetId) {
                 showError('Gagal memuat transaksi: ID Aset diperlukan');
                 return;
@@ -745,15 +698,12 @@
             })
                 .then(response => {
                     return response.json().then(data => {
-                        // Add response status to data for error handling
                         return { ...data, httpStatus: response.status };
                     });
                 })
                 .then(data => {
-                    // Hide loading indicator
                     hideLoading();
 
-                    // AssetFinanceController returns 'success', not 'status'
                     if (data.success) {
                         displayTransactions(data.data.transactions);
                         updateSummary(data.data.summary);
@@ -763,13 +713,11 @@
                     } else {
                         console.error('Error loading transactions:', data);
 
-                        // Extract error message from the response
                         let errorMessage = 'Terjadi kesalahan saat memuat data';
                         if (data.errors) {
                             if (typeof data.errors === 'string') {
                                 errorMessage = data.errors;
                             } else if (typeof data.errors === 'object') {
-                                // Get first error message from the object
                                 const firstErrorKey = Object.keys(data.errors)[0];
                                 if (firstErrorKey) {
                                     const firstError = data.errors[firstErrorKey];
@@ -787,7 +735,6 @@
                 });
         }
 
-        // Display transactions function
         function displayTransactions(transactions) {
             if (!transactions || transactions.length === 0) {
                 transactionItems.innerHTML = `
@@ -800,7 +747,6 @@
                 return;
             }
 
-            // Build transactions HTML
             let html = '';
             transactions.forEach(transaction => {
                 const isIncome = transaction.type === 'income';
@@ -855,7 +801,6 @@
             transactionItems.innerHTML = html;
         }
 
-        // Update summary function
         function updateSummary(summary) {
             if (summary) {
                 expenseTotal.textContent = formatCurrency(summary.expense.total);
@@ -867,14 +812,10 @@
             }
         }
 
-        // Update pagination function
         function updatePagination(pagination) {
-            // Implement pagination UI if needed
         }
 
-        // Edit transaction function
         window.editTransaction = function (id) {
-            // Show loading state
             const editFormError = document.getElementById('edit-form-error');
             if (editFormError) editFormError.classList.add('hidden');
 
@@ -887,49 +828,39 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    // AssetFinanceController returns 'success', not 'status'
                     if (data.success) {
                         const transaction = data.data;
 
-                        // Set form action with the correct ID
                         const form = document.getElementById('editTransactionForm');
                         form.action = `/asset-transactions/${transaction.transaction_id}`;
 
-                        // Reset form event handlers
                         const newForm = form.cloneNode(true);
                         form.parentNode.replaceChild(newForm, form);
 
-                        // Setup the new form
                         setupEditForm(newForm);
 
-                        // Populate form fields after replacing the form
                         document.getElementById('edit-transaction-id').value = transaction.transaction_id;
                         document.getElementById('edit-asset-id').value = transaction.asset_id;
 
-                        // Set transaction type
                         if (transaction.type === 'income') {
                             document.getElementById('edit-type-income').checked = true;
                         } else {
                             document.getElementById('edit-type-expense').checked = true;
                         }
 
-                        // Set date, amount, and description
                         document.getElementById('edit-transaction-date').value = transaction.transaction_date;
                         document.getElementById('edit-transaction-amount').value = parseFloat(transaction.amount).toLocaleString('id-ID');
                         document.getElementById('edit-transaction-description').value = transaction.description || '';
 
-                        // Open edit modal
                         const modal = document.getElementById('editTransactionModal');
                         const content = document.getElementById('editTransactionModalContent');
                         openModal(modal, content);
                     } else {
-                        // Extract error message from the response
                         let errorMessage = 'Gagal memuat detail transaksi';
                         if (data.errors) {
                             if (typeof data.errors === 'string') {
                                 errorMessage = data.errors;
                             } else if (typeof data.errors === 'object') {
-                                // Get first error message from the object
                                 const firstErrorKey = Object.keys(data.errors)[0];
                                 if (firstErrorKey) {
                                     const firstError = data.errors[firstErrorKey];
@@ -947,49 +878,38 @@
                 });
         }
 
-        // Show delete confirmation modal
         function showDeleteModal(id) {
             currentDeleteId = id;
             const modal = document.getElementById('deleteTransactionModal');
             const content = document.getElementById('deleteTransactionModalContent');
             const form = document.getElementById('deleteTransactionForm');
 
-            // Set the form action with the correct ID
             form.action = `/asset-transactions/${id}`;
 
-            // Reset form event handlers and state
             const newForm = form.cloneNode(true);
             form.parentNode.replaceChild(newForm, form);
 
-            // Reset delete button state
             const deleteBtn = newForm.querySelector('#deleteTransactionSubmitBtn');
             if (deleteBtn) {
                 deleteBtn.disabled = false;
                 deleteBtn.innerHTML = 'Hapus';
             }
 
-            // Setup the new form
             setupDeleteForm(newForm);
 
-            // Open modal
             openModal(modal, content);
         }
 
-        // Set up the edit transaction form handler
         function setupEditForm(form) {
-            // Get the edit submit button
             const editSubmitBtn = document.getElementById('editTransactionSubmitBtn');
 
             if (editSubmitBtn) {
-                // Remove any existing event handlers
                 const newEditBtn = editSubmitBtn.cloneNode(true);
                 editSubmitBtn.parentNode.replaceChild(newEditBtn, editSubmitBtn);
 
-                // Add click handler
                 newEditBtn.addEventListener('click', function (e) {
                     e.preventDefault();
 
-                    // Validate form data
                     const type = form.querySelector('input[name="type"]:checked')?.value;
                     const date = document.getElementById('edit-transaction-date')?.value;
                     let amount = document.getElementById('edit-transaction-amount')?.value;
@@ -1009,26 +929,22 @@
                         return;
                     }
 
-                    // Format amount - ubah dari string ke number
-                    amount = amount.replace(/[^\d,]/g, '');  // Hapus semua karakter kecuali angka dan koma
-                    amount = amount.replace(/,/g, '.');      // Ganti koma dengan titik
-                    amount = parseFloat(amount);             // Konversi ke number
+                    amount = amount.replace(/[^\d,]/g, '');
+                    amount = amount.replace(/,/g, '.');
+                    amount = parseFloat(amount);
 
                     if (isNaN(amount)) {
                         financeShowToast('Please enter a valid amount', 'error');
                         return;
                     }
 
-                    // Show loading state on button
                     this.disabled = true;
                     const originalBtnText = this.innerHTML;
                     this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                    // Create FormData from the form
                     const formData = new FormData(form);
-                    formData.set('amount', amount); // Set amount yang sudah diformat
+                    formData.set('amount', amount);
 
-                    // Check if asset ID is available
                     const assetId = formData.get('asset_id');
                     if (!assetId) {
                         financeShowToast('ID Aset diperlukan untuk mengedit transaksi', 'error');
@@ -1037,7 +953,6 @@
                         return;
                     }
 
-                    // Convert FormData to JSON - only include non-empty fields
                     const jsonData = {
                         asset_id: parseInt(formData.get('asset_id')),
                         type: formData.get('type'),
@@ -1045,16 +960,13 @@
                         transaction_date: formData.get('transaction_date')
                     };
 
-                    // Only add description if it's not empty
                     const description = formData.get('description');
                     if (description && description.trim() !== '') {
                         jsonData.description = description.trim();
                     }
 
-                    // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    // Use fetch for submission
                     fetch(form.action, {
                         method: 'PUT',
                         headers: {
@@ -1070,21 +982,17 @@
                             if (result.success) {
                                 financeShowToast('Transaksi berhasil diperbarui', 'success');
 
-                                // Close modal
                                 const modal = document.getElementById('editTransactionModal');
                                 const content = document.getElementById('editTransactionModalContent');
                                 closeModal(modal, content);
 
-                                // Reload transactions
                                 loadTransactions();
                             } else {
-                                // Extract error message from the response
                                 let errorMessage = 'Gagal memperbarui transaksi';
                                 if (result.errors) {
                                     if (typeof result.errors === 'string') {
                                         errorMessage = result.errors;
                                     } else if (typeof result.errors === 'object') {
-                                        // Get first error message from the object
                                         const firstErrorKey = Object.keys(result.errors)[0];
                                         if (firstErrorKey) {
                                             const firstError = result.errors[firstErrorKey];
@@ -1101,7 +1009,6 @@
                             financeShowToast('Terjadi kesalahan saat memperbarui transaksi', 'error');
                         })
                         .finally(() => {
-                            // Reset button
                             this.disabled = false;
                             this.innerHTML = originalBtnText;
                         });
@@ -1109,20 +1016,15 @@
             }
         }
 
-        // Set up the original edit form
         setupEditForm(document.getElementById('editTransactionForm'));
 
-        // Delete transaction form handler
         function setupDeleteForm(form) {
-            // Get the delete submit button
             const deleteSubmitBtn = document.getElementById('deleteTransactionSubmitBtn');
 
             if (deleteSubmitBtn) {
-                // Remove any existing event handlers
                 const newDeleteBtn = deleteSubmitBtn.cloneNode(true);
                 deleteSubmitBtn.parentNode.replaceChild(newDeleteBtn, deleteSubmitBtn);
 
-                // Add click handler
                 newDeleteBtn.addEventListener('click', function (e) {
                     e.preventDefault();
 
@@ -1131,18 +1033,13 @@
                         return;
                     }
 
-                    // Show loading state on button
                     this.disabled = true;
                     const originalBtnText = this.innerHTML;
                     this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                    // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                    // Store button reference
                     const deleteBtn = this;
 
-                    // Use fetch for deletion
                     fetch(form.action, {
                         method: 'POST',
                         headers: {
@@ -1155,23 +1052,19 @@
                     })
                         .then(response => response.json())
                         .then(result => {
-                            // Close modal first
                             const modal = document.getElementById('deleteTransactionModal');
                             const content = document.getElementById('deleteTransactionModalContent');
                             closeModal(modal, content);
 
                             if (result.success) {
-                                // Gunakan fungsi yang didefinisikan di atas
                                 financeShowToast('Transaksi berhasil dihapus', 'success');
                                 loadTransactions();
                             } else {
-                                // Extract error message from the response
                                 let errorMessage = 'Gagal menghapus transaksi';
                                 if (result.errors) {
                                     if (typeof result.errors === 'string') {
                                         errorMessage = result.errors;
                                     } else if (typeof result.errors === 'object') {
-                                        // Get first error message from the object
                                         const firstErrorKey = Object.keys(result.errors)[0];
                                         if (firstErrorKey) {
                                             const firstError = result.errors[firstErrorKey];
@@ -1180,7 +1073,6 @@
                                     }
                                 }
 
-                                // Gunakan fungsi yang didefinisikan di atas
                                 financeShowToast(errorMessage, 'error');
                             }
                         })
@@ -1189,24 +1081,20 @@
                             financeShowToast('Terjadi kesalahan saat menghapus transaksi', 'error');
                         })
                         .finally(() => {
-                            // Always reset the button state
                             deleteBtn.disabled = false;
                             deleteBtn.innerHTML = originalBtnText;
 
-                            // Reset currentDeleteId
                             currentDeleteId = null;
                         });
                 });
             }
         }
 
-        // Set up the original delete form
         setupDeleteForm(document.getElementById('deleteTransactionForm'));
 
-        // Filter and sort change handlers
         if (filterType) {
             filterType.addEventListener('change', function () {
-                currentPage = 1; // Reset to first page when filter changes
+                currentPage = 1;
                 loadTransactions();
             });
         }
@@ -1215,27 +1103,21 @@
             sortBy.addEventListener('change', loadTransactions);
         }
 
-        // Setup event listeners
         setupEventListeners();
 
-        // Initialize - load transactions on page load
         loadTransactions();
 
-        // Add transaction form handler
         document.getElementById('addTransactionSubmitBtn')?.addEventListener('click', function (e) {
             e.preventDefault();
 
             const form = document.getElementById('addTransactionForm');
             const formData = new FormData(form);
-
-            // Check if asset ID is available
             const assetId = formData.get('asset_id');
             if (!assetId) {
                 financeShowToast('ID Aset diperlukan untuk menambahkan transaksi', 'error');
                 return;
             }
 
-            // Validate required fields
             const type = formData.get('type');
             const date = formData.get('transaction_date');
             let amount = formData.get('amount');
@@ -1255,7 +1137,6 @@
                 return;
             }
 
-            // Format amount
             amount = amount.replace(/[^\d,]/g, '');
             amount = amount.replace(/,/g, '.');
             amount = parseFloat(amount);
@@ -1265,7 +1146,6 @@
                 return;
             }
 
-            // Create JSON data - only include non-empty fields
             const jsonData = {
                 asset_id: parseInt(formData.get('asset_id')),
                 type: formData.get('type'),
@@ -1273,18 +1153,15 @@
                 transaction_date: formData.get('transaction_date')
             };
 
-            // Only add description if it's not empty
             const description = formData.get('description');
             if (description && description.trim() !== '') {
                 jsonData.description = description.trim();
             }
 
-            // Show loading state
             this.disabled = true;
             const originalText = this.innerHTML;
             this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-            // Send AJAX request
             fetch(form.action, {
                 method: 'POST',
                 headers: {
@@ -1298,27 +1175,21 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Close modal
                         const modal = document.getElementById('addTransactionModal');
                         const modalContent = document.getElementById('addTransactionModalContent');
                         closeModal(modal, modalContent);
 
-                        // Reset form
                         form.reset();
 
-                        // Show success message
                         financeShowToast('Transaksi berhasil ditambahkan', 'success');
 
-                        // Reload transactions
                         loadTransactions();
                     } else {
-                        // Extract error message from the response
                         let errorMessage = 'Gagal menambahkan transaksi';
                         if (data.errors) {
                             if (typeof data.errors === 'string') {
                                 errorMessage = data.errors;
                             } else if (typeof data.errors === 'object') {
-                                // Get first error message from the object
                                 const firstErrorKey = Object.keys(data.errors)[0];
                                 if (firstErrorKey) {
                                     const firstError = data.errors[firstErrorKey];
@@ -1335,15 +1206,12 @@
                     financeShowToast('Terjadi kesalahan saat menambahkan transaksi', 'error');
                 })
                 .finally(() => {
-                    // Reset button state
                     this.disabled = false;
                     this.innerHTML = originalText;
                 });
         });
 
-        // Tambahkan fungsi ini di bagian setupEventListeners
         function setupAmountInputs() {
-            // Format amount input saat add transaction
             const addAmountInput = document.getElementById('transaction-amount');
             if (addAmountInput) {
                 addAmountInput.addEventListener('input', function (e) {
@@ -1355,7 +1223,6 @@
                 });
             }
 
-            // Format amount input saat edit transaction
             const editAmountInput = document.getElementById('edit-transaction-amount');
             if (editAmountInput) {
                 editAmountInput.addEventListener('input', function (e) {
@@ -1368,13 +1235,9 @@
             }
         }
 
-        // Modifikasi fungsi untuk format amount
         function formatAmount(value) {
-            // Hapus semua karakter non-digit dan koma
             value = value.replace(/[^\d,]/g, '');
-            // Ganti koma dengan titik untuk format desimal yang benar
             value = value.replace(/,/g, '.');
-            // Konversi ke float
             return parseFloat(value) || 0;
         }
     });

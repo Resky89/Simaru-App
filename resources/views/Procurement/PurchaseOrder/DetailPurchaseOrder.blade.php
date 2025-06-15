@@ -36,7 +36,6 @@
                 </div>
 
                 @if(isset($purchaseOrder) && !empty($purchaseOrder))
-                <!-- PO Details - Two Column Layout -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Left Column - Order Information -->
                     <div class="space-y-5">
@@ -203,9 +202,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Check permissions and hide elements if needed
         @if(!hasPermission('purchase-order:export'))
-        // Hide export PDF button if user doesn't have permission
         const exportButtons = document.querySelectorAll('#exportPdfBtn');
         exportButtons.forEach(btn => {
             if (btn) {

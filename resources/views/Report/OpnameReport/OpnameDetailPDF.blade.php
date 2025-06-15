@@ -5,7 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Laporan Detail Opname Aset</title>
     @php
-        // Function to format dates in Indonesian
         function formatDateIndonesian($date, $includeTime = true) {
             $months = [
                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -13,7 +12,6 @@
                 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
             ];
 
-            // If date is null or empty, use current date and time
             if ($date === null || $date === '') {
                 $date = new DateTime();
             } elseif (is_string($date)) {

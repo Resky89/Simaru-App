@@ -467,23 +467,18 @@
                 <th>Nilai Saat Ini</th>
                 <td>
                     @php
-                        // Get today's date from the device running the application
                         $today = new DateTime();
                         $currentValue = '-';
 
-                        // Use today's date for calculation
                         if (isset($depreciation['monthly_data']) && is_array($depreciation['monthly_data']) && count($depreciation['monthly_data']) > 0) {
-                            // Start with total cost as fallback
                             $currentValue = $depreciation['total_cost'] ?? 0;
 
-                            // Find the most recent month that's not in the future
                             $mostRecentMonth = null;
                             $mostRecentDate = null;
                             $currentMonthMatch = null;
 
-                            // Get current month and year for exact matching
-                            $currentMonthNumber = (int)$today->format('n');
-                            $currentYear = (int)$today->format('Y');
+                            $currentMonthNumber = (int) $today->format('n');
+                            $currentYear = (int) $today->format('Y');
                             $currentMonthNames = [
                                 // Full names
                                 1 => ['January', 'Januari'],
@@ -499,7 +494,6 @@
                                 11 => ['November', 'November'],
                                 12 => ['December', 'Desember']
                             ];
-                            // Add abbreviated names
                             $currentMonthAbbr = [
                                 1 => ['Jan'],
                                 2 => ['Feb'],
@@ -518,24 +512,20 @@
                                 $currentMonthNames[$num] = array_merge($currentMonthNames[$num], $abbrs);
                             }
 
-                            // First, try to find an exact match with the current month and year
                             foreach ($depreciation['monthly_data'] as $month) {
-                                // Skip if no book value
-                                if (!isset($month['book_value'])) continue;
+                                if (!isset($month['book_value']))
+                                    continue;
 
                                 if (isset($month['month_name'])) {
-                                    // Check for an exact match with the current month/year
                                     if (preg_match('/(\w+)\s+(\d{4})/', $month['month_name'], $matches)) {
                                         $monthName = $matches[1];
-                                        $year = (int)$matches[2];
+                                        $year = (int) $matches[2];
 
-                                        // Check if this is the current month and year
                                         if ($year === $currentYear) {
                                             foreach ($currentMonthNames[$currentMonthNumber] as $validMonthName) {
                                                 if (strcasecmp($monthName, $validMonthName) === 0) {
-                                                    // We found an exact match for the current month!
                                                     $currentMonthMatch = $month;
-                                                    break 2; // Exit both loops
+                                                    break 2;
                                                 }
                                             }
                                         }
@@ -543,30 +533,23 @@
                                 }
                             }
 
-                            // If we found an exact match for the current month, use it
                             if ($currentMonthMatch !== null) {
                                 $currentValue = $currentMonthMatch['book_value'];
-                            }
-                            // Otherwise, look for the most recent applicable month
-                            else {
+                            } else {
                                 foreach ($depreciation['monthly_data'] as $month) {
-                                    // Skip if no book value
-                                    if (!isset($month['book_value'])) continue;
+                                    if (!isset($month['book_value']))
+                                        continue;
 
                                     $monthDate = null;
 
-                                    // Try to extract date information
                                     if (isset($month['month_name'])) {
                                         $monthNameStr = $month['month_name'];
 
-                                        // Handle different month formats (Full: "January 2023", Abbreviated: "Jan 2023", etc.)
                                         if (preg_match('/(\w+)\s+(\d{4})/', $monthNameStr, $matches)) {
                                             $monthName = $matches[1];
-                                            $year = (int)$matches[2];
+                                            $year = (int) $matches[2];
 
-                                            // Expanded month name mapping to include abbreviations
                                             $monthMap = [
-                                                // Indonesian - full names
                                                 'Januari' => 1,
                                                 'Februari' => 2,
                                                 'Maret' => 3,
@@ -579,7 +562,6 @@
                                                 'Oktober' => 10,
                                                 'November' => 11,
                                                 'Desember' => 12,
-                                                // Indonesian - abbreviated
                                                 'Jan' => 1,
                                                 'Feb' => 2,
                                                 'Mar' => 3,
@@ -595,20 +577,34 @@
                                                 'Des' => 12,
                                             ];
 
-                                            // Add English month mappings
                                             $englishMonths = [
-                                                'January' => 1, 'February' => 2, 'March' => 3,
-                                                'April' => 4, 'May' => 5, 'June' => 6, 'July' => 7, 'August' => 8,
-                                                'September' => 9, 'October' => 10, 'November' => 11, 'December' => 12,
-                                                // Abbreviated
-                                                'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                                                'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                                                'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                                                'January' => 1,
+                                                'February' => 2,
+                                                'March' => 3,
+                                                'April' => 4,
+                                                'May' => 5,
+                                                'June' => 6,
+                                                'July' => 7,
+                                                'August' => 8,
+                                                'September' => 9,
+                                                'October' => 10,
+                                                'November' => 11,
+                                                'December' => 12,
+                                                'Jan' => 1,
+                                                'Feb' => 2,
+                                                'Mar' => 3,
+                                                'Apr' => 4,
+                                                'Jun' => 6,
+                                                'Jul' => 7,
+                                                'Aug' => 8,
+                                                'Sep' => 9,
+                                                'Oct' => 10,
+                                                'Nov' => 11,
+                                                'Dec' => 12
                                             ];
 
                                             $monthMap = array_merge($monthMap, $englishMonths);
 
-                                            // Case-insensitive month name lookup
                                             $monthNumber = null;
                                             foreach ($monthMap as $name => $num) {
                                                 if (strcasecmp($monthName, $name) === 0) {
@@ -617,36 +613,28 @@
                                                 }
                                             }
 
-                                            // If we can identify the month number
                                             if ($monthNumber !== null) {
-                                                // Create a date object for this month (end of month)
                                                 try {
                                                     $monthDate = new DateTime();
                                                     $monthDate->setDate($year, $monthNumber, 1);
                                                     $monthDate->modify('last day of this month');
                                                 } catch (\Exception $e) {
-                                                    // Invalid date
                                                     continue;
                                                 }
                                             }
                                         }
-                                    }
-                                    // If we have month_number and date_acquired, use those
-                                    else if (isset($month['month_number']) && isset($depreciation['date_acquired'])) {
+                                    } else if (isset($month['month_number']) && isset($depreciation['date_acquired'])) {
                                         try {
                                             $startDate = new DateTime($depreciation['date_acquired']);
                                             $monthDate = clone $startDate;
-                                            $monthDate->modify('+' . ((int)$month['month_number'] - 1) . ' months');
+                                            $monthDate->modify('+' . ((int) $month['month_number'] - 1) . ' months');
                                             $monthDate->modify('last day of this month');
                                         } catch (\Exception $e) {
-                                            // Invalid date
                                             continue;
                                         }
                                     }
 
-                                    // If we have a valid date that's not in the future
                                     if ($monthDate && $monthDate <= $today) {
-                                        // If this is our first valid month or it's more recent than what we have
                                         if ($mostRecentDate === null || $monthDate > $mostRecentDate) {
                                             $mostRecentDate = $monthDate;
                                             $mostRecentMonth = $month;
@@ -654,14 +642,12 @@
                                     }
                                 }
 
-                                // Use the most recent month's book value if we found one
                                 if ($mostRecentMonth !== null) {
                                     $currentValue = $mostRecentMonth['book_value'];
                                 }
                             }
                         }
 
-                        // Format for display
                         if (is_numeric($currentValue)) {
                             $currentValue = number_format($currentValue, 0, ',', '.');
                         }

@@ -262,7 +262,7 @@
                 notification.remove();
             }, 500);
         }
-    }, 5000); // Hide after 5 seconds
+    }, 5000); 
 </script>
 @endif
 
@@ -291,16 +291,14 @@
                 notification.remove();
             }, 500);
         }
-    }, 5000); // Hide after 5 seconds
+    }, 5000); 
 </script>
 @endif
 
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Permission handling
         @if(!hasPermission('price-comparison:create'))
-        // Hide create button if user doesn't have permission
         const createButtons = document.querySelectorAll('a[href="{{ route('procurement.form-comparison') }}"]');
         createButtons.forEach(btn => {
             if (btn) {
@@ -310,7 +308,6 @@
         @endif
 
         @if(!hasPermission('price-comparison:edit'))
-        // Hide edit buttons if user doesn't have permission
         const editButtons = document.querySelectorAll('a[href^="{{ url('procurement/price-comparison') }}/"]');
         editButtons.forEach(btn => {
             if (btn) {
@@ -319,49 +316,37 @@
         });
         @endif
 
-        // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
         const sortOrder = document.getElementById('sortOrder');
 
-        // Function to handle search and filtering
         function applyFilters() {
             const searchValue = searchInput?.value.trim() || '';
             const statusValue = statusFilter?.value || '';
             const sortValue = sortOrder?.value || '';
-
-            // Create URL with filter parameters
             const url = new URL(window.location.href);
 
-            // Clear existing parameters we're going to set
             ['search', 'status', 'sort', 'page'].forEach(param => {
                 url.searchParams.delete(param);
             });
 
-            // Add new parameters if they have values
             if (searchValue) url.searchParams.set('search', searchValue);
             if (statusValue) url.searchParams.set('status', statusValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
 
-            // Reset to page 1 when filters change
-            url.searchParams.set('page', 1);
-
-            // Navigate to the new URL
+            url.searchParams.set('page', 1);    
             window.location.href = url.toString();
         }
 
-        // Add event listeners with debounce for search
         let searchTimeout;
         searchInput?.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // Add event listeners for select filters
         statusFilter?.addEventListener('change', applyFilters);
         sortOrder?.addEventListener('change', applyFilters);
 
-        // Set initial values from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         if (searchInput) searchInput.value = urlParams.get('search') || '';
         if (statusFilter) {
@@ -377,7 +362,6 @@
             }
         }
 
-        // Pagination functions
         window.changePage = function(page) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('page', page);
@@ -387,7 +371,7 @@
         window.changeComparisonPerPage = function(limit) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('limit', limit);
-            urlParams.set('page', 1); // Reset to first page when changing limit
+            urlParams.set('page', 1);
             window.location.href = '{{ route("procurement.price-comparison") }}?' + urlParams.toString();
         };
     });

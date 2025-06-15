@@ -1,5 +1,4 @@
 @php
-    // Define permission requirements for each menu using the exact permission format from API
     $menuPermissions = [
         'dashboard' => 'dashboard:view',
         'masterdata' => ['asset-subcategory:view', 'brand:view', 'building:view', 'room:view', 'vendor:view'],
@@ -12,7 +11,6 @@
         'account' => ['user:view', 'role:view']
     ];
 
-    // Define permission requirements for each submenu using the exact format from API
     $submenuPermissions = [
         'categories' => 'asset-subcategory:view',
         'brands' => 'brand:view',
@@ -39,7 +37,6 @@
 @endphp
 
 <div id="sidebar-container" class="w-[250px] h-screen bg-white rounded-r-[20px] flex flex-col relative overflow-hidden">
-    <!-- Header with Logo -->
     <div class="h-[72px] relative">
         <div class="w-full h-[72px] bg-white shadow-[0_4px_8.1px_2px_#56C5F1] rounded-tr-[20px]">
             <img src="{{ asset('images/Logo_RS_UMMI.png') }}" alt="Logo RS UMMI"
@@ -47,12 +44,9 @@
         </div>
     </div>
 
-    <!-- Menu Items Container with Scroll -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
-        <!-- Menu Items -->
         <div id="menu-container" class="flex flex-col gap-[5px] mt-5 transition-all duration-500 ease-in-out px-[13px]">
             @php
-                // Define consistent classes
                 $menuItemClass = "w-full bg-white transform transition-all duration-300 ease-in-out group hover:translate-x-2 menu-item";
                 $menuLinkClass = "h-[41px] rounded-[8px] flex items-center transition-all duration-300 ease-in-out hover:bg-[#56C5F1]/20";
                 $iconWrapperClass = "w-6 h-6 ml-5";
@@ -63,329 +57,328 @@
 
             <!-- Dashboard -->
             @if(hasPermission($menuPermissions['dashboard']))
-            <div class="{{ $menuItemClass }}">
-                <a href="{{ route('dashboard') }}" class="block dashboard-link" data-menu="dashboard">
-                    <div class="{{ $menuLinkClass }} {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                            </svg>
+                <div class="{{ $menuItemClass }}">
+                    <a href="{{ route('dashboard') }}" class="block dashboard-link" data-menu="dashboard">
+                        <div class="{{ $menuLinkClass }} {{ Request::routeIs('dashboard') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Dashboard</span>
                         </div>
-                        <span class="{{ $menuTextClass }}">Dashboard</span>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endif
 
             <!-- Master Data -->
             @if(hasAnyPermission($menuPermissions['masterdata']))
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="masterdata">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <div class="{{ $menuItemClass }}">
+                    <button class="w-full focus:outline-none toggle-menu" data-menu="masterdata">
+                        <div class="{{ $menuLinkClass }} menu-header">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Data Master</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                                fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Data Master</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
-                            fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
+                    </button>
+                    <!-- Sub Menu -->
+                    <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
+                        style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                        @if(hasPermission($submenuPermissions['categories']))
+                            <a href="{{ route('categories') }}" class="block">
+                                <div
+                                    class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Kategori</span>
+                                </div>
+                            </a>
+                        @endif
+                        @if(hasPermission($submenuPermissions['brands']))
+                            <a href="{{ route('brands') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Merk</span>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if(hasPermission($submenuPermissions['buildings']))
+                            <a href="{{ route('buildings') }}" class="block">
+                                <div
+                                    class="{{ $submenuLinkClass }} {{ Request::routeIs('buildings') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Gedung</span>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if(hasPermission($submenuPermissions['rooms']))
+                            <a href="{{ route('rooms') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('rooms') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Ruangan</span>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if(hasPermission($submenuPermissions['vendor']))
+                            <a href="{{ route('vendor') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('vendor') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Vendor</span>
+                                </div>
+                            </a>
+                        @endif
                     </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="masterdata"
-                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    @if(hasPermission($submenuPermissions['categories']))
-                    <a href="{{ route('categories') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('categories') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Kategori</span>
-                        </div>
-                    </a>
-                    @endif
-                    @if(hasPermission($submenuPermissions['brands']))
-                    <a href="{{ route('brands') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('brands') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Merk</span>
-                        </div>
-                    </a>
-                    @endif
-
-                    @if(hasPermission($submenuPermissions['buildings']))
-                    <a href="{{ route('buildings') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('buildings') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Gedung</span>
-                        </div>
-                    </a>
-                    @endif
-
-                    @if(hasPermission($submenuPermissions['rooms']))
-                    <a href="{{ route('rooms') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('rooms') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Ruangan</span>
-                        </div>
-                    </a>
-                    @endif
-
-                    @if(hasPermission($submenuPermissions['vendor']))
-                    <a href="{{ route('vendor') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('vendor') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Vendor</span>
-                        </div>
-                    </a>
-                    @endif
                 </div>
-            </div>
             @endif
 
             <!-- Asset (New Menu) -->
             @if(hasAnyPermission($menuPermissions['asset']))
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <div class="{{ $menuItemClass }}">
+                    <button class="w-full focus:outline-none toggle-menu" data-menu="asset">
+                        <div class="{{ $menuLinkClass }} menu-header">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Data Aset</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                                fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Data Aset</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
-                            fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
+                    </button>
+                    <!-- Sub Menu -->
+                    <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="asset"
+                        style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                        @if(hasPermission($submenuPermissions['asset-master']))
+                            <a href="{{ route('asset-master') }}" class="block">
+                                <div
+                                    class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-master') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Master Aset</span>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if(hasPermission($submenuPermissions['assets']))
+                            <a href="{{ route('assets') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('assets') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Unit Aset</span>
+                                </div>
+                            </a>
+                        @endif
+
+                        @if(hasPermission($submenuPermissions['asset-documents']))
+                            <a href="{{ route('asset-documents') }}" class="block">
+                                <div
+                                    class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-documents') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Dokumen Aset</span>
+                                </div>
+                            </a>
+                        @endif
                     </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="asset"
-                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    @if(hasPermission($submenuPermissions['asset-master']))
-                    <a href="{{ route('asset-master') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-master') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Master Aset</span>
-                        </div>
-                    </a>
-                    @endif
-
-                    @if(hasPermission($submenuPermissions['assets']))
-                    <a href="{{ route('assets') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('assets') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Unit Aset</span>
-                        </div>
-                    </a>
-                    @endif
-
-                    @if(hasPermission($submenuPermissions['asset-documents']))
-                    <a href="{{ route('asset-documents') }}" class="block">
-                        <div
-                            class="{{ $submenuLinkClass }} {{ Request::routeIs('asset-documents') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Dokumen Aset</span>
-                        </div>
-                    </a>
-                    @endif
                 </div>
-            </div>
             @endif
 
             <!-- Calibration -->
             @if(hasPermission($menuPermissions['calibration']))
-            <div class="{{ $menuItemClass }}">
-                <a href="{{ route('calibration') }}" class="block calibration-link" data-menu="calibration">
-                    <div class="{{ $menuLinkClass }} {{ Request::routeIs('calibration') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
+                <div class="{{ $menuItemClass }}">
+                    <a href="{{ route('calibration') }}" class="block calibration-link" data-menu="calibration">
+                        <div class="{{ $menuLinkClass }} {{ Request::routeIs('calibration') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Kalibrasi</span>
                         </div>
-                        <span class="{{ $menuTextClass }}">Kalibrasi</span>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endif
 
             <!-- Maintenance -->
             @if(hasPermission($menuPermissions['maintenance']))
-            <div class="{{ $menuItemClass }}">
-                <a href="{{ route('maintenance') }}" class="block maintenance-link" data-menu="maintenance">
-                    <div class="{{ $menuLinkClass }} {{ Request::routeIs('maintenance') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                <div class="{{ $menuItemClass }}">
+                    <a href="{{ route('maintenance') }}" class="block maintenance-link" data-menu="maintenance">
+                        <div class="{{ $menuLinkClass }} {{ Request::routeIs('maintenance') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Pemeliharaan</span>
                         </div>
-                        <span class="{{ $menuTextClass }}">Pemeliharaan</span>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endif
 
             <!-- Complaint & Repair -->
             @if(hasPermission($menuPermissions['complaint']))
-            <div class="{{ $menuItemClass }}">
-                <a href="{{ route('complaint.index') }}" class="block complaint-link" data-menu="complaint">
-                    <div class="{{ $menuLinkClass }} {{ Request::routeIs('complaint.*') ? 'bg-[#56C5F1]/20' : '' }}">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
+                <div class="{{ $menuItemClass }}">
+                    <a href="{{ route('complaint.index') }}" class="block complaint-link" data-menu="complaint">
+                        <div class="{{ $menuLinkClass }} {{ Request::routeIs('complaint.*') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Keluhan & Perbaikan</span>
                         </div>
-                        <span class="{{ $menuTextClass }}">Keluhan & Perbaikan</span>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endif
 
             <!-- Procurement -->
             @if(hasAnyPermission($menuPermissions['procurement']))
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <div class="{{ $menuItemClass }}">
+                    <button class="w-full focus:outline-none toggle-menu" data-menu="procurement">
+                        <div class="{{ $menuLinkClass }} menu-header">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 16l-4-4m0 0l4-4m-4 4h10M7 16v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Pengadaan</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                                fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Pengadaan</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
-                            fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="procurement"
-                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    @php
-                        $procurementSubmenuItems = [
-                            ['route' => 'procurement.request', 'name' => 'Permintaan'],
-                            ['route' => 'procurement.price-comparison', 'name' => 'Perbandingan Harga'],
-                            ['route' => 'procurement.purchase-order', 'name' => 'Pemesanan'],
-                            ['route' => 'procurement.receipt', 'name' => 'Penerimaan'],
-                        ];
-                    @endphp
+                    </button>
+                    <!-- Sub Menu -->
+                    <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="procurement"
+                        style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                        @php
+                            $procurementSubmenuItems = [
+                                ['route' => 'procurement.request', 'name' => 'Permintaan'],
+                                ['route' => 'procurement.price-comparison', 'name' => 'Perbandingan Harga'],
+                                ['route' => 'procurement.purchase-order', 'name' => 'Pemesanan'],
+                                ['route' => 'procurement.receipt', 'name' => 'Penerimaan'],
+                            ];
+                        @endphp
 
-                    @foreach($procurementSubmenuItems as $item)
-                        @if(hasPermission($submenuPermissions[$item['route']]))
-                        <a href="{{ route($item['route']) }}" class="block">
-                            <div
-                                class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
-                                <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
-                            </div>
-                        </a>
-                        @endif
-                    @endforeach
+                        @foreach($procurementSubmenuItems as $item)
+                            @if(hasPermission($submenuPermissions[$item['route']]))
+                                <a href="{{ route($item['route']) }}" class="block">
+                                    <div
+                                        class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                                        <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
+                                    </div>
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
-            </div>
             @endif
 
             <!-- Report -->
             @if(hasAnyPermission($menuPermissions['report']))
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="report">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <div class="{{ $menuItemClass }}">
+                    <button class="w-full focus:outline-none toggle-menu" data-menu="report">
+                        <div class="{{ $menuLinkClass }} menu-header">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Laporan</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                                fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Laporan</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
-                            fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report"
-                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    @php
-                        $reportSubmenuItems = [
-                            ['route' => 'report.opname', 'name' => 'Laporan Opname'],
-                            ['route' => 'report.finance', 'name' => 'Laporan Keuangan'],
-                            ['route' => 'report.depreciation', 'name' => 'Laporan Penyusutan'],
-                        ];
-                    @endphp
+                    </button>
+                    <!-- Sub Menu -->
+                    <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="report"
+                        style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                        @php
+                            $reportSubmenuItems = [
+                                ['route' => 'report.opname', 'name' => 'Laporan Opname'],
+                                ['route' => 'report.finance', 'name' => 'Laporan Keuangan'],
+                                ['route' => 'report.depreciation', 'name' => 'Laporan Penyusutan'],
+                            ];
+                        @endphp
 
-                    @foreach($reportSubmenuItems as $item)
-                        @if(hasPermission($submenuPermissions[$item['route']]))
-                        <a href="{{ route($item['route']) }}" class="block">
-                            <div
-                                class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
-                                <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
-                            </div>
-                        </a>
-                        @endif
-                    @endforeach
+                        @foreach($reportSubmenuItems as $item)
+                            @if(hasPermission($submenuPermissions[$item['route']]))
+                                <a href="{{ route($item['route']) }}" class="block">
+                                    <div
+                                        class="{{ $submenuLinkClass }} {{ Request::routeIs($item['route']) ? 'bg-[#56C5F1]/20' : '' }}">
+                                        <span class="{{ $submenuTextClass }}">{{ $item['name'] }}</span>
+                                    </div>
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
-            </div>
             @endif
 
             <!-- Account -->
             @if(hasAnyPermission($menuPermissions['account']))
-            <div class="{{ $menuItemClass }}">
-                <button class="w-full focus:outline-none toggle-menu" data-menu="account">
-                    <div class="{{ $menuLinkClass }} menu-header">
-                        <div class="{{ $iconWrapperClass }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                                stroke="#757575">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <div class="{{ $menuItemClass }}">
+                    <button class="w-full focus:outline-none toggle-menu" data-menu="account">
+                        <div class="{{ $menuLinkClass }} menu-header">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Akun</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
+                                fill="none" viewBox="0 0 24 24" stroke="#757575">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <span class="{{ $menuTextClass }}">Akun</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-6 h-6 ml-auto mr-4 transform transition-transform duration-200 menu-arrow"
-                            fill="none" viewBox="0 0 24 24" stroke="#757575">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </button>
-                <!-- Sub Menu -->
-                <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account"
-                    style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
-                    @if(hasPermission($submenuPermissions['user']))
-                    <a href="{{ route('user') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Pengguna</span>
-                        </div>
-                    </a>
-                    @endif
+                    </button>
+                    <!-- Sub Menu -->
+                    <div class="ml-[41px] mt-1 overflow-hidden submenu" data-parent="account"
+                        style="max-height: 0; opacity: 0; transition: all 0.3s ease-out;">
+                        @if(hasPermission($submenuPermissions['user']))
+                            <a href="{{ route('user') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('user') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Pengguna</span>
+                                </div>
+                            </a>
+                        @endif
 
-                    @if(hasPermission($submenuPermissions['roles']))
-                    <a href="{{ route('roles') }}" class="block">
-                        <div class="{{ $submenuLinkClass }} {{ Request::routeIs('roles') ? 'bg-[#56C5F1]/20' : '' }}">
-                            <span class="{{ $submenuTextClass }}">Role</span>
-                        </div>
-                    </a>
-                    @endif
+                        @if(hasPermission($submenuPermissions['roles']))
+                            <a href="{{ route('roles') }}" class="block">
+                                <div class="{{ $submenuLinkClass }} {{ Request::routeIs('roles') ? 'bg-[#56C5F1]/20' : '' }}">
+                                    <span class="{{ $submenuTextClass }}">Role</span>
+                                </div>
+                            </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
             @endif
         </div>
     </div>
@@ -410,7 +403,7 @@
             </form>
 
             <script>
-                document.getElementById('logout-btn').addEventListener('click', function(e) {
+                document.getElementById('logout-btn').addEventListener('click', function (e) {
                     e.preventDefault();
                     Swal.fire({
                         title: 'Konfirmasi Keluar',
@@ -437,11 +430,9 @@
         </div>
     </div>
 
-    <!-- JavaScript for sidebar functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = {
-                // Store DOM references
                 elements: {
                     toggleButtons: document.querySelectorAll('.toggle-menu'),
                     menuItems: document.querySelectorAll('.menu-item'),
@@ -452,7 +443,6 @@
                     allLinks: document.querySelectorAll('#sidebar-container a')
                 },
 
-                // Helper methods
                 updateElementStyle: function (element, isActive, selector, activeClass, inactiveClass) {
                     if (!element) return;
                     const target = selector ? element.querySelector(selector) : element;
@@ -467,7 +457,6 @@
                     }
                 },
 
-                // Central method to close all submenus
                 closeAllSubmenus: function () {
                     this.elements.submenus.forEach(submenu => {
                         submenu.style.maxHeight = '0';
@@ -498,7 +487,6 @@
                     localStorage.removeItem('activeMenu');
                 },
 
-                // Method to open a specific submenu
                 openSubmenu: function (menuName) {
                     const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
                     const targetArrow = document.querySelector(`.toggle-menu[data-menu="${menuName}"] .menu-arrow`);
@@ -544,25 +532,21 @@
                     localStorage.setItem('activeMenu', menuName);
                 },
 
-                // Toggle a menu (open if closed, close if open)
                 toggleMenu: function (menuName) {
                     const targetSubmenu = document.querySelector(`.submenu[data-parent="${menuName}"]`);
                     const isOpen = (targetSubmenu && targetSubmenu.style.maxHeight !== '0px' && targetSubmenu.style.maxHeight !== '');
                     isOpen ? this.closeAllSubmenus() : this.openSubmenu(menuName);
                 },
 
-                // Initialize sidebar functionality
                 init: function () {
                     const self = this;
 
-                    // Toggle button click events
                     this.elements.toggleButtons.forEach(button => {
                         button.addEventListener('click', function () {
                             self.toggleMenu(this.getAttribute('data-menu'));
                         });
                     });
 
-                    // Direct links click handling
                     this.elements.directLinks.forEach(link => {
                         link.addEventListener('click', function () {
                             self.closeAllSubmenus();
@@ -579,7 +563,6 @@
                         });
                     });
 
-                    // Update active direct links from routing
                     this.elements.directLinks.forEach(link => {
                         const linkDiv = link.querySelector('div');
                         if (linkDiv && linkDiv.classList.contains('bg-[#56C5F1]/20')) {
@@ -592,12 +575,10 @@
                         }
                     });
 
-                    // Submenu links click handling
                     document.querySelectorAll('.submenu a').forEach(link => {
                         link.addEventListener('click', function () {
                             self.closeAllSubmenus();
 
-                            // Highlight parent menu
                             const submenu = this.closest('.submenu');
                             if (submenu) {
                                 const menuName = submenu.getAttribute('data-parent');
@@ -614,7 +595,6 @@
                                 }
                             }
 
-                            // Highlight clicked submenu link
                             const linkDiv = this.querySelector('div');
                             if (linkDiv) {
                                 linkDiv.classList.add('bg-[#56C5F1]/20');
@@ -623,7 +603,6 @@
                         });
                     });
 
-                    // Update active submenu links from routing
                     document.querySelectorAll('.submenu a div').forEach(div => {
                         if (div.classList.contains('bg-[#56C5F1]/20')) {
                             self.updateElementStyle(div, true, 'span', 'text-[#213268]', 'text-[#757575]');
@@ -636,7 +615,6 @@
                         }
                     });
 
-                    // Navigation tracking
                     this.elements.allLinks.forEach(link => {
                         link.addEventListener('click', function (e) {
                             const href = this.getAttribute('href');
@@ -645,30 +623,22 @@
                         });
                     });
 
-                    // Restore active menu from localStorage
                     const storedActiveMenu = localStorage.getItem('activeMenu');
                     if (storedActiveMenu) {
                         this.openSubmenu(storedActiveMenu);
                     }
 
-                    // Make methods available globally
                     window.toggleSidebarMenu = (menuName) => self.toggleMenu(menuName);
                     window.closeAllSidebarMenus = () => self.closeAllSubmenus();
                 }
             };
 
-            // Initialize the sidebar
             sidebar.init();
 
-            // === MODAL INITIALIZATION ===
             function reinitializeModals() {
-                console.log('Reinitializing modals after sidebar navigation');
-
-                // DOM elements
                 const modals = document.querySelectorAll('[id$="Modal"]');
                 const closeButtons = document.querySelectorAll('.close-modal');
 
-                // Helper functions for modal operations
                 if (typeof window.openModal !== 'function') {
                     window.openModal = function (modal, content) {
                         modal.classList.remove('hidden');
@@ -689,7 +659,6 @@
                     };
                 }
 
-                // Initialize modal triggers
                 function initModalTrigger(selector, modalIdFunc) {
                     document.querySelectorAll(selector).forEach(button => {
                         if (!button.hasAttribute('data-modal-initialized')) {
@@ -705,14 +674,10 @@
                     });
                 }
 
-                // Initialize standard modal buttons
                 initModalTrigger('[id$="Btn"]', btn => btn.id.replace('Btn', 'Modal'));
-
-                // Initialize specialized buttons
                 initModalTrigger('.edit-brand-btn', () => 'editBrandModal');
                 initModalTrigger('.delete-brand-btn', () => 'deleteBrandModal');
 
-                // Initialize close buttons
                 closeButtons.forEach(button => {
                     if (!button.hasAttribute('data-modal-initialized')) {
                         button.addEventListener('click', function (e) {
@@ -725,7 +690,6 @@
                     }
                 });
 
-                // Initialize background click to close
                 modals.forEach(modal => {
                     if (!modal.hasAttribute('data-modal-initialized')) {
                         modal.addEventListener('click', function (e) {
@@ -739,7 +703,6 @@
                 });
             }
 
-            // Check if page loaded after sidebar navigation
             window.addEventListener('DOMContentLoaded', function () {
                 if (sessionStorage.getItem('sidebarNavigation') === 'true') {
                     sessionStorage.removeItem('sidebarNavigation');
@@ -747,7 +710,6 @@
                 }
             });
 
-            // Watch for content changes
             const contentArea = document.querySelector('main');
             if (contentArea) {
                 const observer = new MutationObserver(reinitializeModals);
@@ -757,7 +719,6 @@
                 });
             }
 
-            // Make function available globally
             window.reinitializeModalsAfterNavigation = reinitializeModals;
         });
     </script>

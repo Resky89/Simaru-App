@@ -169,7 +169,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Function to show SweetAlert notifications
             function showSweetAlert(message, type = 'success', options = {}) {
                 const iconMap = {
                     success: 'success',
@@ -179,7 +178,6 @@
                     question: 'question'
                 };
 
-                // Default options
                 const defaultOptions = {
                     title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                     html: message,
@@ -202,26 +200,20 @@
                     }
                 };
 
-                // Merge with custom options
                 const mergedOptions = { ...defaultOptions, ...options };
 
-                // Add specific options based on alert type
                 if (type === 'success' && options.timer === undefined) {
-                    // Auto close success messages after 2.5 seconds
                     mergedOptions.timer = 2500;
                     mergedOptions.timerProgressBar = true;
                 } else if (type === 'error' && options.showCloseButton === undefined) {
-                    // Make error alerts more prominent
                     mergedOptions.confirmButtonColor = '#d33';
                     mergedOptions.showCloseButton = true;
                 }
 
-                // Add custom styles for SweetAlert
                 if (!document.getElementById('swal-custom-styles')) {
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                        /* SweetAlert Custom Styles */
                         .swal2-popup {
                             border-radius: 15px;
                             padding: 1.5rem;
@@ -260,7 +252,6 @@
                     document.head.appendChild(styleTag);
                 }
 
-                // Add animate.css CDN for animations if not already loaded
                 if (!document.getElementById('animate-css')) {
                     const animateLink = document.createElement('link');
                     animateLink.id = 'animate-css';
@@ -269,11 +260,9 @@
                     document.head.appendChild(animateLink);
                 }
 
-                // Fire the alert and return the Promise for chaining
                 return Swal.fire(mergedOptions);
             }
 
-            // Show SweetAlert notifications for session messages on page load
             @if(session('success'))
                 showSweetAlert("{{ session('success') }}", 'success');
             @endif
@@ -282,16 +271,13 @@
                 showSweetAlert("{{ session('error') }}", 'error');
             @endif
 
-            // Add JavaScript permission handling
             @if(!hasPermission('receipt:export'))
-                // Hide export button if no permission
                 const exportPdfBtn = document.getElementById('exportPdfBtn');
                 if (exportPdfBtn) {
                     exportPdfBtn.style.display = 'none';
                 }
             @endif
-
-            // Add event listener for PDF export button
+                
             const exportPdfBtn = document.getElementById('exportPdfBtn');
             if (exportPdfBtn) {
                 exportPdfBtn.addEventListener('click', function () {

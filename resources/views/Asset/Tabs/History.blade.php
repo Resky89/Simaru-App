@@ -46,16 +46,13 @@
             return;
         }
 
-        // Show loading, hide other elements
         document.getElementById('historyLoading').classList.remove('hidden');
         document.getElementById('historyContent').classList.add('hidden');
         document.getElementById('historyError').classList.add('hidden');
         document.getElementById('errorMessage').classList.add('hidden');
 
-        // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        // Fetch asset history data using the full URL
         fetch('{{ url("/asset-histories") }}/' + assetId, {
             method: 'GET',
             headers: {
@@ -72,13 +69,11 @@
             })
             .then(data => {
                 if (!data.success) {
-                    // Extract error message from the response
                     let errorMessage = 'Gagal memuat data riwayat';
                     if (data.errors) {
                         if (typeof data.errors === 'string') {
                             errorMessage = data.errors;
                         } else if (typeof data.errors === 'object') {
-                            // Get first error message from the object
                             const firstErrorKey = Object.keys(data.errors)[0];
                             if (firstErrorKey) {
                                 const firstError = data.errors[firstErrorKey];
@@ -92,7 +87,6 @@
 
                 renderHistoryData(data.data);
 
-                // Hide loading, show content
                 document.getElementById('historyLoading').classList.add('hidden');
                 document.getElementById('historyContent').classList.remove('hidden');
                 document.getElementById('errorMessage').classList.add('hidden');
@@ -115,10 +109,8 @@
             return;
         }
 
-        // Group histories by date
         const groupedHistories = groupHistoriesByDate(data.histories);
 
-        // Generate HTML for grouped histories
         let html = '';
 
         for (const [date, histories] of Object.entries(groupedHistories)) {
@@ -168,7 +160,6 @@
             grouped[date].push(history);
         });
 
-        // Sort dates in descending order (newest first)
         return Object.keys(grouped)
             .sort((a, b) => new Date(b) - new Date(a))
             .reduce((obj, key) => {
@@ -196,7 +187,6 @@
     }
 
     function translateStatusMessage(message) {
-        // Colors based on AssetDetail.blade.php
         const statusColors = {
             'Tersedia': '#659B09',      // Available - green
             'Dipinjam': '#F59E0B',      // Checked out - amber/yellow
@@ -205,7 +195,6 @@
             'Dihapuskan': '#ACC3EF'     // Dispose - light blue
         };
 
-        // Translate status terms first
         let translatedMessage = message
             .replace(/changed status from/g, 'mengubah status dari')
             .replace(/to/g, 'menjadi')
@@ -218,7 +207,6 @@
             .replace(/Disposed/gi, 'Dihapuskan')
             .replace(/Admin System/g, 'Sistem Admin');
 
-        // Apply colors to status terms
         Object.keys(statusColors).forEach(status => {
             const regex = new RegExp(`\\b${status}\\b`, 'g');
             translatedMessage = translatedMessage.replace(
@@ -234,12 +222,10 @@
         document.getElementById('historyLoading').classList.add('hidden');
         document.getElementById('historyContent').classList.add('hidden');
 
-        // Update the dedicated error message container
         const errorDiv = document.getElementById('errorMessage');
         errorDiv.textContent = message || 'Gagal memuat data riwayat.';
         errorDiv.classList.remove('hidden');
 
-        // Also update the error retry section
         const errorElement = document.getElementById('historyError');
         const errorMessageElement = document.getElementById('errorMessageText');
         errorMessageElement.textContent = message || 'Gagal memuat riwayat aset.';

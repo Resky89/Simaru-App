@@ -54,7 +54,6 @@
             align-items: center;
         }
 
-        /* Adjust content layout based on container width */
         @if($containerWidth == 80)
         .label-content {
             padding: 0 1mm;
@@ -67,17 +66,16 @@
 
         .qr-image {
             height: 100%;
-            width: {{ $containerWidth / 2.2 }}mm; /* Slightly smaller to give more space to text */
+            width: {{ $containerWidth / 2.2 }}mm;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Size adjustments for different label sizes */
         @if($qrSize == 60)
         .qr-image {
-            width: 22mm; /* Slightly smaller */
+            width: 22mm;
         }
 
         .qr-image img {
@@ -122,7 +120,6 @@
             max-width: {{ $containerWidth / 2 }}mm;
         }
 
-        /* Adjust details section based on container width */
         @if($containerWidth == 80)
         .qr-details {
             padding-left: 1mm;
@@ -135,12 +132,10 @@
         }
         @endif
 
-        /* Adjust spacing between elements */
         .qr-details > div {
             margin-bottom: {{ $qrSize == 60 ? '0.5mm' : '1mm' }};
         }
 
-        /* Ensure proper spacing for the last element */
         .qr-details > div:last-child {
             margin-bottom: 0;
         }
@@ -157,7 +152,6 @@
             line-height: {{ $qrSize == 60 ? '10px' : '12px' }};
         }
 
-        /* Adjust font sizes based on container width */
         @if($containerWidth == 80)
         .qr-code {
             font-size: 10px;
@@ -194,7 +188,6 @@
         }
         @endif
 
-        /* Special handling for asset code on small labels */
         @if($qrSize == 60)
         .qr-code {
             font-size: 9px;
@@ -228,7 +221,6 @@
             margin-bottom: 0.5mm;
         }
 
-        /* For 60mm labels, adjust the location details */
         @if($qrSize == 60)
         .location-details {
             margin-top: 0.5mm;
@@ -247,7 +239,6 @@
         }
         @endif
 
-        /* Controls for on-screen (not printed) */
         .controls {
             position: fixed;
             top: 10px;
@@ -277,23 +268,21 @@
             }
         }
 
-        /* Printer-specific optimizations */
         @if($printerType == 'zebra')
         body {
-            font-family: 'Arial Narrow', Arial, sans-serif; /* Better for Zebra printers */
+            font-family: 'Arial Narrow', Arial, sans-serif;
         }
         @endif
 
         @if($printerType == 'dymo')
         .label-container {
-            padding: 1mm; /* Less padding for Dymo */
+            padding: 1mm;
         }
         .qr-image img {
-            max-height: 95%; /* Slightly smaller QR for Dymo */
+            max-height: 95%;
         }
         @endif
 
-        /* Special handling for very long asset codes */
         .long-code {
             font-size: {{ $qrSize == 60 ? '7px' : '9px' }};
             line-height: {{ $qrSize == 60 ? '8px' : '10px' }};
@@ -301,7 +290,6 @@
             word-break: break-all;
         }
 
-        /* Adjust long code handling based on container width */
         @if($containerWidth == 80)
         .long-code {
             font-size: 8px;
@@ -340,10 +328,8 @@
                 <div class="qr-code">
                     @php
                         $assetCode = $asset['asset_code'] ?? 'No Code';
-                        // If asset code is very long, add a small CSS class
                         $codeLength = strlen($assetCode);
 
-                        // Adjust threshold based on container width
                         $longCodeThreshold = 20; // Default
                         if ($containerWidth == 80) {
                             $longCodeThreshold = 18;
@@ -359,7 +345,6 @@
                 </div>
                 <div class="qr-name">
                     @php
-                        // Try to get asset name from different possible locations in the data structure
                         $assetName = null;
                         if (isset($asset['asset_name'])) {
                             $assetName = $asset['asset_name'];
@@ -375,7 +360,6 @@
                 </div>
                 <div class="qr-category">
                     @php
-                        // Try to get subcategory name from different possible locations in the data structure
                         $subcategoryName = null;
                         if (isset($asset['subcategory']) && isset($asset['subcategory']['subcategory_name'])) {
                             $subcategoryName = $asset['subcategory']['subcategory_name'];
@@ -393,7 +377,6 @@
                 </div>
 
                 @php
-                    // Try to get location information from different possible locations in the data structure
                     $buildingName = 'N/A';
                     $roomName = 'N/A';
                     $floorNumber = 'Lantai ?';
@@ -439,9 +422,7 @@
     @endforeach
 
     <script>
-        // Auto-trigger print dialog when page loads
         window.onload = function() {
-            // Short delay to ensure all images are loaded
             setTimeout(function() {
                 window.print();
             }, 800);

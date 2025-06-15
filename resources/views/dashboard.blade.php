@@ -11,16 +11,16 @@
             <div
                 class="p-4 bg-gradient-to-r from-[rgba(101,155,9,0.1)] to-[rgba(101,155,9,0.2)] rounded-lg flex items-center gap-3">
                 <div class="text-[#659B09] opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor">
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <path d="M3 9h18" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9h18" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
                     <div class="text-[28px] font-medium text-[#213268]">
-                            {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}
-                        </div>
+                        {{ formatCompactNumber($dashboardData['total_assets'] ?? 0) }}
+                    </div>
                     <div class="text-[14px] text-[#659B09] opacity-80">Aset</div>
                 </div>
             </div>
@@ -29,16 +29,16 @@
             <div
                 class="p-4 bg-gradient-to-r from-[rgba(218,174,15,0.1)] to-[rgba(218,174,15,0.2)] rounded-lg flex items-center gap-3">
                 <div class="text-[#DAAE0F] opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor">
-                            <path
-                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <path
+                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
                     <div class="text-[28px] font-medium text-[#213268]">
-                            {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}
-                        </div>
+                        {{ formatCompactNumber($dashboardData['assets_by_status']['under repair'] ?? 0) }}
+                    </div>
                     <div class="text-[14px] text-[#DAAE0F] opacity-80">Dalam Perbaikan</div>
                 </div>
             </div>
@@ -47,17 +47,17 @@
             <div
                 class="p-4 bg-gradient-to-r from-[rgba(255,74,43,0.1)] to-[rgba(255,74,43,0.2)] rounded-lg flex items-center gap-3">
                 <div class="text-[#FF4A2B] opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-                            <path d="M12 6v2m0 8v2" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                        <path d="M12 6v2m0 8v2" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
                     <div class="text-[28px] font-medium text-[#213268]">
-                            {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}
-                        </div>
+                        {{ formatCompactCurrency($dashboardData['total_book_value'] ?? 0) }}
+                    </div>
                     <div class="text-[14px] text-[#FF4A2B] opacity-80">Nilai Buku</div>
                 </div>
             </div>
@@ -66,16 +66,16 @@
             <div
                 class="p-4 bg-gradient-to-r from-[rgba(78,102,164,0.1)] to-[rgba(78,102,164,0.2)] rounded-lg flex items-center gap-3">
                 <div class="text-[#ACC3EF] opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
                     <div class="text-[28px] font-medium text-[#213268]">
-                            {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
-                        </div>
+                        {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
+                    </div>
                     <div class="text-[14px] text-[#ACC3EF] opacity-80">Biaya Pengadaan</div>
                 </div>
             </div>
@@ -84,18 +84,18 @@
             <div
                 class="p-4 bg-gradient-to-r from-[rgba(37,177,255,0.1)] to-[rgba(37,177,255,0.2)] rounded-lg flex items-center gap-3">
                 <div class="text-[#25B1FF] opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
                     <div class="text-[28px] font-medium text-[#213268]">
-                            {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}
-                        </div>
+                        {{ formatCompactNumber($dashboardData['total_users'] ?? 0) }}
+                    </div>
                     <div class="text-[14px] text-[#25B1FF] opacity-80">Pengguna</div>
                 </div>
             </div>
@@ -105,49 +105,49 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
             <!-- Asset By Status -->
             <div class="bg-white shadow-xl rounded-lg p-4">
-                    <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Status</h2>
 
-                    <!-- Divider -->
-                    <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
-                    <!-- Chart Container -->
-                    <div class="flex flex-col md:flex-row">
-                        <!-- Pie Chart -->
-                        <div class="w-full md:w-2/3">
-                            <canvas id="assetStatusChart" class="max-h-[250px]"></canvas>
+                <!-- Chart Container -->
+                <div class="flex flex-col md:flex-row">
+                    <!-- Pie Chart -->
+                    <div class="w-full md:w-2/3">
+                        <canvas id="assetStatusChart" class="max-h-[250px]"></canvas>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="w-full md:w-1/3 pt-2 md:pt-6 space-y-2">
+                        <!-- Available -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#7CB60C]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Tersedia</span>
                         </div>
 
-                        <!-- Legend -->
-                        <div class="w-full md:w-1/3 pt-2 md:pt-6 space-y-2">
-                            <!-- Available -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#7CB60C]"></div>
-                                <span class="text-sm text-[#4F4F4F]">Tersedia</span>
-                            </div>
+                        <!-- Maintenance -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Perawatan</span>
+                        </div>
 
-                            <!-- Maintenance -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#25B1FF]"></div>
-                                <span class="text-sm text-[#4F4F4F]">Perawatan</span>
-                            </div>
+                        <!-- Check Out -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#FFD016]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Pinjam</span>
+                        </div>
 
-                            <!-- Check Out -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#FFD016]"></div>
-                                <span class="text-sm text-[#4F4F4F]">Pinjam</span>
-                            </div>
+                        <!-- Dispose -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Dihapuskan</span>
+                        </div>
 
-                            <!-- Dispose -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#ACC3EF]"></div>
-                                <span class="text-sm text-[#4F4F4F]">Dihapuskan</span>
-                            </div>
-
-                            <!-- Lost -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 bg-[#FF4A2B]"></div>
-                                <span class="text-sm text-[#4F4F4F]">Hilang</span>
+                        <!-- Lost -->
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-[#FF4A2B]"></div>
+                            <span class="text-sm text-[#4F4F4F]">Hilang</span>
                         </div>
                     </div>
                 </div>
@@ -155,64 +155,64 @@
 
             <!-- Asset By Categories -->
             <div class="bg-white shadow-xl rounded-lg p-4">
-                    <!-- Title and Toggle -->
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-2xl font-medium text-[#213268] font-['Poppins']">Aset Berdasarkan Kategori</h2>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="displayToggle" class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]">
-                            </div>
-                        </label>
-                    </div>
+                <!-- Title and Toggle -->
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins']">Aset Berdasarkan Kategori</h2>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="displayToggle" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#213268]">
+                        </div>
+                    </label>
+                </div>
 
-                    <!-- Divider -->
-                    <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
-                    <!-- Categories Grid with scroll -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar"
-                        style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
-                        @forelse($dashboardData['assets_by_subcategory'] as $category)
-                            @php
-                                $totalBySubcategory = array_sum(array_column($dashboardData['assets_by_subcategory'], 'count'));
-                                $percentage = $totalBySubcategory ? round(($category['count'] / $totalBySubcategory) * 100) : 0;
-                                $radius = 15.9;
-                                $circumference = 2 * 3.14159 * $radius;
-                            @endphp
-                            <div class="flex items-center gap-4 animate-fade-in">
-                                <div class="relative min-w-[64px] w-16 h-16 flex-shrink-0">
+                <!-- Categories Grid with scroll -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar"
+                    style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
+                    @forelse($dashboardData['assets_by_subcategory'] as $category)
+                        @php
+                            $totalBySubcategory = array_sum(array_column($dashboardData['assets_by_subcategory'], 'count'));
+                            $percentage = $totalBySubcategory ? round(($category['count'] / $totalBySubcategory) * 100) : 0;
+                            $radius = 15.9;
+                            $circumference = 2 * 3.14159 * $radius;
+                        @endphp
+                        <div class="flex items-center gap-4 animate-fade-in">
+                            <div class="relative min-w-[64px] w-16 h-16 flex-shrink-0">
+                                <!-- Progress Circle -->
+                                <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                    <!-- Background Circle -->
+                                    <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="rgba(117,117,117,0.31)"
+                                        stroke-width="2.5" />
+
                                     <!-- Progress Circle -->
-                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                                        <!-- Background Circle -->
-                                        <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="rgba(117,117,117,0.31)"
-                                            stroke-width="2.5" />
-
-                                        <!-- Progress Circle -->
-                                        @if($percentage > 0)
+                                    @if($percentage > 0)
                                         <circle cx="18" cy="18" r="{{ $radius }}" fill="none" stroke="#213268" stroke-width="2.5"
                                             stroke-dasharray="{{ $circumference }}"
-                                                stroke-dashoffset="{{ $circumference - ($percentage / 100 * $circumference) }}"
-                                                class="progress-circle" data-percentage="{{ $percentage }}" />
-                                        @endif
-                                    </svg>
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span
-                                            class="number-value font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
-                                            data-target="{{ $category['count'] }}">0</span>
-                                        <span
-                                            class="percent-value hidden font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
-                                            data-target="{{ $percentage }}">0%</span>
-                                    </div>
-                                </div>
-                                <div class="font-['Poppins'] font-medium text-lg text-[#213268] truncate">
-                                    {{ $category['subcategory_name'] }}
+                                            stroke-dashoffset="{{ $circumference - ($percentage / 100 * $circumference) }}"
+                                            class="progress-circle" data-percentage="{{ $percentage }}" />
+                                    @endif
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span
+                                        class="number-value font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
+                                        data-target="{{ $category['count'] }}">0</span>
+                                    <span
+                                        class="percent-value hidden font-['Poppins'] font-medium text-xl text-[#213268] animate-count-up"
+                                        data-target="{{ $percentage }}">0%</span>
                                 </div>
                             </div>
-                        @empty
-                            <div class="col-span-2 text-center py-4 text-gray-500">
-                                Tidak ada data kategori tersedia
+                            <div class="font-['Poppins'] font-medium text-lg text-[#213268] truncate">
+                                {{ $category['subcategory_name'] }}
                             </div>
-                        @endforelse
+                        </div>
+                    @empty
+                        <div class="col-span-2 text-center py-4 text-gray-500">
+                            Tidak ada data kategori tersedia
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -221,138 +221,138 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
             <!-- Upcoming Assets Calibration -->
             <div class="bg-white shadow-xl rounded-lg p-4">
-                    <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Yang Akan Dikalibrasi</h2>
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Yang Akan Dikalibrasi</h2>
 
-                    <!-- Divider -->
-                    <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
-                    <!-- Calibration Items Container -->
-                    <div class="space-y-4 max-h-[336px] overflow-y-auto pr-2 custom-scrollbar"
-                        style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
-                        @forelse($dashboardData['upcoming_calibrations']['all'] as $calibration)
-                            <div class="flex justify-between items-center">
-                                <div class="flex gap-4">
-                                    <div class="flex flex-col w-[173px]">
-                                        <h3 class="text-lg font-['Poppins'] font-medium text-[#213268]">
-                                            {{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}
-                                        </h3>
-                                        <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">
-                                            {{ $calibration['room_name'] ?? 'Lokasi Tidak Diketahui' }}
-                                        </p>
-                                    </div>
-                                    <div class="flex flex-col w-[82px]">
-                                        @php
-                                            $date = $calibration['planning_calibration_date'] ?? now()->format('Y-m-d');
-                                            $dateObj = \Carbon\Carbon::parse($date);
-
-                                            // Indonesian month names (abbreviated)
-                                            $indonesianMonths = [
-                                                'Jan',
-                                                'Feb',
-                                                'Mar',
-                                                'Apr',
-                                                'Mei',
-                                                'Jun',
-                                                'Jul',
-                                                'Agt',
-                                                'Sep',
-                                                'Okt',
-                                                'Nov',
-                                                'Des'
-                                            ];
-
-                                            // Format the date with Indonesian month
-                                            $formattedDate = $dateObj->format('d') . ' ' . $indonesianMonths[$dateObj->month - 1];
-
-                                            $dayLabel = $dateObj->isToday() ? 'Hari Ini' : ($dateObj->isTomorrow() ? 'Besok' : ($dateObj->isCurrentWeek() ? $dateObj->format('D') : 'Minggu Depan'));
-                                            // Determine if urgent based on date (within next 3 days)
-                                            $isUrgent = $dateObj->diffInDays(now()) <= 3;
-                                        @endphp
-                                        <p class="text-[14px] font-['Poppins'] text-[#213268]">{{ $formattedDate }}</p>
-                                        <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $dayLabel }}</p>
-                                    </div>
+                <!-- Calibration Items Container -->
+                <div class="space-y-4 max-h-[336px] overflow-y-auto pr-2 custom-scrollbar"
+                    style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
+                    @forelse($dashboardData['upcoming_calibrations']['all'] as $calibration)
+                        <div class="flex justify-between items-center">
+                            <div class="flex gap-4">
+                                <div class="flex flex-col w-[173px]">
+                                    <h3 class="text-lg font-['Poppins'] font-medium text-[#213268]">
+                                        {{ $calibration['asset_name'] ?? 'Aset Tidak Diketahui' }}
+                                    </h3>
+                                    <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">
+                                        {{ $calibration['room_name'] ?? 'Lokasi Tidak Diketahui' }}
+                                    </p>
                                 </div>
-                                @if(hasPermission('calibration:report'))
-                                    <button data-id="{{ $calibration['task_code'] }}"
-                                        class="edit-calibration-btn flex items-center px-3 py-1.5 {{ $isUrgent ? 'bg-[#213268]' : 'border border-[#213268]' }} rounded">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="{{ $isUrgent ? 'white' : '#213268' }}" stroke-width="1.5">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                        </svg>
-                                    </button>
-                                @endif
+                                <div class="flex flex-col w-[82px]">
+                                    @php
+                                        $date = $calibration['planning_calibration_date'] ?? now()->format('Y-m-d');
+                                        $dateObj = \Carbon\Carbon::parse($date);
+
+                                        // Indonesian month names (abbreviated)
+                                        $indonesianMonths = [
+                                            'Jan',
+                                            'Feb',
+                                            'Mar',
+                                            'Apr',
+                                            'Mei',
+                                            'Jun',
+                                            'Jul',
+                                            'Agt',
+                                            'Sep',
+                                            'Okt',
+                                            'Nov',
+                                            'Des'
+                                        ];
+
+                                        // Format the date with Indonesian month
+                                        $formattedDate = $dateObj->format('d') . ' ' . $indonesianMonths[$dateObj->month - 1];
+
+                                        $dayLabel = $dateObj->isToday() ? 'Hari Ini' : ($dateObj->isTomorrow() ? 'Besok' : ($dateObj->isCurrentWeek() ? $dateObj->format('D') : 'Minggu Depan'));
+                                        // Determine if urgent based on date (within next 3 days)
+                                        $isUrgent = $dateObj->diffInDays(now()) <= 3;
+                                    @endphp
+                                    <p class="text-[14px] font-['Poppins'] text-[#213268]">{{ $formattedDate }}</p>
+                                    <p class="text-[14px] font-['Poppins'] text-[#8A92A6]">{{ $dayLabel }}</p>
+                                </div>
                             </div>
-                        @empty
-                            <div class="text-center py-8">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                                <p class="mt-2 text-gray-500">Tidak ada data kalibrasi yang akan datang</p>
-                            </div>
-                        @endforelse
+                            @if(hasPermission('calibration:report'))
+                                <button data-id="{{ $calibration['task_code'] }}"
+                                    class="edit-calibration-btn flex items-center px-3 py-1.5 {{ $isUrgent ? 'bg-[#213268]' : 'border border-[#213268]' }} rounded">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="{{ $isUrgent ? 'white' : '#213268' }}" stroke-width="1.5">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                </button>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-center py-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p class="mt-2 text-gray-500">Tidak ada data kalibrasi yang akan datang</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
 
             <!-- Asset By Location -->
             <div class="bg-white shadow-xl rounded-lg p-4">
-                    <!-- Title -->
-                    <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
+                <!-- Title -->
+                <h2 class="text-2xl font-medium text-[#213268] font-['Poppins'] mb-3">Aset Berdasarkan Lokasi</h2>
 
-                    <!-- Divider -->
-                    <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
+                <!-- Divider -->
+                <div class="w-full border-t-2 border-[#ECECEC] mb-4"></div>
 
-                    <!-- Location List -->
-                    <div class="space-y-[18px] max-h-[336px] overflow-y-auto pr-2 custom-scrollbar" id="location-container"
-                        style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
-                        @forelse($dashboardData['assets_by_location'] as $location)
-                            @php
-                                $totalByLocation = array_sum(array_column($dashboardData['assets_by_location'], 'count'));
-                                $percentage = $totalByLocation ? round(($location['count'] / $totalByLocation) * 100) : 0;
+                <!-- Location List -->
+                <div class="space-y-[18px] max-h-[336px] overflow-y-auto pr-2 custom-scrollbar" id="location-container"
+                    style="scrollbar-width: thin; scrollbar-color: #213268 #f0f0f0;">
+                    @forelse($dashboardData['assets_by_location'] as $location)
+                        @php
+                            $totalByLocation = array_sum(array_column($dashboardData['assets_by_location'], 'count'));
+                            $percentage = $totalByLocation ? round(($location['count'] / $totalByLocation) * 100) : 0;
 
-                                // Handle 100% case correctly
-                                $barWidth = $percentage;
-                                // Ensure the tooltip appears at the right edge when percentage is 100
-                                $tooltipPosition = $percentage == 100 ? "right-0" : "left-[calc({$percentage}%-20px)]";
-                            @endphp
-                            <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
-                                <div class="flex justify-between items-center mb-2">
-                                    <div class="text-lg font-['Poppins'] font-medium text-[#213268]">
-                                        {{ $location['room_name'] }}
-                                    </div>
-                                    <div class="text-lg font-['Poppins'] font-medium text-[#213268] animate-count-up"
-                                        data-target="{{ $percentage }}">0%</div>
+                            // Handle 100% case correctly
+                            $barWidth = $percentage;
+                            // Ensure the tooltip appears at the right edge when percentage is 100
+                            $tooltipPosition = $percentage == 100 ? "right-0" : "left-[calc({$percentage}%-20px)]";
+                        @endphp
+                        <div class="w-full animate-fade-in" style="animation-delay: {{ $loop->index * 150 }}ms">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-lg font-['Poppins'] font-medium text-[#213268]">
+                                    {{ $location['room_name'] }}
                                 </div>
-                                <div class="relative" x-data="{ showTooltip: false }">
-                                    <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
-                                        @click="showTooltip = !showTooltip" @mouseenter="showTooltip = true"
-                                        @mouseleave="showTooltip = false">
-                                        <div class="absolute h-2 left-0 w-0 bg-[#213268] rounded-[4px] animate-loading-bar"
-                                            data-width="{{ $barWidth }}"></div>
-                                    </div>
-                                    <!-- Tooltip -->
-                                    <div x-show="showTooltip" x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                                        x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                        class="absolute -top-8 {{ $tooltipPosition }}">
-                                        <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
-                                            <span
-                                                class="text-[14px] font-['Poppins'] font-medium text-[#344054]">{{ $location['count'] }}</span>
-                                        </div>
+                                <div class="text-lg font-['Poppins'] font-medium text-[#213268] animate-count-up"
+                                    data-target="{{ $percentage }}">0%</div>
+                            </div>
+                            <div class="relative" x-data="{ showTooltip: false }">
+                                <div class="w-full h-2 bg-[rgba(117,117,117,0.31)] rounded-[4px] cursor-pointer"
+                                    @click="showTooltip = !showTooltip" @mouseenter="showTooltip = true"
+                                    @mouseleave="showTooltip = false">
+                                    <div class="absolute h-2 left-0 w-0 bg-[#213268] rounded-[4px] animate-loading-bar"
+                                        data-width="{{ $barWidth }}"></div>
+                                </div>
+                                <!-- Tooltip -->
+                                <div x-show="showTooltip" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 transform translate-y-0"
+                                    x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                    class="absolute -top-8 {{ $tooltipPosition }}">
+                                    <div class="bg-white shadow-lg rounded-lg px-3 py-2 text-center min-w-[40px]">
+                                        <span
+                                            class="text-[14px] font-['Poppins'] font-medium text-[#344054]">{{ $location['count'] }}</span>
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <div class="text-center py-4 text-gray-500">
-                                Tidak ada data lokasi tersedia
-                            </div>
-                        @endforelse
+                        </div>
+                    @empty
+                        <div class="text-center py-4 text-gray-500">
+                            Tidak ada data lokasi tersedia
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -361,65 +361,67 @@
         <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mt-4 md:mt-6">
             <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between items-center w-full gap-4 mb-6 sm:mb-8">
-                    <!-- Title and Navigation -->
+                <!-- Title and Navigation -->
                 <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
-                        <button onclick="changeMonth(-1)"
-                            class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 18l-6-6 6-6" />
-                            </svg>
-                        </button>
+                    <button onclick="changeMonth(-1)"
+                        class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
 
-                        <h2 id="currentMonth"
-                        class="text-xl sm:text-2xl font-['Poppins'] font-black text-[#213268] min-w-[100px] text-center"></h2>
-                    <span id="currentYear" class="text-xl sm:text-2xl font-['Poppins'] font-medium text-[#213268]/70"></span>
+                    <h2 id="currentMonth"
+                        class="text-xl sm:text-2xl font-['Poppins'] font-black text-[#213268] min-w-[100px] text-center">
+                    </h2>
+                    <span id="currentYear"
+                        class="text-xl sm:text-2xl font-['Poppins'] font-medium text-[#213268]/70"></span>
 
-                        <button onclick="changeMonth(1)"
-                            class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 18l6-6-6-6" />
+                    <button onclick="changeMonth(1)"
+                        class="w-10 h-10 flex items-center justify-center bg-white border border-[#213268]/20 rounded-lg hover:bg-[#213268]/5 text-[#213268] transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Date Selector -->
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+                    <div class="relative w-full sm:w-auto">
+                        <select id="monthSelector" onchange="goToSelectedDate()"
+                            class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[130px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
+                            <option value="0">Januari</option>
+                            <option value="1">Februari</option>
+                            <option value="2">Maret</option>
+                            <option value="3">April</option>
+                            <option value="4">Mei</option>
+                            <option value="5">Juni</option>
+                            <option value="6">Juli</option>
+                            <option value="7">Agustus</option>
+                            <option value="8">September</option>
+                            <option value="9">Oktober</option>
+                            <option value="10">November</option>
+                            <option value="11">Desember</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
                             </svg>
-                        </button>
+                        </div>
                     </div>
 
-                    <!-- Date Selector -->
-                <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
                     <div class="relative w-full sm:w-auto">
-                            <select id="monthSelector" onchange="goToSelectedDate()"
-                            class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[130px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
-                                <option value="0">Januari</option>
-                                <option value="1">Februari</option>
-                                <option value="2">Maret</option>
-                                <option value="3">April</option>
-                                <option value="4">Mei</option>
-                                <option value="5">Juni</option>
-                                <option value="6">Juli</option>
-                                <option value="7">Agustus</option>
-                                <option value="8">September</option>
-                                <option value="9">Oktober</option>
-                                <option value="10">November</option>
-                                <option value="11">Desember</option>
-                            </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
-                        </div>
-
-                    <div class="relative w-full sm:w-auto">
-                            <select id="yearSelector" onchange="goToSelectedDate()"
+                        <select id="yearSelector" onchange="goToSelectedDate()"
                             class="appearance-none select pl-4 pr-10 py-2 w-full min-w-[90px] bg-white text-[#213268] border border-[#213268]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#213268]/40">
-                                <!-- Years will be added via JavaScript -->
-                            </select>
+                            <!-- Years will be added via JavaScript -->
+                        </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#213268]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
                         </div>
                     </div>
                 </div>
@@ -428,7 +430,8 @@
             <!-- Calendar Grid -->
             <div class="flex flex-col gap-2 w-full overflow-x-auto">
                 <!-- Days Header -->
-                <div class="flex justify-between items-center py-2 bg-white border-b border-[#213268]/10 min-w-[640px] sm:min-w-0">
+                <div
+                    class="flex justify-between items-center py-2 bg-white border-b border-[#213268]/10 min-w-[640px] sm:min-w-0">
                     <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Min</div>
                     <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Sen</div>
                     <div class="flex-1 text-center text-xs sm:text-sm font-['Poppins'] font-medium text-[#213268]">Sel</div>
@@ -468,8 +471,10 @@
                     class="mx-auto relative w-full max-w-xs sm:max-w-sm md:max-w-md py-4 px-6 text-center cursor-pointer swipe-indicator bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition-all duration-300 transform">
                     <!-- Down Arrow Icon (Default) -->
                     <div class="flex flex-col items-center justify-center gap-2" id="load-more-default">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#213268] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[#213268] animate-bounce" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                         </svg>
                         <div class="flex flex-col items-center">
                             <span class="font-medium text-[#213268]">Swipe Ke Atas</span>
@@ -500,7 +505,8 @@
                             <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="viewCalibrationModal">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#757575]" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -741,8 +747,9 @@
                                             </div>
 
                                             <div class="text-center">
-                                                <svg class="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg class="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-[#213268]"
+                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                 </svg>
@@ -873,9 +880,12 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0);
             }
+
             50% {
                 transform: translateY(-10px);
             }
@@ -886,6 +896,7 @@
                 transform: translateY(20px);
                 opacity: 0;
             }
+
             100% {
                 transform: translateY(0);
                 opacity: 1;
@@ -987,15 +998,24 @@
         }
 
         /* Add transitions for loading states */
-        #load-more-default, #load-more-loading {
+        #load-more-default,
+        #load-more-loading {
             transition: opacity 0.3s ease;
         }
 
         /* Add pulse effect to draw attention to the swipe indicator */
         @keyframes pulseSwipe {
-            0% { box-shadow: 0 0 0 0 rgba(33, 50, 104, 0.2); }
-            70% { box-shadow: 0 0 0 10px rgba(33, 50, 104, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(33, 50, 104, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(33, 50, 104, 0.2);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(33, 50, 104, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(33, 50, 104, 0);
+            }
         }
 
         .swipe-indicator {
@@ -1007,6 +1027,7 @@
                 transform: translateY(20px);
                 opacity: 0;
             }
+
             100% {
                 transform: translateY(0);
                 opacity: 1;
@@ -1037,13 +1058,13 @@
         }
 
         /* Smooth transitions for the loading states */
-        #load-more-default, #load-more-loading {
+        #load-more-default,
+        #load-more-loading {
             transition: opacity 0.3s ease;
         }
     </style>
 
     <script>
-        // Initial calendar setup
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
@@ -1053,43 +1074,34 @@
             "Juli", "Agustus", "September", "Oktober", "November", "Desember"
         ];
 
-        // Store events in global scope
         let calendarEvents = {};
 
-        // Asset Activities Pagination
         let currentActivitiesPage = 1;
         let activitiesPerPage = 10;
         let hasMoreActivities = false;
         let isLoadingActivities = false;
 
-        // Track whether sections have already been loaded
         let hasLoadedCalendar = false;
         let hasLoadedActivities = false;
 
-        // Helper function to prevent multiple submissions
         function preventMultipleSubmits(form, buttonSelector) {
             if (!form) return;
 
             form.addEventListener('submit', function (e) {
-                // Only proceed if validation passes
                 if (this.checkValidity()) {
-                    // Find the submit button
                     const submitBtn = this.querySelector(buttonSelector);
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable the button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                        // Re-enable button after 10 seconds as a failsafe
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -1102,24 +1114,18 @@
             });
         }
 
-        // Toast notification function
         window.showToast = function (message, type = 'success') {
-            // Create the notification element
             const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+            notification.id = type + 'Notification' + Date.now();
             notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
             notification.setAttribute('role', 'alert');
 
-            // Helper function to process error object to HTML
             function processErrorObject(errorObj) {
-                // Special format seen in screenshot: {success: false, errors: [{path, message}]}
                 if (errorObj.success === false && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
-                    // Check if it's the path/message format
                     const firstError = errorObj.errors[0];
                     if (typeof firstError === 'object' && firstError !== null &&
                         firstError.path && firstError.message) {
 
-                        console.log('✓ Found specific error format with path/message properties');
                         let errorList = '<ul>';
                         errorObj.errors.forEach(err => {
                             errorList += `<li><strong>${err.path}</strong>: ${err.message}</li>`;
@@ -1127,15 +1133,10 @@
                         errorList += '</ul>';
                         return errorList;
                     }
-
-                    // Regular array errors
-                    console.log('Found error array format:', errorObj.errors);
                     return processErrorArray(errorObj.errors);
                 }
 
-                // Laravel validation errors format
                 if (errorObj.errors && typeof errorObj.errors === 'object') {
-                    console.log('Found Laravel validation errors format');
                     let errorList = '<ul>';
                     Object.entries(errorObj.errors).forEach(([field, errors]) => {
                         if (Array.isArray(errors)) {
@@ -1150,7 +1151,6 @@
                     return errorList;
                 }
 
-                // Single error message
                 if (errorObj.message) {
                     return errorObj.message;
                 }
@@ -1159,7 +1159,6 @@
                     return errorObj.error;
                 }
 
-                // Fallback: stringify the object
                 try {
                     return JSON.stringify(errorObj);
                 } catch (e) {
@@ -1167,9 +1166,7 @@
                 }
             }
 
-            // Helper function to process error arrays
             function processErrorArray(errArray) {
-                // If it's array of objects with path/message
                 if (errArray.length > 0 && typeof errArray[0] === 'object' &&
                     errArray[0] !== null && errArray[0].path && errArray[0].message) {
 
@@ -1181,7 +1178,6 @@
                     return errorList;
                 }
 
-                // If it's just an array of strings
                 if (typeof errArray[0] === 'string') {
                     let errorList = '<ul>';
                     errArray.forEach(err => {
@@ -1191,33 +1187,30 @@
                     return errorList;
                 }
 
-                // Fallback: join as comma-separated list
                 return errArray.join(', ');
             }
 
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                 notification.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="py-1">
-                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                        <div class="flex items-start">
+                            <div class="py-1">
+                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">Berhasil!</p>
+                                <div>${message}</div>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                         </div>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <div>${message}</div>
-                        </div>
-                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                    </div>
-                `;
+                    `;
             } else {
                 notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
-                // Process error message for proper display
                 let processedMessage = '';
 
-                // Handle different error message formats
                 if (typeof message === 'string') {
                     processedMessage = message;
                 } else if (Array.isArray(message)) {
@@ -1228,39 +1221,32 @@
                     processedMessage = "Terjadi kesalahan";
                 }
 
-                // Structure for the notification
                 const wrapper = document.createElement('div');
                 wrapper.className = 'flex items-start';
 
-                // Icon container
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'py-1 flex-shrink-0';
                 iconContainer.innerHTML = `
-                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                `;
+                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                    `;
 
-                // Content container
                 const contentContainer = document.createElement('div');
                 contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
 
-                // Title
                 const title = document.createElement('p');
                 title.className = 'font-bold';
                 title.textContent = 'Gagal!';
                 contentContainer.appendChild(title);
 
-                // Message container
                 const messageContainer = document.createElement('div');
                 messageContainer.className = 'error-message';
 
-                // Always use innerHTML for processedMessage as it may contain HTML
                 messageContainer.innerHTML = processedMessage;
 
                 contentContainer.appendChild(messageContainer);
 
-                // Close button
                 const closeBtn = document.createElement('span');
                 closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                 closeBtn.textContent = '×';
@@ -1268,71 +1254,62 @@
                     notification.remove();
                 };
 
-                // Assemble the notification
                 wrapper.appendChild(iconContainer);
                 wrapper.appendChild(contentContainer);
                 wrapper.appendChild(closeBtn);
                 notification.appendChild(wrapper);
             }
 
-            // Add to document
             document.body.appendChild(notification);
 
-            // Auto-remove notification after 5 seconds
             setTimeout(() => {
-                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => notification.remove(), 500);
             }, 5000);
 
             return notification;
         };
 
-        // Add slide-in animation for error messages
         document.head.insertAdjacentHTML('beforeend', `
-            <style>
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
-                }
-                .animate-slide-in-right {
-                    animation: slideInRight 0.3s ease-out forwards;
-                }
-                .error-message ul {
-                    margin-top: 0.5rem;
-                    padding-left: 1.5rem;
-                    list-style-type: disc;
-                }
-                .error-message li {
-                    margin-bottom: 0.25rem;
-                }
-                .error-message strong {
-                    color: #b91c1c;
-                    font-weight: 600;
-                }
-            </style>
-        `);
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
+                    .error-message ul {
+                        margin-top: 0.5rem;
+                        padding-left: 1.5rem;
+                        list-style-type: disc;
+                    }
+                    .error-message li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .error-message strong {
+                        color: #b91c1c;
+                        font-weight: 600;
+                    }
+                </style>
+            `);
 
-        // Move the function declarations to the global scope
         function showAllEvents(dateStr) {
-            // Format the date for display
             const displayDate = new Date(dateStr);
             const formattedDate = `${displayDate.getDate()} ${months[displayDate.getMonth()]} ${displayDate.getFullYear()}`;
 
-            // Create event list HTML
             let eventListHTML = '';
 
-            // Check if we have events for this date
             if (!calendarEvents[dateStr] || calendarEvents[dateStr].length === 0) {
                 eventListHTML = `
-                        <div class="text-center py-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
-                        </div>
-                    `;
+                            <div class="text-center py-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
+                            </div>
+                        `;
             } else {
-                // Format each event
                 calendarEvents[dateStr].forEach(event => {
                     const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
                         event.type === 'urgent' ? 'bg-[#E5F6FF]' : // Perawatan - blue
@@ -1343,60 +1320,58 @@
                             'Garansi';
 
                     eventListHTML += `
-                            <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
-                                <div class="flex justify-between items-start">
-                                    <div class="font-medium text-lg mb-2">${event.title}</div>
-                                    <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-yellow-100 text-yellow-800' : // Kalibrasi - yellow
+                                <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
+                                    <div class="flex justify-between items-start">
+                                        <div class="font-medium text-lg mb-2">${event.title}</div>
+                                        <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-yellow-100 text-yellow-800' : // Kalibrasi - yellow
                             event.type === 'urgent' ? 'bg-blue-100 text-blue-800' : // Perawatan - blue
                                 'bg-green-100 text-green-800' // Garansi - green
                         }">${typeLabel}</span>
-                                </div>
-                                ${event.assetCode ? `<div class="text-sm mb-1"><span class="font-medium">Kode Aset:</span> ${event.assetCode}</div>` : ''}
-                                ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
-                                ${event.url ? `
-                                    <div class="mt-3 pt-2 border-t border-gray-200">
-                                        <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
-                                            <span>Lihat detail</span>
-                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                            </svg>
-                                        </a>
                                     </div>
-                                ` : ''}
-                            </div>
-                        `;
+                                    ${event.assetCode ? `<div class="text-sm mb-1"><span class="font-medium">Kode Aset:</span> ${event.assetCode}</div>` : ''}
+                                    ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
+                                    ${event.url ? `
+                                        <div class="mt-3 pt-2 border-t border-gray-200">
+                                            <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
+                                                <span>Lihat detail</span>
+                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
                 });
             }
 
-            // Create modal HTML with improved styling
             const modalHTML = `
-                    <div id="eventModal" class="fixed inset-0 z-50">
-                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                        <div class="fixed inset-0 z-50 overflow-y-auto">
-                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px]"
-                                    id="eventModalContent">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-center p-6 pb-0">
-                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Jadwal: ${formattedDate}</h2>
-                                        <button onclick="document.getElementById('eventModal').remove()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
+                        <div id="eventModal" class="fixed inset-0 z-50">
+                            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                            <div class="fixed inset-0 z-50 overflow-y-auto">
+                                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px]"
+                                        id="eventModalContent">
+                                        <!-- Header -->
+                                        <div class="flex justify-between items-center p-6 pb-0">
+                                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Jadwal: ${formattedDate}</h2>
+                                            <button onclick="document.getElementById('eventModal').remove()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
 
-                                    <!-- Content -->
-                                    <div class="p-6">
-                                ${eventListHTML}
+                                        <!-- Content -->
+                                        <div class="p-6">
+                                    ${eventListHTML}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
-            // Append modal to body
             document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
 
@@ -1410,7 +1385,6 @@
                 currentYear++;
             }
 
-            // Fetch new data for the selected month
             fetchCalendarData(currentYear, currentMonth);
         }
 
@@ -1421,12 +1395,10 @@
             currentMonth = parseInt(monthSelector.value);
             currentYear = parseInt(yearSelector.value);
 
-            // Fetch data for selected month/year
             fetchCalendarData(currentYear, currentMonth);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize chart with data from PHP
             const ctx = document.getElementById('assetStatusChart').getContext('2d');
             new Chart(ctx, {
                 type: 'pie',
@@ -1434,1213 +1406,668 @@
                     labels: ['Tersedia', 'Perawatan', 'Pinjam', 'Dihapuskan', 'Hilang'],
                     datasets: [{
                         data: [
-                                {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
-                                {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
-                                {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
-                                {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
-                            {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
-                        ],
-                        backgroundColor: [
-                            '#7CB60C',  // Available - Green (500)
-                            '#25B1FF',  // Maintenance - Blue (500)
-                            '#FFD016',  // Check Out - Yellow (500)
-                            '#ACC3EF',  // Dispose - Navy (200)
-                            '#FF4A2B'   // Lost - Red (500)
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
+                                    {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
+                                    {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
+                                    {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
+                                    {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
+                                {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
+                            ],
+                backgroundColor: [
+                '#7CB60C',  // Available - Green (500)
+                '#25B1FF',  // Maintenance - Blue (500)
+                '#FFD016',  // Check Out - Yellow (500)
+                '#ACC3EF',  // Dispose - Navy (200)
+                '#FF4A2B'   // Lost - Red (500)
+            ],
+                borderWidth: 0
+                        }]
                     },
-                    layout: {
-                        padding: {
-                            left: 20,
-                            right: 20
-                        }
-                    }
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
                 }
-            });
-
-            // Toggle display between number and percentage
-            const displayToggle = document.getElementById('displayToggle');
-            const numberValues = document.querySelectorAll('.number-value');
-            const percentValues = document.querySelectorAll('.percent-value');
-
-            displayToggle.addEventListener('change', function () {
-                if (this.checked) {
-                    // Show percentage values
-                    numberValues.forEach(el => el.classList.add('hidden'));
-                    percentValues.forEach(el => el.classList.remove('hidden'));
-                } else {
-                    // Show number values
-                    numberValues.forEach(el => el.classList.remove('hidden'));
-                    percentValues.forEach(el => el.classList.add('hidden'));
-                }
-            });
-
-            // Fill year selector with current year and ±5 years
-            populateYearSelector();
-
-            // Set initial selection in dropdowns
-            document.getElementById('monthSelector').value = currentMonth;
-            document.getElementById('yearSelector').value = currentYear;
-
-            // Make calendar functions accessible globally
-            window.showAllEvents = showAllEvents;
-            window.changeMonth = changeMonth;
-            window.goToSelectedDate = goToSelectedDate;
-            window.fetchCalendarData = fetchCalendarData;
-            window.generateCalendar = generateCalendar;
-
-            // Initialize calendar without fetching data
-            generateCalendar(currentMonth, currentYear);
-
-            // Set up intersection observers for lazy loading
-            setupLazyLoading();
-
-            // Apply form submission protection
-            const performCalibrationForm = document.getElementById('performCalibrationForm');
-            if (performCalibrationForm) {
-                preventMultipleSubmits(performCalibrationForm, 'button[type="submit"]');
-            }
-
-            // Function to populate year selector with options
-            function populateYearSelector() {
-                const yearSelector = document.getElementById('yearSelector');
-                const currentYear = new Date().getFullYear();
-
-                // Clear existing options
-                yearSelector.innerHTML = '';
-
-                // Add options for 5 years before and after current year
-                for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    yearSelector.appendChild(option);
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20
                 }
             }
-
-            // Setup lazy loading for calendar and activity sections
-            function setupLazyLoading() {
-                const options = {
-                    root: null, // use viewport as root
-                    rootMargin: '0px',
-                    threshold: 0.1 // trigger when 10% of the element is visible
-                };
-
-                // Observer for calendar section
-                const calendarObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting && !hasLoadedCalendar) {
-                            console.log('Calendar section is visible, loading data...');
-                            fetchCalendarData(currentYear, currentMonth);
-                            hasLoadedCalendar = true;
-                            calendarObserver.unobserve(entry.target);
-                        }
-                    });
-                }, options);
-
-                // Observer for activities section
-                const activitiesObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting && !hasLoadedActivities) {
-                            console.log('Activities section is visible, loading data...');
-                            loadAssetActivities();
-                            hasLoadedActivities = true;
-                            activitiesObserver.unobserve(entry.target);
-                        }
-                    });
-                }, options);
-
-                // Start observing sections
-                const calendarSection = document.querySelector('#calendarDays');
-                const activitiesSection = document.querySelector('#asset-activities');
-
-                if (calendarSection) calendarObserver.observe(calendarSection);
-                if (activitiesSection) activitiesObserver.observe(activitiesSection);
-            }
-
-            // Function to fetch calendar data
-            async function fetchCalendarData(year, month) {
-                try {
-                    // Update the selectors to match the current year and month
-                    document.getElementById('monthSelector').value = month;
-                    document.getElementById('yearSelector').value = year;
-
-                    // Show a loading state for calendar
-                    document.getElementById('calendarDays').innerHTML = `
-                        <div class="col-span-7 text-center py-8">
-                            <span class="loading loading-spinner loading-md text-[#213268]"></span>
-                            <p class="text-gray-500 mt-2">Memuat data kalender...</p>
-                        </div>
-                    `;
-
-                    const response = await fetch(`/dashboard/calendar?year=${year}&month=${month + 1}`);
-                    const data = await response.json();
-
-                    if (data.success) {
-                        // Update UI with fetched data
-                        const eventsData = data.data?.events || [];
-                        processCalendarEvents(eventsData);
-                    } else {
-                        // Handle API error
-                        document.getElementById('calendarDays').innerHTML = `
-                            <div class="col-span-7 text-center py-8">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
-                                <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    // Handle network error
-                    document.getElementById('calendarDays').innerHTML = `
-                        <div class="col-span-7 text-center py-8">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
-                        </div>
-                    `;
-                }
-            }
-
-            // Function to process calendar events
-            function processCalendarEvents(apiEvents) {
-                // Clear previous events
-                calendarEvents = {};
-
-                if (!apiEvents || !apiEvents.length) {
-                    // Generate calendar with no events
-                    generateCalendar(currentMonth, currentYear);
-                    return;
-                }
-
-                // Default date will be middle of current month
-                const defaultDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-15`;
-
-                apiEvents.forEach(event => {
-                    // Handle missing date property
-                    let dateStr = event.date;
-                    if (!dateStr) {
-                        // Try to extract date from other properties if available
-                        if (event.scheduled_date) {
-                            dateStr = event.scheduled_date;
-                        } else if (event.start_date) {
-                            dateStr = event.start_date;
-                        } else if (event.created_at) {
-                            // Extract just the date part if it's a datetime
-                            const createdDate = new Date(event.created_at);
-                            dateStr = createdDate.toISOString().split('T')[0];
-                        } else {
-                            // Generate a random date within this month for demo purposes
-                            const day = Math.floor(Math.random() * 28) + 1; // Random day between 1-28
-                            dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                        }
-                    }
-
-                    // Ensure date format is consistent (YYYY-MM-DD)
-                    if (dateStr && !dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                        try {
-                            // Try to parse and format the date if it's in a different format
-                            const parsedDate = new Date(dateStr);
-                            if (!isNaN(parsedDate.getTime())) {
-                                dateStr = parsedDate.toISOString().split('T')[0];
-                            } else {
-                                dateStr = defaultDate;
-                            }
-                        } catch (e) {
-                            dateStr = defaultDate;
-                        }
-                    }
-
-                    if (!calendarEvents[dateStr]) {
-                        calendarEvents[dateStr] = [];
-                    }
-
-                    // Map event types to UI styles
-                    let type = 'info';
-                    if (event.type === 'calibration') type = 'info';
-                    if (event.type === 'maintenance') type = 'urgent';
-                    if (event.type === 'warranty') type = 'warning';
-
-                    // Extract title from event data
-                    const title = event.title || event.description || event.asset_master_name || 'Event';
-
-                    calendarEvents[dateStr].push({
-                        title: title,
-                        type: type,
-                        assetId: event.asset_id,
-                        assetCode: event.asset_code,
-                        assetName: event.asset_name || event.asset_master_name,
-                        location: event.location,
-                        url: event.url || null // Link to detail view if available
-                    });
+        }
                 });
 
-                // Sort events by priority (urgent first, then warning, then info)
-                for (const date in calendarEvents) {
-                    calendarEvents[date].sort((a, b) => {
-                        const priority = { 'urgent': 1, 'warning': 2, 'info': 3 };
-                        return priority[a.type] - priority[b.type];
-                    });
-                }
+        const displayToggle = document.getElementById('displayToggle');
+        const numberValues = document.querySelectorAll('.number-value');
+        const percentValues = document.querySelectorAll('.percent-value');
 
-                // Regenerate calendar to show new events
-                generateCalendar(currentMonth, currentYear);
+        displayToggle.addEventListener('change', function () {
+            if (this.checked) {
+                numberValues.forEach(el => el.classList.add('hidden'));
+                percentValues.forEach(el => el.classList.remove('hidden'));
+            } else {
+                numberValues.forEach(el => el.classList.remove('hidden'));
+                percentValues.forEach(el => el.classList.add('hidden'));
             }
+        });
 
-            // Function to generate calendar display
-            function generateCalendar(month, year) {
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                const startingDay = firstDay.getDay();
-                const totalDays = lastDay.getDate();
+        populateYearSelector();
 
-                // Update header and selectors
-                document.getElementById('currentMonth').textContent = months[month];
-                document.getElementById('currentYear').textContent = year;
+        document.getElementById('monthSelector').value = currentMonth;
+        document.getElementById('yearSelector').value = currentYear;
+
+        window.showAllEvents = showAllEvents;
+        window.changeMonth = changeMonth;
+        window.goToSelectedDate = goToSelectedDate;
+        window.fetchCalendarData = fetchCalendarData;
+        window.generateCalendar = generateCalendar;
+
+        generateCalendar(currentMonth, currentYear);
+
+        setupLazyLoading();
+
+        const performCalibrationForm = document.getElementById('performCalibrationForm');
+        if (performCalibrationForm) {
+            preventMultipleSubmits(performCalibrationForm, 'button[type="submit"]');
+        }
+
+        function populateYearSelector() {
+            const yearSelector = document.getElementById('yearSelector');
+            const currentYear = new Date().getFullYear();
+
+            yearSelector.innerHTML = '';
+
+            for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelector.appendChild(option);
+            }
+        }
+
+        function setupLazyLoading() {
+            const options = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const calendarObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasLoadedCalendar) {
+                        console.log('Calendar section is visible, loading data...');
+                        fetchCalendarData(currentYear, currentMonth);
+                        hasLoadedCalendar = true;
+                        calendarObserver.unobserve(entry.target);
+                    }
+                });
+            }, options);
+
+            const activitiesObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasLoadedActivities) {
+                        console.log('Activities section is visible, loading data...');
+                        loadAssetActivities();
+                        hasLoadedActivities = true;
+                        activitiesObserver.unobserve(entry.target);
+                    }
+                });
+            }, options);
+
+            const calendarSection = document.querySelector('#calendarDays');
+            const activitiesSection = document.querySelector('#asset-activities');
+
+            if (calendarSection) calendarObserver.observe(calendarSection);
+            if (activitiesSection) activitiesObserver.observe(activitiesSection);
+        }
+
+        async function fetchCalendarData(year, month) {
+            try {
                 document.getElementById('monthSelector').value = month;
                 document.getElementById('yearSelector').value = year;
 
-                const calendarDays = document.getElementById('calendarDays');
-                calendarDays.innerHTML = '';
-
-                // Previous month's days
-                const prevMonthLastDay = new Date(year, month, 0).getDate();
-                for (let i = startingDay - 1; i >= 0; i--) {
-                    const day = prevMonthLastDay - i;
-                    calendarDays.innerHTML += `
-                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                        </div>
-                    `;
-                }
-
-                // Current month's days
-                for (let day = 1; day <= totalDays; day++) {
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    const isToday = day === new Date().getDate() &&
-                        month === new Date().getMonth() &&
-                        year === new Date().getFullYear();
-
-                    const hasEvents = calendarEvents[dateStr] && calendarEvents[dateStr].length > 0;
-
-                    let dayEvents = '';
-                    if (hasEvents) {
-                        // Show max 3 events in the calendar cell
-                        const visibleEvents = calendarEvents[dateStr].slice(0, 3);
-                        dayEvents = visibleEvents.map(event => {
-                            const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
-                                event.type === 'urgent' ? 'bg-[#E5F6FF]' : // Perawatan - blue
-                                    'bg-[#E6F8E6]'; // Garansi - green
-
-                            const typeLabel = event.type === 'info' ? 'Kalibrasi' :
-                                event.type === 'urgent' ? 'Perawatan' :
-                                    'Garansi';
-
-                            // Define border colors with new color scheme
-                            const borderColor = event.type === 'info' ? 'border-l-4 border-l-[#FFD016]' : // Kalibrasi - yellow
-                                event.type === 'urgent' ? 'border-l-4 border-l-[#25B1FF]' : // Perawatan - blue
-                                    'border-l-4 border-l-[#7CB60C]'; // Garansi - green
-
-                            if (event.url) {
-                                return `<a href="${event.url}" class="px-2 py-1.5 ${bgColor} ${borderColor} text-xs font-['Poppins'] mb-1 rounded shadow-sm truncate block hover:bg-opacity-80">${event.title}</a>`;
-                            } else {
-                                return `<div class="px-2 py-1.5 ${bgColor} ${borderColor} text-xs font-['Poppins'] mb-1 rounded shadow-sm truncate">${event.title}</div>`;
-                            }
-                        }).join('');
-
-                        // Add "view more" link if there are more than 3 events
-                        if (calendarEvents[dateStr].length > 3) {
-                            const moreCount = calendarEvents[dateStr].length - 3;
-                            dayEvents += `
-                                    <div class="text-right">
-                                        <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
-                                    </div>
-                                `;
-                        }
-                    }
-
-                    // Add classes for hover effect and cursor pointer if the day has events or is in current month
-                    const dayClasses = [
-                        'p-2',
-                        'min-h-[104px]',
-                        isToday ? 'bg-[#213268]/10' : 'bg-white',
-                        'border',
-                        'border-[#213268]/10',
-                        'transition-all',
-                        'duration-200',
-                        'hover:shadow-md',
-                        'hover:border-[#213268]/30',
-                        'cursor-pointer'
-                    ].join(' ');
-
-                    calendarDays.innerHTML += `
-                            <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
-                                <div class="flex justify-between items-center mb-2">
-                                    <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
-                                    ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    ${dayEvents}
-                                </div>
+                document.getElementById('calendarDays').innerHTML = `
+                            <div class="col-span-7 text-center py-8">
+                                <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                                <p class="text-gray-500 mt-2">Memuat data kalender...</p>
                             </div>
                         `;
-                }
 
-                // Next month's days
-                const remainingDays = 42 - (startingDay + totalDays);
-                for (let day = 1; day <= remainingDays; day++) {
-                    calendarDays.innerHTML += `
-                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                        </div>
-                    `;
-                }
-            }
+                const response = await fetch(`/dashboard/calendar?year=${year}&month=${month + 1}`);
+                const data = await response.json();
 
-            // Function to format date from ISO string to readable format
-            function formatDate(dateString) {
-                const date = new Date(dateString);
-                const day = String(date.getDate()).padStart(2, '0');
-
-                // Indonesian month names (abbreviated)
-                const indonesianMonths = [
-                    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                    'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
-                ];
-                const month = indonesianMonths[date.getMonth()];
-                const year = date.getFullYear().toString().slice(-2);
-
-                return `${day} ${month} ${year}`;
-            }
-
-            // Function to format time from ISO string to readable format
-            function formatTime(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            }
-
-            // Function to create HTML for a single activity item
-            function createActivityItemHTML(activity) {
-                // Map activity status to badge classes
-                const getStatusBadgeClass = (statusType) => {
-                    const statusClasses = {
-                        'Available': 'bg-[#659B09]',
-                        'Checked out': 'bg-[#F59E0B]',
-                        'Under Repair': 'bg-[#25B1FF]',
-                    'Disposed': 'bg-[#ACC3EF]',
-                        'Lost': 'bg-[#FF4A2B]'
-                    };
-                    return statusClasses[statusType] || 'bg-gray-500';
-                };
-
-                // Map status to Indonesian translation
-                const getStatusLabel = (status) => {
-                    const statusLabels = {
-                        'Available': 'TERSEDIA',
-                        'Checked out': 'DIPINJAM',
-                        'Under Repair': 'PERBAIKAN',
-                    'Disposed': 'DIHAPUSKAN',
-                        'Lost': 'HILANG'
-                    };
-                    return statusLabels[status] || status.toUpperCase();
-                };
-
-                // Create status badge HTML
-                const createStatusBadge = (status) => {
-                    return `<span class="py-1 px-3 rounded-md text-xs text-white ${getStatusBadgeClass(status)}">${getStatusLabel(status)}</span>`;
-                };
-
-                // Format the date and time from action_date
-                const dateFormatted = activity.action_date ? formatDate(activity.action_date) : 'N/A';
-                const timeFormatted = activity.action_date ? formatTime(activity.action_date) : 'N/A';
-
-                // Get user info
-                const userName = activity.user ? activity.user.employee_number || 'User' : 'User';
-
-                // Get asset info
-                const assetCode = activity.asset_info ? activity.asset_info.asset_code : 'N/A';
-                const assetName = activity.asset_info ? activity.asset_info.asset_name : '';
-
-                // Create content based on activity type
-                let content = '';
-                if (activity.action_type === 'ASSET_STATUS_CHANGE') {
-                    content = `
-                        <p class="text-lg font-normal font-['Poppins'] text-black">
-                            ${userName} mengubah status dari
-                            ${createStatusBadge(activity.old_status)} ke
-                            ${createStatusBadge(activity.new_status)}
-                        </p>
-                    `;
-                } else if (activity.action_type === 'ASSET_LOCATION_CHANGE') {
-                    content = `
-                        <p class="text-lg font-normal font-['Poppins'] text-black">
-                            ${userName} memindahkan dari
-                            <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
-                            <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
-                        </p>
-                    `;
+                if (data.success) {
+                    const eventsData = data.data?.events || [];
+                    processCalendarEvents(eventsData);
                 } else {
-                    content = `
-                        <p class="text-lg font-normal font-['Poppins'] text-black">
-                            ${userName} ${activity.message || 'melakukan update'}
-                        </p>
-                    `;
-                }
-
-                return `
-                    <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
-                        <!-- Blue Line -->
-                        <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
-
-                        <div class="flex flex-col md:flex-row pl-4">
-                            <!-- Date & Time -->
-                            <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
-                                <p class="text-lg font-medium font-['Poppins'] text-[#213268]">${dateFormatted}</p>
-                                <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="flex-1">
-                                <!-- Asset Information -->
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                        <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
-                                    </div>
-                                    ${assetName ? `
-                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                        <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
-                                    </div>
-                                    ` : ''}
-                                </div>
-
-                                <!-- Status Change -->
-                                <div class="text-base font-['Poppins'] text-[#213268]">
-                                    ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Function to load asset activities
-            async function loadAssetActivities(page = 1, append = false) {
-                // Note: isLoadingActivities flag is now set by the caller before the delay
-                if (!append) {
-                    const activitiesContainer = document.getElementById('asset-activities');
-                    activitiesContainer.innerHTML = `
-                        <div class="text-center py-12">
-                            <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
-                                <span class="loading loading-spinner loading-md text-[#213268]"></span>
-                            </div>
-                            <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
-                        </div>
-                    `;
-                }
-
-                const activitiesContainer = document.getElementById('asset-activities');
-                const loadMoreContainer = document.getElementById('load-more-container');
-
-                try {
-                    const response = await fetch(`/dashboard/activities?page=${page}&limit=${activitiesPerPage}`);
-                    const data = await response.json();
-
-                    // Update loading state
-                    showLoadingAnimation(false);
-
-                    // Remove loading state
-                    if (!append) {
-                        activitiesContainer.innerHTML = '';
-                    }
-
-                    if (data.success) {
-                        const activities = data.data?.histories || [];
-                        const pagination = data.data?.pagination || {};
-
-                        // Update pagination state
-                        currentActivitiesPage = pagination.current_page || page;
-                        hasMoreActivities = pagination.has_next || false;
-
-                        // Display activities
-                        if (activities.length === 0 && !append) {
-                            activitiesContainer.innerHTML = `
-                                <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
-                                    <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
+                    document.getElementById('calendarDays').innerHTML = `
+                                <div class="col-span-7 text-center py-8">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
+                                    <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
                                 </div>
                             `;
-                        } else {
-                            const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
+                }
+            } catch (error) {
+                document.getElementById('calendarDays').innerHTML = `
+                            <div class="col-span-7 text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
+                            </div>
+                        `;
+            }
+        }
 
-                            if (append) {
-                                // Add a slide-up animation to new content
-                                const tempContainer = document.createElement('div');
-                                tempContainer.innerHTML = activitiesHTML;
+        function processCalendarEvents(apiEvents) {
+            calendarEvents = {};
 
-                                // Add animation class to each activity
-                                Array.from(tempContainer.children).forEach((child, index) => {
-                                    child.classList.add('animate-slide-in');
-                                    child.style.animationDelay = `${index * 100}ms`;
-                                });
+            if (!apiEvents || !apiEvents.length) {
+                generateCalendar(currentMonth, currentYear);
+                return;
+            }
 
-                                activitiesContainer.insertAdjacentHTML('beforeend', tempContainer.innerHTML);
-                            } else {
-                                activitiesContainer.innerHTML = activitiesHTML;
-                            }
-                        }
+            const defaultDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-15`;
 
-                        // Show/hide load more button
-                        loadMoreContainer.style.display = hasMoreActivities ? 'block' : 'none';
+            apiEvents.forEach(event => {
+                let dateStr = event.date;
+                if (!dateStr) {
+                    if (event.scheduled_date) {
+                        dateStr = event.scheduled_date;
+                    } else if (event.start_date) {
+                        dateStr = event.start_date;
+                    } else if (event.created_at) {
+                        const createdDate = new Date(event.created_at);
+                        dateStr = createdDate.toISOString().split('T')[0];
                     } else {
-                        // Show error message
-                        if (!append) {
-                            activitiesContainer.innerHTML = `
+                        const day = Math.floor(Math.random() * 28) + 1;
+                        dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    }
+                }
+
+                if (dateStr && !dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    try {
+                        const parsedDate = new Date(dateStr);
+                        if (!isNaN(parsedDate.getTime())) {
+                            dateStr = parsedDate.toISOString().split('T')[0];
+                        } else {
+                            dateStr = defaultDate;
+                        }
+                    } catch (e) {
+                        dateStr = defaultDate;
+                    }
+                }
+
+                if (!calendarEvents[dateStr]) {
+                    calendarEvents[dateStr] = [];
+                }
+
+                let type = 'info';
+                if (event.type === 'calibration') type = 'info';
+                if (event.type === 'maintenance') type = 'urgent';
+                if (event.type === 'warranty') type = 'warning';
+
+                const title = event.title || event.description || event.asset_master_name || 'Event';
+
+                calendarEvents[dateStr].push({
+                    title: title,
+                    type: type,
+                    assetId: event.asset_id,
+                    assetCode: event.asset_code,
+                    assetName: event.asset_name || event.asset_master_name,
+                    location: event.location,
+                    url: event.url || null
+                });
+            });
+
+            for (const date in calendarEvents) {
+                calendarEvents[date].sort((a, b) => {
+                    const priority = { 'urgent': 1, 'warning': 2, 'info': 3 };
+                    return priority[a.type] - priority[b.type];
+                });
+            }
+
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function generateCalendar(month, year) {
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            document.getElementById('currentMonth').textContent = months[month];
+            document.getElementById('currentYear').textContent = year;
+            document.getElementById('monthSelector').value = month;
+            document.getElementById('yearSelector').value = year;
+
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDay - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                calendarDays.innerHTML += `
+                            <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                                <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                            </div>
+                        `;
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = day === new Date().getDate() &&
+                    month === new Date().getMonth() &&
+                    year === new Date().getFullYear();
+
+                const hasEvents = calendarEvents[dateStr] && calendarEvents[dateStr].length > 0;
+
+                let dayEvents = '';
+                if (hasEvents) {
+                    const visibleEvents = calendarEvents[dateStr].slice(0, 3);
+                    dayEvents = visibleEvents.map(event => {
+                        const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
+                            event.type === 'urgent' ? 'bg-[#E5F6FF]' : // Perawatan - blue
+                                'bg-[#E6F8E6]'; // Garansi - green
+
+                        const typeLabel = event.type === 'info' ? 'Kalibrasi' :
+                            event.type === 'urgent' ? 'Perawatan' :
+                                'Garansi';
+
+                        const borderColor = event.type === 'info' ? 'border-l-4 border-l-[#FFD016]' : // Kalibrasi - yellow
+                            event.type === 'urgent' ? 'border-l-4 border-l-[#25B1FF]' : // Perawatan - blue
+                                'border-l-4 border-l-[#7CB60C]'; // Garansi - green
+
+                        if (event.url) {
+                            return `<a href="${event.url}" class="px-2 py-1.5 ${bgColor} ${borderColor} text-xs font-['Poppins'] mb-1 rounded shadow-sm truncate block hover:bg-opacity-80">${event.title}</a>`;
+                        } else {
+                            return `<div class="px-2 py-1.5 ${bgColor} ${borderColor} text-xs font-['Poppins'] mb-1 rounded shadow-sm truncate">${event.title}</div>`;
+                        }
+                    }).join('');
+
+                    if (calendarEvents[dateStr].length > 3) {
+                        const moreCount = calendarEvents[dateStr].length - 3;
+                        dayEvents += `
+                                        <div class="text-right">
+                                            <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
+                                        </div>
+                                    `;
+                    }
+                }
+
+                const dayClasses = [
+                    'p-2',
+                    'min-h-[104px]',
+                    isToday ? 'bg-[#213268]/10' : 'bg-white',
+                    'border',
+                    'border-[#213268]/10',
+                    'transition-all',
+                    'duration-200',
+                    'hover:shadow-md',
+                    'hover:border-[#213268]/30',
+                    'cursor-pointer'
+                ].join(' ');
+
+                calendarDays.innerHTML += `
+                                <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
+                                        ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        ${dayEvents}
+                                    </div>
+                                </div>
+                            `;
+            }
+
+            const remainingDays = 42 - (startingDay + totalDays);
+            for (let day = 1; day <= remainingDays; day++) {
+                calendarDays.innerHTML += `
+                            <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                                <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                            </div>
+                        `;
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+
+            const indonesianMonths = [
+                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+            ];
+            const month = indonesianMonths[date.getMonth()];
+            const year = date.getFullYear().toString().slice(-2);
+
+            return `${day} ${month} ${year}`;
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function createActivityItemHTML(activity) {
+            const getStatusBadgeClass = (statusType) => {
+                const statusClasses = {
+                    'Available': 'bg-[#659B09]',
+                    'Checked out': 'bg-[#F59E0B]',
+                    'Under Repair': 'bg-[#25B1FF]',
+                    'Disposed': 'bg-[#ACC3EF]',
+                    'Lost': 'bg-[#FF4A2B]'
+                };
+                return statusClasses[statusType] || 'bg-gray-500';
+            };
+
+            const getStatusLabel = (status) => {
+                const statusLabels = {
+                    'Available': 'TERSEDIA',
+                    'Checked out': 'DIPINJAM',
+                    'Under Repair': 'PERBAIKAN',
+                    'Disposed': 'DIHAPUSKAN',
+                    'Lost': 'HILANG'
+                };
+                return statusLabels[status] || status.toUpperCase();
+            };
+
+            const createStatusBadge = (status) => {
+                return `<span class="py-1 px-3 rounded-md text-xs text-white ${getStatusBadgeClass(status)}">${getStatusLabel(status)}</span>`;
+            };
+
+            const dateFormatted = activity.action_date ? formatDate(activity.action_date) : 'N/A';
+            const timeFormatted = activity.action_date ? formatTime(activity.action_date) : 'N/A';
+
+            const userName = activity.user ? activity.user.employee_number || 'User' : 'User';
+
+            const assetCode = activity.asset_info ? activity.asset_info.asset_code : 'N/A';
+            const assetName = activity.asset_info ? activity.asset_info.asset_name : '';
+
+            let content = '';
+            if (activity.action_type === 'ASSET_STATUS_CHANGE') {
+                content = `
+                            <p class="text-lg font-normal font-['Poppins'] text-black">
+                                ${userName} mengubah status dari
+                                ${createStatusBadge(activity.old_status)} ke
+                                ${createStatusBadge(activity.new_status)}
+                            </p>
+                        `;
+            } else if (activity.action_type === 'ASSET_LOCATION_CHANGE') {
+                content = `
+                            <p class="text-lg font-normal font-['Poppins'] text-black">
+                                ${userName} memindahkan dari
+                                <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
+                                <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
+                            </p>
+                        `;
+            } else {
+                content = `
+                            <p class="text-lg font-normal font-['Poppins'] text-black">
+                                ${userName} ${activity.message || 'melakukan update'}
+                            </p>
+                        `;
+            }
+
+            return `
+                        <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
+                            <!-- Blue Line -->
+                            <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
+
+                            <div class="flex flex-col md:flex-row pl-4">
+                                <!-- Date & Time -->
+                                <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
+                                    <p class="text-lg font-medium font-['Poppins'] text-[#213268]">${dateFormatted}</p>
+                                    <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="flex-1">
+                                    <!-- Asset Information -->
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                            <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
+                                        </div>
+                                        ${assetName ? `
+                                        <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                            <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+
+                                    <!-- Status Change -->
+                                    <div class="text-base font-['Poppins'] text-[#213268]">
+                                        ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+        }
+
+        async function loadAssetActivities(page = 1, append = false) {
+            if (!append) {
+                const activitiesContainer = document.getElementById('asset-activities');
+                activitiesContainer.innerHTML = `
+                            <div class="text-center py-12">
+                                <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
+                                    <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                                </div>
+                                <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
+                            </div>
+                        `;
+            }
+
+            const activitiesContainer = document.getElementById('asset-activities');
+            const loadMoreContainer = document.getElementById('load-more-container');
+
+            try {
+                const response = await fetch(`/dashboard/activities?page=${page}&limit=${activitiesPerPage}`);
+                const data = await response.json();
+
+                showLoadingAnimation(false);
+
+                if (!append) {
+                    activitiesContainer.innerHTML = '';
+                }
+
+                if (data.success) {
+                    const activities = data.data?.histories || [];
+                    const pagination = data.data?.pagination || {};
+
+                    currentActivitiesPage = pagination.current_page || page;
+                    hasMoreActivities = pagination.has_next || false;
+
+                    if (activities.length === 0 && !append) {
+                        activitiesContainer.innerHTML = `
+                                    <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
+                                        <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
+                                        <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
+                                    </div>
+                                `;
+                    } else {
+                        const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
+
+                        if (append) {
+                            const tempContainer = document.createElement('div');
+                            tempContainer.innerHTML = activitiesHTML;
+
+                            Array.from(tempContainer.children).forEach((child, index) => {
+                                child.classList.add('animate-slide-in');
+                                child.style.animationDelay = `${index * 100}ms`;
+                            });
+
+                            activitiesContainer.insertAdjacentHTML('beforeend', tempContainer.innerHTML);
+                        } else {
+                            activitiesContainer.innerHTML = activitiesHTML;
+                        }
+                    }
+
+                    loadMoreContainer.style.display = hasMoreActivities ? 'block' : 'none';
+                } else {
+                    if (!append) {
+                        activitiesContainer.innerHTML = `
+                                    <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+                                        <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
+                                        <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
+                                        <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
+                                            Coba Lagi
+                                        </button>
+                                    </div>
+                                `;
+                    }
+                }
+            } catch (error) {
+                showLoadingAnimation(false);
+
+                if (!append) {
+                    activitiesContainer.innerHTML = `
                                 <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
                                     <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                         </svg>
                                     </div>
-                                    <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
-                                    <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
+                                    <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
+                                    <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
+                                    <p class="text-xs text-red-400 mt-1">${error.message}</p>
                                     <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
                                         Coba Lagi
                                     </button>
                                 </div>
                             `;
-                        }
-                    }
-                } catch (error) {
-                    // Update loading state
-                    showLoadingAnimation(false);
-
-                    // Show error message
-                    if (!append) {
-                        activitiesContainer.innerHTML = `
-                            <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
-                                <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
-                                <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
-                                <p class="text-xs text-red-400 mt-1">${error.message}</p>
-                                <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
-                                    Coba Lagi
-                                </button>
-                            </div>
-                        `;
-                    }
-                } finally {
-                    isLoadingActivities = false;
                 }
+            } finally {
+                isLoadingActivities = false;
             }
+        }
 
-            // Set up load more button event listener
-            document.getElementById('load-more-activities').addEventListener('click', () => {
-                if (!isLoadingActivities && hasMoreActivities) {
-                    showLoadingAnimation(true);
-                    loadAssetActivities(currentActivitiesPage + 1, true);
-                }
-            });
-
-            // Add swipe detection for load more
-            const activitiesContainer = document.getElementById('asset-activities');
-            let touchStartY = 0;
-            let touchEndY = 0;
-
-            // Function to show loading animation
-            function showLoadingAnimation(isLoading) {
-                const defaultView = document.getElementById('load-more-default');
-                const loadingView = document.getElementById('load-more-loading');
-                const container = document.getElementById('load-more-activities');
-
-                if (isLoading) {
-                    // Add a smooth transition by changing opacity first
-                    defaultView.style.opacity = '0';
-                    // Add a subtle scale effect
-                    container.classList.add('scale-95');
-                    setTimeout(() => {
-                        defaultView.classList.add('hidden');
-                        defaultView.classList.remove('flex');
-                        loadingView.classList.add('flex');
-                        loadingView.classList.remove('hidden');
-                        // Fade in the loading animation
-                        loadingView.style.opacity = '0';
-                        setTimeout(() => {
-                            loadingView.style.opacity = '1';
-                            container.classList.remove('scale-95');
-                        }, 50);
-                    }, 300); // Short delay for the fade-out effect
-                } else {
-                    loadingView.style.opacity = '0';
-                    // Add a subtle scale effect
-                    container.classList.add('scale-95');
-                    setTimeout(() => {
-                        loadingView.classList.add('hidden');
-                        loadingView.classList.remove('flex');
-                        defaultView.classList.add('flex');
-                        defaultView.classList.remove('hidden');
-                        // Fade in the default view
-                        setTimeout(() => {
-                            defaultView.style.opacity = '1';
-                            container.classList.remove('scale-95');
-                        }, 50);
-                    }, 300); // Short delay for the fade-out effect
-                }
+        document.getElementById('load-more-activities').addEventListener('click', () => {
+            if (!isLoadingActivities && hasMoreActivities) {
+                showLoadingAnimation(true);
+                loadAssetActivities(currentActivitiesPage + 1, true);
             }
-
-            // Set up swipe detection
-            if (activitiesContainer) {
-                activitiesContainer.addEventListener('touchstart', (e) => {
-                    touchStartY = e.changedTouches[0].screenY;
-                }, false);
-
-                activitiesContainer.addEventListener('touchend', (e) => {
-                    touchEndY = e.changedTouches[0].screenY;
-                    handleSwipe();
-                }, false);
-            }
-
-            function handleSwipe() {
-                const swipeThreshold = 100; // Minimum swipe distance
-                const swipeUp = touchStartY - touchEndY > swipeThreshold;
-
-                if (swipeUp && !isLoadingActivities && hasMoreActivities) {
-                    // Set loading flag immediately to prevent multiple calls
-                    isLoadingActivities = true;
-                    // First show loading animation
-                    showLoadingAnimation(true);
-
-                    // Add a delay to make the animation visible before loading data
-                    setTimeout(() => {
-                        loadAssetActivities(currentActivitiesPage + 1, true);
-                    }, 800); // 800ms delay to see the loading animation
-                }
-            }
-
-            // Add scroll detection to automatically load more activities
-            if (activitiesContainer) {
-                window.addEventListener('scroll', function() {
-                    const containerBottom = activitiesContainer.getBoundingClientRect().bottom;
-                    const isNearBottom = containerBottom <= window.innerHeight + 100;
-
-                    if (isNearBottom && !isLoadingActivities && hasMoreActivities) {
-                        // Set loading flag immediately to prevent multiple calls
-                        isLoadingActivities = true;
-                        showLoadingAnimation(true);
-                        setTimeout(() => {
-                            loadAssetActivities(currentActivitiesPage + 1, true);
-                        }, 800); // Matching delay for consistency with swipe
-                    }
-                });
-            }
-
-            // Calendar is now initialized inside the DOMContentLoaded event handler
-
-            // Animations for asset category circles
-            const animateCircles = () => {
-                document.querySelectorAll('.progress-circle').forEach(circle => {
-                    const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
-
-                    // Don't animate if the percentage is 0
-                    if (percentage === 0) {
-                        circle.style.display = 'none'; // Hide the circle
-                    } else {
-                        // Make sure the circle is visible and has the correct offset
-                        circle.style.display = 'block';
-                        // The stroke-dashoffset value is set by PHP in the template
-                    }
-                });
-            };
-
-            // Animations for asset location bars
-            const animateBars = () => {
-                document.querySelectorAll('.animate-loading-bar').forEach(bar => {
-                    const targetWidth = bar.getAttribute('data-width');
-                    // Don't animate if width is 0
-                    if (parseInt(targetWidth) === 0) {
-                        bar.style.width = '0%';
-                        bar.classList.remove('animate-loading-bar'); // Remove animation class
-                    } else {
-                        bar.style.width = `${targetWidth}%`;
-                    }
-                });
-            };
-
-            // Count-up animation for numbers
-            const animateCounters = () => {
-                document.querySelectorAll('.animate-count-up').forEach(counter => {
-                    const target = parseInt(counter.getAttribute('data-target'), 10);
-                    const isPercentage = counter.textContent.includes('%');
-                    const duration = 1000; // 1 second
-                    let startTime = null;
-
-                    function updateCounter(timestamp) {
-                        if (!startTime) startTime = timestamp;
-                        const progress = Math.min((timestamp - startTime) / duration, 1);
-                        const value = Math.floor(progress * target);
-                        counter.textContent = isPercentage ? `${value}%` : value;
-
-                        if (progress < 1) {
-                            window.requestAnimationFrame(updateCounter);
-                        } else {
-                            counter.textContent = isPercentage ? `${target}%` : target;
-                        }
-                    }
-
-                    window.requestAnimationFrame(updateCounter);
-                });
-            };
-
-            // Apply staggered fade-in animations
-            const applyFadeInStagger = () => {
-                document.querySelectorAll('.animate-fade-in').forEach((element, index) => {
-                    element.style.animationDelay = `${index * 100}ms`;
-                    element.style.opacity = 1;
-                });
-            };
-
-            // Initialize all animations
-            setTimeout(() => {
-                applyFadeInStagger();
-                animateCircles();
-                animateBars();
-                animateCounters();
-            }, 300);
-
-            // Calibration Modal Functions
-
-            // Define the modal elements - get them directly
-            const modals = {
-                view: document.getElementById('viewCalibrationModal'),
-                delete: document.getElementById('deleteCalibrationModal')
-            };
-
-            const modalContents = {
-                view: document.getElementById('viewCalibrationModalContent'),
-                delete: document.getElementById('deleteCalibrationModalContent')
-            };
-
-            // Function to open modal
-            function openModal(modal, content) {
-                if (!modal || !content) {
-                    return;
-                }
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            // Function to close modal
-            function closeModal(modal, content) {
-                if (!modal || !content) return;
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
-            }
-
-            // Close modal buttons
-            document.querySelectorAll('.close-modal').forEach(button => {
-                button.addEventListener('click', () => {
-                    const modalId = button.getAttribute('data-modal');
-
-                    // Use direct references for more reliability
-                    if (modalId === 'viewCalibrationModal') {
-                        closeModal(modals.view, modalContents.view);
-                    } else {
-                        // Fallback to the dynamic approach
-                        const modal = document.getElementById(modalId);
-                        if (!modal) {
-                            return;
-                        }
-                        const content = modal.querySelector('[id$="ModalContent"]');
-                        if (!content) {
-                            return;
-                        }
-                        closeModal(modal, content);
-                    }
-                });
-            });
-
-            // Open calibration modal when clicking on edit button in upcoming calibrations
-            const calibrationButtons = document.querySelectorAll('.edit-calibration-btn');
-
-            calibrationButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
-                    // Make sure we're using the correct modal
-                    const modal = document.getElementById('viewCalibrationModal');
-                    const modalContent = document.getElementById('viewCalibrationModalContent');
-
-                    e.preventDefault();
-                    const calibrationId = this.getAttribute('data-id');
-
-                    // Set the calibration ID in the hidden field
-                    document.getElementById('calibration_id').value = calibrationId;
-
-                    // Fetch calibration details using search parameter
-                    fetch(`/calibrations?search=${encodeURIComponent(calibrationId)}`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(data => {
-                                    throw data;
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                // Extract calibration data from the response
-                                let calibration;
-
-                                // Check all possible data structures
-                                if (data.calibrations && Array.isArray(data.calibrations) && data.calibrations.length > 0) {
-                                    // If data is in data.calibrations array
-                                    calibration = data.calibrations[0];
-                                } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-                                    // If data is in data.data array
-                                    calibration = data.data[0];
-                                } else if (typeof data.data === 'object' && data.data !== null) {
-                                    // If data is directly in data.data object
-                                    calibration = data.data;
-                                }
-
-                                if (!calibration) {
-                                    showToast('Tidak dapat menemukan data kalibrasi', 'error');
-                                    return;
-                                }
-
-                                // Store the actual calibration ID for submission later
-                                document.getElementById('calibration_id').value = calibration.id || calibrationId;
-
-                                // Set current date as work date by default when modal opens
-                                const today = new Date().toISOString().split('T')[0];
-                                document.getElementById('actual_calibration_date').value = today;
-
-                                // Set min date for next_calibration_date to today
-                                const nextCalibrationDateInput = document.getElementById('next_calibration_date');
-                                if (nextCalibrationDateInput) {
-                                    nextCalibrationDateInput.setAttribute('min', today);
-                                }
-
-                                // Set read-only display fields
-                                document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
-                                document.getElementById('asset_code_display').value = calibration.asset_code || '-';
-                                document.getElementById('asset_name_display').value = calibration.asset_name || '-';
-                                document.getElementById('brand_name_display').value = calibration.brand_name || '-';
-                                document.getElementById('model_number_display').value = calibration.model_number || '-';
-                                document.getElementById('serial_number_display').value = calibration.serial_number || '-';
-
-                                // Set location display
-                                let locationText = '-';
-                                if (calibration.location) {
-                                    const locationParts = [];
-                                    if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
-                                    if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
-                                    if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
-                                    if (locationParts.length > 0) {
-                                        locationText = locationParts.join(' | ');
-                                    }
-                                }
-                                document.getElementById('location_display').value = locationText;
-
-                                // Clear form fields that need to be filled by user
-                                document.getElementById('certificate_number').value = '';
-                                document.getElementById('vendor_search').value = '';
-                                document.getElementById('vendor_id').value = '';
-                                document.getElementById('calibration_price').value = '';
-                                document.getElementById('notes').value = '';
-
-                                // Clear radio buttons
-                                document.getElementById('result_pass').checked = false;
-                                document.getElementById('result_fail').checked = false;
-                                document.getElementById('result_unknown').checked = false;
-
-                                // Reset file input
-                                const fileInput = document.getElementById('document_file');
-                                if (fileInput) fileInput.value = '';
-
-                                // Hide file preview
-                                const filePreview = document.getElementById('file-preview');
-                                if (filePreview) filePreview.classList.add('hidden');
-
-                                openModal(modals.view, modalContents.view);
-                            } else {
-                                // Show error toast (implement toast function if not already available)
-                                showToast('Failed to load calibration details: ' + (data.message || 'Unknown error'), 'error');
-                            }
-                        })
-                        .catch(error => {
-                            showToast('Error loading calibration details: ' + (error.message || 'Unknown error'), 'error');
-                        });
-                });
-            });
-
-            // Add file upload functionality
-            document.getElementById('document_file')?.addEventListener('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    // Show preview container
-                    const filePreview = document.getElementById('file-preview');
-                    const imagePreview = document.getElementById('image-preview');
-                    const fileInfo = document.getElementById('file-info');
-                    const fileNameText = document.getElementById('file-name-text');
-
-                    if (filePreview) filePreview.classList.remove('hidden');
-
-                    // Set file name
-                    if (fileNameText) fileNameText.textContent = file.name;
-
-                    // Check if file is an image
-                    if (file.type.startsWith('image/')) {
-                        // Show image preview, hide file info
-                        if (imagePreview) {
-                            const objectUrl = URL.createObjectURL(file);
-                            imagePreview.src = objectUrl;
-                            imagePreview.classList.remove('hidden');
-                        }
-                        if (fileInfo) fileInfo.classList.add('hidden');
-                    } else {
-                        // Show file info, hide image preview
-                        if (fileInfo) fileInfo.classList.remove('hidden');
-                        if (imagePreview) imagePreview.classList.add('hidden');
-                    }
-                }
-            });
-
-            // Remove selected file
-            document.getElementById('remove-file')?.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Reset file input
-                const fileInput = document.getElementById('document_file');
-                if (fileInput) fileInput.value = '';
-
-                // Hide preview
-                const filePreview = document.getElementById('file-preview');
-                if (filePreview) filePreview.classList.add('hidden');
-
-                // Clean up image preview URL if it exists
-                const imagePreview = document.getElementById('image-preview');
-                if (imagePreview && imagePreview.src) {
-                    URL.revokeObjectURL(imagePreview.src);
-                    imagePreview.src = '';
-                }
-            });
-
-            // Form submission for calibration
-            document.getElementById('performCalibrationForm')?.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const calibrationId = document.getElementById('calibration_id').value;
-
-                // Create a new FormData object instead of using the form directly
-                const formData = new FormData();
-
-                // Get all form fields
-                const formElements = this.elements;
-
-                // Only add non-empty fields to the FormData
-                for (let i = 0; i < formElements.length; i++) {
-                    const element = formElements[i];
-
-                    // Skip buttons, fieldsets, and hidden calibration_id field
-                    if (element.type === 'button' || element.type === 'submit' ||
-                        element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
-                        continue;
-                    }
-
-                    // Handle different input types
-                    if (element.type === 'radio' || element.type === 'checkbox') {
-                        // Only include checked radio/checkbox values
-                        if (element.checked) {
-                            formData.append(element.name, element.value);
-                        }
-                    }
-                    // Handle file inputs
-                    else if (element.type === 'file') {
-                        // Only include files if they exist
-                        if (element.files && element.files.length > 0) {
-                            formData.append(element.name, element.files[0]);
-                        }
-                    }
-                    // Handle all other input types
-                    else if (element.value.trim() !== '') {
-                        formData.append(element.name, element.value.trim());
-
-                        // Log for debugging
-                        console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
-                    } else {
-                        console.log(`Skipping empty field: ${element.name}`);
-                    }
-                }
-
-                // Add _method field for PUT request
-                formData.append('_method', 'PUT');
-
-                // Log all form data that will be sent
-                console.log('Form data to be sent:');
-                for (const pair of formData.entries()) {
-                    console.log(`${pair[0]}: ${pair[1]}`);
-                }
-
-                // Clear any existing field error highlights
-                this.querySelectorAll('.border-red-500').forEach(el => {
-                    el.classList.remove('border-red-500');
-                });
-
-                // Show loading state on button
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <div class="flex items-center justify-center">
-                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Memproses...</span>
-                    </div>
-                `;
-
-                fetch(`/calibrations/report/${calibrationId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    // Log the raw response for debugging
-                    console.log('Response status:', response.status);
-                    return response.json().then(data => {
-                        // Always capture the data, don't throw it yet
-                        if (!response.ok) {
-                            console.log('Error response data:', data);
-                            return Promise.reject(data);
-                        }
-                        return data;
-                    });
-                })
-                .then(data => {
-                    console.log('Success response:', data);
-                    if (data.success) {
-                        // Close the modal
-                        closeModal(modals.view, modalContents.view);
-
-                        // Show success message
-                        showToast(data.message || 'Kalibrasi berhasil disimpan', 'success');
-
-                        // Reload the page after a slight delay
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        // Handle unexpected "success: false" in a successful response
-                        console.warn('Received success:false in a 2xx response', data);
-                        showToast(data, 'error');
-
-                        // Re-enable the submit button
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                    }
-                })
-                .catch(error => {
-                    console.error('Form submission error:', error);
-
-                    // Pass the complete error object to showToast for smart formatting
-                    showToast(error, 'error');
-
-                    // Highlight fields with errors if we can identify them
-                    if (error.errors) {
-                        // Handle array of error objects with path/message format
-                        if (Array.isArray(error.errors)) {
-                            error.errors.forEach(err => {
-                                if (err.path) {
-                                    const field = document.getElementById(err.path) ||
-                                                document.querySelector(`[name="${err.path}"]`);
-                                    if (field) {
-                                        field.classList.add('border-red-500');
-                                    }
-                                }
-                            });
-                        }
-                        // Handle object with field names as keys
-                        else if (typeof error.errors === 'object') {
-                            Object.keys(error.errors).forEach(fieldName => {
-                                const field = document.getElementById(fieldName) ||
-                                            document.querySelector(`[name="${fieldName}"]`);
-                                if (field) {
-                                    field.classList.add('border-red-500');
-                                }
-                            });
-                        }
-                    }
-
-                    // Re-enable the submit button
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                });
-            });
         });
 
-        // Animations for asset category circles
+        const activitiesContainer = document.getElementById('asset-activities');
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        function showLoadingAnimation(isLoading) {
+            const defaultView = document.getElementById('load-more-default');
+            const loadingView = document.getElementById('load-more-loading');
+            const container = document.getElementById('load-more-activities');
+
+            if (isLoading) {
+                defaultView.style.opacity = '0';
+                container.classList.add('scale-95');
+                setTimeout(() => {
+                    defaultView.classList.add('hidden');
+                    defaultView.classList.remove('flex');
+                    loadingView.classList.add('flex');
+                    loadingView.classList.remove('hidden');
+                    loadingView.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingView.style.opacity = '1';
+                        container.classList.remove('scale-95');
+                    }, 50);
+                }, 300);
+            } else {
+                loadingView.style.opacity = '0';
+                container.classList.add('scale-95');
+                setTimeout(() => {
+                    loadingView.classList.add('hidden');
+                    loadingView.classList.remove('flex');
+                    defaultView.classList.add('flex');
+                    defaultView.classList.remove('hidden');
+                    setTimeout(() => {
+                        defaultView.style.opacity = '1';
+                        container.classList.remove('scale-95');
+                    }, 50);
+                }, 300);
+            }
+        }
+
+        if (activitiesContainer) {
+            activitiesContainer.addEventListener('touchstart', (e) => {
+                touchStartY = e.changedTouches[0].screenY;
+            }, false);
+
+            activitiesContainer.addEventListener('touchend', (e) => {
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe();
+            }, false);
+        }
+
+        function handleSwipe() {
+            const swipeThreshold = 100;
+            const swipeUp = touchStartY - touchEndY > swipeThreshold;
+
+            if (swipeUp && !isLoadingActivities && hasMoreActivities) {
+                isLoadingActivities = true;
+                showLoadingAnimation(true);
+
+                setTimeout(() => {
+                    loadAssetActivities(currentActivitiesPage + 1, true);
+                }, 800);
+            }
+        }
+
+        if (activitiesContainer) {
+            window.addEventListener('scroll', function () {
+                const containerBottom = activitiesContainer.getBoundingClientRect().bottom;
+                const isNearBottom = containerBottom <= window.innerHeight + 100;
+
+                if (isNearBottom && !isLoadingActivities && hasMoreActivities) {
+                    isLoadingActivities = true;
+                    showLoadingAnimation(true);
+                    setTimeout(() => {
+                        loadAssetActivities(currentActivitiesPage + 1, true);
+                    }, 800);
+                }
+            });
+        }
+
         const animateCircles = () => {
-            document.querySelectorAll('.animate-loading-circle').forEach(circle => {
-                const targetRotation = circle.getAttribute('data-rotation');
+            document.querySelectorAll('.progress-circle').forEach(circle => {
                 const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
 
-                // Don't animate if the percentage is 0
                 if (percentage === 0) {
-                    circle.style.display = 'none'; // Completely hide the circle
+                    circle.style.display = 'none';
                 } else {
-                    // For transform-based animations (0-50%)
-                    circle.style.transform = `rotate(${percentage * 1.8}deg)`;
+                    circle.style.display = 'block';
                 }
             });
         };
 
-        // Animations for asset location bars
         const animateBars = () => {
             document.querySelectorAll('.animate-loading-bar').forEach(bar => {
                 const targetWidth = bar.getAttribute('data-width');
-                // Don't animate if width is 0
                 if (parseInt(targetWidth) === 0) {
                     bar.style.width = '0%';
-                    bar.classList.remove('animate-loading-bar'); // Remove animation class
+                    bar.classList.remove('animate-loading-bar');
                 } else {
                     bar.style.width = `${targetWidth}%`;
                 }
             });
         };
 
-        // Count-up animation for numbers
         const animateCounters = () => {
             document.querySelectorAll('.animate-count-up').forEach(counter => {
                 const target = parseInt(counter.getAttribute('data-target'), 10);
@@ -2665,7 +2092,6 @@
             });
         };
 
-        // Apply staggered fade-in animations
         const applyFadeInStagger = () => {
             document.querySelectorAll('.animate-fade-in').forEach((element, index) => {
                 element.style.animationDelay = `${index * 100}ms`;
@@ -2673,7 +2099,6 @@
             });
         };
 
-        // Initialize all animations
         setTimeout(() => {
             applyFadeInStagger();
             animateCircles();
@@ -2681,99 +2106,462 @@
             animateCounters();
         }, 300);
 
-        // Asset Activities Pagination
+        const modals = {
+            view: document.getElementById('viewCalibrationModal'),
+            delete: document.getElementById('deleteCalibrationModal')
+        };
 
-        // Close the DOMContentLoaded event listener
+        const modalContents = {
+            view: document.getElementById('viewCalibrationModalContent'),
+            delete: document.getElementById('deleteCalibrationModalContent')
+        };
 
-        // Vendor search functionality with debounce
-        let allVendors = []; // Store all vendors for client-side filtering
+        function openModal(modal, content) {
+            if (!modal || !content) {
+                return;
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }, 10);
+        }
+
+        function closeModal(modal, content) {
+            if (!modal || !content) return;
+            content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+            content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', () => {
+                const modalId = button.getAttribute('data-modal');
+
+                if (modalId === 'viewCalibrationModal') {
+                    closeModal(modals.view, modalContents.view);
+                } else {
+                    const modal = document.getElementById(modalId);
+                    if (!modal) {
+                        return;
+                    }
+                    const content = modal.querySelector('[id$="ModalContent"]');
+                    if (!content) {
+                        return;
+                    }
+                    closeModal(modal, content);
+                }
+            });
+        });
+
+        const calibrationButtons = document.querySelectorAll('.edit-calibration-btn');
+
+        calibrationButtons.forEach(button => {
+            button.addEventListener('click', function (e) {
+                const modal = document.getElementById('viewCalibrationModal');
+                const modalContent = document.getElementById('viewCalibrationModalContent');
+
+                e.preventDefault();
+                const calibrationId = this.getAttribute('data-id');
+
+                document.getElementById('calibration_id').value = calibrationId;
+
+                fetch(`/calibrations?search=${encodeURIComponent(calibrationId)}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw data;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            let calibration;
+
+                            if (data.calibrations && Array.isArray(data.calibrations) && data.calibrations.length > 0) {
+                                calibration = data.calibrations[0];
+                            } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                                calibration = data.data[0];
+                            } else if (typeof data.data === 'object' && data.data !== null) {
+                                calibration = data.data;
+                            }
+
+                            if (!calibration) {
+                                showToast('Tidak dapat menemukan data kalibrasi', 'error');
+                                return;
+                            }
+
+                            document.getElementById('calibration_id').value = calibration.id || calibrationId;
+
+                            const today = new Date().toISOString().split('T')[0];
+                            document.getElementById('actual_calibration_date').value = today;
+
+                            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+                            if (nextCalibrationDateInput) {
+                                nextCalibrationDateInput.setAttribute('min', today);
+                            }
+
+                            document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
+                            document.getElementById('asset_code_display').value = calibration.asset_code || '-';
+                            document.getElementById('asset_name_display').value = calibration.asset_name || '-';
+                            document.getElementById('brand_name_display').value = calibration.brand_name || '-';
+                            document.getElementById('model_number_display').value = calibration.model_number || '-';
+                            document.getElementById('serial_number_display').value = calibration.serial_number || '-';
+
+                            let locationText = '-';
+                            if (calibration.location) {
+                                const locationParts = [];
+                                if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
+                                if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
+                                if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
+                                if (locationParts.length > 0) {
+                                    locationText = locationParts.join(' | ');
+                                }
+                            }
+                            document.getElementById('location_display').value = locationText;
+
+                            document.getElementById('certificate_number').value = '';
+                            document.getElementById('vendor_search').value = '';
+                            document.getElementById('vendor_id').value = '';
+                            document.getElementById('calibration_price').value = '';
+                            document.getElementById('notes').value = '';
+
+                            document.getElementById('result_pass').checked = false;
+                            document.getElementById('result_fail').checked = false;
+                            document.getElementById('result_unknown').checked = false;
+
+                            const fileInput = document.getElementById('document_file');
+                            if (fileInput) fileInput.value = '';
+
+                            const filePreview = document.getElementById('file-preview');
+                            if (filePreview) filePreview.classList.add('hidden');
+
+                            openModal(modals.view, modalContents.view);
+                        } else {
+                            showToast('Failed to load calibration details: ' + (data.message || 'Unknown error'), 'error');
+                        }
+                    })
+                    .catch(error => {
+                        showToast('Error loading calibration details: ' + (error.message || 'Unknown error'), 'error');
+                    });
+            });
+        });
+
+        document.getElementById('document_file')?.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const filePreview = document.getElementById('file-preview');
+                const imagePreview = document.getElementById('image-preview');
+                const fileInfo = document.getElementById('file-info');
+                const fileNameText = document.getElementById('file-name-text');
+
+                if (filePreview) filePreview.classList.remove('hidden');
+
+                if (fileNameText) fileNameText.textContent = file.name;
+
+                if (file.type.startsWith('image/')) {
+                    if (imagePreview) {
+                        const objectUrl = URL.createObjectURL(file);
+                        imagePreview.src = objectUrl;
+                        imagePreview.classList.remove('hidden');
+                    }
+                    if (fileInfo) fileInfo.classList.add('hidden');
+                } else {
+                    if (fileInfo) fileInfo.classList.remove('hidden');
+                    if (imagePreview) imagePreview.classList.add('hidden');
+                }
+            }
+        });
+
+        document.getElementById('remove-file')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const fileInput = document.getElementById('document_file');
+            if (fileInput) fileInput.value = '';
+
+            const filePreview = document.getElementById('file-preview');
+            if (filePreview) filePreview.classList.add('hidden');
+
+            const imagePreview = document.getElementById('image-preview');
+            if (imagePreview && imagePreview.src) {
+                URL.revokeObjectURL(imagePreview.src);
+                imagePreview.src = '';
+            }
+        });
+
+        document.getElementById('performCalibrationForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const calibrationId = document.getElementById('calibration_id').value;
+
+            const formData = new FormData();
+
+            const formElements = this.elements;
+
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+
+                if (element.type === 'button' || element.type === 'submit' ||
+                    element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
+                    continue;
+                }
+
+                if (element.type === 'radio' || element.type === 'checkbox') {
+                    if (element.checked) {
+                        formData.append(element.name, element.value);
+                    }
+                }
+                else if (element.type === 'file') {
+                    if (element.files && element.files.length > 0) {
+                        formData.append(element.name, element.files[0]);
+                    }
+                }
+                else if (element.value.trim() !== '') {
+                    formData.append(element.name, element.value.trim());
+
+                    console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
+                } else {
+                    console.log(`Skipping empty field: ${element.name}`);
+                }
+            }
+
+            formData.append('_method', 'PUT');
+
+            console.log('Form data to be sent:');
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
+
+            this.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+            });
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+            fetch(`/calibrations/report/${calibrationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            console.log('Error response data:', data);
+                            return Promise.reject(data);
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    console.log('Success response:', data);
+                    if (data.success) {
+                        closeModal(modals.view, modalContents.view);
+
+                        showToast(data.message || 'Kalibrasi berhasil disimpan', 'success');
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        console.warn('Received success:false in a 2xx response', data);
+                        showToast(data, 'error');
+
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Form submission error:', error);
+
+                    showToast(error, 'error');
+
+                    if (error.errors) {
+                        if (Array.isArray(error.errors)) {
+                            error.errors.forEach(err => {
+                                if (err.path) {
+                                    const field = document.getElementById(err.path) ||
+                                        document.querySelector(`[name="${err.path}"]`);
+                                    if (field) {
+                                        field.classList.add('border-red-500');
+                                    }
+                                }
+                            });
+                        }
+                        else if (typeof error.errors === 'object') {
+                            Object.keys(error.errors).forEach(fieldName => {
+                                const field = document.getElementById(fieldName) ||
+                                    document.querySelector(`[name="${fieldName}"]`);
+                                if (field) {
+                                    field.classList.add('border-red-500');
+                                }
+                            });
+                        }
+                    }
+
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
+        });
+            });
+
+        const animateCircles = () => {
+            document.querySelectorAll('.animate-loading-circle').forEach(circle => {
+                const targetRotation = circle.getAttribute('data-rotation');
+                const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
+
+                if (percentage === 0) {
+                    circle.style.display = 'none';
+                } else {
+                    circle.style.transform = `rotate(${percentage * 1.8}deg)`;
+                }
+            });
+        };
+
+        const animateBars = () => {
+            document.querySelectorAll('.animate-loading-bar').forEach(bar => {
+                const targetWidth = bar.getAttribute('data-width');
+                if (parseInt(targetWidth) === 0) {
+                    bar.style.width = '0%';
+                    bar.classList.remove('animate-loading-bar');
+                } else {
+                    bar.style.width = `${targetWidth}%`;
+                }
+            });
+        };
+
+        const animateCounters = () => {
+            document.querySelectorAll('.animate-count-up').forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'), 10);
+                const isPercentage = counter.textContent.includes('%');
+                const duration = 1000;
+                let startTime = null;
+
+                function updateCounter(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = Math.min((timestamp - startTime) / duration, 1);
+                    const value = Math.floor(progress * target);
+                    counter.textContent = isPercentage ? `${value}%` : value;
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = isPercentage ? `${target}%` : target;
+                    }
+                }
+
+                window.requestAnimationFrame(updateCounter);
+            });
+        };
+
+        const applyFadeInStagger = () => {
+            document.querySelectorAll('.animate-fade-in').forEach((element, index) => {
+                element.style.animationDelay = `${index * 100}ms`;
+                element.style.opacity = 1;
+            });
+        };
+
+        setTimeout(() => {
+            applyFadeInStagger();
+            animateCircles();
+            animateBars();
+            animateCounters();
+        }, 300);
+
+        let allVendors = [];
         const vendorSearchInput = document.getElementById('vendor_search');
         const vendorIdInput = document.getElementById('vendor_id');
         const vendorResults = document.getElementById('vendor_results');
 
-        // Show/hide vendor results
         vendorSearchInput?.addEventListener('focus', function () {
             fetchVendors(this.value.trim());
             vendorResults.style.display = 'block';
         });
 
-        // Hide vendor results when clicking outside
         document.addEventListener('click', function (e) {
             if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                 vendorResults.style.display = 'none';
             }
         });
 
-        // Search vendors with debounce
         vendorSearchInput?.addEventListener('input', debounce(function () {
             const searchTerm = this.value.trim();
             fetchVendors(searchTerm);
         }, 300));
 
-        // Function to fetch vendors with search parameter
         function fetchVendors(searchTerm = '') {
-            // Show loading indicator
             vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
             vendorResults.style.display = 'block';
 
-            // Build query parameters
             let queryParams = new URLSearchParams();
             queryParams.append('json', 'true');
             queryParams.append('limit', '20');
 
-            // Add search term if provided
             if (searchTerm) {
                 queryParams.append('search', searchTerm);
             }
 
-            // Create URL with query parameters
             const url = `/vendors?${queryParams.toString()}`;
 
-            // Fetch vendors from API
             fetch(url, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server merespon dengan status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                let vendors = [];
-
-                // Handle different response formats
-                if (Array.isArray(data)) {
-                    vendors = data;
-                } else if (data.vendors && Array.isArray(data.vendors)) {
-                    vendors = data.vendors;
-                } else if (data.data && Array.isArray(data.data)) {
-                    vendors = data.data;
-                }
-
-                // Cache the vendors for potential reuse
-                vendors.forEach(vendor => {
-                    const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
-                    if (existingIndex === -1) {
-                        allVendors.push(vendor);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server merespon dengan status: ${response.status}`);
                     }
-                });
+                    return response.json();
+                })
+                .then(data => {
+                    let vendors = [];
 
-                // Display the results
-                displayVendorResults(vendors);
-            })
-            .catch(error => {
-                console.error('Error fetching vendors:', error);
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-            });
+                    if (Array.isArray(data)) {
+                        vendors = data;
+                    } else if (data.vendors && Array.isArray(data.vendors)) {
+                        vendors = data.vendors;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        vendors = data.data;
+                    }
+
+                    vendors.forEach(vendor => {
+                        const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
+                        if (existingIndex === -1) {
+                            allVendors.push(vendor);
+                        }
+                    });
+
+                    displayVendorResults(vendors);
+                })
+                .catch(error => {
+                    console.error('Error fetching vendors:', error);
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                });
         }
 
-        // Helper function to display vendor results
         function displayVendorResults(vendors) {
-            // Update DOM
             vendorResults.innerHTML = '';
 
             if (vendors.length === 0) {
@@ -2781,26 +2569,21 @@
                 return;
             }
 
-            // Sort by relevance if we have a search term
             if (vendorSearchInput && vendorSearchInput.value.trim()) {
                 const searchTerm = vendorSearchInput.value.trim().toLowerCase();
                 vendors.sort((a, b) => {
-                    // Exact matches first
                     if (a.vendor_name.toLowerCase() === searchTerm) return -1;
                     if (b.vendor_name.toLowerCase() === searchTerm) return 1;
 
-                    // Then starts-with matches
                     const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm);
                     const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm);
                     if (aStarts && !bStarts) return -1;
                     if (bStarts && !aStarts) return 1;
 
-                    // Then alphabetical
                     return a.vendor_name.localeCompare(b.vendor_name);
                 });
             }
 
-            // Add vendor items with staggered animation
             vendors.forEach((vendor, index) => {
                 if (!vendor.vendor_name || !vendor.vendor_id) {
                     console.error('Vendor missing name or ID:', vendor);
@@ -2811,7 +2594,7 @@
                 div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
                 div.textContent = vendor.vendor_name;
                 div.setAttribute('data-id', vendor.vendor_id);
-                div.style.animationDelay = `${index * 30}ms`; // Staggered animation
+                div.style.animationDelay = `${index * 30}ms`;
                 div.classList.add('fade-in');
 
                 div.addEventListener('click', function () {
@@ -2823,7 +2606,6 @@
                 vendorResults.appendChild(div);
             });
 
-            // Show count if more than a certain number
             if (vendors.length > 10) {
                 const countDiv = document.createElement('div');
                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
@@ -2832,7 +2614,6 @@
             }
         }
 
-        // Debounce function to limit API calls
         function debounce(func, wait) {
             let timeout;
             return function executedFunction(...args) {

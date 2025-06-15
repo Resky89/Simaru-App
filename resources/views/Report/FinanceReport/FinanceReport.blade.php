@@ -239,8 +239,6 @@
                 const sortOrder = document.getElementById('sortOrder');
                 const filterType = document.getElementById('filterType');
                 const perPageSelect = document.getElementById('perPageSelect');
-
-                // Debounce function to limit how often search is triggered
                 function debounce(func, wait) {
                     let timeout;
                     return function () {
@@ -253,45 +251,33 @@
                     };
                 }
 
-                // Function to apply filters
                 function applyFilters() {
                     const searchTerm = searchInput.value;
                     const sort = sortOrder.value;
                     const filter = filterType.value;
                     const limit = perPageSelect?.value || 10;
-
                     const url = new URL(window.location.href);
 
-                    // Set search parameter
                     if (searchTerm) url.searchParams.set('search', searchTerm);
                     else url.searchParams.delete('search');
 
-                    // Set sort parameter
                     if (sort) url.searchParams.set('sort', sort);
                     else url.searchParams.delete('sort');
 
-                    // Set filter parameter
                     if (filter && filter !== 'all') url.searchParams.set('filter', filter);
                     else url.searchParams.delete('filter');
 
-                    // Set limit parameter
                     url.searchParams.set('limit', limit);
-
-                    // Reset to first page when filters change
                     url.searchParams.set('page', 1);
-
-                    // Redirect to new URL with filters
                     window.location.href = url.toString();
                 }
 
-                // Function to change items per page
                 window.changePerPage = function (limit) {
                     const url = new URL(window.location.href);
                     url.searchParams.set('limit', limit);
                     window.location.href = url.toString();
                 }
 
-                // Add event listeners
                 searchInput?.addEventListener('input', debounce(function () {
                     applyFilters();
                 }, 500));
@@ -304,16 +290,10 @@
                     applyFilters();
                 });
 
-                // Export PDF functionality
                 exportBtn?.addEventListener('click', () => {
-                    // Get current URL parameters
                     const url = new URL(window.location.href);
                     const searchParams = url.searchParams;
-
-                    // Create the PDF export URL with the same parameters
                     const exportUrl = "{{ route('report.finance.export.pdf') }}?" + searchParams.toString();
-
-                    // Redirect to the export URL
                     window.open(exportUrl, '_blank');
                 });
             });

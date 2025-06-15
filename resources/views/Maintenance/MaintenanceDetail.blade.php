@@ -339,7 +339,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Hide export button if user doesn't have export permission
             @if(!hasPermission('maintenance:export'))
                 const exportButton = document.querySelector('a[href*="maintenance.export.detail.pdf"]');
                 if (exportButton) {

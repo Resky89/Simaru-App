@@ -35,7 +35,8 @@
     </div>
 
     <!-- Error message container -->
-    <div id="depreciationErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <div id="depreciationErrorMessage"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
     </div>
 
     <!-- Content sections -->
@@ -254,7 +255,6 @@
 
                 init() {
                     if (this.initialized) return;
-                    console.log('Memulai Sistem Penyusutan dengan Asset ID:', this.assetId);
 
                     if (!this.assetId) {
                         console.error('Asset ID tidak tersedia');
@@ -270,7 +270,6 @@
                 },
 
                 setupModalHelpers() {
-                    // Define openModal and closeModal functions if not already defined
                     window.openModal = window.openModal || function (modal, content) {
                         modal.classList.remove('hidden');
                         setTimeout(() => {
@@ -289,7 +288,6 @@
                 },
 
                 setupEventListeners() {
-                    // Update Depreciation Button
                     const updateBtn = document.getElementById('updateDepreciationBtn');
                     if (this.hasEditPermission && updateBtn) {
                         updateBtn.addEventListener('click', () => {
@@ -297,7 +295,6 @@
                         });
                     }
 
-                    // Close Modal Buttons
                     document.querySelectorAll('.close-modal').forEach(button => {
                         button.addEventListener('click', () => {
                             const modalId = button.getAttribute('data-modal');
@@ -309,7 +306,6 @@
                         });
                     });
 
-                    // Add direct click handler for update button instead of form submit
                     const updateSubmitBtn = document.getElementById('updateDepreciationSubmitBtn');
                     if (updateSubmitBtn) {
                         updateSubmitBtn.addEventListener('click', (e) => {
@@ -318,10 +314,8 @@
                         });
                     }
 
-                    // Add input event listeners to clear field validation errors when typing
                     const depreciationForm = document.getElementById('updateDepreciationForm');
                     if (depreciationForm) {
-                        // For select fields
                         depreciationForm.querySelectorAll('select').forEach(select => {
                             select.addEventListener('change', () => {
                                 select.classList.remove('border-red-500');
@@ -332,7 +326,6 @@
                             });
                         });
 
-                        // For input fields
                         depreciationForm.querySelectorAll('input').forEach(input => {
                             input.addEventListener('input', () => {
                                 input.classList.remove('border-red-500');
@@ -344,7 +337,6 @@
                         });
                     }
 
-                    // Percentage toggle
                     const percentageToggle = document.getElementById('percentageToggle');
                     if (percentageToggle) {
                         percentageToggle.addEventListener('change', () => {
@@ -360,7 +352,6 @@
                 },
 
                 setupFormInputs() {
-                    // Format currency inputs
                     const acquisitionCostInput = document.getElementById('acquisition_cost');
                     const salvageValueInput = document.getElementById('salvage_value');
 
@@ -418,12 +409,9 @@
 
                     if (!modal || !content) return;
 
-                    // Clear previous error messages and field error styling
                     this.clearFieldErrors();
 
-                    // Populate form with current values if available
                     if (this.currentDepreciation) {
-                        // Handle special case for Sum of the Year's Digits
                         let depMethod = this.currentDepreciation.depreciation_method || '';
                         if (depMethod === "Sum of the Year's Digits") {
                             depMethod = "Sum of the Years Digits";
@@ -452,7 +440,6 @@
                         }
                     }
 
-                    // Open modal
                     openModal(modal, content);
                 },
 
@@ -463,27 +450,23 @@
 
                     if (!form || !submitBtn) return;
 
-                    // Clear previous error messages
                     if (errorDiv) {
                         errorDiv.textContent = '';
                         errorDiv.classList.add('hidden');
                     }
 
-                    // Get form fields
                     const depreciationMethodField = document.getElementById('depreciation_method');
                     const acquisitionCostField = document.getElementById('acquisition_cost');
                     const salvageValueField = document.getElementById('salvage_value');
                     const assetLifeMonthsField = document.getElementById('asset_life_months');
                     const dateAcquiredField = document.getElementById('date_acquired');
 
-                    // Get form values
                     let depreciationMethod = depreciationMethodField.value;
                     let acquisitionCost = acquisitionCostField.value;
                     let salvageValue = salvageValueField.value;
                     const assetLifeMonths = assetLifeMonthsField.value;
                     const dateAcquired = dateAcquiredField.value;
 
-                    // Reset all error states
                     const fields = [depreciationMethodField, acquisitionCostField, salvageValueField, assetLifeMonthsField, dateAcquiredField];
                     fields.forEach(field => {
                         field.classList.remove('border-red-500');
@@ -493,66 +476,54 @@
                         }
                     });
 
-                    // Validate each field individually and show specific error messages
                     let isValid = true;
 
-                    // Validate depreciation method
                     if (!depreciationMethod) {
                         this.showFieldError(depreciationMethodField, "Metode penyusutan harus dipilih");
                         isValid = false;
                     }
 
-                    // Validate acquisition cost
                     if (!acquisitionCost) {
                         this.showFieldError(acquisitionCostField, "Biaya pengadaan harus diisi");
                         isValid = false;
                     }
 
-                    // Validate salvage value
                     if (!salvageValue) {
                         this.showFieldError(salvageValueField, "Nilai sisa harus diisi");
                         isValid = false;
                     }
 
-                    // Validate asset life months
                     if (!assetLifeMonths) {
                         this.showFieldError(assetLifeMonthsField, "Usia asset harus diisi");
                         isValid = false;
                     }
 
-                    // Validate date acquired
                     if (!dateAcquired) {
                         this.showFieldError(dateAcquiredField, "Tanggal pengadaan harus diisi");
                         isValid = false;
                     }
 
-                    // Don't proceed if validation fails
                     if (!isValid) {
                         this.showToast('Mohon lengkapi semua field yang wajib diisi', 'error');
                         return;
                     }
 
-                    // Handle special case for Sum of the Years Digits
                     if (depreciationMethod === "Sum of the Years Digits") {
                         depreciationMethod = "Sum of the Year's Digits";
                     }
 
-                    // Convert formatted currency to numbers
                     acquisitionCost = acquisitionCost.replace(/[^\d]/g, '');
                     salvageValue = salvageValue.replace(/[^\d]/g, '');
 
-                    // Validate numeric values
                     if (parseInt(salvageValue) >= parseInt(acquisitionCost)) {
                         this.showToast('Nilai sisa harus lebih kecil dari biaya pengadaan', 'error');
                         return;
                     }
 
-                    // Show loading state
                     submitBtn.disabled = true;
                     const originalBtnText = submitBtn.innerHTML;
                     submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                    // Prepare data for submission
                     const formData = {
                         date_acquired: dateAcquired,
                         acquisition_cost: parseInt(acquisitionCost),
@@ -561,12 +532,8 @@
                         depreciation_method: depreciationMethod
                     };
 
-                    // Get CSRF token
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    console.log('Sending depreciation update for Asset ID:', this.assetId, formData);
-
-                    // Submit using jQuery AJAX for compatibility with other parts of the system
                     $.ajax({
                         url: `/asset-depreciation/${this.assetId}`,
                         method: 'PUT',
@@ -578,21 +545,16 @@
                         },
                         data: JSON.stringify(formData),
                         success: (result) => {
-                            console.log('Depreciation update result:', result);
 
                             if (result.success) {
-                                // Success case
                                 this.showToast('Data penyusutan berhasil diperbarui', 'success');
 
-                                // Close modal
                                 const modal = document.getElementById('updateDepreciationModal');
                                 const content = document.getElementById('updateDepreciationModalContent');
                                 closeModal(modal, content);
 
-                                // Reload depreciation data
                                 this.loadDepreciationData();
                             } else {
-                                // Error with response
                                 let errorMessage = 'Gagal memperbarui data penyusutan';
 
                                 if (result.errors) {
@@ -607,7 +569,6 @@
 
                                 this.showToast(errorMessage, 'error');
 
-                                // Display detailed errors in the error div if available
                                 if (errorDiv && result.errors) {
                                     errorDiv.textContent = errorMessage;
                                     errorDiv.classList.remove('hidden');
@@ -616,10 +577,8 @@
                         },
                         error: (xhr, status, error) => {
                             console.error('Error updating depreciation:', status, error);
-                            console.log('Response:', xhr.responseText);
 
                             if (xhr.status === 401) {
-                                // Auth error - redirect to login
                                 this.showToast('Sesi anda telah berakhir. Silakan login kembali.', 'error');
                                 setTimeout(() => {
                                     window.location.href = '/login';
@@ -656,14 +615,12 @@
 
                             this.showToast(errorMessage, 'error');
 
-                            // Display detailed errors in the error div
                             if (errorDiv) {
                                 errorDiv.textContent = errorMessage;
                                 errorDiv.classList.remove('hidden');
                             }
                         },
                         complete: () => {
-                            // Reset button state
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
                         }
@@ -690,7 +647,6 @@
                 },
 
                 showToast(message, type = 'success') {
-                    // Get toast container
                     let toastContainer = document.getElementById('depreciation-toast-container');
                     if (!toastContainer) {
                         toastContainer = document.createElement('div');
@@ -699,45 +655,39 @@
                         document.body.appendChild(toastContainer);
                     }
 
-                    // Create the toast element
                     const toast = document.createElement('div');
 
-                    // Set classes based on type
                     if (type === 'success') {
                         toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center';
                     } else {
                         toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center';
                     }
 
-                    // Add content
                     toast.innerHTML = `
-                    <div class="py-1">
-                        <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            ${type === 'success'
+                        <div class="py-1">
+                            <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                ${type === 'success'
                             ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
                             : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                        <p>${message}</p>
-                    </div>
-                    <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
-                `;
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                            <p>${message}</p>
+                        </div>
+                        <button class="ml-auto text-gray-400 hover:text-gray-500" onclick="this.parentElement.remove()">×</button>
+                    `;
 
-                    // Add to container with smooth animation
                     toast.style.opacity = '0';
                     toast.style.transform = 'translateX(100%)';
                     toast.style.transition = 'all 0.3s ease';
                     toastContainer.appendChild(toast);
 
-                    // Trigger animation
                     setTimeout(() => {
                         toast.style.opacity = '1';
                         toast.style.transform = 'translateX(0)';
                     }, 10);
 
-                    // Auto-remove after 5 seconds
                     setTimeout(() => {
                         toast.style.opacity = '0';
                         toast.style.transform = 'translateX(100%)';
@@ -770,7 +720,6 @@
                     }
 
                     this.showLoading();
-                    console.log('Mengambil data penyusutan untuk Asset ID:', this.assetId);
 
                     fetch(`/asset-depreciation/${this.assetId}`, {
                         method: 'GET',
@@ -780,8 +729,6 @@
                         }
                     })
                         .then(response => {
-                            // First check if response is ok, but don't throw error right away
-                            // We want to check the response body first
                             return response.json().then(data => {
                                 return {
                                     ok: response.ok,
@@ -792,28 +739,22 @@
                         })
                         .then(result => {
                             const data = result.data;
-                            console.log('Menerima data penyusutan:', data);
 
-                            // Special handling for HTTP errors with response body
                             if (!result.ok) {
                                 console.warn(`HTTP status ${result.status} with response:`, data);
 
-                                // Check if it's a specific depreciation-related error
                                 if (data &&
                                     (data.message?.includes('Aset tidak dapat didepresiasi') ||
-                                    (typeof data.errors === 'string' && data.errors.includes('Aset tidak dapat didepresiasi')))) {
+                                        (typeof data.errors === 'string' && data.errors.includes('Aset tidak dapat didepresiasi')))) {
 
-                                    // Show user-friendly message for assets that cannot be depreciated
                                     this.showCannotDepreciateMessage(data.message || 'Aset tidak dapat didepresiasi');
                                     return;
                                 }
 
-                                // Otherwise, throw a formatted error that will be caught below
                                 throw new Error(data.errors || `Error HTTP: ${result.status}`);
                             }
 
                             if (data.success === false) {
-                                // Check if it's a specific depreciation-related error
                                 if (data.errors &&
                                     (typeof data.errors === 'string' && data.errors.includes('Aset tidak dapat didepresiasi'))) {
                                     this.showCannotDepreciateMessage(data.errors);
@@ -822,22 +763,18 @@
                                 throw new Error(data.errors || 'Gagal memuat data');
                             }
 
-                            // Check for the special "no depreciation" flag
                             if (data.no_depreciation === true) {
                                 this.showCannotDepreciateMessage(data.message || 'Aset tidak dapat didepresiasi');
                                 return;
                             }
 
-                            // Check if depreciation data exists
                             const depreciation = data.data?.depreciation || data?.depreciation;
 
                             if (!depreciation || Object.keys(depreciation).length === 0 || !depreciation.total_cost) {
-                                // Asset has no depreciation data
                                 this.showNoDepreciationData();
                                 return;
                             }
 
-                            // Store current depreciation data for form population
                             this.currentDepreciation = depreciation;
                             this.updateDepreciationData(depreciation);
                             this.hideLoading();
@@ -849,114 +786,92 @@
                 },
 
                 showNoDepreciationData() {
-                    // Hide loading indicator
                     document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
                     document.getElementById('depreciationErrorMessage').classList.add('hidden');
-
-                    // Show content sections but only the no data message
                     document.getElementById('contentSections').classList.remove('hidden');
 
-                    // Show no data message
                     const noDataElement = document.getElementById('noDepreciationData');
                     if (noDataElement) {
                         noDataElement.classList.remove('hidden');
                         noDataElement.innerHTML = `
-                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
-                                <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
-                                <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
-                            </div>
-                        `;
+                                <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
+                                    <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
+                                    <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
+                                </div>
+                            `;
                     }
 
-                    // Hide other content
                     document.getElementById('depreciationChartContainer').classList.add('hidden');
                     document.getElementById('depreciationDetailsContainer').classList.add('hidden');
                 },
 
                 updateDepreciationData(depreciation) {
-                    // Store current depreciation data for reference
                     this.currentDepreciation = depreciation;
 
                     const totalCost = depreciation.total_cost || 0;
                     const salvageValue = depreciation.salvage_value || 0;
-
-                    // Calculate current value based on depreciation data
                     const currentValue = this.calculateCurrentValue(depreciation);
 
-                    // Update summary table
                     document.getElementById('depreciationSummary').innerHTML = `
-                    <tr>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.date_acquired || '-'}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? '100%' : this.formatCurrency(totalCost)}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4] font-semibold text-[#213268]">${this.isPercentageView ? this.formatPercentage(currentValue, totalCost) : this.formatCurrency(currentValue)}</td>
-                    </tr>
-                `;
+                        <tr>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.date_acquired || '-'}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? '100%' : this.formatCurrency(totalCost)}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
+                            <td class="p-3 text-xs border-t border-[#EEF1F4] font-semibold text-[#213268]">${this.isPercentageView ? this.formatPercentage(currentValue, totalCost) : this.formatCurrency(currentValue)}</td>
+                        </tr>
+                    `;
 
-                    // Update monthly data table
                     if (Array.isArray(depreciation.monthly_data)) {
-                        // Find the current month or most recent month for highlighting
                         const today = new Date();
                         const currentYear = today.getFullYear();
-                        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
-
-                        // First try to find exact match for current month
+                        const currentMonth = today.getMonth() + 1;
                         const currentMonthMatch = this.findCurrentMonthMatch(depreciation.monthly_data, currentYear, currentMonth);
-
-                        // If no exact match, find the most recent month
                         const mostRecentMonth = currentMonthMatch ||
                             this.findMostRecentMonth(depreciation.monthly_data, depreciation.date_acquired);
-
-                        // Get month number to highlight (if found)
                         const highlightMonthNumber = mostRecentMonth ? mostRecentMonth.month_number : null;
-
                         const monthlyRows = depreciation.monthly_data.map(month => {
                             const expense = month.expense || 0;
                             const accumulatedDepreciation = month.accumulated_depreciation || 0;
                             const bookValue = month.book_value || 0;
 
-                            // Determine if this is the current value row to highlight
                             const isCurrentValueRow = highlightMonthNumber &&
                                 month.month_number &&
                                 parseInt(month.month_number, 10) === parseInt(highlightMonthNumber, 10);
 
-                            // Add highlight class for current month row
                             const highlightClass = isCurrentValueRow ?
                                 'bg-blue-50 font-medium' : '';
 
-                            // Add special cell highlighting for the book value in current month
                             const bookValueClass = isCurrentValueRow ?
                                 'font-semibold text-[#213268]' : '';
 
                             return `
-                        <tr class="${highlightClass}">
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_number}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_name}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
+                            <tr class="${highlightClass}">
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_number}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${month.month_name}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
                                     ? this.formatPercentage(expense, totalCost)
                                     : this.formatCurrency(expense)
                                 }</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView
                                     ? this.formatPercentage(accumulatedDepreciation, totalCost)
                                     : this.formatCurrency(accumulatedDepreciation)
                                 }</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4] ${bookValueClass}">${this.isPercentageView
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] ${bookValueClass}">${this.isPercentageView
                                     ? this.formatPercentage(bookValue, totalCost)
                                     : this.formatCurrency(bookValue)
                                 }${isCurrentValueRow ? ' <span class="text-xs text-blue-600">(Nilai Saat Ini)</span>' : ''}</td>
-                        </tr>
-                        `;
+                            </tr>
+                            `;
                         }).join('');
                         document.getElementById('monthlyDepreciationData').innerHTML = monthlyRows;
                     }
 
-                    // Update chart
                     if (depreciation.chart_data) {
                         this.updateChartData(depreciation.chart_data);
                     }
@@ -986,19 +901,14 @@
 
                     const ctx = document.getElementById('depreciationChart').getContext('2d');
 
-                    // Destroy existing chart if it exists
                     if (this.chart) {
                         this.chart.destroy();
                     }
 
-                    // Create a copy of chart data to manipulate
                     const displayData = { ...this.originalChartData };
 
-                    // If percentage view is enabled, convert values to percentages
                     if (this.isPercentageView && displayData.values && displayData.values.length > 0) {
-                        // Get total cost from current depreciation data instead of using first value as base
                         const totalCost = this.currentDepreciation?.total_cost || 0;
-                        // Use the same percentage calculation method as the table
                         displayData.values = displayData.values.map(value =>
                             totalCost > 0 ? (value / totalCost) * 100 : 0
                         );
@@ -1069,55 +979,46 @@
                     this.updateChartData(chartData);
                 },
 
-                // New helper method to show cannot depreciate message
                 showCannotDepreciateMessage(message) {
                     document.getElementById('depreciationLoadingIndicator').classList.add('hidden');
                     document.getElementById('depreciationErrorMessage').classList.add('hidden');
                     document.getElementById('contentSections').classList.remove('hidden');
 
-                    // Show no data message with custom text
                     const noDataElement = document.getElementById('noDepreciationData');
                     if (noDataElement) {
                         noDataElement.classList.remove('hidden');
                         noDataElement.innerHTML = `
-                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
-                                <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <h3 class="text-lg font-medium mb-2">Aset Ini Tidak Dapat Didepresiasi</h3>
-                                <p class="text-blue-600">${message || 'Silakan periksa jenis aset atau nilai pengadaan'}</p>
-                            </div>
-                        `;
+                                <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
+                                    <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium mb-2">Aset Ini Tidak Dapat Didepresiasi</h3>
+                                    <p class="text-blue-600">${message || 'Silakan periksa jenis aset atau nilai pengadaan'}</p>
+                                </div>
+                            `;
                     }
 
-                    // Hide chart and details containers
                     document.getElementById('depreciationChartContainer').classList.add('hidden');
                     document.getElementById('depreciationDetailsContainer').classList.add('hidden');
                 },
 
-                // Add function to calculate current value
                 calculateCurrentValue(depreciation) {
                     if (!depreciation || !depreciation.monthly_data || !Array.isArray(depreciation.monthly_data) || depreciation.monthly_data.length === 0) {
                         return depreciation.total_cost || 0;
                     }
 
-                    // Get today's date
                     const today = new Date();
                     const currentYear = today.getFullYear();
-                    const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+                    const currentMonth = today.getMonth() + 1;
 
-                    // Start with total cost as fallback
                     let currentValue = depreciation.total_cost || 0;
 
-                    // First try to find an exact match for the current month
                     const currentMonthMatch = this.findCurrentMonthMatch(depreciation.monthly_data, currentYear, currentMonth);
 
                     if (currentMonthMatch !== null) {
-                        // We found the current month, use its book value
                         currentValue = currentMonthMatch.book_value || currentValue;
                     } else {
-                        // Find the most recent month not in the future
                         const mostRecentMonth = this.findMostRecentMonth(depreciation.monthly_data, depreciation.date_acquired);
                         if (mostRecentMonth !== null) {
                             currentValue = mostRecentMonth.book_value || currentValue;
@@ -1127,9 +1028,7 @@
                     return currentValue;
                 },
 
-                // Helper function to find current month in depreciation data
                 findCurrentMonthMatch(monthlyData, currentYear, currentMonth) {
-                    // Map of month names
                     const monthNames = {
                         1: ['january', 'januari', 'jan'],
                         2: ['february', 'februari', 'feb'],
@@ -1147,14 +1046,12 @@
 
                     for (const month of monthlyData) {
                         if (month.month_name) {
-                            // Parse "Month Year" format (e.g., "January 2023")
                             const parts = month.month_name.split(/\s+/);
                             if (parts.length >= 2) {
                                 const monthName = parts[0].toLowerCase();
-                                const year = parseInt(parts[parts.length-1], 10);
+                                const year = parseInt(parts[parts.length - 1], 10);
 
                                 if (year === currentYear) {
-                                    // Check if this month matches the current month
                                     for (const [num, names] of Object.entries(monthNames)) {
                                         if (parseInt(num, 10) === currentMonth) {
                                             if (names.includes(monthName)) {
@@ -1170,13 +1067,11 @@
                     return null;
                 },
 
-                // Helper function to find the most recent month not in the future
                 findMostRecentMonth(monthlyData, dateAcquired) {
                     const today = new Date();
                     let mostRecentMonth = null;
                     let mostRecentDate = null;
 
-                    // Month name parsing helper
                     const parseMonth = (monthName) => {
                         const monthMap = {
                             'january': 1, 'januari': 1, 'jan': 1,
@@ -1196,7 +1091,7 @@
                         const parts = monthName.toLowerCase().split(/\s+/);
                         if (parts.length >= 2) {
                             const monthPart = parts[0];
-                            const yearPart = parseInt(parts[parts.length-1], 10);
+                            const yearPart = parseInt(parts[parts.length - 1], 10);
 
                             if (monthMap[monthPart] && !isNaN(yearPart)) {
                                 return { month: monthMap[monthPart], year: yearPart };
@@ -1208,18 +1103,16 @@
                     for (const month of monthlyData) {
                         let monthDate = null;
 
-                        // Try to extract date from month_name
                         if (month.month_name) {
                             const parsed = parseMonth(month.month_name);
                             if (parsed) {
                                 try {
-                                    monthDate = new Date(parsed.year, parsed.month - 1, 28); // Use 28 as a safe day value
+                                    monthDate = new Date(parsed.year, parsed.month - 1, 28);
                                 } catch (e) {
                                     continue;
                                 }
                             }
                         }
-                        // If we have month_number and date_acquired
                         else if (month.month_number && dateAcquired) {
                             try {
                                 const startDate = new Date(dateAcquired);
@@ -1230,9 +1123,7 @@
                             }
                         }
 
-                        // If we have a valid date that's not in the future
                         if (monthDate && monthDate <= today) {
-                            // If this is our first valid month or it's more recent
                             if (mostRecentDate === null || monthDate > mostRecentDate) {
                                 mostRecentDate = monthDate;
                                 mostRecentMonth = month;
@@ -1244,13 +1135,10 @@
                 }
             };
 
-            // Initialize the Depreciation System
             DepreciationSystem.init();
 
-            // Make DepreciationSystem available globally (for debugging)
             window.DepreciationSystem = DepreciationSystem;
 
-            // Add JavaScript to hide elements based on permissions
             if (!{{ hasPermission('depreciation:edit') ? 'true' : 'false' }}) {
                 const updateButtons = document.querySelectorAll('#updateDepreciationBtn');
                 updateButtons.forEach(btn => {

@@ -142,15 +142,15 @@
                     @endif
                     <!-- Add this button alongside the other action buttons -->
                     @if(hasPermission('asset:export'))
-                    <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
-                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
-                        target="_blank">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        <span>Export PDF</span>
-                    </a>
+                        <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
+                            class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
+                            target="_blank">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            <span>Export PDF</span>
+                        </a>
                     @endif
                 </div>
             </div>
@@ -240,7 +240,8 @@
                     <div class="flex flex-col items-center mt-4">
                         <p class="text-sm font-medium text-center mt-1">{{ $asset['asset_code'] ?? '-' }}</p>
                         <p class="text-sm font-medium text-center mt-2">
-                            {{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '-' }}</p>
+                            {{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '-' }}
+                        </p>
                         @php
                             $statusColor = 'bg-gray-500';
                             if (isset($asset['current_status'])) {
@@ -784,7 +785,7 @@
                                                     Pengadaan <span class="text-red-500">*</span></label>
                                                 <input type="date" name="date_acquired" id="edit_date_acquired"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
+                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                     harus diisi</div>
                                             </div>
@@ -834,7 +835,8 @@
 
                                     <!-- Check Out Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam <span
+                                                class="text-red-500">*</span></label>
                                         <input type="date" name="checkout_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
@@ -861,13 +863,15 @@
 
                                     <!-- Employee Dropdown (shown when Employee radio is selected) -->
                                     <div id="employeeDropdown" class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Pilih Karyawan <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Pilih Karyawan <span
+                                                class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input type="text" id="checkout_user_search"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                                 placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
                                             <input type="hidden" name="assigned_to" id="checkout_selected_user_id">
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih karyawan</div>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih karyawan
+                                            </div>
                                             <div id="checkout_user_dropdown"
                                                 class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                 <div id="checkout_user_loading" class="p-2 text-gray-500 text-center">
@@ -890,13 +894,15 @@
                                     <div id="locationDropdown" class="space-y-4 hidden">
                                         <!-- Building Search Dropdown -->
                                         <div class="space-y-2">
-                                            <label class="block text-base font-medium text-[#666666]">Pilih Gedung <span class="text-red-500">*</span></label>
+                                            <label class="block text-base font-medium text-[#666666]">Pilih Gedung <span
+                                                    class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <input type="text" id="pinjam_building_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="Cari gedung..." autocomplete="off">
                                                 <input type="hidden" name="building_id" id="pinjam_selected_building_id">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih gedung</div>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih gedung
+                                                </div>
                                                 <div id="pinjam_building_dropdown"
                                                     class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="pinjam_building_loading" class="p-2 text-gray-500 text-center">
@@ -917,13 +923,15 @@
 
                                         <!-- Room Search Dropdown -->
                                         <div class="space-y-2">
-                                            <label class="block text-base font-medium text-[#666666]">Pilih Ruangan <span class="text-red-500">*</span></label>
+                                            <label class="block text-base font-medium text-[#666666]">Pilih Ruangan <span
+                                                    class="text-red-500">*</span></label>
                                             <div class="relative">
                                                 <input type="text" id="pinjam_room_search"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
                                                 <input type="hidden" name="room_id" id="pinjam_selected_room_id">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih ruangan</div>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih
+                                                    ruangan</div>
                                                 <div id="pinjam_room_dropdown"
                                                     class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="pinjam_room_loading" class="p-2 text-gray-500 text-center">
@@ -994,7 +1002,8 @@
 
                                     <!-- Return Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Kembali <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Kembali <span
+                                                class="text-red-500">*</span></label>
                                         <input type="date" name="return_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
@@ -1002,14 +1011,16 @@
 
                                     <!-- Asset Condition -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Kondisi Asset <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Kondisi Asset <span
+                                                class="text-red-500">*</span></label>
                                         <select name="condition" id="return_condition"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                             <option value="GOOD">Baik</option>
                                             <option value="DAMAGED">Rusak</option>
                                             <option value="NEEDS_REPAIR">Perlu Perbaikan</option>
                                         </select>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih kondisi asset</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih kondisi asset
+                                        </div>
                                     </div>
 
                                     <!-- Notes -->
@@ -1063,11 +1074,13 @@
 
                                     <!-- Loss Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Hilang <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Hilang <span
+                                                class="text-red-500">*</span></label>
                                         <input type="date" name="loss_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal hilang harus diisi</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal hilang harus diisi
+                                        </div>
                                     </div>
 
                                     <!-- Loss Reason -->
@@ -1171,7 +1184,8 @@
 
                                     <!-- Dispose Date -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan <span
+                                                class="text-red-500">*</span></label>
                                         <input type="date" name="dispose_date" readonly
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
                                             value="{{ date('Y-m-d') }}">
@@ -1179,7 +1193,8 @@
 
                                     <!-- Disposal Method -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Metode Penghapusan <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Metode Penghapusan <span
+                                                class="text-red-500">*</span></label>
                                         <select name="disposal_method"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
                                             <option value="SOLD">Terjual</option>
@@ -1188,16 +1203,19 @@
                                             <option value="DESTROYED">Hancurkan</option>
                                             <option value="OTHER">Lainnya</option>
                                         </select>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih metode penghapusan</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih metode
+                                            penghapusan</div>
                                     </div>
 
                                     <!-- Disposal Reason -->
                                     <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan <span class="text-red-500">*</span></label>
+                                        <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan <span
+                                                class="text-red-500">*</span></label>
                                         <textarea name="disposal_reason" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
                                             placeholder="Masukkan alasan penghapusan"></textarea>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan masukkan alasan penghapusan</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan masukkan alasan
+                                            penghapusan</div>
                                     </div>
 
                                     <!-- Additional Notes -->
@@ -1277,116 +1295,99 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Permission-based initialization
+
             const assetId = '{{ $asset['asset_id'] ?? "" }}';
             const currentStatus = '{{ $asset['current_status'] ?? "" }}';
 
-            // Function to initialize buttons based on permissions
             function initializeButtons() {
                 @if(!hasPermission('asset:edit'))
-                    // Hide edit buttons if user doesn't have edit permission
                     document.querySelectorAll('#editAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
 
                 @if(!hasPermission('asset:checkout'))
-                    // Hide checkout buttons if user doesn't have checkout permission
                     document.querySelectorAll('#checkoutAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
 
                 @if(!hasPermission('asset:checkout'))
-                    // Hide checkin buttons if user doesn't have checkout permission
                     document.querySelectorAll('#checkinAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
 
                 @if(!hasPermission('asset:dispose'))
-                    // Hide dispose buttons if user doesn't have dispose permission
                     document.querySelectorAll('#disposeAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
 
                 @if(!hasPermission('asset:report-loss'))
-                    // Hide lost buttons if user doesn't have report-loss permission
                     document.querySelectorAll('#lostAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
 
                 @if(!hasPermission('asset:report-found'))
-                    // Hide found buttons if user doesn't have report-found permission
                     document.querySelectorAll('#foundAssetBtn').forEach(btn => {
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
-                }
+                                }
 
-            // Call initialization function
             initializeButtons();
 
-            // Function to show toast notifications
             function showToast(message, type = 'success') {
-                // Create the notification element
                 const notification = document.createElement('div');
-                notification.id = type + 'Notification' + Date.now(); // Unique ID to allow multiple notifications
+                notification.id = type + 'Notification' + Date.now();
                 notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
                 notification.role = 'alert';
 
-                // Check if message contains HTML
                 const hasHTML = /<[a-z][\s\S]*>/i.test(message);
 
                 if (type === 'success') {
                     notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                     notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
+                                            <div class="flex items-start">
+                                                <div class="py-1">
+                                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold">Berhasil!</p>
+                                                    <div>${message}</div>
+                                                </div>
+                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                            </div>
+                                        `;
                 } else {
                     notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
-                    // Structure for the notification
                     const wrapper = document.createElement('div');
                     wrapper.className = 'flex items-start';
 
-                    // Icon container
                     const iconContainer = document.createElement('div');
                     iconContainer.className = 'py-1 flex-shrink-0';
                     iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        `;
+                                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        `;
 
-                    // Content container
                     const contentContainer = document.createElement('div');
                     contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
 
-                    // Title
                     const title = document.createElement('p');
                     title.className = 'font-bold';
                     title.textContent = 'Gagal!';
                     contentContainer.appendChild(title);
 
-                    // Message container
                     const messageContainer = document.createElement('div');
                     messageContainer.className = 'error-message';
 
-                    // Handle HTML content
                     if (hasHTML) {
                         messageContainer.innerHTML = message;
                     } else {
@@ -1395,7 +1396,6 @@
 
                     contentContainer.appendChild(messageContainer);
 
-                    // Close button
                     const closeBtn = document.createElement('span');
                     closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                     closeBtn.textContent = '×';
@@ -1403,64 +1403,56 @@
                         notification.remove();
                     };
 
-                    // Assemble the notification
                     wrapper.appendChild(iconContainer);
                     wrapper.appendChild(contentContainer);
                     wrapper.appendChild(closeBtn);
                     notification.appendChild(wrapper);
                 }
 
-                // Add to document
                 document.body.appendChild(notification);
 
-                // Auto-remove notification after 5 seconds
                 setTimeout(() => {
                     notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                     setTimeout(() => notification.remove(), 500);
                 }, 5000);
             }
 
-            // Add slide-in animation and styling for error messages to CSS
             document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes slideInRight {
-                            from { transform: translateX(100%); }
-                            to { transform: translateX(0); }
-                        }
-                        .animate-slide-in-right {
-                            animation: slideInRight 0.3s ease-out forwards;
-                        }
+                                    <style>
+                                        @keyframes slideInRight {
+                                            from { transform: translateX(100%); }
+                                            to { transform: translateX(0); }
+                                        }
+                                        .animate-slide-in-right {
+                                            animation: slideInRight 0.3s ease-out forwards;
+                                        }
 
-                        /* Styling for error messages with HTML content */
-                        .error-message ul {
-                            margin-top: 0.5rem;
-                            padding-left: 1.5rem;
-                        }
-                        .error-message ul li {
-                            margin-bottom: 0.25rem;
-                        }
-                        .error-message ul li:last-child {
-                            margin-bottom: 0;
-                        }
-                    </style>
-                `);
+                                        .error-message ul {
+                                            margin-top: 0.5rem;
+                                            padding-left: 1.5rem;
+                                        }
+                                        .error-message ul li {
+                                            margin-bottom: 0.25rem;
+                                        }
+                                        .error-message ul li:last-child {
+                                            margin-bottom: 0;
+                                        }
+                                    </style>
+                                `);
 
-            // Show toast notifications for session messages on page load
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
             @endif
 
-                @if(session('error'))
-                    showToast("{{ session('error') }}", 'error');
-                @endif
+                                @if(session('error'))
+                                    showToast("{{ session('error') }}", 'error');
+                                @endif
 
-            // Initialize cache variables
             window.usersCache =[];
             window.roomsCache = [];
             window.buildingsCache = [];
             window.assetMastersCache = [];
 
-            // Debounce utility function
             function debounce(func, wait) {
                 let timeout;
                 return function (...args) {
@@ -1470,7 +1462,6 @@
             }
             window.debounce = debounce;
 
-            // Modal functionality
             function openModal(modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -1479,17 +1470,13 @@
                 }, 10);
             }
 
-            // Function to close modal with animation and reset form fields
             function closeModal(modal, content) {
                 if (!modal || !content) return;
 
-                // Get modal ID to determine which reset function to call
                 const modalId = modal.id;
 
-                // Reset forms inside the modal
                 const forms = modal.querySelectorAll('form');
                 forms.forEach(form => {
-                    // Call specific reset function based on modal type
                     switch (modalId) {
                         case 'editAssetModal':
                             resetEditAssetForm(form);
@@ -1514,7 +1501,6 @@
                     }
                 });
 
-                // Animate closing
                 content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
@@ -1522,28 +1508,23 @@
                 }, 300);
             }
 
-            // Generic form reset
             function resetGenericForm(form) {
                 if (!form) return;
 
                 form.reset();
 
-                // Reset hidden inputs that might not be affected by form.reset()
                 const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
                 hiddenInputs.forEach(input => {
-                    // Keep asset ID inputs
                     if (!input.name.includes('asset_id')) {
                         input.value = '';
                     }
                 });
 
-                // Reset all text inputs
                 const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
                 textInputs.forEach(input => {
                     input.value = '';
                 });
 
-                // Reset select elements
                 const selects = form.querySelectorAll('select');
                 selects.forEach(select => {
                     if (select.options.length > 0) {
@@ -1551,26 +1532,22 @@
                     }
                 });
 
-                // Hide any open dropdowns
                 const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
                 dropdowns.forEach(dropdown => {
                     dropdown.classList.add('hidden');
                 });
 
-                // Enable any disabled submit buttons
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                 }
 
-                // Reset error states
                 const errorFields = form.querySelectorAll('.error, .border-red-500');
                 errorFields.forEach(field => {
                     field.classList.remove('error', 'border-red-500');
                 });
 
-                // Hide error messages
                 const errorMessages = form.querySelectorAll('.error-message');
                 errorMessages.forEach(message => {
                     message.textContent = '';
@@ -1578,11 +1555,9 @@
                 });
             }
 
-            // Edit Asset form reset
             function resetEditAssetForm(form) {
                 resetGenericForm(form);
 
-                // Reset depreciation fields if present
                 const depreciationFields = form.querySelector('#edit_depreciation_fields');
                 if (depreciationFields) {
                     depreciationFields.classList.add('hidden');
@@ -1599,66 +1574,54 @@
                 }
             }
 
-            // Checkout form reset
             function resetCheckoutForm(form) {
                 resetGenericForm(form);
 
-                // Reset checkout-specific elements
                 document.getElementById('employeeDropdown').classList.remove('hidden');
                 document.getElementById('locationDropdown').classList.add('hidden');
 
-                // Set current date
                 const dateField = form.querySelector('input[name="checkout_date"]');
                 if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
 
-                // Reset radio buttons
                 const employeeRadio = document.getElementById('employee');
                 if (employeeRadio) {
                     employeeRadio.checked = true;
                 }
             }
 
-            // Check-in form reset
             function resetCheckinForm(form) {
                 resetGenericForm(form);
 
-                // Set current date for return date
                 const dateField = form.querySelector('input[name="return_date"]');
                 if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
 
-            // Lost form reset
             function resetLostForm(form) {
                 resetGenericForm(form);
 
-                // Set current date for loss date
                 const dateField = form.querySelector('input[name="loss_date"]');
                 if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
 
-            // Found form reset
             function resetFoundForm(form) {
                 resetGenericForm(form);
             }
 
-            // Dispose form reset
             function resetDisposeForm(form) {
                 resetGenericForm(form);
 
-                // Set current date for dispose date
                 const dateField = form.querySelector('input[name="dispose_date"]');
                 if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
 
-            // Common fetch handler
             function fetchWithAuth(url, method, data, successCallback, errorCallback) {
                 const options = {
                     method: method,
@@ -1704,7 +1667,6 @@
                     });
             }
 
-            // Toggle depreciation fields
             function toggleDepreciationFields(depreciationFields, isVisible) {
                 if (!depreciationFields) return;
 
@@ -1718,7 +1680,6 @@
                 });
             }
 
-            // Helper to set dropdown values
             function setSelectValue(selectId, value) {
                 const select = document.getElementById(selectId);
                 if (!select || value === undefined || value === null) return;
@@ -1732,7 +1693,6 @@
                 }
             }
 
-            // Create dropdown item
             function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
                 const li = document.createElement('li');
                 li.className = className;
@@ -1740,22 +1700,18 @@
                 return li;
             }
 
-            // Generic dropdown initialization
             function initDropdown(searchInput, dropdown, list, onSearch) {
                 if (!searchInput || !dropdown || !list) return;
 
-                // Show dropdown on focus
                 searchInput.addEventListener('focus', function () {
                     dropdown.classList.remove('hidden');
                     onSearch(this.value);
                 });
 
-                // Filter on input with debounce
                 searchInput.addEventListener('input', debounce(function (e) {
                     onSearch(e.target.value);
                 }, 300));
 
-                // Hide dropdown when clicking outside
                 document.addEventListener('click', function (e) {
                     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
                         dropdown.classList.add('hidden');
@@ -1763,9 +1719,7 @@
                 });
             }
 
-            // Initialize search components with a unified approach
             function initSearchComponents() {
-                // Building search for edit asset
                 initDropdown(
                     document.getElementById('edit_building_search'),
                     document.getElementById('edit_building_dropdown'),
@@ -1783,7 +1737,6 @@
                     }
                 );
 
-                // Room search for edit asset - now depends on building selection first
                 initDropdown(
                     document.getElementById('edit_room_search'),
                     document.getElementById('edit_room_dropdown'),
@@ -1801,7 +1754,6 @@
                                 document.getElementById('edit_room_dropdown')
                             );
                         } else {
-                            // If no building selected, show message
                             const roomList = document.getElementById('edit_room_list');
                             if (roomList) {
                                 roomList.innerHTML = '';
@@ -1811,7 +1763,6 @@
                     }
                 );
 
-                // User search
                 initUserSearch(
                     document.getElementById('edit_user_search'),
                     document.getElementById('edit_user_dropdown'),
@@ -1820,7 +1771,6 @@
                     document.getElementById('edit_selected_user_id')
                 );
 
-                // Checkout modal user search
                 initUserSearch(
                     document.getElementById('checkout_user_search'),
                     document.getElementById('checkout_user_dropdown'),
@@ -1829,7 +1779,6 @@
                     document.getElementById('checkout_selected_user_id')
                 );
 
-                // Asset master search
                 initAssetMasterSearch(
                     document.getElementById('edit_asset_master_search'),
                     document.getElementById('edit_asset_master_dropdown'),
@@ -1841,7 +1790,6 @@
                 );
             }
 
-            // Unified dropdown initialization functions
             function initRoomSearch(searchInput, dropdown, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay) {
                 initDropdown(searchInput, dropdown, roomList, function (searchTerm) {
                     loadRooms(searchTerm, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay, searchInput, dropdown);
@@ -1860,7 +1808,6 @@
                 });
             }
 
-            // Data loading functions
             async function loadRooms(searchTerm, roomList, loadingIndicator, selectedRoomId, selectedRoomName, roomDisplay, searchInput, dropdown) {
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 roomList.innerHTML = '';
@@ -2021,7 +1968,6 @@
                 }
             }
 
-            // Initialize UI elements and event handlers
             const flipCard = document.querySelector('.flip-card');
             const flipBtns = document.querySelectorAll('.flip-btn');
 
@@ -2029,7 +1975,6 @@
                 btn.addEventListener('click', () => flipCard.classList.toggle('flipped'));
             });
 
-            // Initialize tabs
             const tabButtons = document.querySelectorAll('.tab-btn');
             const tabPanes = document.querySelectorAll('.tab-pane');
 
@@ -2057,7 +2002,6 @@
                 });
             });
 
-            // Setup modals
             const modals = {
                 edit: {
                     btn: document.getElementById('editAssetBtn'),
@@ -2097,7 +2041,6 @@
                 }
             };
 
-            // Close modal event handlers
             const closeButtons = document.querySelectorAll('.close-modal');
             closeButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -2107,7 +2050,6 @@
                 });
             });
 
-            // Initialize each modal
             Object.keys(modals).forEach(key => {
                 const modalObj = modals[key];
                 if (modalObj.btn && modalObj.modal && modalObj.content) {
@@ -2115,7 +2057,6 @@
                         if (e.preventDefault) e.preventDefault();
 
                         if (key === 'edit') {
-                            // Special handling for edit modal - fetch data first
                             const assetId = '{{ $asset["asset_id"] ?? "" }}';
                             if (!assetId) {
                                 console.error('Asset ID not found');
@@ -2153,21 +2094,17 @@
                                     console.error('Error fetching asset:', error);
                                 });
                         } else {
-                            // Normal modal opening
                             openModal(modalObj.modal, modalObj.content);
                         }
                     });
 
-                    // Close on outside click
                     modalObj.modal.addEventListener('click', function (e) {
                         if (e.target === this) {
                             closeModal(modalObj.modal, modalObj.content);
                         }
                     });
 
-                    // Set up form submission handlers
                     if (modalObj.form) {
-                        // Set the correct action URLs for each form type
                         if (modalObj.form.id === 'checkoutAssetForm') {
                             modalObj.form.action = "{{ route('asset.checkout') }}";
                         } else if (modalObj.form.id === 'checkinAssetForm') {
@@ -2180,7 +2117,6 @@
                             modalObj.form.action = "{{ route('asset.dispose') }}";
                         }
 
-                        // Add a close button event handler after form submission
                         const closeBtn = modalObj.modal.querySelector('.close-modal');
                         if (closeBtn) {
                             closeBtn.addEventListener('click', function () {
@@ -2191,7 +2127,6 @@
                 }
             });
 
-            // Handle depreciation toggle
             const depreciableToggle = document.getElementById('edit_is_depreciable');
             const depreciationFields = document.getElementById('edit_depreciation_fields');
 
@@ -2203,7 +2138,6 @@
                     if (statusText) statusText.textContent = isChecked ? 'Yes' : 'No';
                     toggleDepreciationFields(depreciationFields, isChecked);
 
-                    // If depreciation is being enabled, set acquisition cost to match purchase cost
                     if (isChecked) {
                         const purchaseCost = document.getElementById('edit_purchase_cost').value || '0';
                         document.getElementById('edit_acquisition_cost').value = purchaseCost;
@@ -2216,7 +2150,6 @@
                 });
             }
 
-            // Update acquisition cost when purchase cost changes
             const purchaseCostInput = document.getElementById('edit_purchase_cost');
             if (purchaseCostInput) {
                 purchaseCostInput.addEventListener('input', function () {
@@ -2226,10 +2159,8 @@
                 });
             }
 
-            // Initialize all components
             initSearchComponents();
 
-            // Employee/location toggle in checkout modal
             const employeeRadio = document.getElementById('employee');
             const locationRadio = document.getElementById('location');
             const employeeDropdown = document.getElementById('employeeDropdown');
@@ -2255,20 +2186,17 @@
                 });
             }
 
-            // Set up depreciation fields toggle based on asset_master data
             const editDepreciationFields = document.getElementById('edit_depreciation_fields');
             const isDepreciable = '{{ $asset["asset_master"]["is_depreciable"] ?? false }}' === '1';
             if (editDepreciationFields) {
                 toggleDepreciationFields(editDepreciationFields, isDepreciable);
             }
 
-            // Set current date for checkout form
             const checkoutDateInput = document.querySelector('input[name="checkout_date"]');
             if (checkoutDateInput) {
                 checkoutDateInput.value = new Date().toISOString().split('T')[0];
             }
 
-            // Global function to setup form with asset data
             window.setupWithData = function (asset) {
                 const form = document.getElementById('editAssetForm');
                 if (!form) {
@@ -2279,11 +2207,9 @@
                 form.action = "{{ url('/assets') }}/" + asset.asset_id;
                 form.reset();
 
-                // Fill basic inputs
                 document.getElementById('edit_serial_number').value = asset.serial_number || '';
                 document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
 
-                // Handle dates
                 if (asset.purchase_date) {
                     document.getElementById('edit_purchase_date').value = asset.purchase_date.split(' ')[0];
                 }
@@ -2294,7 +2220,6 @@
 
                 setSelectValue('edit_condition', asset.condition);
 
-                // Set asset master information
                 const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
                 const assetMasterName = asset.asset_master_name || (asset.asset_master && asset.asset_master.asset_name) || '';
 
@@ -2311,23 +2236,18 @@
                     }
                 }
 
-                // Set building and room information
-                // Directly set the building name from the current displayed asset data
                 document.getElementById('edit_selected_building_id').value = '{{ $asset["building_id"] ?? "" }}';
                 document.getElementById('edit_building_search').value = '{{ $asset["building_name"] ?? "" }}';
 
-                // Enable room search since we have a building
                 const roomSearch = document.getElementById('edit_room_search');
                 if (roomSearch) {
                     roomSearch.disabled = false;
                     roomSearch.placeholder = "Cari ruangan...";
                 }
 
-                // Set room information
                 document.getElementById('edit_selected_room_id').value = '{{ $asset["room_id"] ?? "" }}';
                 document.getElementById('edit_room_search').value = '{{ $asset["room_name"] ?? "" }}';
 
-                // Set user information
                 if (asset.user_id) {
                     document.getElementById('edit_selected_user_id').value = asset.user_id;
 
@@ -2344,7 +2264,6 @@
                     document.getElementById('edit_user_search').value = userDisplay;
                 }
 
-                // Set depreciation data
                 if (asset.depreciation || (asset.asset_master && asset.asset_master.is_depreciable)) {
                     const depreciationFields = document.getElementById('edit_depreciation_fields');
 
@@ -2382,7 +2301,6 @@
                 }
             };
 
-            // Initialize building search
             initDropdown(
                 document.getElementById('pinjam_building_search'),
                 document.getElementById('pinjam_building_dropdown'),
@@ -2400,7 +2318,6 @@
                 }
             );
 
-            // Function to load buildings with API fetch
             async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 buildingList.innerHTML = '';
@@ -2431,25 +2348,20 @@
                             li.setAttribute('data-name', building.building_name);
 
                             li.addEventListener('click', function () {
-                                // Set the selected building ID and name
                                 selectedBuildingId.value = this.getAttribute('data-id');
                                 searchInput.value = this.getAttribute('data-name');
 
-                                // Enable room search and update placeholder
                                 if (roomSearchInput) {
                                     roomSearchInput.disabled = false;
                                     roomSearchInput.placeholder = "Cari ruangan...";
-                                    // Clear room selection
                                     document.getElementById('pinjam_selected_room_id').value = '';
                                     document.getElementById('pinjam_room_search').value = '';
 
-                                    // Show loading indicator in room search
                                     const roomLoadingIndicator = document.getElementById('pinjam_room_loading');
                                     if (roomLoadingIndicator) {
                                         roomLoadingIndicator.classList.remove('hidden');
                                     }
 
-                                    // Load rooms for this building immediately
                                     loadRoomsForBuilding(
                                         '',
                                         this.getAttribute('data-id'),
@@ -2460,11 +2372,9 @@
                                         document.getElementById('pinjam_room_dropdown')
                                     );
 
-                                    // Show the room dropdown
                                     document.getElementById('pinjam_room_dropdown').classList.remove('hidden');
                                 }
 
-                                // Hide dropdown
                                 dropdown.classList.add('hidden');
                             });
 
@@ -2479,10 +2389,8 @@
                 }
             }
 
-            // Initialize room search with debounce
             const roomSearchInput = document.getElementById('pinjam_room_search');
             if (roomSearchInput) {
-                // Initially disable room search
                 roomSearchInput.disabled = true;
                 roomSearchInput.placeholder = 'Pilih gedung terlebih dahulu';
 
@@ -2514,7 +2422,6 @@
                 );
             }
 
-            // Function to load rooms for the selected building
             async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
                 if (!buildingId) {
                     searchInput.value = '';
@@ -2529,7 +2436,6 @@
                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                 roomList.innerHTML = '';
 
-                // Show the dropdown while loading
                 if (dropdown) dropdown.classList.remove('hidden');
 
                 try {
@@ -2566,13 +2472,12 @@
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            // Extract room properties with fallbacks
                             const roomName = room.room_name || room.name || '';
                             const roomId = room.room_id || room.id || '';
 
                             if (!roomName || !roomId) {
                                 console.warn('Room missing required properties:', room);
-                                return; // Skip this room
+                                return;
                             }
 
                             li.textContent = roomName;
@@ -2597,7 +2502,6 @@
                 }
             }
 
-            // Edit asset functionality
             document.querySelectorAll('.edit-asset-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const assetId = '{{ $asset["asset_id"] ?? "" }}';
@@ -2608,7 +2512,6 @@
                     const submitBtn = document.getElementById('edit-submit-btn');
 
                     if (editModal && editContent) {
-                        // Reset form and show loading
                         document.getElementById('editAssetForm').reset();
                         document.getElementById('editAssetForm').action = `{{ url('assets') }}/${assetId}`;
 
@@ -2639,10 +2542,8 @@
 
                                 const asset = data.data;
 
-                                // Use the standard setupWithData function
                                 setupWithData(asset);
 
-                                // Hide loading and show form
                                 if (loadingIndicator) loadingIndicator.classList.add('hidden');
                                 if (formContent) formContent.classList.remove('hidden');
                                 if (submitBtn) submitBtn.disabled = false;
@@ -2654,19 +2555,18 @@
 
                                 if (formContent) {
                                     formContent.innerHTML = `
-                                        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-                                            <p class="font-medium">Failed to load asset data</p>
-                                            <p>${error.message}</p>
-                                            <p class="mt-2">Please try again or contact support if the problem persists.</p>
-                                        </div>
-                                        <button type="button" class="close-modal w-full h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300">
-                                            Close
-                                        </button>
-                                    `;
+                                                        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                                                            <p class="font-medium">Failed to load asset data</p>
+                                                            <p>${error.message}</p>
+                                                            <p class="mt-2">Please try again or contact support if the problem persists.</p>
+                                                        </div>
+                                                        <button type="button" class="close-modal w-full h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300">
+                                                            Close
+                                                        </button>
+                                                    `;
                                     formContent.classList.remove('hidden');
                                 }
 
-                                // Reattach close event listeners
                                 formContent.querySelectorAll('.close-modal').forEach(btn => {
                                     btn.addEventListener('click', function () {
                                         closeModal(editModal, editContent);
@@ -2677,7 +2577,6 @@
                 });
             });
 
-            // Prevent multiple submissions for all forms
             function setupFormSubmissionHandling(formId, loadingText = 'Processing...') {
                 const form = document.getElementById(formId);
                 if (!form) return;
@@ -2685,15 +2584,12 @@
                 form.addEventListener('submit', function (event) {
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>${loadingText}</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -2708,27 +2604,19 @@
             setupFormSubmissionHandling('reportLostForm', 'Melaporkan...');
             setupFormSubmissionHandling('foundAssetForm', 'Melaporkan ditemukan...');
 
-            // Custom validation handler for checkout form
             document.getElementById('checkoutAssetForm')?.addEventListener('submit', function (event) {
-                // Prevent default submission to validate first
                 event.preventDefault();
 
-                // Validate the form
                 if (validateCheckoutForm()) {
-                    // Get the submit button
                     const submitBtn = this.querySelector('button[type="submit"]');
 
-                    // Prevent multiple submissions
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Meminjam...</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -2738,32 +2626,23 @@
                         }, 10000);
                     }
 
-                    // If valid, submit the form
                     this.submit();
                 }
             });
 
-            // Custom validation handler for checkin form
             document.getElementById('checkinAssetForm')?.addEventListener('submit', function (event) {
-                // Prevent default submission to validate first
                 event.preventDefault();
 
-                // Validate the form
                 if (validateCheckinForm()) {
-                    // Get the submit button
                     const submitBtn = this.querySelector('button[type="submit"]');
 
-                    // Prevent multiple submissions
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Mengembalikan...</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -2773,32 +2652,23 @@
                         }, 10000);
                     }
 
-                    // If valid, submit the form
                     this.submit();
                 }
             });
 
-            // Custom validation handler for dispose form
             document.getElementById('disposeAssetForm')?.addEventListener('submit', function (event) {
-                // Prevent default submission to validate first
                 event.preventDefault();
 
-                // Validate the form
                 if (validateDisposeForm()) {
-                    // Get the submit button
                     const submitBtn = this.querySelector('button[type="submit"]');
 
-                    // Prevent multiple submissions
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapuskan...</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -2808,17 +2678,14 @@
                         }, 10000);
                     }
 
-                    // If valid, submit the form
                     this.submit();
                 }
             });
 
-            // Function to validate fields before form submission
             function validateEditForm() {
                 const form = document.getElementById('editAssetForm');
                 if (!form) return true;
 
-                // Fields to validate
                 const assetMasterSearch = document.getElementById('edit_asset_master_search');
                 const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
                 const buildingSearch = document.getElementById('edit_building_search');
@@ -2828,15 +2695,12 @@
                 const depreciationFields = document.getElementById('edit_depreciation_fields');
                 const isDepreciable = !depreciationFields.classList.contains('hidden');
 
-                // Validate only mandatory fields
                 const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
                 const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
                 const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
-                // Track validation status
                 let isValid = isAssetMasterValid && isBuildingValid && isRoomValid;
 
-                // If depreciation is enabled, validate depreciation fields
                 if (isDepreciable) {
                     const depreciation_method = document.getElementById('edit_depreciation_method');
                     const acquisition_cost = document.getElementById('edit_acquisition_cost');
@@ -2844,14 +2708,12 @@
                     const asset_life_months = document.getElementById('edit_asset_life_months');
                     const date_acquired = document.getElementById('edit_date_acquired');
 
-                    // Validate all required depreciation fields
                     const isDepreciationMethodValid = validateField(depreciation_method);
                     const isAcquisitionCostValid = validateField(acquisition_cost);
                     const isSalvageValueValid = validateField(salvage_value);
                     const isAssetLifeMonthsValid = validateField(asset_life_months);
                     const isDateAcquiredValid = validateField(date_acquired);
 
-                    // Update overall validation status
                     isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
                         isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
                 }
@@ -2863,19 +2725,16 @@
                 return isValid;
             }
 
-            // Function to validate checkout form fields
             function validateCheckoutForm() {
                 const form = document.getElementById('checkoutAssetForm');
                 if (!form) return true;
 
-                // Check which radio option is selected
                 const employeeRadio = document.getElementById('employee');
                 const isEmployeeSelected = employeeRadio && employeeRadio.checked;
 
                 let isValid = true;
 
                 if (isEmployeeSelected) {
-                    // Validate employee selection
                     const userSearch = document.getElementById('checkout_user_search');
                     const selectedUserId = document.getElementById('checkout_selected_user_id');
                     const isUserValid = validateField(userSearch, selectedUserId.value ? true : false);
@@ -2883,7 +2742,6 @@
                     if (!isUserValid) {
                         const errorElement = userSearch.closest('.space-y-2')?.querySelector('.error-message');
                         if (!errorElement) {
-                            // Create error message if it doesn't exist
                             const errorDiv = document.createElement('div');
                             errorDiv.className = 'error-message text-red-500 text-sm mt-1';
                             errorDiv.textContent = 'Silakan pilih karyawan';
@@ -2896,7 +2754,6 @@
 
                     isValid = isUserValid;
                 } else {
-                    // Validate building and room selection
                     const buildingSearch = document.getElementById('pinjam_building_search');
                     const selectedBuildingId = document.getElementById('pinjam_selected_building_id');
                     const roomSearch = document.getElementById('pinjam_room_search');
@@ -2905,7 +2762,6 @@
                     const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
                     const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
 
-                    // Add error messages if needed
                     if (!isBuildingValid) {
                         const errorElement = buildingSearch.closest('.space-y-2')?.querySelector('.error-message');
                         if (!errorElement) {
@@ -2942,14 +2798,12 @@
                 return isValid;
             }
 
-            // Function to validate checkin form fields
             function validateCheckinForm() {
                 const form = document.getElementById('checkinAssetForm');
                 if (!form) return true;
 
                 let isValid = true;
 
-                // Validate condition selection
                 const conditionSelect = document.getElementById('return_condition');
                 const isConditionValid = validateField(conditionSelect);
 
@@ -2969,18 +2823,15 @@
                 return isValid;
             }
 
-            // Function to validate disposal form fields
             function validateDisposeForm() {
                 const form = document.getElementById('disposeAssetForm');
                 if (!form) return true;
 
                 let isValid = true;
 
-                // Validate disposal method selection
                 const disposalMethodSelect = form.querySelector('select[name="disposal_method"]');
                 const isMethodValid = validateField(disposalMethodSelect);
 
-                // Validate disposal reason
                 const disposalReason = form.querySelector('textarea[name="disposal_reason"]');
                 const isReasonValid = validateField(disposalReason);
 
@@ -2990,14 +2841,14 @@
                         errorElement.classList.remove('hidden');
                     }
                 }
-                
+
                 if (!isReasonValid) {
                     const errorElement = disposalReason.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) {
                         errorElement.classList.remove('hidden');
                     }
                 }
-                
+
                 isValid = isMethodValid && isReasonValid;
 
                 if (!isValid) {
@@ -3007,9 +2858,8 @@
                 return isValid;
             }
 
-            // Function to validate field and show/hide error message
             function validateField(field, customCheck = null) {
-                if (!field) return true; // Skip if field doesn't exist
+                if (!field) return true;
 
                 let isValid = true;
                 if (customCheck !== null) {
@@ -3020,7 +2870,6 @@
                     isValid = field.value.trim() !== '';
                 }
 
-                // Find the error message element
                 const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
 
                 if (!isValid) {
@@ -3034,7 +2883,6 @@
                 return isValid;
             }
 
-            // Add event listeners to clear error styling when typing
             function clearErrorOnInput(inputId) {
                 const input = document.getElementById(inputId);
                 if (input) {
@@ -3046,7 +2894,6 @@
                 }
             }
 
-            // Apply input event listeners to all fields
             clearErrorOnInput('edit_asset_master_search');
             clearErrorOnInput('edit_building_search');
             clearErrorOnInput('edit_room_search');
@@ -3061,29 +2908,22 @@
             clearErrorOnInput('edit_salvage_value');
             clearErrorOnInput('edit_asset_life_months');
             clearErrorOnInput('edit_date_acquired');
-
-            // Apply input event listeners to checkout form fields
             clearErrorOnInput('checkout_user_search');
             clearErrorOnInput('pinjam_building_search');
             clearErrorOnInput('pinjam_room_search');
-
-            // Apply input event listeners to checkin form fields
             clearErrorOnInput('return_condition');
 
-            // Add listener for textarea since it's not supported by the standard function
             const returnNotes = document.querySelector('textarea[name="return_notes"]');
             if (returnNotes) {
-                returnNotes.addEventListener('input', function() {
+                returnNotes.addEventListener('input', function () {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
             }
 
-            // Add additional listeners for radio button changes to clear errors
-            document.getElementById('employee')?.addEventListener('change', function() {
+            document.getElementById('employee')?.addEventListener('change', function () {
                 if (this.checked) {
-                    // Clear location errors when switching to employee option
                     const buildingSearch = document.getElementById('pinjam_building_search');
                     const roomSearch = document.getElementById('pinjam_room_search');
                     if (buildingSearch) {
@@ -3099,9 +2939,8 @@
                 }
             });
 
-            document.getElementById('location')?.addEventListener('change', function() {
+            document.getElementById('location')?.addEventListener('change', function () {
                 if (this.checked) {
-                    // Clear employee errors when switching to location option
                     const userSearch = document.getElementById('checkout_user_search');
                     if (userSearch) {
                         userSearch.classList.remove('border-red-500');
@@ -3111,27 +2950,19 @@
                 }
             });
 
-            // Modify the editAssetForm submit handler with integrated validation and multiple submission prevention
             document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
-                // Prevent default submission to validate first
                 event.preventDefault();
 
-                // Validate the form
                 if (validateEditForm()) {
-                    // Get the submit button
                     const submitBtn = this.querySelector('button[type="submit"]');
 
-                    // Prevent multiple submissions
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -3141,42 +2972,36 @@
                         }, 10000);
                     }
 
-                    // If valid, submit the form
                     this.submit();
                 }
             });
 
-            // Apply input event listeners to dispose form fields
             clearErrorOnInput('return_condition');
 
-            // Add listener for disposal reason textarea
             const disposalReason = document.querySelector('textarea[name="disposal_reason"]');
             if (disposalReason) {
-                disposalReason.addEventListener('input', function() {
+                disposalReason.addEventListener('input', function () {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
             }
 
-            // Add disposal method select error clearing
             const disposalMethod = document.querySelector('select[name="disposal_method"]');
             if (disposalMethod) {
-                disposalMethod.addEventListener('change', function() {
+                disposalMethod.addEventListener('change', function () {
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
                 });
             }
 
-            // Function to validate lost form fields
             function validateLostForm() {
                 const form = document.getElementById('reportLostForm');
                 if (!form) return true;
 
                 let isValid = true;
 
-                // Validate loss date
                 const lossDate = form.querySelector('input[name="loss_date"]');
                 const isDateValid = validateField(lossDate);
 
@@ -3186,37 +3011,29 @@
                         errorElement.classList.remove('hidden');
                     }
                 }
-                
+
                 isValid = isDateValid;
-                
+
                 if (!isValid) {
                     showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
                 }
-                
+
                 return isValid;
             }
 
-            // Custom validation handler for lost form
             document.getElementById('reportLostForm')?.addEventListener('submit', function (event) {
-                // Prevent default submission to validate first
                 event.preventDefault();
 
-                // Validate the form
                 if (validateLostForm()) {
-                    // Get the submit button
                     const submitBtn = this.querySelector('button[type="submit"]');
 
-                    // Prevent multiple submissions
                     if (submitBtn && !submitBtn.disabled) {
-                        // Save original button text
                         const originalText = submitBtn.innerHTML;
 
-                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Melaporkan...</span></div>`;
 
-                        // Set timeout to re-enable button after 10 seconds (in case of network issues)
                         setTimeout(() => {
                             if (submitBtn.disabled) {
                                 submitBtn.disabled = false;
@@ -3226,7 +3043,6 @@
                         }, 10000);
                     }
 
-                    // If valid, submit the form
                     this.submit();
                 }
             });

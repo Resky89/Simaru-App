@@ -317,9 +317,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Add JavaScript initialization for permission awareness
             @if(!hasPermission('complaint:export'))
-                // Hide export button if user doesn't have permission
                 const exportButtons = document.querySelectorAll('a[href*="export.pdf"]');
                 exportButtons.forEach(btn => {
                     if (btn) {

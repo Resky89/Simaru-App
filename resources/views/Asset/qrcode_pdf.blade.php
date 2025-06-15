@@ -177,7 +177,6 @@
                         <div class="qr-details">
                             <div class="qr-code">{{ $asset['asset_code'] }}</div>
                             @php
-                                // Try to get subcategory name from different possible locations in the data structure
                                 $subcategoryName = null;
                                 if (isset($asset['subcategory']) && isset($asset['subcategory']['subcategory_name'])) {
                                     $subcategoryName = $asset['subcategory']['subcategory_name'];
@@ -193,7 +192,6 @@
                             @endphp
                             <div class="qr-category">{{ $subcategoryName ?? 'N/A' }}</div>
                             @php
-                                // Try to get asset name from different possible locations in the data structure
                                 $assetName = null;
                                 if (isset($asset['asset_name'])) {
                                     $assetName = $asset['asset_name'];
@@ -208,7 +206,6 @@
                             <div class="qr-name">{{ $assetName ?? 'Unknown Asset' }}</div>
                             <div class="qr-meta">Dibuat: {{ date('d/m/Y', strtotime($asset['created_at'] ?? now())) }}</div>
                             @php
-                                // Try to get location information from different possible locations in the data structure
                                 $buildingName = 'N/A';
                                 $roomName = 'N/A';
                                 $floorNumber = 'Lantai ?';

@@ -542,9 +542,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add JavaScript initialization for permission awareness
         @if(!hasPermission('document:create'))
-        // Hide add document button if user doesn't have permission
         const addButtons = document.querySelectorAll('#addDocumentBtn');
         addButtons.forEach(btn => {
             if (btn) {
@@ -554,7 +552,6 @@
         @endif
 
         @if(!hasPermission('document:edit'))
-        // Hide edit buttons if user doesn't have permission
         const editButtons = document.querySelectorAll('.edit-document-btn');
         editButtons.forEach(btn => {
             if (btn) {
@@ -564,7 +561,6 @@
         @endif
 
         @if(!hasPermission('document:delete'))
-        // Hide delete buttons if user doesn't have permission
         const deleteButtons = document.querySelectorAll('.delete-document-btn');
         deleteButtons.forEach(btn => {
             if (btn) {
@@ -573,9 +569,7 @@
         });
         @endif
 
-        // Toast notification function
         function showToast(message, type = 'success') {
-            // Create toast container if it doesn't exist
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -584,17 +578,13 @@
                 document.body.appendChild(toastContainer);
             }
 
-            // Create the toast element
             const toast = document.createElement('div');
 
-            // Check if message contains HTML
             const hasHTML = /<[a-z][\s\S]*>/i.test(message);
 
-            // Set classes based on type
             if (type === 'success') {
                 toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center animate-slide-in-right';
-
-                // Add content
+                
                 toast.innerHTML = `
                     <div class="py-1">
                         <svg class="h-6 w-6 mr-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -610,11 +600,9 @@
             } else {
                 toast.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center overflow-auto max-w-md animate-slide-in-right';
 
-                // Structure for the notification
                 const wrapper = document.createElement('div');
                 wrapper.className = 'flex items-start';
 
-                // Icon container
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'py-1 flex-shrink-0';
                 iconContainer.innerHTML = `
@@ -623,21 +611,17 @@
                     </svg>
                 `;
 
-                // Content container
                 const contentContainer = document.createElement('div');
                 contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
 
-                // Title
                 const title = document.createElement('p');
                 title.className = 'font-bold';
                 title.textContent = 'Gagal!';
                 contentContainer.appendChild(title);
 
-                // Message container
                 const messageContainer = document.createElement('div');
                 messageContainer.className = 'error-message';
 
-                // Handle HTML content
                 if (hasHTML) {
                     messageContainer.innerHTML = message;
                 } else {
@@ -646,7 +630,6 @@
 
                 contentContainer.appendChild(messageContainer);
 
-                // Close button
                 const closeBtn = document.createElement('span');
                 closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                 closeBtn.textContent = '×';
@@ -654,17 +637,14 @@
                     toast.remove();
                 };
 
-                // Assemble the notification
                 wrapper.appendChild(iconContainer);
                 wrapper.appendChild(contentContainer);
                 wrapper.appendChild(closeBtn);
                 toast.appendChild(wrapper);
             }
 
-            // Add to container
             toastContainer.appendChild(toast);
 
-            // Auto-remove after 5 seconds
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
@@ -673,7 +653,6 @@
             }, 5000);
         }
 
-        // Add slide-in animation and styling for error messages to CSS
         document.head.insertAdjacentHTML('beforeend', `
             <style>
                 @keyframes slideInRight {
@@ -686,7 +665,6 @@
             </style>
         `);
 
-        // Modal functionality
         const openModal = function(modal, content) {
             modal.classList.remove('hidden');
             setTimeout(() => {
@@ -703,12 +681,10 @@
             }, 300);
         };
 
-        // Helper function to check if file is an image
         const isImageFile = function(file) {
             return file && file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/i);
         };
 
-        // Helper function to get file icon based on extension
         const getFileIcon = function(filename) {
             if (!filename) return getDocumentIcon();
 
@@ -725,7 +701,6 @@
             }
         };
 
-        // Icon SVG templates
         const getDocumentIcon = function() {
             return `<svg class="w-6 h-6 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -753,27 +728,22 @@
             </svg>`;
         };
 
-        // Function to update file icon - replaces the icon with the appropriate one based on filename
         const updateFileIcon = function(containerSelector, fileName) {
             const container = document.querySelector(containerSelector);
             if (container) {
                 const iconContainer = container.querySelector('.flex');
                 if (iconContainer) {
-                    // Remove existing icon
                     const existingIcon = iconContainer.querySelector('svg');
                     if (existingIcon) {
                         existingIcon.remove();
                     }
-                    // Create a temporary element to convert HTML string to DOM element
                     const temp = document.createElement('div');
                     temp.innerHTML = getFileIcon(fileName);
-                    // Insert the new icon at the beginning of the flex container
                     iconContainer.insertBefore(temp.firstChild, iconContainer.firstChild);
                 }
             }
         };
 
-        // File upload preview for add modal
         const fileInput = document.getElementById('file');
         const fileNameDisplay = document.getElementById('file-name');
         const fileNameText = document.getElementById('file-name-text');
@@ -786,9 +756,7 @@
                     const file = this.files[0];
                     const fileName = file.name;
 
-                    // Check if the file is an image
                     if (isImageFile(file)) {
-                        // Handle image file
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             previewImg.src = e.target.result;
@@ -797,38 +765,32 @@
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        // Handle non-image file
                         fileNameText.textContent = fileName;
-                        // Update the icon based on file type
                         updateFileIcon('#file-name', fileName);
                         fileNameDisplay.classList.remove('hidden');
                         imagePreview.classList.add('hidden');
                     }
                 } else {
-                    // No file selected
                     fileNameDisplay.classList.add('hidden');
                     imagePreview.classList.add('hidden');
                 }
             });
         }
 
-        // Remove file button for add modal
         document.getElementById('remove-file')?.addEventListener('click', function() {
             if (fileInput) {
-                fileInput.value = ''; // Clear the file input
+                fileInput.value = '';
             }
             fileNameDisplay.classList.add('hidden');
         });
 
-        // Remove image button for add modal
         document.getElementById('remove-image')?.addEventListener('click', function() {
             if (fileInput) {
-                fileInput.value = ''; // Clear the file input
+                fileInput.value = '';
             }
             imagePreview.classList.add('hidden');
         });
 
-        // Add document button
         document.getElementById('addDocumentBtn')?.addEventListener('click', function() {
             const modal = document.getElementById('addDocumentModal');
             const content = document.getElementById('addDocumentModalContent');
@@ -837,7 +799,6 @@
             }
         });
 
-        // Delete document functionality
         document.querySelectorAll('.delete-document-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const documentId = this.dataset.id;
@@ -853,7 +814,6 @@
             });
         });
 
-        // Modal close buttons
         document.querySelectorAll('.close-modal').forEach(closeButton => {
             closeButton.addEventListener('click', function() {
                 const modal = this.closest('[id$="Modal"]');
@@ -864,7 +824,6 @@
             });
         });
 
-        // Close modal when clicking outside
         document.querySelectorAll('[id$="Modal"]').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
@@ -876,45 +835,32 @@
             });
         });
 
-        // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const sortOrder = document.getElementById('sortOrder');
 
-        // Function to handle search and filtering
         function applyFilters() {
             const searchValue = searchInput?.value.trim() || '';
             const sortValue = sortOrder?.value || '';
-
-            // Create URL with filter parameters
             const url = new URL(window.location.href);
 
-            // Clear existing parameters we're going to set
             ['search', 'sort', 'page'].forEach(param => {
                 url.searchParams.delete(param);
             });
 
-            // Add new parameters if they have values
             if (searchValue) url.searchParams.set('search', searchValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
-
-            // Reset to page 1 when filters change
             url.searchParams.set('page', 1);
-
-            // Navigate to the new URL
             window.location.href = url.toString();
         }
 
-        // Add event listeners with debounce for search
         let searchTimeout;
         searchInput?.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
-        // Add event listeners for select filters
         sortOrder?.addEventListener('change', applyFilters);
 
-        // Set initial values from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         if (searchInput) searchInput.value = urlParams.get('search') || '';
         if (sortOrder) {
@@ -924,7 +870,6 @@
             }
         }
 
-        // Pagination helpers
         window.changePage = function(page) {
             if (page < 1) return;
 
@@ -936,11 +881,10 @@
         window.changePerPage = function(perPage) {
             const url = new URL(window.location.href);
             url.searchParams.set('limit', perPage);
-            url.searchParams.set('page', 1); // Reset to page 1 when changing items per page
+            url.searchParams.set('page', 1);
             window.location.href = url.toString();
         };
 
-        // Auto-hide notifications after 5 seconds
         setTimeout(function() {
             const notifications = document.querySelectorAll('#successNotification, #errorNotification');
             notifications.forEach(notification => {
@@ -951,7 +895,6 @@
             });
         }, 5000);
 
-        // Edit document functionality
         document.querySelectorAll('.edit-document-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const documentId = this.dataset.id;
@@ -959,7 +902,6 @@
             });
         });
 
-        // Function to fetch document details
         function fetchDocumentDetails(documentId) {
             fetch(`/asset-documents/${documentId}`, {
                 headers: {
@@ -981,47 +923,31 @@
                 });
         }
 
-        // Helper function to check if filename has image extension
         const hasImageExtension = function(filename) {
             if (!filename) return false;
             return /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
         };
 
-        // Function to open edit modal and populate form
         function openEditModal(docData) {
-            // Set hidden document ID field
             document.getElementById('edit_document_id').value = docData.document_id;
-
-            // Update form action with the correct URL and method
             const editForm = document.getElementById('editDocumentForm');
             editForm.action = `{{ url('asset-documents') }}/${docData.document_id}`;
-
-            // Populate form fields
             document.getElementById('edit_document_title').value = docData.document_title || '';
             document.getElementById('edit_notes').value = docData.notes || '';
-
-            // Handle file display if one exists
             const currentFileSection = document.getElementById('edit_current_file');
             const currentImageSection = document.getElementById('edit_current_image');
             const currentFileIconSection = document.getElementById('edit_current_file_icon');
             const fileNameDisplay = document.getElementById('edit_file_name');
             const currentImg = document.getElementById('edit_current_img');
-
-            // Reset all preview sections
             currentImageSection.classList.add('hidden');
             currentFileIconSection.classList.add('hidden');
 
             if (docData.file_path && docData.file_path.trim() !== '') {
-                // Extract filename from path
                 const filename = docData.file_path.split('/').pop();
-
-                // Check if it's an image file
                 if (hasImageExtension(filename)) {
-                    // Set image source - prefix with the backend URL if needed
                     currentImg.src = `{{ config('app.backend_url') }}/public${docData.file_path}`;
                     currentImageSection.classList.remove('hidden');
                 } else {
-                    // Show as regular file with appropriate icon
                     fileNameDisplay.textContent = filename || 'Document File';
                     updateFileIcon('#edit_current_file_icon', filename);
                     currentFileIconSection.classList.remove('hidden');
@@ -1032,21 +958,16 @@
                 currentFileSection.classList.add('hidden');
             }
 
-            // Clear any new file selection
             document.getElementById('edit_file').value = '';
             document.getElementById('edit_file_preview').classList.add('hidden');
             document.getElementById('edit_image_preview').classList.add('hidden');
-
-            // Hide progress bar
             document.getElementById('editUploadProgressContainer').classList.add('hidden');
 
-            // Open the modal
             const modal = document.getElementById('editDocumentModal');
             const content = document.getElementById('editDocumentModalContent');
             openModal(modal, content);
         }
 
-        // Edit file upload preview
         const editFileInput = document.getElementById('edit_file');
         const editFilePreview = document.getElementById('edit_file_preview');
         const editImagePreview = document.getElementById('edit_image_preview');
@@ -1060,14 +981,11 @@
                     const file = this.files[0];
                     const fileName = file.name;
 
-                    // Hide current file display when a new file is selected
                     if (editCurrentFile) {
                         editCurrentFile.classList.add('hidden');
                     }
 
-                    // Check if the file is an image
                     if (isImageFile(file)) {
-                        // Handle image file
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             editPreviewImg.src = e.target.result;
@@ -1076,19 +994,14 @@
                         };
                         reader.readAsDataURL(file);
                     } else {
-                        // Handle non-image file
                         editFilePreviewText.textContent = fileName;
-                        // Update the icon based on file type
                         updateFileIcon('#edit_file_preview', fileName);
                         editFilePreview.classList.remove('hidden');
                         editImagePreview.classList.add('hidden');
                     }
                 } else {
-                    // No file selected
                     editFilePreview.classList.add('hidden');
                     editImagePreview.classList.add('hidden');
-
-                    // Show current file display again if no new file is selected
                     if (editCurrentFile) {
                         editCurrentFile.classList.remove('hidden');
                     }
@@ -1096,70 +1009,53 @@
             });
         }
 
-        // Remove edit file button (for non-image files)
         document.getElementById('edit_remove_file')?.addEventListener('click', function() {
             if (editFileInput) {
-                editFileInput.value = ''; // Clear the file input
+                editFileInput.value = '';
             }
             editFilePreview.classList.add('hidden');
-
-            // Show current file display again when new file is removed
             if (editCurrentFile) {
                 editCurrentFile.classList.remove('hidden');
             }
         });
 
-        // Remove edit image button (for image files)
         document.getElementById('edit_remove_image')?.addEventListener('click', function() {
             if (editFileInput) {
-                editFileInput.value = ''; // Clear the file input
+                editFileInput.value = '';
             }
             editImagePreview.classList.add('hidden');
-
-            // Show current file display again when new file is removed
             if (editCurrentFile) {
                 editCurrentFile.classList.remove('hidden');
             }
         });
 
-        // Remove current file button (for both icon and image views)
         const setupRemoveCurrentFile = (buttonId) => {
             document.getElementById(buttonId)?.addEventListener('click', function() {
-                // Hide the current file display
                 document.getElementById('edit_current_file').classList.add('hidden');
                 document.getElementById('edit_current_image').classList.add('hidden');
                 document.getElementById('edit_current_file_icon').classList.add('hidden');
-
-                // Add a hidden input to indicate the file should be removed
                 const removeFileInput = document.createElement('input');
                 removeFileInput.type = 'hidden';
                 removeFileInput.name = 'remove_file';
                 removeFileInput.value = '1';
-
-                // Add to the form
                 document.getElementById('editDocumentForm').appendChild(removeFileInput);
             });
         };
 
         setupRemoveCurrentFile('edit_remove_current_file');
         setupRemoveCurrentFile('edit_remove_current_file_icon');
-
-        // Add document form with progress bar
         const addDocumentForm = document.getElementById('addDocumentForm');
         if (addDocumentForm) {
             addDocumentForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Form validation
                 const titleInput = this.querySelector('#document_title');
                 const fileInput = this.querySelector('#file');
                 const titleErrorElement = titleInput.closest('.space-y-2')?.querySelector('.error-message');
 
-                // Reset error state
                 titleInput.classList.remove('border-red-500');
                 if (titleErrorElement) titleErrorElement.classList.add('hidden');
 
-                // Validate title input
                 if (!titleInput.value.trim()) {
                     titleInput.classList.add('border-red-500');
                     if (titleErrorElement) titleErrorElement.classList.remove('hidden');
@@ -1172,33 +1068,24 @@
                     return;
                 }
 
-                // Get elements
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const progressContainer = document.getElementById('uploadProgressContainer');
                 const progressBar = document.getElementById('uploadProgressBar');
                 const progressText = document.getElementById('uploadProgressText');
                 const statusMessage = document.getElementById('uploadStatusMessage');
 
-                // Reset progress status
                 progressBar.style.width = '0%';
                 progressText.textContent = '0%';
                 statusMessage.textContent = 'Memulai upload...';
                 progressBar.classList.remove('bg-red-500');
                 progressBar.classList.add('bg-green-500');
-
-                // Show progress container
                 progressContainer.classList.remove('hidden');
-
-                // Disable submit button
                 submitBtn.disabled = true;
 
-                // Create form data
                 const formData = new FormData(this);
 
-                // Create XHR request to handle upload with progress
                 const xhr = new XMLHttpRequest();
 
-                // Track upload progress
                 xhr.upload.addEventListener('progress', function(e) {
                     if (e.lengthComputable) {
                         const percentComplete = Math.round((e.loaded / e.total) * 100);
@@ -1213,34 +1100,26 @@
                     }
                 });
 
-                // Handle response
                 xhr.addEventListener('load', function() {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            // Success
                             progressBar.style.width = '100%';
                             progressText.textContent = '100%';
                             statusMessage.textContent = 'Upload berhasil!';
 
-                            // Show toast notification
                             showToast('Dokumen berhasil ditambahkan!', 'success');
 
-                            // Close modal and reload after success
                             setTimeout(function() {
-                                // Reset form
                                 addDocumentForm.reset();
 
-                                // Hide previews
                                 document.getElementById('image-preview').classList.add('hidden');
                                 document.getElementById('file-name').classList.add('hidden');
 
-                                // Close modal
                                 const modal = document.getElementById('addDocumentModal');
                                 const content = document.getElementById('addDocumentModalContent');
                                 closeModal(modal, content);
 
-                                // Reload page to show updated documents
                                 location.reload();
                             }, 1000);
                         } catch (error) {
@@ -1252,7 +1131,6 @@
                             submitBtn.disabled = false;
                         }
                     } else {
-                        // Error
                         let errorMessage = 'Gagal mengupload dokumen';
                         try {
                             const response = JSON.parse(xhr.responseText);
@@ -1260,8 +1138,6 @@
                                 errorMessage = response.message;
                             }
 
-                            // Enhanced error handling for arrays
-                            // Check for detailed error information in the API response
                             if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
                                 const detailedErrors = response.data.errors.map(error => {
                                     if (error.row && error.reason) {
@@ -1284,9 +1160,7 @@
                             } else if (response.errors) {
                                 errorMessage += '<ul class="mt-2 ml-4 list-disc">';
 
-                                // Handle different error formats
                                 if (Array.isArray(response.errors)) {
-                                    // Array of error messages
                                     response.errors.forEach(error => {
                                         if (typeof error === 'string') {
                                             errorMessage += `<li>${error}</li>`;
@@ -1297,7 +1171,6 @@
                                         }
                                     });
                                 } else {
-                                    // Object with field names as keys
                                     Object.entries(response.errors).forEach(([field, errors]) => {
                                         if (Array.isArray(errors)) {
                                             errors.forEach(error => {
@@ -1312,7 +1185,6 @@
                                 errorMessage += '</ul>';
                             }
                         } catch (e) {
-                            // If response is not valid JSON
                             console.error('Error parsing error response:', e);
                         }
 
@@ -1320,29 +1192,23 @@
                         progressBar.classList.add('bg-red-500');
                         statusMessage.textContent = 'Error: ' + errorMessage.replace(/<[^>]*>/g, '');
 
-                        // Show toast notification for error
                         showToast(errorMessage, 'error');
 
-                        // Re-enable submit button
                         submitBtn.disabled = false;
                     }
                 });
 
-                // Handle network errors
                 xhr.addEventListener('error', function() {
                     progressBar.classList.remove('bg-green-500');
                     progressBar.classList.add('bg-red-500');
                     progressBar.style.width = '100%';
                     statusMessage.textContent = 'Error jaringan! Silakan coba lagi.';
 
-                    // Show toast notification for network error
                     showToast('Error jaringan! Silakan coba lagi.', 'error');
 
-                    // Re-enable submit button
                     submitBtn.disabled = false;
                 });
 
-                // Set up and send the request
                 xhr.open('POST', addDocumentForm.action);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
@@ -1351,21 +1217,17 @@
             });
         }
 
-        // Edit document form with progress bar
         const editDocumentForm = document.getElementById('editDocumentForm');
         if (editDocumentForm) {
             editDocumentForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                // Form validation
                 const titleInput = this.querySelector('#edit_document_title');
                 const titleErrorElement = titleInput.closest('.space-y-2')?.querySelector('.error-message');
 
-                // Reset error state
                 titleInput.classList.remove('border-red-500');
                 if (titleErrorElement) titleErrorElement.classList.add('hidden');
 
-                // Validate title input
                 if (!titleInput.value.trim()) {
                     titleInput.classList.add('border-red-500');
                     if (titleErrorElement) titleErrorElement.classList.remove('hidden');
@@ -1373,33 +1235,21 @@
                     return;
                 }
 
-                // Get elements
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const progressContainer = document.getElementById('editUploadProgressContainer');
                 const progressBar = document.getElementById('editUploadProgressBar');
                 const progressText = document.getElementById('editUploadProgressText');
                 const statusMessage = document.getElementById('editUploadStatusMessage');
-
-                // Reset progress status
                 progressBar.style.width = '0%';
                 progressText.textContent = '0%';
                 statusMessage.textContent = 'Memulai pembaruan...';
                 progressBar.classList.remove('bg-red-500');
                 progressBar.classList.add('bg-green-500');
-
-                // Show progress container
                 progressContainer.classList.remove('hidden');
-
-                // Disable submit button
                 submitBtn.disabled = true;
-
-                // Create form data
                 const formData = new FormData(this);
-
-                // Create XHR request to handle upload with progress
                 const xhr = new XMLHttpRequest();
 
-                // Track upload progress
                 xhr.upload.addEventListener('progress', function(e) {
                     if (e.lengthComputable) {
                         const percentComplete = Math.round((e.loaded / e.total) * 100);
@@ -1414,30 +1264,21 @@
                     }
                 });
 
-                // Handle response
                 xhr.addEventListener('load', function() {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            // Success
                             progressBar.style.width = '100%';
                             progressText.textContent = '100%';
                             statusMessage.textContent = 'Pembaruan berhasil!';
 
-                            // Show toast notification
                             showToast('Dokumen berhasil diperbarui!', 'success');
 
-                            // Close modal and reload after success
                             setTimeout(function() {
-                                // Reset form
                                 editDocumentForm.reset();
-
-                                // Close modal
                                 const modal = document.getElementById('editDocumentModal');
                                 const content = document.getElementById('editDocumentModalContent');
                                 closeModal(modal, content);
-
-                                // Reload page to show updated documents
                                 location.reload();
                             }, 1000);
                         } catch (error) {
@@ -1449,7 +1290,6 @@
                             submitBtn.disabled = false;
                         }
                     } else {
-                        // Error
                         let errorMessage = 'Gagal memperbarui dokumen';
                         try {
                             const response = JSON.parse(xhr.responseText);
@@ -1457,8 +1297,6 @@
                                 errorMessage = response.message;
                             }
 
-                            // Enhanced error handling for arrays
-                            // Check for detailed error information in the API response
                             if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
                                 const detailedErrors = response.data.errors.map(error => {
                                     if (error.row && error.reason) {
@@ -1481,9 +1319,7 @@
                             } else if (response.errors) {
                                 errorMessage += '<ul class="mt-2 ml-4 list-disc">';
 
-                                // Handle different error formats
                                 if (Array.isArray(response.errors)) {
-                                    // Array of error messages
                                     response.errors.forEach(error => {
                                         if (typeof error === 'string') {
                                             errorMessage += `<li>${error}</li>`;
@@ -1494,7 +1330,6 @@
                                         }
                                     });
                                 } else {
-                                    // Object with field names as keys
                                     Object.entries(response.errors).forEach(([field, errors]) => {
                                         if (Array.isArray(errors)) {
                                             errors.forEach(error => {
@@ -1509,7 +1344,6 @@
                                 errorMessage += '</ul>';
                             }
                         } catch (e) {
-                            // If response is not valid JSON
                             console.error('Error parsing error response:', e);
                         }
 
@@ -1517,29 +1351,23 @@
                         progressBar.classList.add('bg-red-500');
                         statusMessage.textContent = 'Error: ' + errorMessage.replace(/<[^>]*>/g, '');
 
-                        // Show toast notification for error
                         showToast(errorMessage, 'error');
 
-                        // Re-enable submit button
                         submitBtn.disabled = false;
                     }
                 });
 
-                // Handle network errors
                 xhr.addEventListener('error', function() {
                     progressBar.classList.remove('bg-green-500');
                     progressBar.classList.add('bg-red-500');
                     progressBar.style.width = '100%';
                     statusMessage.textContent = 'Error jaringan! Silakan coba lagi.';
 
-                    // Show toast notification for network error
                     showToast('Error jaringan! Silakan coba lagi.', 'error');
 
-                    // Re-enable submit button
                     submitBtn.disabled = false;
                 });
 
-                // Set up and send the request
                 xhr.open('POST', editDocumentForm.action);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]')?.content || '');
@@ -1548,7 +1376,6 @@
             });
         }
 
-        // Also handle delete functionality with notifications
         const deleteForm = document.getElementById('delete-form');
         if (deleteForm) {
             deleteForm.addEventListener('submit', function(e) {
@@ -1556,12 +1383,9 @@
 
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
-
-                // Disable button and show loading state
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
 
-                // Create and send the request
                 fetch(this.action, {
                     method: 'DELETE',
                     headers: {
@@ -1573,25 +1397,19 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Close the modal
                     const modal = document.getElementById('deleteModal');
                     const content = document.getElementById('deleteModalContent');
                     closeModal(modal, content);
 
                     if (data.success) {
-                        // Show success notification
                         showToast('Dokumen berhasil dihapus', 'success');
 
-                        // Reload page after short delay
                         setTimeout(() => {
                             location.reload();
                         }, 1000);
                     } else {
-                        // Show error notification
                         let errorMessage = data.message || 'Gagal menghapus dokumen';
 
-                        // Enhanced error handling for arrays
-                        // Check for detailed error information in the API response
                         if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
                             const detailedErrors = data.data.errors.map(error => {
                                 if (error.row && error.reason) {
@@ -1614,9 +1432,7 @@
                         } else if (data.errors) {
                             errorMessage += '<ul class="mt-2 ml-4 list-disc">';
 
-                            // Handle different error formats
                             if (Array.isArray(data.errors)) {
-                                // Array of error messages
                                 data.errors.forEach(error => {
                                     if (typeof error === 'string') {
                                         errorMessage += `<li>${error}</li>`;
@@ -1627,7 +1443,6 @@
                                     }
                                 });
                             } else {
-                                // Object with field names as keys
                                 Object.entries(data.errors).forEach(([field, errors]) => {
                                     if (Array.isArray(errors)) {
                                         errors.forEach(error => {
@@ -1644,57 +1459,42 @@
 
                         showToast(errorMessage, 'error');
 
-                        // Reset button
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-
-                    // Close the modal
                     const modal = document.getElementById('deleteModal');
                     const content = document.getElementById('deleteModalContent');
-                    closeModal(modal, content);
-
-                    // Show error notification
+                    closeModal(modal, content); 
                     showToast('Terjadi kesalahan, silakan coba lagi', 'error');
-
-                    // Reset button
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                 });
             });
         }
 
-        // Add input event listener to clear error styling when typing in document title
         document.getElementById('document_title')?.addEventListener('input', function() {
-            // Remove error highlighting when user types
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         });
 
-        // Add input event listener to clear error styling when typing in edit document title
         document.getElementById('edit_document_title')?.addEventListener('input', function() {
-            // Remove error highlighting when user types
             this.classList.remove('border-red-500');
             const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
             if (errorElement) errorElement.classList.add('hidden');
         });
 
-        // Add the specific function for document pagination
-        // Function to handle document pagination specifically
         window.changeDocumentPerPage = function(perPage) {
             const url = new URL(window.location.href);
             url.searchParams.set('limit', perPage);
-            // Reset to page 1 when changing limit
             url.searchParams.set('page', 1);
             window.location.href = url.toString();
         };
     });
 </script>
 
-<!-- Toast Container -->
 <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 @endpush

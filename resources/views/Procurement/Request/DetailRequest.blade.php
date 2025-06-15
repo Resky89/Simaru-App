@@ -342,7 +342,6 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Add animate.css CDN for SweetAlert animations if not already present
         if (!document.getElementById('animate-css')) {
             const animateLink = document.createElement('link');
             animateLink.id = 'animate-css';
@@ -350,12 +349,10 @@
             animateLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
             document.head.appendChild(animateLink);
         }
-        // Add custom SweetAlert styles if not already present
         if (!document.getElementById('swal-custom-styles')) {
             const styleTag = document.createElement('style');
             styleTag.id = 'swal-custom-styles';
             styleTag.innerHTML = `
-                /* SweetAlert Custom Styles */
                 .swal2-popup {
                     border-radius: 15px;
                     padding: 1.5rem;
@@ -403,7 +400,6 @@
                 question: 'question'
             };
 
-            // Default options
             const defaultOptions = {
                 title: type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Informasi',
                 html: message,
@@ -426,57 +422,46 @@
                 }
             };
 
-            // Merge with custom options
             const mergedOptions = { ...defaultOptions, ...options };
 
-            // Add specific options based on alert type
             if (type === 'success' && options.timer === undefined) {
-                // Auto close success messages after 2.5 seconds
                 mergedOptions.timer = 2500;
                 mergedOptions.timerProgressBar = true;
             } else if (type === 'error' && options.showCloseButton === undefined) {
-                // Make error alerts more prominent
                 mergedOptions.confirmButtonColor = '#d33';
                 mergedOptions.showCloseButton = true;
             }
 
-            // Fire the alert and return the Promise for chaining
             return Swal.fire(mergedOptions);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             const procurementId = {{ $procurement['procurement_id'] ?? 'null' }};
             if (!procurementId) {
-                return; // Exit early if procurement ID is not available
+                return;
             }
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Permission-based initialization
             @if(!hasPermission('procurement:approve:manager'))
-                // Hide manager approval button if user doesn't have permission
                 const managerApprovalBtnElement = document.getElementById('managerApprovalBtn');
                 if (managerApprovalBtnElement) managerApprovalBtnElement.style.display = 'none';
             @endif
 
                 @if(!hasPermission('procurement:approve:director'))
-                    // Hide director approval button if user doesn't have permission
                     const directorApprovalBtn = document.getElementById('directorApprovalBtn');
                     if (directorApprovalBtn) directorApprovalBtn.style.display = 'none';
                 @endif
 
             @if(!hasPermission('procurement:reject') && !hasPermission('procurement:approve:manager') && !hasPermission('procurement:approve:director'))
-                // Hide reject button if user doesn't have permission
                 const rejectBtnElement = document.getElementById('rejectBtn');
                 if (rejectBtnElement) rejectBtnElement.style.display = 'none';
                 @endif
 
                 @if(!hasPermission('price-comparison:create'))
-                    // Hide create comparison button if user doesn't have permission
                 const createComparisonBtnElement = document.getElementById('createComparisonBtn');
                 if (createComparisonBtnElement) createComparisonBtnElement.style.display = 'none';
                 @endif
 
-            // Manager Approval Button
             const managerApprovalBtn = document.getElementById('managerApprovalBtn');
             if (managerApprovalBtn) {
                 managerApprovalBtn.addEventListener('click', function () {
@@ -533,7 +518,6 @@
                 });
             }
 
-            // Director Approval Button
             const directorApprovalBtnElement = document.getElementById('directorApprovalBtn');
             if (directorApprovalBtnElement) {
                 directorApprovalBtnElement.addEventListener('click', function () {
@@ -585,25 +569,20 @@
                 });
             }
 
-            // Rejection Modal
             const rejectBtn = document.getElementById('rejectBtn');
             const rejectModal = document.getElementById('rejectModal');
             
-            // Only proceed with modal setup if both the button and modal exist
             if (rejectBtn && rejectModal) {
             const rejectModalContent = document.getElementById('rejectModalContent');
             const rejectForm = document.getElementById('rejectForm');
             const rejectionReasonField = document.getElementById('rejection_reason');
 
-            // Function to close the modal and reset form
             function closeRejectModal() {
                 rejectModalContent.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 rejectModalContent.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
                     rejectModal.classList.add('hidden');
-                    // Reset the form
                     rejectForm.reset();
-                    // Clear any validation styling
                     rejectionReasonField.classList.remove('border-red-500');
                     const errorField = rejectForm.querySelector('.invalid-feedback');
                     if (errorField) errorField.classList.add('hidden');
@@ -618,12 +597,10 @@
                     }, 10);
                 });
 
-            // Add event listeners to all close buttons
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', closeRejectModal);
             });
 
-            // Close on outside click
             rejectModal.addEventListener('click', function(e) {
                 const overlayArea = this.querySelector('.fixed.inset-0.z-50.overflow-y-auto');
                 const bgOverlay = this.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
@@ -632,17 +609,14 @@
                 }
             });
 
-            // Close on Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && !rejectModal.classList.contains('hidden')) {
                     closeRejectModal();
                 }
             });
 
-            // Submit rejection
             rejectForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                // Validate the rejection reason
                 if (!rejectionReasonField.value.trim()) {
                     showSweetAlert('Silakan berikan alasan penolakan', 'error');
                     return;
@@ -673,7 +647,7 @@
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
                         if (data.success) {
-                            closeRejectModal(); // Use the closeRejectModal function here too
+                            closeRejectModal();
                             showSweetAlert(data.message || 'Pengadaan berhasil ditolak', 'success', {
                                 timer: 1500,
                                 timerProgressBar: true,
@@ -685,13 +659,10 @@
                         } else {
                             let errorMsg = 'Gagal menolak pengadaan';
 
-                            // Handle different error formats from the server
                             if (data.errors) {
                                 if (Array.isArray(data.errors)) {
-                                    // New format: array of objects with path and message properties
                                     errorMsg = data.errors.map(err => err.message).join('<br>');
 
-                                    // If there's validation error for rejection reason, highlight the field
                                     const reasonError = data.errors.find(err => err.path === 'rejected_reason');
                                     if (reasonError) {
                                         rejectionReasonField.classList.add('border-red-500');
@@ -702,10 +673,8 @@
                                         }
                                     }
                                 } else if (typeof data.errors === 'object') {
-                                    // Old format: object with field names as keys
                                     errorMsg = Object.values(data.errors).flat().join('<br>');
                                 } else if (typeof data.errors === 'string') {
-                                    // Simple string error
                                     errorMsg = data.errors;
                                 }
                             }
@@ -721,23 +690,19 @@
             });
             }
 
-            // Create Price Comparison
             const createComparisonBtn = document.getElementById('createComparisonBtn');
             const comparisonTitleInput = document.getElementById('comparison_title');
 
             if (createComparisonBtn) {
                 createComparisonBtn.addEventListener('click', function () {
-                    // Validate input
                     if (!comparisonTitleInput.value.trim()) {
                         showSweetAlert('Silakan masukkan judul perbandingan harga', 'error');
                         comparisonTitleInput.classList.add('border-red-500');
                         return;
                     }
 
-                    // Reset validation styling
                     comparisonTitleInput.classList.remove('border-red-500');
 
-                    // Show loading state
                     const originalBtnText = createComparisonBtn.innerHTML;
                     createComparisonBtn.disabled = true;
                     createComparisonBtn.innerHTML = `
@@ -747,7 +712,6 @@
                         </div>
                     `;
 
-                    // Make the API call
                     const createUrl = "{{ route('procurement.create-price-comparison-from-detail') }}";
 
                     fetch(createUrl, {
@@ -776,7 +740,6 @@
                             return response.json();
                         })
                         .then(data => {
-                            // Reset button state
                             createComparisonBtn.disabled = false;
                             createComparisonBtn.innerHTML = originalBtnText;
 
@@ -786,11 +749,9 @@
                                     timerProgressBar: true,
                                     showConfirmButton: false,
                                     willClose: () => {
-                                        // If there's a redirect URL, navigate to it
                                         if (data.redirect_url) {
                                             window.location.href = data.redirect_url;
                                         } else {
-                                            // Otherwise just reload the page
                                             window.location.reload();
                                         }
                                     }
@@ -801,7 +762,6 @@
                             }
                         })
                         .catch(error => {
-                            // Reset button state
                             createComparisonBtn.disabled = false;
                             createComparisonBtn.innerHTML = originalBtnText;
 
@@ -810,13 +770,11 @@
                         });
                 });
 
-                // Add input event listener to clear error styling when typing
                 comparisonTitleInput.addEventListener('input', function () {
                     this.classList.remove('border-red-500');
                 });
             }
 
-            // Show SweetAlert notifications for session messages on page load
             @if(session('success'))
                 showSweetAlert("{{ session('success') }}", 'success');
             @endif
