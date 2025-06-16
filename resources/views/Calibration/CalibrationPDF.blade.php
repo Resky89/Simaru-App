@@ -99,14 +99,6 @@
             background-color: #DCFCE7;
             color: #166534;
         }
-        .status-overdue {
-            background-color: #FEE2E2;
-            color: #991B1B;
-        }
-        .status-cancelled {
-            background-color: #FEE2E2;
-            color: #991B1B;
-        }
 
         /* Result Badge Styles */
         .result-pass {
@@ -180,12 +172,6 @@
                             } elseif ($status == 'completed') {
                                 $statusClass = 'status-completed';
                                 $statusText = 'SELESAI';
-                            } elseif ($status == 'overdue') {
-                                $statusClass = 'status-overdue';
-                                $statusText = 'TERLAMBAT';
-                            } elseif ($status == 'cancelled') {
-                                $statusClass = 'status-cancelled';
-                                $statusText = 'DIBATALKAN';
                             } else {
                                 $statusText = 'TIDAK DIKETAHUI';
                             }

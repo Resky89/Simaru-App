@@ -61,8 +61,6 @@
                                 <option value="scheduled">Terjadwal</option>
                                 <option value="in_progress">Dalam Proses</option>
                                 <option value="completed">Selesai</option>
-                                <option value="overdue">Terlambat</option>
-                                <option value="cancelled">Dibatalkan</option>
                             </select>
                             <select id="resultFilter"
                                 class="w-[160px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">

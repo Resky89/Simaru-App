@@ -46,7 +46,7 @@ class CalibrationController extends Controller
             // Menambahkan filter status jika disediakan
             if (!empty($status)) {
                 // Hanya meneruskan nilai status yang valid
-                if (in_array($status, ['scheduled', 'in_progress', 'completed', 'overdue', 'cancelled'])) {
+                if (in_array($status, ['scheduled', 'in_progress', 'completed'])) {
                     $queryParams['status_calibration'] = $status;
                 }
             }

@@ -133,10 +133,6 @@
             color: #166534;
         }
 
-        .status-overdue {
-            background-color: #FEE2E2;
-            color: #991B1B;
-        }
 
         .result-badge {
             display: inline-block;
@@ -226,16 +222,6 @@
             border: 1px solid #86EFAC;
         }
 
-        .status-banner-overdue {
-            background-color: #FEE2E2;
-            border: 1px solid #FECACA;
-        }
-
-        .status-banner-cancelled {
-            background-color: #F3F4F6;
-            border: 1px solid #D1D5DB;
-        }
-
         .info-grid {
             display: block;
             width: 100%;
@@ -314,14 +300,6 @@
             $statusClass = 'status-banner-completed';
             $statusText = 'SELESAI';
             $statusDescription = 'Kalibrasi telah selesai pada ' . (isset($calibration['actual_calibration_date']) ? translateMonth($calibration['actual_calibration_date']) : 'tanggal tidak tersedia');
-        } elseif ($status == 'overdue') {
-            $statusClass = 'status-banner-overdue';
-            $statusText = 'TERLAMBAT';
-            $statusDescription = 'Kalibrasi terlambat dari jadwal';
-        } elseif ($status == 'cancelled') {
-            $statusClass = 'status-banner-cancelled';
-            $statusText = 'DIBATALKAN';
-            $statusDescription = 'Kalibrasi telah dibatalkan';
         }
     @endphp
 
