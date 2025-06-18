@@ -466,7 +466,7 @@
                                                     after:border after:rounded-full after:h-5 after:w-5 after:transition-all
                                                     peer-checked:bg-[#213268]"></div>
                                                 <span
-                                                    class="ml-2 text-sm font-medium text-gray-900 depreciation-status">No</span>
+                                                    class="ml-2 text-sm font-medium text-gray-900 depreciation-status">Tidak</span>
                                             </label>
                                         </div>
 
