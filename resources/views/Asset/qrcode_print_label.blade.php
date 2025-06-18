@@ -200,9 +200,12 @@
             font-weight: bold;
             font-size: {{ $qrSize == 60 ? '8' : '10' }}px;
             margin-bottom: 1mm;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            word-break: break-word;
+            max-height: {{ $qrSize == 60 ? '12mm' : '15mm' }};
+            line-height: {{ $qrSize == 60 ? '9px' : '11px' }};
         }
 
         .qr-category {
@@ -268,20 +271,16 @@
             }
         }
 
-        @if($printerType == 'zebra')
         body {
             font-family: 'Arial Narrow', Arial, sans-serif;
         }
-        @endif
 
-        @if($printerType == 'dymo')
         .label-container {
             padding: 1mm;
         }
         .qr-image img {
             max-height: 95%;
         }
-        @endif
 
         .long-code {
             font-size: {{ $qrSize == 60 ? '7px' : '9px' }};
@@ -306,9 +305,9 @@
 <body>
     <!-- Controls (visible only on screen) -->
     <div class="controls">
-        <span>{{ $containerWidth }}x50mm {{ ucfirst($printerType) }} Label</span>
+        <span>{{ $containerWidth }}x50mm Label</span>
         <button class="btn" onclick="window.print()">Print</button>
-        <button class="btn" onclick="window.close()">Close</button>
+        <button class="btn" onclick="window.close()">Tutup</button>
     </div>
 
     <!-- Generate one label per asset -->
@@ -354,6 +353,8 @@
                             $assetName = $asset['asset_master']['asset_name'];
                         } elseif (isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_name'])) {
                             $assetName = $asset['asset_master']['asset_master_name'];
+                        } elseif (isset($asset['name'])) {
+                            $assetName = $asset['name'];
                         }
                     @endphp
                     {{ $assetName ?? 'Unknown Asset' }}

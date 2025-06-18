@@ -792,7 +792,8 @@ class UnitAssetController extends Controller
             \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds, 'count' => count($assetIds)]);
 
             $qrSize = $request->input('qr_size', 50);
-            $quantity = $request->input('quantity', 1);
+            // Use default value for quantity
+            $quantity = 1;
 
             // Use apiService to generate QR codes for the selected assets
             $result = $this->apiService->request('POST', "/assets/qr/generate-bulk", [
@@ -951,11 +952,11 @@ class UnitAssetController extends Controller
             \Log::info('Asset IDs for QR generation:', ['asset_ids' => $assetIds, 'count' => count($assetIds)]);
 
             $qrSize = $request->input('qr_size', 80);
-            $quantity = $request->input('quantity', 1);
-            $printerType = $request->input('printer_type', 'zebra');
+            // Use default value for quantity
+            $quantity = 1;
 
             // Determine container width based on qr_size
-            $containerWidth = 80; // Default to 80mm
+            $containerWidth = 80;
             if ($qrSize == 100) {
                 $containerWidth = 100;
             } elseif ($qrSize == 80) {
@@ -978,8 +979,7 @@ class UnitAssetController extends Controller
                 'request' => [
                     'asset_ids' => $assetIds,
                     'qr_size' => $qrSize,
-                    'quantity' => $quantity,
-                    'printer_type' => $printerType
+                    'quantity' => $quantity
                 ],
                 'response_success' => $result['success'] ?? false,
                 'response_data_count' => isset($result['data']) ? count($result['data']) : 0
@@ -1069,8 +1069,7 @@ class UnitAssetController extends Controller
             return view('Asset.qrcode_print_label', [
                 'qrData' => $qrData,
                 'qrSize' => $qrSize,
-                'containerWidth' => $containerWidth,
-                'printerType' => $printerType
+                'containerWidth' => $containerWidth
             ]);
         } catch (\Exception $e) {
             $errorMessage = 'Failed to print QR codes: ' . $e->getMessage();

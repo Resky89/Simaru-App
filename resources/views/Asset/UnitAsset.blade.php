@@ -1105,30 +1105,11 @@
                                     </select>
                                 </div>
 
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Jenis Printer</label>
-                                    <select name="printer_type" id="printer_type"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                        <option value="zebra">Zebra Label Printer</option>
-                                        <option value="epson">Epson Label Printer</option>
-                                        <option value="jiabo">Jiabo Label Printer</option>
-                                        <option value="dymo">Dymo Label Printer</option>
-                                    </select>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label class="block text-base font-semibold text-[#666666]">Jumlah Cetak</label>
-                                    <input type="number" name="quantity" id="quantity" min="1" value="1"
-                                        class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                </div>
-
                                 <div class="bg-blue-50 p-3 rounded-lg text-sm text-blue-800 mt-2">
                                     <p class="font-medium">Tips Pencetakan Label:</p>
                                     <ul class="list-disc pl-5 mt-1 text-xs space-y-1">
                                         <li>Pastikan label stiker terpasang dengan benar di printer</li>
-                                        <li>Setiap jenis printer memiliki pengaturan khusus</li>
                                         <li>Sesuaikan ukuran label dengan media stiker yang digunakan</li>
-                                        <li>Printer Dymo sebaiknya menggunakan ukuran 60 x 40 mm</li>
                                     </ul>
                                 </div>
                             </div>
@@ -3757,20 +3738,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const printForm = document.getElementById('printQRForm');
-        const printerTypeSelect = document.getElementById('printer_type');
         const qrSizeSelect = document.getElementById('qr_size');
         const printPdfBtn = document.getElementById('printPdfBtn');
 
         if (printForm) {
-            printerTypeSelect.addEventListener('change', function () {
-                const printerType = this.value;
-                if (printerType === 'dymo') {
-                    if (qrSizeSelect.value !== '60') {
-                        qrSizeSelect.value = '60';
-                    }
-                }
-            });
-
             printForm.addEventListener('submit', function () {
                 sessionStorage.setItem('reloadAfterPrint', 'true');
                 setTimeout(() => {
@@ -3782,7 +3753,6 @@
                 printPdfBtn.addEventListener('click', function () {
                     const assetIds = document.getElementById('printQRAssetIds').value;
                     const qrSize = document.getElementById('qr_size').value;
-                    const quantity = document.getElementById('quantity').value;
                     const pdfForm = document.createElement('form');
                     pdfForm.method = 'POST';
                     pdfForm.action = "{{ route('assets.qr.print-pdf') }}";
@@ -3807,12 +3777,6 @@
                     qrSizeInput.name = 'qr_size';
                     qrSizeInput.value = qrSize;
                     pdfForm.appendChild(qrSizeInput);
-
-                    const quantityInput = document.createElement('input');
-                    quantityInput.type = 'hidden';
-                    quantityInput.name = 'quantity';
-                    quantityInput.value = quantity;
-                    pdfForm.appendChild(quantityInput);
 
                     document.body.appendChild(pdfForm);
                     pdfForm.submit();

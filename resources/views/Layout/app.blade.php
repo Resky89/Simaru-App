@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@yield('title', 'Asset Monitoring')</title>
-    <link rel="icon" href="http://web-magangunbin2025.rsummi.co.id/images/logo.png" type="image/png">
+    <link rel="icon" href="https://web-magangunbin2025.rsummi.co.id/images/logo.png" type="image/png">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
