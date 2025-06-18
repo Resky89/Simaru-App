@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Detil Aset')
+@section('title', 'Detail Aset')
 
 @section('content')
     @include('Layout.loading')
@@ -16,7 +16,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </a>
-                    <h1 class="text-xl md:text-2xl lg:text-[32px] font-semibold text-[#213268]">DETIL ASSET</h1>
+                    <h1 class="text-xl md:text-2xl lg:text-[32px] font-semibold text-[#213268]">DETAIL ASSET</h1>
                 </div>
 
                 <!-- Action Buttons -->

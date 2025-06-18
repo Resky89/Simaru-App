@@ -380,22 +380,7 @@
         </tr>
         <tr>
             <th>Penanggung Jawab</th>
-            <td>
-                @if(isset($asset['user_id']) && $asset['user_id'])
-                    @if(isset($asset['user']['employee_number']) && $asset['user']['employee_number'])
-                        {{ $asset['user']['employee_number'] }}
-                        @if(isset($asset['user']['name']) && $asset['user']['name'])
-                            - {{ $asset['user']['name'] }}
-                        @endif
-                    @elseif(isset($asset['user']['name']) && $asset['user']['name'])
-                        {{ $asset['user']['name'] }}
-                    @else
-                        ID Pengguna: {{ $asset['user_id'] }}
-                    @endif
-                @else
-                    -
-                @endif
-            </td>
+            <td>{{ $asset['employee_number'] ?? 'Tidak Tersedia' }}</td>
         </tr>
         <tr>
             <th>Harga Beli</th>
