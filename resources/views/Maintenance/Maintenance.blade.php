@@ -182,14 +182,8 @@
 
                                                     $canCreateReport = ($loggedInUserId && $assignedUserId && $loggedInUserId == $assignedUserId);
 
-                                                    $isMedical = false;
-                                                    if (isset($maintenance['asset_type']) && stripos($maintenance['asset_type'], 'medical') !== false) {
-                                                        $isMedical = true;
-                                                    }
-
-                                                    $hasReportPermission = $isMedical ?
-                                                        hasPermission('maintenance-report:medical') :
-                                                        hasPermission('maintenance-report:non-medical');
+                                                    $hasReportPermission = hasPermission('maintenance-report:medical') ||
+                                                                          hasPermission('maintenance-report:non-medical');
                                                 @endphp
 
                                                 @if($canCreateReport && $hasReportPermission)
@@ -1064,27 +1058,6 @@
                     return true;
                 }
             }
-
-            document.querySelectorAll('.create-report-btn').forEach(btn => {
-                const assetType = btn.closest('tr').querySelector('td:nth-child(5)');
-                let isMedical = false;
-
-                if (assetType && assetType.textContent.trim().toLowerCase().includes('medical')) {
-                    isMedical = true;
-                }
-
-                @if(!hasPermission('maintenance-report:medical'))
-                if (isMedical) {
-                    btn.style.display = 'none';
-                }
-                @endif
-
-                @if(!hasPermission('maintenance-report:non-medical'))
-                if (!isMedical) {
-                    btn.style.display = 'none';
-                }
-                @endif
-            });
 
             const today = new Date().toISOString().split('T')[0];
             const startDateInput = document.getElementById('start_date');
