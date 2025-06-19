@@ -56,6 +56,30 @@ class VendorController extends Controller
                 $sortBy = 'vendor_name';
                 $sortOrder = 'desc';
                         break;
+                    case 'contact_asc':
+                $sortBy = 'contact_person';
+                $sortOrder = 'asc';
+                        break;
+                    case 'contact_desc':
+                $sortBy = 'contact_person';
+                $sortOrder = 'desc';
+                        break;
+                    case 'phone_asc':
+                $sortBy = 'phone_number';
+                $sortOrder = 'asc';
+                        break;
+                    case 'phone_desc':
+                $sortBy = 'phone_number';
+                $sortOrder = 'desc';
+                        break;
+                    case 'email_asc':
+                $sortBy = 'email';
+                $sortOrder = 'asc';
+                        break;
+                    case 'email_desc':
+                $sortBy = 'email';
+                $sortOrder = 'desc';
+                        break;
                 }
             }
 

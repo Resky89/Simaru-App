@@ -54,6 +54,14 @@ class BuildingController extends Controller
                         $queryParams['sort_by'] = 'building_name';
                         $queryParams['sort_order'] = 'desc';
                         break;
+                    case 'address_asc':
+                        $queryParams['sort_by'] = 'address';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'address_desc':
+                        $queryParams['sort_by'] = 'address';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
                     case 'id_asc':
                         $queryParams['sort_by'] = 'building_id';
                         $queryParams['sort_order'] = 'asc';

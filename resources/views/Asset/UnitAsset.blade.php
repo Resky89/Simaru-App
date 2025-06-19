@@ -96,10 +96,12 @@
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Urutkan</option>
-                                <option value="newest">Terbaru</option>
-                                <option value="oldest">Terlama</option>
-                                <option value="name_asc">Nama (A-Z)</option>
-                                <option value="name_desc">Nama (Z-A)</option>
+                                <option value="newest" {{ request()->query('sort') === 'newest' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="oldest" {{ request()->query('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                <option value="name_asc" {{ request()->query('sort') === 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                                <option value="name_desc" {{ request()->query('sort') === 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                                <option value="code_asc" {{ request()->query('sort') === 'code_asc' ? 'selected' : '' }}>Kode (A-Z)</option>
+                                <option value="code_desc" {{ request()->query('sort') === 'code_desc' ? 'selected' : '' }}>Kode (Z-A)</option>
                             </select>
                         </div>
                     </div>
@@ -112,8 +114,67 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">
                                         <input type="checkbox" id="select-all-assets" class="checkbox checkbox-sm" />
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <div class="flex items-center space-x-1 cursor-pointer" id="sortByCode">
+                                            <span class="text-xs">Kode Aset</span>
+                                            <span class="sort-icon">
+                                                @php
+                                                    $currentSort = request()->query('sort');
+                                                    $codeIconType = 'none';
+
+                                                    if ($currentSort === 'code_asc') {
+                                                        $codeIconType = 'asc';
+                                                    } elseif ($currentSort === 'code_desc') {
+                                                        $codeIconType = 'desc';
+                                                    }
+                                                @endphp
+
+                                                @if($codeIconType === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @elseif($codeIconType === 'desc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    </svg>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <div class="flex items-center space-x-1 cursor-pointer" id="sortByName">
+                                            <span class="text-xs">Nama Aset</span>
+                                            <span class="sort-icon">
+                                                @php
+                                                    $nameIconType = 'none';
+
+                                                    if ($currentSort === 'name_asc') {
+                                                        $nameIconType = 'asc';
+                                                    } elseif ($currentSort === 'name_desc') {
+                                                        $nameIconType = 'desc';
+                                                    }
+                                                @endphp
+
+                                                @if($nameIconType === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @elseif($nameIconType === 'desc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    </svg>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
@@ -1317,29 +1378,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Step 3: Import Result -->
-                        <div id="import-step-3" class="hidden">
-                            <div class="p-6">
-                                <div class="space-y-6">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <p class="text-lg font-semibold text-[#213268]">Impor Berhasil!</p>
-                                        <p class="mt-2 text-sm text-gray-600">Aset Anda telah berhasil diimpor.</p>
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <button type="button"
-                                            class="close-modal px-6 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152451] transition-colors duration-200">
-                                            Tutup
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -2006,7 +2044,6 @@
                 function resetImportAssetModal() {
                     document.getElementById('import-step-1')?.classList.remove('hidden');
                     document.getElementById('import-step-2')?.classList.add('hidden');
-                    document.getElementById('import-step-3')?.classList.add('hidden');
 
                     const fileInput = document.getElementById('excel_file');
                     if (fileInput) fileInput.value = '';
@@ -3727,6 +3764,45 @@
                         }, 10000);
                     }
                 });
+
+                // Column header sorting
+                const sortByCodeHeader = document.getElementById('sortByCode');
+                if (sortByCodeHeader) {
+                    sortByCodeHeader.addEventListener('click', function() {
+                        const currentSort = '{{ request()->query("sort") }}';
+                        let newSort;
+
+                        if (currentSort === 'code_asc') {
+                            newSort = 'code_desc';
+                        } else {
+                            newSort = 'code_asc';
+                        }
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('sort', newSort);
+                        url.searchParams.set('page', 1);
+                        window.location.href = url.toString();
+                    });
+                }
+
+                const sortByNameHeader = document.getElementById('sortByName');
+                if (sortByNameHeader) {
+                    sortByNameHeader.addEventListener('click', function() {
+                        const currentSort = '{{ request()->query("sort") }}';
+                        let newSort;
+
+                        if (currentSort === 'name_asc') {
+                            newSort = 'name_desc';
+                        } else {
+                            newSort = 'name_asc';
+                        }
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('sort', newSort);
+                        url.searchParams.set('page', 1);
+                        window.location.href = url.toString();
+                    });
+                }
             });
         </script>
 

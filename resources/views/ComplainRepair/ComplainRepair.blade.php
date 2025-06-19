@@ -1004,6 +1004,7 @@
                             fetchedAssets = data.data;
                         }
 
+                        fetchedAssets = fetchedAssets.filter(asset => asset.current_status !== 'dispose');
                         displayFilteredAssets(fetchedAssets, searchTerm);
                     })
                     .catch(error => {
@@ -1030,6 +1031,7 @@
                                     (asset.asset_id && asset.asset_id.toString().includes(searchTerm))
                                 );
                             }
+                            filteredAssets = filteredAssets.filter(asset => asset.current_status !== 'dispose');
 
                             displayFilteredAssets(filteredAssets, searchTerm);
                         }

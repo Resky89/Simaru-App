@@ -47,6 +47,14 @@ class MasterAssetController extends Controller
                     $queryParams['sort_by'] = 'asset_name';
                     $queryParams['sort_order'] = 'desc';
                     break;
+                case 'code_asc':
+                    $queryParams['sort_by'] = 'asset_master_code';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'code_desc':
+                    $queryParams['sort_by'] = 'asset_master_code';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
                 case 'newest':
                 default:
                     $queryParams['sort_by'] = 'asset_master_id';
@@ -545,6 +553,14 @@ class MasterAssetController extends Controller
                     break;
                 case 'name_desc':
                     $queryParams['sort_by'] = 'asset_name';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
+                case 'code_asc':
+                    $queryParams['sort_by'] = 'asset_master_code';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'code_desc':
+                    $queryParams['sort_by'] = 'asset_master_code';
                     $queryParams['sort_order'] = 'desc';
                     break;
                 case 'newest':

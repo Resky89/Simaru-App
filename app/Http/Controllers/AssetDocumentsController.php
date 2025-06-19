@@ -50,6 +50,14 @@ class AssetDocumentsController extends Controller
                     $queryParams['sort_by'] = 'document_title';
                     $queryParams['sort_order'] = 'desc';
                     break;
+                case 'date_asc':
+                    $queryParams['sort_by'] = 'upload_date';
+                    $queryParams['sort_order'] = 'asc';
+                    break;
+                case 'date_desc':
+                    $queryParams['sort_by'] = 'upload_date';
+                    $queryParams['sort_order'] = 'desc';
+                    break;
                 case 'newest':
                 default:
                     $queryParams['sort_by'] = 'document_id';

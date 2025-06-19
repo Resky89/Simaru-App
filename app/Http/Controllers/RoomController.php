@@ -61,6 +61,14 @@ class RoomController extends Controller
                         $queryParams['sort_by'] = 'room_name';
                         $queryParams['sort_order'] = 'desc';
                         break;
+                    case 'floor_asc':
+                        $queryParams['sort_by'] = 'floor_number';
+                        $queryParams['sort_order'] = 'asc';
+                        break;
+                    case 'floor_desc':
+                        $queryParams['sort_by'] = 'floor_number';
+                        $queryParams['sort_order'] = 'desc';
+                        break;
                     case 'id_asc':
                         $queryParams['sort_by'] = 'room_id';
                         $queryParams['sort_order'] = 'asc';

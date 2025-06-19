@@ -58,6 +58,16 @@ class UnitAssetController extends Controller
                         unset($queryParams['sort_by']);
                         unset($queryParams['sort_order']);
                         break;
+                    case 'code_asc':
+                        $queryParams['sort'] = 'code_asc';
+                        unset($queryParams['sort_by']);
+                        unset($queryParams['sort_order']);
+                        break;
+                    case 'code_desc':
+                        $queryParams['sort'] = 'code_desc';
+                        unset($queryParams['sort_by']);
+                        unset($queryParams['sort_order']);
+                        break;
                     default:
                         $queryParams['sort_by'] = 'asset_id';
                         $queryParams['sort_order'] = 'desc';
@@ -1345,6 +1355,16 @@ class UnitAssetController extends Controller
                     case 'name_desc':
                         $query['sort_by'] = 'asset_name';
                         $query['sort_order'] = 'desc';
+                        break;
+                    case 'code_asc':
+                        $query['sort'] = 'code_asc';
+                        unset($query['sort_by']);
+                        unset($query['sort_order']);
+                        break;
+                    case 'code_desc':
+                        $query['sort'] = 'code_desc';
+                        unset($query['sort_by']);
+                        unset($query['sort_order']);
                         break;
                     default:
                         $query['sort_by'] = 'asset_id';

@@ -70,7 +70,37 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Merk</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <div class="flex items-center space-x-1 cursor-pointer" id="sortByName">
+                                            <span class="text-xs">Nama Merk</span>
+                                            <span class="sort-icon">
+                                                @php
+                                                    $currentSort = request()->query('sort');
+                                                    $sortIcon = 'none';
+
+                                                    if ($currentSort === 'name_asc') {
+                                                        $sortIcon = 'asc';
+                                                    } elseif ($currentSort === 'name_desc') {
+                                                        $sortIcon = 'desc';
+                                                    }
+                                                @endphp
+
+                                                @if($sortIcon === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @elseif($sortIcon === 'desc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    </svg>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[88px]">Aksi</th>
                                 </tr>
                             </thead>
@@ -543,29 +573,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Step 3: Import Result -->
-                        <div id="import-brand-step-3" class="hidden">
-                            <div class="p-6">
-                                <div class="space-y-6">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <p class="text-lg font-semibold text-[#213268]">Import Berhasil!</p>
-                                        <p class="mt-2 text-sm text-gray-600">Merk Anda telah berhasil diimpor.</p>
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <button type="button"
-                                            class="close-modal px-6 py-2 bg-[#213268] text-white rounded-lg hover:bg-[#152451] transition-colors duration-200">
-                                            Tutup
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -609,6 +616,41 @@
                         }
                     });
                 @endif
+
+            // Column header sorting
+            const sortByNameHeader = document.getElementById('sortByName');
+            if (sortByNameHeader) {
+                sortByNameHeader.addEventListener('click', function() {
+                    const currentSort = '{{ request()->query("sort") }}';
+                    let newSort;
+
+                    if (currentSort === 'name_asc') {
+                        newSort = 'name_desc';
+                    } else {
+                        newSort = 'name_asc';
+                    }
+
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort', newSort);
+                    url.searchParams.set('page', 1);
+                    window.location.href = url.toString();
+                });
+            }
+
+            window.sortByName = function() {
+                const url = new URL(window.location.href);
+                const currentSort = url.searchParams.get('sort');
+
+                // Toggle between ascending and descending or default to ascending
+                let newSort = 'name_asc';
+                if (currentSort === 'name_asc') {
+                    newSort = 'name_desc';
+                }
+
+                url.searchParams.set('sort', newSort);
+                url.searchParams.set('page', 1); // Reset to first page when sorting
+                window.location.href = url.toString();
+            };
 
             window.showToast = function(message, type = 'success') {
                 const notification = document.createElement('div');
@@ -807,10 +849,7 @@
                         }
                         if (document.getElementById('import-brand-step-2')) {
                             document.getElementById('import-brand-step-2').classList.add('hidden');
-                        }
-                        if (document.getElementById('import-brand-step-3')) {
-                            document.getElementById('import-brand-step-3').classList.add('hidden');
-                        }
+                            }
                     }
                 }, 300);
             }

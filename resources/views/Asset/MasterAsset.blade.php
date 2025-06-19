@@ -75,11 +75,13 @@
 
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" disabled selected>Pilih Urutan Pengurutan</option>
-                                <option value="newest">Terbaru</option>
-                                <option value="oldest">Terlama</option>
-                                <option value="name_asc">Nama (A-Z)</option>
-                                <option value="name_desc">Nama (Z-A)</option>
+                                <option value="" disabled>Pilih Urutan Pengurutan</option>
+                                <option value="newest" {{ request()->query('sort') === 'newest' || !request()->query('sort') ? 'selected' : '' }}>Terbaru</option>
+                                <option value="oldest" {{ request()->query('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                <option value="name_asc" {{ request()->query('sort') === 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                                <option value="name_desc" {{ request()->query('sort') === 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                                <option value="code_asc" {{ request()->query('sort') === 'code_asc' ? 'selected' : '' }}>Kode (A-Z)</option>
+                                <option value="code_desc" {{ request()->query('sort') === 'code_desc' ? 'selected' : '' }}>Kode (Z-A)</option>
                             </select>
                         </div>
                     </div>
@@ -89,9 +91,67 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kode Aset Master
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <div class="flex items-center space-x-1 cursor-pointer" id="sortByCode">
+                                            <span class="text-xs">Kode Aset Master</span>
+                                            <span class="sort-icon">
+                                                @php
+                                                    $currentSort = request()->query('sort');
+                                                    $codeIconType = 'none';
+
+                                                    if ($currentSort === 'code_asc') {
+                                                        $codeIconType = 'asc';
+                                                    } elseif ($currentSort === 'code_desc') {
+                                                        $codeIconType = 'desc';
+                                                    }
+                                                @endphp
+
+                                                @if($codeIconType === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @elseif($codeIconType === 'desc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    </svg>
+                                                @endif
+                                            </span>
+                                        </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                        <div class="flex items-center space-x-1 cursor-pointer" id="sortByName">
+                                            <span class="text-xs">Nama Aset</span>
+                                            <span class="sort-icon">
+                                                @php
+                                                    $nameIconType = 'none';
+
+                                                    if ($currentSort === 'name_asc') {
+                                                        $nameIconType = 'asc';
+                                                    } elseif ($currentSort === 'name_desc') {
+                                                        $nameIconType = 'desc';
+                                                    }
+                                                @endphp
+
+                                                @if($nameIconType === 'asc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @elseif($nameIconType === 'desc')
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    </svg>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Subkategori</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Merk</th>
@@ -3174,6 +3234,45 @@
                 url.searchParams.set('page', 1);
                 window.location.href = url.toString();
             };
+
+            // Column header sorting
+            const sortByNameHeader = document.getElementById('sortByName');
+            if (sortByNameHeader) {
+                sortByNameHeader.addEventListener('click', function() {
+                    const currentSort = '{{ request()->query("sort") }}';
+                    let newSort;
+
+                    if (currentSort === 'name_asc') {
+                        newSort = 'name_desc';
+                    } else {
+                        newSort = 'name_asc';
+                    }
+
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort', newSort);
+                    url.searchParams.set('page', 1);
+                    window.location.href = url.toString();
+                });
+            }
+
+            const sortByCodeHeader = document.getElementById('sortByCode');
+            if (sortByCodeHeader) {
+                sortByCodeHeader.addEventListener('click', function() {
+                    const currentSort = '{{ request()->query("sort") }}';
+                    let newSort;
+
+                    if (currentSort === 'code_asc') {
+                        newSort = 'code_desc';
+                    } else {
+                        newSort = 'code_asc';
+                    }
+
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort', newSort);
+                    url.searchParams.set('page', 1);
+                    window.location.href = url.toString();
+                });
+            }
         });
 
         document.head.insertAdjacentHTML('beforeend', `

@@ -1756,6 +1756,10 @@
 
                         let html = '';
                         assets.forEach(asset => {
+                            if (asset.current_status === "dispose") {
+                                return;
+                            }
+
                             const isSelected = selectedAssets.some(selectedAsset => selectedAsset.id === asset.asset_id);
                             const assetName = asset.asset_master_name ||
                                            (asset.asset_master && asset.asset_master.asset_name) ||
