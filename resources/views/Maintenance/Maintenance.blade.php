@@ -2944,6 +2944,62 @@
 
                         return;
                     }
+
+                    // Validate required fields
+                    const isDateValid = validateField(maintenanceDate);
+                    const isDescriptionValid = validateField(description);
+
+                    if (!isDateValid || !isDescriptionValid) {
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = 'Kirim Laporan';
+                        }
+
+                        return;
+                    }
+
+                    const formData = new FormData(this);
+
+                    fetch('/maintenance/reports', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        }
+                    })
+                    .then(handleApiResponse)
+                    .then(data => {
+                        closeModal(modals.report, modalContents.report);
+
+                        if (data.success) {
+                            showToast(data.message || 'Laporan pemeliharaan berhasil dibuat', 'success');
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showToast(data.message || 'Gagal membuat laporan pemeliharaan', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating maintenance report:', error);
+
+                        if (error && error.errors) {
+                            if (Array.isArray(error.errors)) {
+                                showToast(error.errors, 'error');
+                            } else {
+                                showToast({ errors: error.errors }, 'error');
+                            }
+                        } else if (error && error.status === 422) {
+                            showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
+                        } else {
+                            showToast(error.message || 'Gagal membuat laporan pemeliharaan', 'error');
+                        }
+                    });
                 });
             }
 
