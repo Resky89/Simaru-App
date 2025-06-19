@@ -277,23 +277,19 @@
                                         </td>
                                         <td class="p-3 text-sm border-t border-gray-200 text-center">
                                             @if(hasPermission('document:unlink'))
-                                                <form
-                                                    action="{{ url('asset-documents/asset/' . $asset['asset_id'] . '/documents/' . $document['document_id']) }}?redirect={{ url()->current() }}"
-                                                    method="POST" class="inline" data-no-loading>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="bg-red-100 text-red-700 px-3 py-1 rounded-md hover:bg-red-200 transition-colors">
-                                                        <span class="flex items-center">
-                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                    d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
-                                                            Putuskan
-                                                        </span>
-                                                    </button>
-                                                </form>
+                                                <button type="button" data-asset-id="{{ $asset['asset_id'] }}"
+                                                        data-asset-code="{{ $asset['asset_code'] }}"
+                                                        data-asset-name="{{ $asset['asset_name'] }}"
+                                                        data-document-id="{{ $document['document_id'] }}"
+                                                        class="unlink-asset-btn bg-red-100 text-red-700 px-3 py-1 rounded-md hover:bg-red-200 transition-colors">
+                                                    <span class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                        Putuskan
+                                                    </span>
+                                                </button>
                                             @endif
                                         </td>
                                     </tr>
@@ -658,7 +654,7 @@
 
                                 <div class="flex items-center gap-2 mt-4 md:mt-0">
                                     <span class="text-sm text-gray-600" id="pagination-info">
-                                        Menampilkan 1 sampai 10 dari 0 entri
+                                        Menampilkan 1 sampai 10 dari 0 Data
                                     </span>
                                     <select id="per-page"
                                         class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
@@ -675,7 +671,7 @@
                                 <button type="button" id="link-selected-assets"
                                     class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200"
                                     disabled>
-                                    Tautkan yang Dipilih
+                                    Tautkan
                                 </button>
                             </div>
                         </div>
@@ -683,6 +679,54 @@
                 </div>
             </div>
         </div>
+    @endif
+
+    <!-- Unlink Asset Confirmation Modal -->
+    @if(hasPermission('document:unlink'))
+    <div id="unlinkAssetModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+        <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    id="unlinkAssetModalContent">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center p-6 pb-0">
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">PUTUSKAN HUBUNGAN ASSET</h2>
+                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="unlink-form" method="POST" data-no-loading>
+                        @csrf
+                        @method('DELETE')
+                        <div class="p-6">
+                            <div class="space-y-6 max-w-[400px] mx-auto">
+                                <div class="flex flex-col items-center">
+                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin memutuskan hubungan dokumen dengan asset ini?</p>
+                                    <p id="unlink-asset-info" class="text-base font-semibold text-center mt-2"></p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="button" class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                        Batal
+                                    </button>
+                                    <button type="submit" class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                        Putuskan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 @endsection
 
@@ -1808,6 +1852,74 @@
                         });
                 }
             }
+
+            // Add this to the existing DOMContentLoaded event handler
+            document.querySelectorAll('.unlink-asset-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const assetId = this.dataset.assetId;
+                    const assetCode = this.dataset.assetCode;
+                    const assetName = this.dataset.assetName;
+                    const documentId = this.dataset.documentId;
+
+                    const unlinkModal = document.getElementById('unlinkAssetModal');
+                    const unlinkContent = document.getElementById('unlinkAssetModalContent');
+
+                    if (unlinkModal && unlinkContent) {
+                        document.getElementById('unlink-asset-info').textContent = `${assetCode} - ${assetName}`;
+                        document.getElementById('unlink-form').action =
+                            `{{ url('asset-documents/asset') }}/${assetId}/documents/${documentId}?redirect={{ url()->current() }}`;
+
+                        openModal(unlinkModal, unlinkContent);
+                    }
+                });
+            });
+
+            document.getElementById('unlink-form')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+                fetch(this.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const modal = document.getElementById('unlinkAssetModal');
+                    const content = document.getElementById('unlinkAssetModalContent');
+                    closeModal(modal, content);
+
+                    if (data.success) {
+                        showToast('Hubungan asset dengan dokumen berhasil diputus', 'success');
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(data.message || 'Gagal memutus hubungan asset', 'error');
+
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const modal = document.getElementById('unlinkAssetModal');
+                    const content = document.getElementById('unlinkAssetModalContent');
+                    closeModal(modal, content);
+                    showToast('Terjadi kesalahan, silakan coba lagi', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
+            });
         });
     </script>
     <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2"></div>

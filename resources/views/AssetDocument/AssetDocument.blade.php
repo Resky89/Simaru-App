@@ -41,11 +41,13 @@
                     <div class="flex flex-wrap gap-4">
                         <select id="sortOrder"
                             class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                            <option value="" disabled selected>Pilih Urutan</option>
-                            <option value="newest">Terbaru</option>
-                            <option value="oldest">Terlama</option>
-                            <option value="title_asc">Judul (A-Z)</option>
-                            <option value="title_desc">Judul (Z-A)</option>
+                            <option value="" disabled {{ !request()->query('sort') ? 'selected' : '' }}>Pilih Urutan</option>
+                            <option value="newest" {{ request()->query('sort') === 'newest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="oldest" {{ request()->query('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
+                            <option value="title_asc" {{ request()->query('sort') === 'title_asc' ? 'selected' : '' }}>Judul (A-Z)</option>
+                            <option value="title_desc" {{ request()->query('sort') === 'title_desc' ? 'selected' : '' }}>Judul (Z-A)</option>
+                            <option value="date_asc" {{ request()->query('sort') === 'date_asc' ? 'selected' : '' }}>Tanggal Upload (Lama ke Baru)</option>
+                            <option value="date_desc" {{ request()->query('sort') === 'date_desc' ? 'selected' : '' }}>Tanggal Upload (Baru ke Lama)</option>
                         </select>
                     </div>
                 </div>
@@ -55,8 +57,67 @@
                     <table class="w-full">
                         <thead>
                             <tr>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Judul Dokumen</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Tanggal Upload</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">
+                                    <div class="flex items-center space-x-1 cursor-pointer" id="sortByTitle">
+                                        <span class="text-xs">Judul Dokumen</span>
+                                        <span class="sort-icon">
+                                            @php
+                                                $currentSort = request()->query('sort');
+                                                $titleIcon = 'none';
+
+                                                if ($currentSort === 'title_asc') {
+                                                    $titleIcon = 'asc';
+                                                } elseif ($currentSort === 'title_desc') {
+                                                    $titleIcon = 'desc';
+                                                }
+                                            @endphp
+
+                                            @if($titleIcon === 'asc')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            @elseif($titleIcon === 'desc')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                </svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">
+                                    <div class="flex items-center space-x-1 cursor-pointer" id="sortByDate">
+                                        <span class="text-xs">Tanggal Upload</span>
+                                        <span class="sort-icon">
+                                            @php
+                                                $dateIcon = 'none';
+
+                                                if ($currentSort === 'date_asc') {
+                                                    $dateIcon = 'asc';
+                                                } elseif ($currentSort === 'date_desc') {
+                                                    $dateIcon = 'desc';
+                                                }
+                                            @endphp
+
+                                            @if($dateIcon === 'asc')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            @elseif($dateIcon === 'desc')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                </svg>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Ditambahkan Oleh</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Catatan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Aksi</th>
@@ -584,7 +645,7 @@
 
             if (type === 'success') {
                 toast.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md flex items-center animate-slide-in-right';
-                
+
                 toast.innerHTML = `
                     <div class="py-1">
                         <svg class="h-6 w-6 mr-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1467,7 +1528,7 @@
                     console.error('Error:', error);
                     const modal = document.getElementById('deleteModal');
                     const content = document.getElementById('deleteModalContent');
-                    closeModal(modal, content); 
+                    closeModal(modal, content);
                     showToast('Terjadi kesalahan, silakan coba lagi', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
@@ -1493,6 +1554,45 @@
             url.searchParams.set('page', 1);
             window.location.href = url.toString();
         };
+
+        // Column header sorting
+        const sortByTitleHeader = document.getElementById('sortByTitle');
+        if (sortByTitleHeader) {
+            sortByTitleHeader.addEventListener('click', function() {
+                const currentSort = '{{ request()->query("sort") }}';
+                let newSort;
+
+                if (currentSort === 'title_asc') {
+                    newSort = 'title_desc';
+                } else {
+                    newSort = 'title_asc';
+                }
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort', newSort);
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            });
+        }
+
+        const sortByDateHeader = document.getElementById('sortByDate');
+        if (sortByDateHeader) {
+            sortByDateHeader.addEventListener('click', function() {
+                const currentSort = '{{ request()->query("sort") }}';
+                let newSort;
+
+                if (currentSort === 'date_asc') {
+                    newSort = 'date_desc';
+                } else {
+                    newSort = 'date_asc';
+                }
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort', newSort);
+                url.searchParams.set('page', 1);
+                window.location.href = url.toString();
+            });
+        }
     });
 </script>
 
