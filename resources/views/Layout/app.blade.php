@@ -22,14 +22,14 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            overflow-x: hidden; /* Prevent horizontal scrolling at body level */
+            overflow-x: hidden;
         }
 
         main {
             min-height: calc(100vh - 4rem);
             padding-top: 2rem;
             background-color: #f8fafc;
-            max-width: 100%; /* Ensure main content doesn't exceed viewport width */
+            max-width: 100%;
         }
 
         .page-enter-active,
@@ -157,125 +157,76 @@
         // Function to refresh the CSRF token
         const refreshCsrfToken = async () => {
             try {
-                const response = await fetch('/csrf-token-refresh', {
-                    method: 'GET',
+                const response = await axios.post('/csrf-token-refresh', {}, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    },
-                    credentials: 'same-origin'
+                        'Accept': 'application/json'
+                    }
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to refresh CSRF token');
-                }
-
-                const data = await response.json();
-
-                if (!data.token) {
-                    throw new Error('No token returned from server');
-                }
-
-                // Update the CSRF token in the meta tag
-                const metaToken = document.querySelector('meta[name="csrf-token"]');
-                if (metaToken) {
-                    metaToken.content = data.token;
-
-                    // Update axios default headers
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = data.token;
-                }
-
-                // Update any forms on the page
-                document.querySelectorAll('input[name="_token"]').forEach(input => {
-                    input.value = data.token;
-                });
-
-                return data.token;
-            } catch (error) {
-                console.error('Error refreshing CSRF token:', error);
-                throw error;
-            }
-        };
-
-        // Set up a response interceptor for handling CSRF token expiration
-        axios.interceptors.response.use(
-            response => response,
-            async error => {
-                // Check if the error is a CSRF token mismatch (419 status)
-                if (error.response && error.response.status === 419) {
-                    const originalRequest = error.config;
-
-                    // Prevent infinite retry loops
-                    if (originalRequest._retry) {
-                        // If we've already tried to refresh the token, redirect to login
-                        window.location.href = '/login';
-                        return Promise.reject(error);
+                if (response.data && response.data.token) {
+                    // Update the CSRF token in the meta tag
+                    const metaToken = document.querySelector('meta[name="csrf-token"]');
+                    if (metaToken) {
+                        metaToken.content = response.data.token;
+                        axios.defaults.headers.common['X-CSRF-TOKEN'] = response.data.token;
                     }
 
-                    originalRequest._retry = true;
-
-                    try {
-                        // Get a fresh token
-                        const token = await refreshCsrfToken();
-
-                        // Update the token in the headers for the retry
-                        originalRequest.headers['X-CSRF-TOKEN'] = token;
-
-                        // Retry the original request with the new token
-                        return axios(originalRequest);
-                    } catch (refreshError) {
-                        console.error('Failed to refresh token and retry request:', refreshError);
-                        // Redirect to login page on token refresh failure
-                        window.location.href = '/login';
-                        return Promise.reject(error);
-                    }
-                }
-
-                return Promise.reject(error);
-            }
-        );
-
-        // Add event listener for jQuery AJAX
-        $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
-            if (jqXHR.status === 419) {
-                // Get a new CSRF token
-                refreshCsrfToken().then(token => {
-                    // Update jQuery AJAX defaults
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': token
-                        }
+                    // Update any forms on the page
+                    document.querySelectorAll('input[name="_token"]').forEach(input => {
+                        input.value = response.data.token;
                     });
 
-                    // Retry the original request
-                    $.ajax(settings);
-                }).catch(() => {
-                    // Redirect to login page on token refresh failure
-                    window.location.href = '/login';
-                });
-
-                // Prevent default error handling
-                return false;
+                    return response.data.token;
+                }
+            } catch (error) {
+                console.error('Error refreshing CSRF token:', error);
             }
-        });
-
-        // Setup jQuery AJAX defaults
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
+        };
 
         // Refresh token periodically (every 30 minutes)
         setInterval(refreshCsrfToken, 30 * 60 * 1000);
 
-        // Refresh token when the page becomes visible again
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
-                refreshCsrfToken().catch(console.error);
+        // Refresh token when user becomes active after being idle
+        let idleTime = 0;
+        const idleInterval = setInterval(() => {
+            idleTime++;
+            // If user is idle for more than 25 minutes, refresh token when they return
+            if (idleTime > 25) {
+                refreshCsrfToken();
+                idleTime = 0;
             }
+        }, 60 * 1000); // Check every minute
+
+        // Reset idle timer on user activity
+        const resetIdleTime = () => {
+            idleTime = 0;
+        };
+
+        // Track user activity
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetIdleTime, true);
         });
+
+        // Handle 419 errors globally with axios
+        axios.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response && error.response.status === 419) {
+                    // Refresh token and retry the request
+                    return refreshCsrfToken().then(token => {
+                        // Clone the original request and set the new token
+                        const config = error.config;
+                        if (token) {
+                            config.headers['X-CSRF-TOKEN'] = token;
+                        }
+                        // Retry the request
+                        return axios(config);
+                    });
+                }
+                return Promise.reject(error);
+            }
+        );
     </script>
 
     <script>

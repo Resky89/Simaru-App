@@ -92,7 +92,7 @@
                                 <div>
                                     <p class="text-sm text-gray-500 mb-1">Tanggal Dibuat</p>
                                     <p class="text-lg font-semibold text-[#213268]">
-                                        {{ isset($opnameInfo['opname_created_at']) ? \Carbon\Carbon::parse($opnameInfo['opname_created_at'])->locale('id')->isoFormat('D MMMM Y, HH:mm') : 'N/A' }}
+                                        {{ isset($opnameInfo['opname_created_at']) ? \Carbon\Carbon::parse($opnameInfo['opname_created_at'])->locale('id')->isoFormat('D MMMM Y') : 'N/A' }}
                                     </p>
                                 </div>
                             </div>
@@ -233,7 +233,7 @@
                         <thead>
                             <tr>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Kode Aset</th>
-                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Deskripsi</th>
+                                <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Nama Aset</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Tanggal Scan</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Status</th>
                                 <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Lokasi Seharusnya</th>

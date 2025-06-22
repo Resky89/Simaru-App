@@ -268,7 +268,7 @@
                 <div class="info-label">Tanggal Dibuat</div>
                 <div class="info-value">
                     @php
-                        $formattedDate = formatDateIndonesian($roomInfo['created_at'] ?? null);
+                        $formattedDate = formatDateIndonesian($roomInfo['opname_created_at'] ?? null);
                     @endphp
                     {{ $formattedDate }}
                 </div>
@@ -320,7 +320,7 @@
         <thead>
         <tr>
             <th>Kode Aset</th>
-            <th>Deskripsi</th>
+            <th>Nama Aset</th>
             <th>Tanggal Scan</th>
             <th>Status</th>
             <th>Lokasi Seharusnya</th>
@@ -332,7 +332,7 @@
         @foreach($details as $asset)
         <tr>
                 <td><strong>{{ isset($asset['asset_code']) ? $asset['asset_code'] : '-' }}</strong></td>
-            <td>{{ isset($asset['asset_description']) ? $asset['asset_description'] : '-' }}</td>
+            <td>{{ isset($asset['asset_name']) ? $asset['asset_name'] : '-' }}</td>
             <td>
                 @if(isset($asset['scan_date']))
                     {{ formatDateIndonesian($asset['scan_date'], false) }}
@@ -369,7 +369,6 @@
     @endif
 
     <div class="footer">
-        <p>Dibuat pada: {{ formatDateIndonesian(new DateTime(), true) }}</p>
         <p>Sistem Monitoring Aset - Laporan Detail Opname Aset RS UMMI</p>
     </div>
 </body>

@@ -35,7 +35,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
-                                Cetak PDF
+                                Ekspor PDF
                             </a>
                             @endif
                         @endif
@@ -47,7 +47,7 @@
                             <!-- Left Column - Receipt Information -->
                             <div class="space-y-5">
                                 <h2 class="text-lg font-semibold text-[#666666]">Informasi Penerimaan</h2>
-                                
+
                                 <!-- Receipt Number -->
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                     <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penerimaan</p>
@@ -60,7 +60,7 @@
                                     <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['purchase_order_code'] ?? 'N/A' }}
                                     </p>
                                 </div>
-
+                                
                                 <!-- Receipt Date -->
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                     <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penerimaan</p>
@@ -73,7 +73,7 @@
                             <!-- Right Column - Personnel Information -->
                             <div class="space-y-5">
                                 <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil</h2>
-                                
+
                                 <!-- Delivered by -->
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                     <p class="w-40 sm:w-48 text-[#666666] font-medium">Dikirim Oleh</p>
@@ -277,7 +277,7 @@
                     exportPdfBtn.style.display = 'none';
                 }
             @endif
-                
+
             const exportPdfBtn = document.getElementById('exportPdfBtn');
             if (exportPdfBtn) {
                 exportPdfBtn.addEventListener('click', function () {

@@ -70,7 +70,7 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['comparison_code'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['vendor']['vendor_name'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['vendor']['contact_person'] ?? '-' }}</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['created_by'] ?? '-' }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['creator_employee_number'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     @if(isset($po['created_at']))
                                         @php
@@ -319,7 +319,7 @@
         window.changePurchaseOrderPerPage = function(limit) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('limit', limit);
-            urlParams.set('page', 1); // Reset to first page when changing limit
+            urlParams.set('page', 1);
             window.location.href = '{{ route("procurement.purchase-order") }}?' + urlParams.toString();
         };
     });

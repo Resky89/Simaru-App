@@ -86,7 +86,7 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Keluhan</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Pelapor</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tindakan</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="complaintsTableBody">
@@ -147,7 +147,7 @@
                                             {{ $complaint['reporter_number'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            <div class="flex space-x-2">
+                                            <div class="flex items-center justify-center space-x-2">
                                                 <button onclick="viewComplaintDetails({{ $complaint['id'] }})"
                                                     class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
                                                     title="Lihat Detail">

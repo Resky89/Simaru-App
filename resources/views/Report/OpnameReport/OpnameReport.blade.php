@@ -13,6 +13,28 @@
                         <h1 class="text-2xl md:text-[32px] font-semibold text-[#213268]">LAPORAN OPNAME</h1>
                     </div>
 
+                    <!-- Search and Filter -->
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" placeholder="Cari berdasarkan kode opname..."
+                                class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                value="{{ $search ?? '' }}">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-4">
+                            <select id="sortOrder"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="desc" {{ isset($sort_order) && $sort_order == 'desc' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="asc" {{ isset($sort_order) && $sort_order == 'asc' ? 'selected' : '' }}>Terlama</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Opname Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -175,8 +197,34 @@
                     window.location.href = url.toString();
                 }
 
-                const manageBtn = document.getElementById('manageBtn');
+                const searchInput = document.getElementById('searchInput');
+                const sortOrder = document.getElementById('sortOrder');
 
+                let searchTimeout;
+                searchInput?.addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(applyFilters, 500);
+                });
+
+                sortOrder?.addEventListener('change', applyFilters);
+
+                function applyFilters() {
+                    const searchValue = searchInput?.value.trim() || '';
+                    const sortValue = sortOrder?.value || '';
+
+                    const url = new URL(window.location.href);
+
+                    ['search', 'sort_order', 'page'].forEach(param => {
+                        url.searchParams.delete(param);
+                    });
+
+                    if (searchValue) url.searchParams.set('search', searchValue);
+                    if (sortValue) url.searchParams.set('sort_order', sortValue);
+
+                    url.searchParams.set('page', 1);
+
+                    window.location.href = url.toString();
+                }
             });
         </script>
     @endpush

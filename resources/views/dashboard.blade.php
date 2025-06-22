@@ -76,7 +76,7 @@
                     <div class="text-[28px] font-medium text-[#213268]">
                         {{ formatCompactCurrency($dashboardData['total_acquisition_cost'] ?? 0) }}
                     </div>
-                    <div class="text-[14px] text-[#ACC3EF] opacity-80">Biaya Pengadaan</div>
+                    <div class="text-[14px] text-[#213268] opacity-80">Biaya Pengadaan</div>
                 </div>
             </div>
 

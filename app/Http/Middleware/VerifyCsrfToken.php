@@ -13,6 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/login',
-        '/csrf-token-refresh'
+        '/csrf-token-refresh',
+        // Add your routes that should be excluded from CSRF protection
+        '/api/*'  // Example: exclude all API routes
     ];
 }

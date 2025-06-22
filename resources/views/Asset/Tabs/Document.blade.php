@@ -777,18 +777,8 @@
                     let previewUrl;
                     if (doc.full_path) {
                         previewUrl = doc.full_path;
-                    } else {
-                        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt)) {
-                            previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/${fileName}`;
-                            if (!fileName.includes('image-')) {
-                                previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/images/image-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
-                            }
-                        } else {
-                            previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/${fileName}`;
-                            if (!fileName.includes('asset-doc-')) {
-                                previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public/documents/asset-doc-${Date.now()}-${doc.id || 'default'}.${fileExt}`;
-                            }
-                        }
+                    } else if (doc.file_path) {
+                        previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public${doc.file_path}`;
                     }
 
                     let badgeHtml = '';

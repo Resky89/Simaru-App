@@ -54,7 +54,9 @@ Route::group(['middleware' => 'guest'], function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // CSRF Token Refresh Route - Make sure it's accessible without authentication
-Route::get('/csrf-token-refresh', [CsrfTokenController::class, 'refresh'])->name('csrf.refresh');
+Route::post('/csrf-token-refresh', function () {
+    return response()->json(['token' => csrf_token()]);
+});
 
 //=============================================================================
 // AUTHENTICATION ROUTES

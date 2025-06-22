@@ -255,7 +255,7 @@
                                         <!-- Permissions Header -->
                                         <div class="pt-2">
                                             <div class="pb-4 border-b border-gray-200">
-                                                <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                <h3 class="text-lg font-bold text-[#213268] mb-2">HAK AKSES</h3>
                                                 <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
                                                     yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
@@ -265,14 +265,14 @@
                                                             class="checkbox checkbox-primary" data-target="all">
                                                         <label for="add-all-permission"
                                                             class="font-semibold cursor-pointer select-none">
-                                                            Semua Izin</label>
+                                                            Semua Hak Akses</label>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Permission Groups Container -->
-                                        <div id="add-permissions-container" class="space-y-6 pt-3">
+                                        <div id="add-permissions-container" class="space-y-6 pt-3 max-h-[400px] overflow-y-auto pr-2">
                                             <p class="text-center text-gray-500 py-4">Memuat data izin...</p>
                                         </div>
 
@@ -341,7 +341,7 @@
                                         <!-- Permissions Header -->
                                         <div class="pt-2">
                                             <div class="pb-4 border-b border-gray-200">
-                                                <h3 class="text-lg font-bold text-[#213268] mb-2">IZIN</h3>
+                                                <h3 class="text-lg font-bold text-[#213268] mb-2">HAK AKSES</h3>
                                                 <p class="text-sm text-gray-600 mb-4">Tentukan hak akses setiap pengguna dan apa
                                                     yang dapat dan tidak dapat mereka lakukan dalam akun Anda.</p>
 
@@ -351,14 +351,14 @@
                                                             class="checkbox checkbox-primary" data-target="all">
                                                         <label for="edit-all-permission"
                                                             class="font-semibold cursor-pointer select-none">
-                                                            Semua Izin</label>
+                                                            Semua Hak Akses</label>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Permission Groups Container -->
-                                        <div id="edit-permissions-container" class="space-y-6 pt-3">
+                                        <div id="edit-permissions-container" class="space-y-6 pt-3 max-h-[400px] overflow-y-auto pr-2">
                                             <p class="text-center text-gray-500 py-4">Memuat izin...</p>
                                         </div>
 
@@ -570,8 +570,59 @@
                             .error-message ul li:last-child {
                                 margin-bottom: 0;
                             }
+
+                            /* Tooltip styles */
+                            .tooltip-container {
+                                position: relative;
+                            }
+
+                            .tooltip-container:hover::after {
+                                content: attr(data-tooltip);
+                                position: absolute;
+                                bottom: 100%;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                z-index: 100;
+                                white-space: normal;
+                                background: #213268;
+                                color: white;
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                width: max-content;
+                                max-width: 200px;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                                opacity: 0;
+                                animation: fade-in 0.2s ease forwards;
+                            }
+
+                            @keyframes fade-in {
+                                to { opacity: 1; }
+                            }
                         </style>
                     `);
+
+            // Add tooltip functionality
+            document.addEventListener('mouseover', function(e) {
+                const target = e.target.closest('.tooltip-container');
+                if (!target) return;
+
+                const tooltip = target.getAttribute('data-tooltip');
+                if (!tooltip) return;
+
+                // Make sure there's enough space above the element
+                setTimeout(() => {
+                    const tooltipEl = document.querySelector('.tooltip-active');
+                    if (tooltipEl) {
+                        const rect = tooltipEl.getBoundingClientRect();
+                        if (rect.top < 40) {
+                            tooltipEl.style.top = '100%';
+                            tooltipEl.style.bottom = 'auto';
+                            tooltipEl.style.transform = 'translateX(-50%) translateY(8px)';
+                        }
+                    }
+                }, 10);
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -678,10 +729,12 @@
                         originalGroup = parts[0];
                         action = parts[1];
 
-                        if (originalGroup === 'maintenance-report') {
+                        // Gabungkan maintenance-report ke dalam grup perawatan
+                        if (originalGroup === 'maintenance-report' || originalGroup === 'maintenance') {
                             group = 'Perawatan';
                         }
-                        else if (originalGroup === 'repair') {
+                        // Gabungkan repair ke dalam grup keluhan dan perbaikan
+                        else if (originalGroup === 'repair' || originalGroup === 'complaint') {
                             group = 'Keluhan dan Perbaikan';
                         }
                         else {
@@ -692,13 +745,11 @@
                                 case 'brand': group = 'Merk'; break;
                                 case 'building': group = 'Gedung'; break;
                                 case 'calibration': group = 'Kalibrasi'; break;
-                                case 'complaint': group = 'Keluhan dan Perbaikan'; break;
                                 case 'dashboard': group = 'Dashboard'; break;
                                 case 'document': group = 'Dokumen'; break;
-                                case 'maintenance': group = 'Perawatan'; break;
-                                case 'mobile': group = 'Mobile'; break;
+                                case 'mobile': group = 'Aplikasi Mobile'; break;
                                 case 'price-comparison': group = 'Perbandingan Harga'; break;
-                                case 'procurement': group = 'Pengadaan'; break;
+                                case 'procurement': group = 'Permintaan Pengadaan'; break;
                                 case 'purchase-order': group = 'Pemesanan'; break;
                                 case 'receipt': group = 'Penerimaan'; break;
                                 case 'report': group = 'Laporan'; break;
@@ -736,10 +787,10 @@
                     const groupContainerId = `${containerId}-${groupId}-container`;
 
                     html += `
-                                <div class="permission-group bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="flex items-center gap-3">
-                                            <h4 class="text-[#213268] text-lg font-semibold">${group}</h4>`;
+                                <div class="permission-group bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-2">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-[#213268] text-base font-semibold">${group}</h4>`;
 
                     if (viewPermission) {
                         const viewPermId = `${containerId}-perm-${viewPermission.permission_id}`;
@@ -750,8 +801,9 @@
                                                 id="${viewPermId}"
                                                 name="permission_ids[]"
                                                 value="${parseInt(viewPermission.permission_id)}"
-                                                class="checkbox checkbox-primary view-permission-checkbox"
+                                                class="checkbox checkbox-primary w-4 h-4 view-permission-checkbox"
                                                 data-group="${groupId}"
+                                                data-tooltip="${viewPermission.description}"
                                                 ${isViewChecked ? 'checked' : ''}>
                                         `;
                     }
@@ -760,9 +812,7 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-gray-500 mb-3">${viewPermission ? viewPermission.description : 'Manage permissions for this feature'}</p>
-
-                                    <div id="${groupContainerId}" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3" ${viewPermission && !selectedIds.includes(viewPermission.permission_id) ? 'style="display:none;"' : ''}>`;
+                                    <div id="${groupContainerId}" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-1 mt-1" ${viewPermission && !selectedIds.includes(viewPermission.permission_id) ? 'style="display:none;"' : ''}>`;
 
                     otherPermissions.forEach(permission => {
                         const isChecked = selectedIds.includes(permission.permission_id);
@@ -770,45 +820,164 @@
 
                         let displayName = permission.permission_name;
                         if (permission.permission_name.includes(':')) {
-                            const action = permission.permission_name.split(':')[1];
+                            const parts = permission.permission_name.split(':');
+                            const mainSection = parts[0];
+                            const action = parts.length > 1 ? parts[1] : '';
+                            const subAction = parts.length > 2 ? parts[2] : '';
 
-                            switch (action) {
-                                case 'create': displayName = 'Tambah'; break;
-                                case 'edit': displayName = 'Ubah'; break;
-                                case 'delete': displayName = 'Hapus'; break;
-                                case 'export': displayName = 'Ekspor'; break;
-                                case 'import': displayName = 'Impor'; break;
-                                case 'approve': displayName = 'Setujui'; break;
-                                case 'reject': displayName = 'Tolak'; break;
-                                case 'medical': displayName = 'Medis'; break;
-                                case 'non-medical': displayName = 'Non Medis'; break;
-                                case 'assign': displayName = 'Hubungkan'; break;
-                                case 'assign_permissions': displayName = 'Tetapkan Izin'; break;
-                                case 'checkout': displayName = 'Checkout'; break;
-                                case 'return': displayName = 'Pengembalian'; break;
-                                case 'dispose': displayName = 'Penghapusan'; break;
-                                case 'report-loss': displayName = 'Lapor Kehilangan'; break;
-                                case 'report-found': displayName = 'Lapor Ditemukan'; break;
-                                case 'opname': displayName = 'Stock Opname'; break;
-                                case 'complete': displayName = 'Selesaikan'; break;
-                                case 'depreciation': displayName = 'Depresiasi'; break;
-                                case 'finance': displayName = 'Keuangan'; break;
-                                default: displayName = action.charAt(0).toUpperCase() + action.slice(1).replace(/-/g, ' ');
+                            // Khusus untuk transaksi
+                            if (permission.permission_name.includes('transaction')) {
+                                if (permission.permission_name.includes(':view') || permission.permission_name.endsWith(':transaction')) {
+                                    displayName = 'Lihat Transaksi';
+                                } else if (permission.permission_name.includes(':create')) {
+                                    displayName = 'Tambah Transaksi';
+                                } else if (permission.permission_name.includes(':edit')) {
+                                    displayName = 'Ubah Transaksi';
+                                } else if (permission.permission_name.includes(':delete')) {
+                                    displayName = 'Hapus Transaksi';
+                                } else {
+                                    displayName = 'Transaksi';
+                                }
+                            }
+                            // Khusus untuk vendor-offer / penawaran vendor
+                            else if (permission.permission_name.includes('vendor-offer')) {
+                                // Tangani format lengkap (price-comparison:vendor-offer:create)
+                                if (permission.permission_name.endsWith(':create') || permission.permission_name.includes(':vendor-offer:create')) {
+                                    displayName = 'Tambah Penawaran';
+                                } else if (permission.permission_name.endsWith(':edit') || permission.permission_name.includes(':vendor-offer:edit')) {
+                                    displayName = 'Ubah Penawaran';
+                                } else if (permission.permission_name.endsWith(':delete') || permission.permission_name.includes(':vendor-offer:delete')) {
+                                    displayName = 'Hapus Penawaran';
+                                }
+                                // Tangani format vendor-offers:select
+                                else if (permission.permission_name.includes('vendor-offers:select')) {
+                                    displayName = 'Pilih Penawaran';
+                                }
+                                else {
+                                    displayName = 'Penawaran Vendor';
+                                }
+                            }
+                            // Khusus untuk maintenance-report
+                            else if (permission.permission_name.includes('maintenance-report')) {
+                                if (permission.permission_name.includes('medical')) {
+                                    displayName = 'Laporan Medis';
+                                } else if (permission.permission_name.includes('non-medical')) {
+                                    displayName = 'Laporan Non-Medis';
+                                } else {
+                                    displayName = 'Laporan Perawatan';
+                                }
+                            }
+                            // Khusus untuk repair/perbaikan
+                            else if (permission.permission_name.includes('repair')) {
+                                if (permission.permission_name.includes('approve')) {
+                                    displayName = 'Persetujuan Perbaikan';
+                                } else if (permission.permission_name.includes('medical')) {
+                                    displayName = 'Perbaikan Medis';
+                                } else if (permission.permission_name.includes('non-medical')) {
+                                    displayName = 'Perbaikan Non-Medis';
+                                } else {
+                                    displayName = 'Perbaikan';
+                                }
+                            }
+                            // Khusus untuk keluhan/complaint
+                            else if (permission.permission_name.includes('complaint')) {
+                                if (permission.permission_name.includes('create')) {
+                                    displayName = 'Tambah Keluhan';
+                                } else if (permission.permission_name.includes('edit')) {
+                                    displayName = 'Ubah Keluhan';
+                                } else if (permission.permission_name.includes('delete')) {
+                                    displayName = 'Hapus Keluhan';
+                                } else if (permission.permission_name.includes('export')) {
+                                    displayName = 'Ekspor Keluhan';
+                                } else if (permission.permission_name.includes('view')) {
+                                    displayName = 'Lihat Keluhan';
+                                } else {
+                                    displayName = 'Keluhan';
+                                }
+                            }
+                            // Khusus untuk dokumen
+                            else if (permission.permission_name.includes('document')) {
+                                if (action === 'document') {
+                                    if (subAction === 'create' || permission.permission_name.endsWith(':document')) {
+                                        displayName = 'Dokumen';
+                                    } else if (subAction === 'download') {
+                                        displayName = 'Unduh Dokumen';
+                                    } else if (subAction === 'view') {
+                                        displayName = 'Lihat Dokumen';
+                                    } else if (subAction === 'edit') {
+                                        displayName = 'Ubah Dokumen';
+                                    } else if (subAction === 'delete') {
+                                        displayName = 'Hapus Dokumen';
+                                    }
+                                } else {
+                                    switch (action) {
+                                        case 'view': displayName = 'Lihat Dokumen'; break;
+                                        case 'create': displayName = 'Tambah Dokumen'; break;
+                                        case 'edit': displayName = 'Ubah Dokumen'; break;
+                                        case 'delete': displayName = 'Hapus Dokumen'; break;
+                                        case 'download': displayName = 'Unduh Dokumen'; break;
+                                        case 'assign': displayName = 'Tautkan Dokumen'; break;
+                                        case 'unlink': displayName = 'Lepas Tautan Dokumen'; break;
+                                        default: displayName = 'Dokumen';
+                                    }
+                                }
+                            }
+                            // Untuk depresiasi
+                            else if (permission.permission_name.includes('depreciation')) {
+                                if (action === 'depreciation' || action === 'depreciation:view') {
+                                    displayName = 'Lihat Depresiasi';
+                                } else if (action === 'depreciation:edit') {
+                                    displayName = 'Ubah Depresiasi';
+                                } else {
+                                    displayName = 'Depresiasi';
+                                }
+                            }
+                            else {
+                                switch (action) {
+                                    case 'view': displayName = 'Lihat'; break;
+                                    case 'create': displayName = 'Tambah'; break;
+                                    case 'edit': displayName = 'Ubah'; break;
+                                    case 'delete': displayName = 'Hapus'; break;
+                                    case 'export': displayName = 'Ekspor'; break;
+                                    case 'import': displayName = 'Impor'; break;
+                                    case 'approve': displayName = 'Setujui'; break;
+                                    case 'reject': displayName = 'Tolak'; break;
+                                    case 'medical': displayName = 'Medis'; break;
+                                    case 'non-medical': displayName = 'Non Medis'; break;
+                                    case 'assign': displayName = 'Tautkan'; break;
+                                    case 'unlink': displayName = 'Lepas Tautan'; break;
+                                    case 'assign_permissions': displayName = 'Tetapkan Izin'; break;
+                                    case 'checkout': displayName = 'Peminjaman'; break;
+                                    case 'return': displayName = 'Pengembalian'; break;
+                                    case 'dispose': displayName = 'Penghapusan'; break;
+                                    case 'report-loss': displayName = 'Lapor Hilang'; break;
+                                    case 'report-found': displayName = 'Lapor Temuan'; break;
+                                    case 'opname': displayName = 'Stock Opname'; break;
+                                    case 'complete': displayName = 'Selesaikan'; break;
+                                    case 'finance': displayName = 'Keuangan'; break;
+                                    case 'download': displayName = 'Unduh'; break;
+                                    case 'approve:manager': displayName = 'Persetujuan Manager'; break;
+                                    case 'approve:director': displayName = 'Persetujuan Direktur'; break;
+                                    case 'transaction:create': displayName = 'Tambah Transaksi'; break;
+                                    case 'transaction:edit': displayName = 'Ubah Transaksi'; break;
+                                    case 'transaction:view': displayName = 'Lihat Transaksi'; break;
+                                    case 'transaction:delete': displayName = 'Hapus Transaksi'; break;
+                                    default: displayName = action.charAt(0).toUpperCase() + action.slice(1).replace(/-/g, ' ');
+                                }
                             }
                         }
 
                         html += `
-                                        <div class="flex items-start gap-3 hover:bg-gray-50 p-2 rounded">
+                                        <div class="flex items-start gap-2 hover:bg-gray-50 p-1 rounded tooltip-container" data-tooltip="${permission.description}">
                                             <input type="checkbox"
                                                 id="${permId}"
                                                 name="permission_ids[]"
                                                 value="${parseInt(permission.permission_id)}"
-                                                class="checkbox checkbox-primary mt-1 permission-checkbox"
+                                                class="checkbox checkbox-primary mt-0.5 permission-checkbox w-4 h-4"
                                                 data-group="${groupId}"
                                                 ${isChecked ? 'checked' : ''}>
-                                            <label for="${permId}" class="cursor-pointer select-none">
+                                            <label for="${permId}" class="cursor-pointer select-none text-sm">
                                                 <div class="font-medium">${displayName}</div>
-                                                <div class="text-xs text-gray-500">${permission.description}</div>
                                             </label>
                                         </div>`;
                     });

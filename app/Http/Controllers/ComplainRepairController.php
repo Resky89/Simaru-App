@@ -62,28 +62,6 @@ class ComplainRepairController extends Controller
                 'query' => $queryParams
             ]);
 
-            // Mengambil aset untuk dropdown (jumlah terbatas untuk pemuatan awal)
-            try {
-            $assetsResult = $this->apiService->request('GET', '/assets', [
-                    'query' => [
-                        'limit' => 1000
-                    ]
-                ]);
-
-                // Jika tidak ada aset yang ditemukan, coba endpoint alternatif sebagai fallback
-                if (empty($assetsResult['data'] ?? [])) {
-                    $assetsResult = $this->apiService->request('GET', '/asset', [
-                'query' => [
-                    'limit' => 1000,
-                    'sort_by' => 'asset_master_name',
-                    'sort_order' => 'asc'
-                ]
-                    ]);
-                }
-            } catch (\Exception $e) {
-                $assetsResult = ['data' => []];
-            }
-
             // Memeriksa kesalahan autentikasi
             if (isset($result['errors']) && is_string($result['errors']) &&
                 in_array($result['errors'], ['auth_failed', 'session_expired'])) {
@@ -129,7 +107,7 @@ class ComplainRepairController extends Controller
                     'search' => $search,
                     'sort_order' => $sort_order,
                     'status' => $status,
-                    'assets' => [],
+
                     'error' => $errorMessage
                 ]);
             }
@@ -137,39 +115,6 @@ class ComplainRepairController extends Controller
             // Mendapatkan data keluhan dan paginasi
             $complaints = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
-
-            // Mendapatkan data aset dan memetakan ke format yang dibutuhkan untuk dropdown
-            $rawAssets = $assetsResult['data'] ?? [];
-            $assets = [];
-
-            // Memeriksa kesalahan autentikasi dalam respons API aset
-            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                // Lanjutkan dengan array aset kosong karena tidak kritis
-            }
-            // Memeriksa apakah API mengembalikan status kesalahan
-            elseif (isset($assetsResult['success']) && $assetsResult['success'] !== true) {
-                // Lanjutkan dengan kesalahan API aset tetapi tidak kritis
-            }
-
-            foreach ($rawAssets as $asset) {
-                // Membuat data aset dengan struktur baru yang sesuai dengan respons API
-                $assetData = [
-                    'asset_id' => $asset['asset_id'],
-                    'asset_code' => $asset['asset_code'],
-                    'asset_name' => isset($asset['asset_master']) && isset($asset['asset_master']['asset_name'])
-                        ? $asset['asset_master']['asset_name']
-                        : ($asset['asset_master_name'] ?? 'Aset Tidak Dikenal'),
-                    'asset_master_name' => $asset['asset_master_name'] ?? 'Aset Tidak Dikenal',
-                    'serial_number' => $asset['serial_number'] ?? null,
-                    'description' => isset($asset['asset_master']) && isset($asset['asset_master']['description'])
-                        ? $asset['asset_master']['description']
-                        : null,
-                    'room_name' => $asset['room_name'] ?? null
-                ];
-
-                $assets[] = $assetData;
-            }
 
             // Untuk permintaan AJAX atau JSON, kembalikan respons JSON
             if ($request->ajax() || $request->wantsJson()) {
@@ -188,7 +133,6 @@ class ComplainRepairController extends Controller
                 'search' => $search,
                 'sort_order' => $sort_order,
                 'status' => $status,
-                'assets' => $assets
             ]);
 
         } catch (\Exception $e) {

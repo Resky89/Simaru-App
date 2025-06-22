@@ -24,6 +24,7 @@ class OpnameReportController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
+            $sortOrder = $request->input('sort_order', 'desc');
 
             $result = $this->apiService->request('GET', '/asset-opnames', [
                 'query' => [
@@ -31,7 +32,7 @@ class OpnameReportController extends Controller
                     'limit' => $limit,
                     'search' => $search,
                     'sort_by' => 'created_at',
-                    'sort_order' => 'desc'
+                    'sort_order' => $sortOrder
                 ]
             ]);
 
@@ -78,6 +79,7 @@ class OpnameReportController extends Controller
                     'opnames' => [],
                     'pagination' => null,
                     'search' => $search,
+                    'sort_order' => $sortOrder,
                     'error' => $errorMessage
                 ]);
             }
@@ -103,12 +105,15 @@ class OpnameReportController extends Controller
             return view('Report.OpnameReport.OpnameReport', [
                 'opnames' => $opnames,
                 'pagination' => $pagination,
-                'search' => $search
+                'search' => $search,
+                'sort_order' => $sortOrder
             ]);
         } catch (\Exception $e) {
             return view('Report.OpnameReport.OpnameReport', [
                 'opnames' => [],
                 'pagination' => null,
+                'search' => $request->input('search', ''),
+                'sort_order' => $request->input('sort_order', 'desc'),
                 'error' => 'Gagal mengambil laporan opname: ' . $e->getMessage()
             ]);
         }
