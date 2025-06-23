@@ -26,7 +26,8 @@ class NotificationController extends Controller
             $page = $request->query('page', 1);
             $limit = $request->query('limit', 10);
             $search = $request->query('search', '');
-            $sort = $request->query('sort', '');
+            $sort = $request->query('sort', 'desc');
+            $isRead = $request->query('is_read');
 
             // Build query parameters
             $queryParams = [
@@ -37,6 +38,11 @@ class NotificationController extends Controller
             // Search parameter
             if (!empty($search)) {
                 $queryParams['search'] = $search;
+            }
+
+            // is_read parameter
+            if ($isRead !== null) {
+                $queryParams['is_read'] = $isRead;
             }
 
             // Sorting parameters

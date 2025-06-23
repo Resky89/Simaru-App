@@ -117,6 +117,8 @@
                 unread: true,
                 read: true
             };
+            let lastFetchTime = 0;
+            let unreadCount = 0;
 
             function toggleDropdown() {
                 if (isDropdownOpen) {
@@ -171,11 +173,10 @@
                 if (currentTab !== 'unread') {
                     currentTab = 'unread';
                     updateTabUI();
-                    renderNotifications(notifications.unread, true);
-
-                    if (notifications.unread.length === 0 && !isLoading && hasMorePages.unread) {
-                        loadNotifications();
-                    }
+                    page.unread = 1;
+                    isNotificationsLoaded = false;
+                    notifications.unread = [];
+                    loadNotifications();
                 }
             });
 
@@ -183,11 +184,10 @@
                 if (currentTab !== 'read') {
                     currentTab = 'read';
                     updateTabUI();
-                    renderNotifications(notifications.read, true);
-
-                    if (notifications.read.length === 0 && !isLoading && hasMorePages.read) {
-                        loadNotifications();
-                    }
+                    page.read = 1;
+                    isNotificationsLoaded = false;
+                    notifications.read = [];
+                    loadNotifications();
                 }
             });
 
@@ -230,9 +230,11 @@
 
             function loadNotifications(isLazyLoad = false) {
                 if (isLoading) return;
+
                 const currentPage = page[currentTab];
                 showLoading(!isLazyLoad);
-                fetch(`/notifications?limit=15&page=${currentPage}`, {
+
+                fetch(`/notifications?limit=15&page=${currentPage}&is_read=${currentTab === 'read' ? 'true' : 'false'}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -246,6 +248,7 @@
                     })
                     .then(data => {
                         isLoading = false;
+                        lastFetchTime = Date.now();
 
                         if (data.success) {
                             const newNotifications = data.data;
@@ -263,27 +266,33 @@
                                 hasMorePages[currentTab] = false;
                             }
 
-                            const readNotifications = newNotifications.filter(n => n.is_read);
-                            const unreadNotifications = newNotifications.filter(n => !n.is_read);
+                            if (currentPage === 1 && !isLazyLoad && currentTab === 'unread') {
+                                updateUnreadBadgeCount(data.pagination?.total_items || newNotifications.length);
+                            }
 
                             if (isLazyLoad) {
                                 if (currentTab === 'read') {
-                                    notifications.read = [...notifications.read, ...readNotifications];
+                                    notifications.read = [...notifications.read, ...newNotifications];
                                 } else {
-                                    notifications.unread = [...notifications.unread, ...unreadNotifications];
+                                    notifications.unread = [...notifications.unread, ...newNotifications];
                                 }
                             } else {
-                                notifications.read = readNotifications;
-                                notifications.unread = unreadNotifications;
+                                if (currentTab === 'read') {
+                                    notifications.read = newNotifications;
+                                } else {
+                                    notifications.unread = newNotifications;
+                                }
                             }
 
-                            if (currentTab === 'read') {
-                                renderNotifications(notifications.read, !isLazyLoad);
-                            } else {
-                                renderNotifications(notifications.unread, !isLazyLoad);
-                            }
+                            renderNotifications(newNotifications, !isLazyLoad);
 
                             isNotificationsLoaded = true;
+
+                            if ((currentTab === 'unread' && notifications.unread.length === 0 && hasMorePages[currentTab]) ||
+                                (currentTab === 'read' && notifications.read.length === 0 && hasMorePages[currentTab])) {
+                                setTimeout(() => loadNotifications(isLazyLoad), 300);
+                                return;
+                            }
 
                             if ((currentTab === 'unread' && notifications.unread.length === 0) ||
                                 (currentTab === 'read' && notifications.read.length === 0)) {
@@ -431,20 +440,26 @@
 
                 notificationList.appendChild(fragment);
 
-                if (hasMorePages[currentTab]) {
-                    addLazyLoadTrigger();
-                }
-            }
+                // Remove any existing end of notifications message
+                const existingEndMessage = document.getElementById('end-of-notifications');
+                if (existingEndMessage) existingEndMessage.remove();
 
-            function addLazyLoadTrigger() {
-                if (document.getElementById('lazy-load-trigger')) {
-                    return;
+                // Only show end message if we're on the last page
+                if (!hasMorePages[currentTab]) {
+                    const endMessage = document.createElement('div');
+                    endMessage.id = 'end-of-notifications';
+                    endMessage.className = 'p-3 text-center text-gray-500 border-t border-gray-100';
+                    endMessage.innerHTML = `
+                        <p class="text-xs">Tidak ada notifikasi lainnya</p>
+                    `;
+                    notificationList.appendChild(endMessage);
+                } else {
+                    // Add invisible scroll trigger for lazy loading
+                    const scrollTrigger = document.createElement('div');
+                    scrollTrigger.id = 'scroll-trigger';
+                    scrollTrigger.className = 'h-5';
+                    notificationList.appendChild(scrollTrigger);
                 }
-
-                const trigger = document.createElement('div');
-                trigger.id = 'lazy-load-trigger';
-                trigger.className = 'h-4';
-                notificationList.appendChild(trigger);
             }
 
             function markAsRead(notificationId) {
@@ -505,7 +520,13 @@
                                     }
                                 }
 
-                                loadUnreadCount();
+                                // Decrement the unread count
+                                updateUnreadBadgeCount(unreadCount - 1);
+
+                                // Check if all unread notifications have been read and we have more pages
+                                if (notifications.unread.length === 0 && hasMorePages.unread && currentTab === 'unread') {
+                                    setTimeout(() => loadNotifications(false), 300);
+                                }
                             }
                         }
                     })
@@ -514,92 +535,97 @@
                     });
             }
 
-            function loadUnreadCount() {
-                fetch('/notifications?limit=10', {
+            function updateUnreadBadgeCount(count) {
+                unreadCount = count > 0 ? count : 0;
+
+                if (unreadCount > 0) {
+                    notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                    notificationBadge.classList.remove('hidden');
+
+                    // Add bounce animation when count increases
+                    notificationBadge.classList.add('animate-bounce');
+                    setTimeout(() => {
+                        notificationBadge.classList.remove('animate-bounce');
+                    }, 1000);
+                } else {
+                    notificationBadge.classList.add('hidden');
+                }
+            }
+
+            function checkForNewNotifications() {
+                // Don't check if dropdown is open or if we checked recently
+                if (isDropdownOpen || (Date.now() - lastFetchTime < 30000)) {
+                    return;
+                }
+
+                fetch('/notifications?limit=1&is_read=false', {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to load notifications');
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            const prevCount = parseInt(notificationBadge.textContent) || 0;
-                            const unreadNotifications = data.data.filter(n => !n.is_read);
-                            const count = unreadNotifications.length;
+                            lastFetchTime = Date.now();
 
-                            if (count > 0) {
-                                notificationBadge.textContent = count > 99 ? '99+' : count;
-                                notificationBadge.classList.remove('hidden');
+                            if (data.pagination && data.pagination.total_items > unreadCount) {
+                                updateUnreadBadgeCount(data.pagination.total_items);
 
-                                if (count > prevCount) {
-                                    notificationBadge.classList.add('animate-bounce');
+                                // Visual indication of new notifications
+                                const bell = notificationDropdown.querySelector('svg');
+                                if (bell) {
+                                    bell.classList.add('text-yellow-400', 'animate-pulse');
                                     setTimeout(() => {
-                                        notificationBadge.classList.remove('animate-bounce');
-                                    }, 1000);
+                                        bell.classList.remove('text-yellow-400', 'animate-pulse');
+                                    }, 3000);
                                 }
-                            } else {
-                                notificationBadge.classList.add('hidden');
+
+                                // Reset notification lists to force reload when dropdown is opened
+                                if (!isDropdownOpen) {
+                                    isNotificationsLoaded = false;
+                                }
                             }
                         }
                     })
                     .catch(error => {
-                        console.error('Error loading notification count:', error);
+                        console.error('Error checking for new notifications:', error);
                     });
             }
 
-            loadUnreadCount();
+            // Initialize by loading unread count
+            fetch('/notifications?limit=1&is_read=false', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.pagination) {
+                        // Update the badge with the total number of unread notifications
+                        updateUnreadBadgeCount(data.pagination.total_items || 0);
+                        lastFetchTime = Date.now();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading initial notification count:', error);
+                });
 
-            notificationList.addEventListener('scroll', function () {
+            // Listen for scroll events to implement infinite scroll
+            notificationList.addEventListener('scroll', function() {
                 if (isLoading || !hasMorePages[currentTab]) return;
 
                 const { scrollTop, scrollHeight, clientHeight } = notificationList;
 
+                // Trigger loading when user scrolls near the bottom (20px from bottom)
                 if (scrollHeight - scrollTop - clientHeight < 50) {
                     loadNotifications(true);
                 }
             });
 
-            setInterval(loadUnreadCount, 30000);
-
-            setInterval(() => {
-                if (!isDropdownOpen) {
-                    fetch('/notifications?limit=5', {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const newUnreadNotifications = data.data.filter(n => !n.is_read);
-                                const oldNotifications = notifications.unread || [];
-                                const oldIds = oldNotifications.map(n => n.id);
-                                const hasNewNotifications = newUnreadNotifications.some(n => !oldIds.includes(n.id));
-
-                                if (hasNewNotifications && !isDropdownOpen) {
-                                    notifications.unread = newUnreadNotifications;
-                                    const bell = notificationDropdown.querySelector('svg');
-                                    if (bell) {
-                                        bell.classList.add('text-yellow-400', 'animate-pulse');
-                                        setTimeout(() => {
-                                            bell.classList.remove('text-yellow-400', 'animate-pulse');
-                                        }, 3000);
-                                    }
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error silently updating notifications:', error);
-                        });
-                }
-            }, 60000);
+            // Check for new notifications periodically
+            setInterval(checkForNewNotifications, 60000);
         });
     </script>
 @endpush
