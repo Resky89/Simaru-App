@@ -40,72 +40,80 @@
                     <!-- Left Column - Order Information -->
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Pemesanan</h2>
-                        
-                    <!-- PO ID -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['purchase_order_code'] }}</p>
-                    </div>
 
-                    <!-- Comparison ID -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</p>
-                    </div>
+                        <table class="w-full">
+                            <tbody>
+                                <!-- PO ID -->
+                                <tr>
+                                    <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Pemesanan</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['purchase_order_code'] }}</td>
+                                </tr>
 
-                    <!-- PO Date -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>
-                            @if(isset($purchaseOrder['created_at']))
-                                @php
-                                    $date = \Carbon\Carbon::parse($purchaseOrder['created_at']);
-                                    $monthsIndonesian = [
-                                        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                                    ];
-                                    echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
-                                @endphp
-                            @else
-                                N/A
-                            @endif
-                        </p>
-                        </div>
+                                <!-- Comparison ID -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Nomor Penawaran</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['comparison_code'] ?? 'N/A' }}</td>
+                                </tr>
 
-                        <!-- Creator -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Dibuat oleh</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['creator_employee_number'] ?? 'N/A' }}</p>
-                        </div>
+                                <!-- PO Date -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Tanggal Pemesanan</td>
+                                    <td class="py-1 align-top text-[#666666]">:
+                                        @if(isset($purchaseOrder['created_at']))
+                                            @php
+                                                $date = \Carbon\Carbon::parse($purchaseOrder['created_at']);
+                                                $monthsIndonesian = [
+                                                    1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                                ];
+                                                echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
+                                            @endphp
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                <!-- Creator -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Dibuat oleh</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['creator_employee_number'] ?? 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <!-- Right Column - Vendor Information -->
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Vendor</h2>
-                        
-                        <!-- Vendor -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Nama Vendor</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</p>
-                        </div>
 
-                        <!-- PIC -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Penanggung Jawab</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</p>
-                        </div>
+                        <table class="w-full">
+                            <tbody>
+                                <!-- Vendor -->
+                                <tr>
+                                    <td class="py-1 align-top w-48 font-medium text-[#666666]">Nama Vendor</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['vendor']['vendor_name'] ?? 'N/A' }}</td>
+                                </tr>
 
-                        <!-- PIC Contact -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Nomor Telepon</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</p>
-                        </div>
-                        
-                        <!-- Email (if available) -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Email</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>{{ $purchaseOrder['vendor']['email'] ?? 'N/A' }}</p>
-                        </div>
+                                <!-- PIC -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Penanggung Jawab</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['vendor']['contact_person'] ?? 'N/A' }}</td>
+                                </tr>
+
+                                <!-- PIC Contact -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Nomor Telepon</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['vendor']['phone_number'] ?? 'N/A' }}</td>
+                                </tr>
+
+                                <!-- Email (if available) -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Email</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['vendor']['email'] ?? 'N/A' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 

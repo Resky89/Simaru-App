@@ -48,57 +48,60 @@
                             <div class="space-y-5">
                                 <h2 class="text-lg font-semibold text-[#666666]">Informasi Penerimaan</h2>
 
-                                <!-- Receipt Number -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penerimaan</p>
-                                    <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['receipt_code'] ?? 'N/A' }}</p>
-                                </div>
+                                <table class="w-full">
+                                    <tbody>
+                                        <!-- Receipt Number -->
+                                        <tr>
+                                            <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Penerimaan</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['receipt_code'] ?? 'N/A' }}</td>
+                                        </tr>
 
-                                <!-- Order Number -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Pemesanan</p>
-                                    <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['purchase_order_code'] ?? 'N/A' }}
-                                    </p>
-                                </div>
-                                
-                                <!-- Receipt Date -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penerimaan</p>
-                                    <p class="text-[#666666]"><span class="sm">:
-                                        </span>{{ $receipt['receipt_date'] ? \Carbon\Carbon::parse($receipt['receipt_date'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}
-                                    </p>
-                                </div>
+                                        <!-- Order Number -->
+                                        <tr>
+                                            <td class="py-1 align-top font-medium text-[#666666]">Nomor Pemesanan</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['purchase_order_code'] ?? 'N/A' }}</td>
+                                        </tr>
+
+                                        <!-- Receipt Date -->
+                                        <tr>
+                                            <td class="py-1 align-top font-medium text-[#666666]">Tanggal Penerimaan</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['receipt_date'] ? \Carbon\Carbon::parse($receipt['receipt_date'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
 
                             <!-- Right Column - Personnel Information -->
                             <div class="space-y-5">
                                 <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil</h2>
 
-                                <!-- Delivered by -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Dikirim Oleh</p>
-                                    <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['delivered_by'] ?? 'N/A' }}</p>
-                                </div>
+                                <table class="w-full">
+                                    <tbody>
+                                        <!-- Delivered by -->
+                                        <tr>
+                                            <td class="py-1 align-top w-48 font-medium text-[#666666]">Dikirim Oleh</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['delivered_by'] ?? 'N/A' }}</td>
+                                        </tr>
 
-                                <!-- Received by -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Diterima Oleh</p>
-                                    <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['receiver_name'] ?? 'N/A' }}</p>
-                                </div>
+                                        <!-- Received by -->
+                                        <tr>
+                                            <td class="py-1 align-top font-medium text-[#666666]">Diterima Oleh</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['receiver_name'] ?? 'N/A' }}</td>
+                                        </tr>
 
-                                <!-- User Input -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Diinput Oleh</p>
-                                    <p class="text-[#666666]"><span class="sm">: </span>{{ $receipt['creator_name'] ?? 'N/A' }}</p>
-                                </div>
+                                        <!-- User Input -->
+                                        <tr>
+                                            <td class="py-1 align-top font-medium text-[#666666]">Diinput Oleh</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['creator_name'] ?? 'N/A' }}</td>
+                                        </tr>
 
-                                <!-- Input Date -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                    <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Input</p>
-                                    <p class="text-[#666666]"><span class="sm">:
-                                        </span>{{ $receipt['created_at'] ? \Carbon\Carbon::parse($receipt['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}
-                                    </p>
-                                </div>
+                                        <!-- Input Date -->
+                                        <tr>
+                                            <td class="py-1 align-top font-medium text-[#666666]">Tanggal Input</td>
+                                            <td class="py-1 align-top text-[#666666]">: {{ $receipt['created_at'] ? \Carbon\Carbon::parse($receipt['created_at'])->locale('id')->translatedFormat('d F Y') : 'N/A' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 

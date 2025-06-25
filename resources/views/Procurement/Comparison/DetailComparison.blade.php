@@ -46,85 +46,94 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Perbandingan</h2>
-                        
-                        <!-- Request Number -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Nomor Penawaran</p>
-                            <p class="text-[#666666]"><span class="sm">: </span><span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></p>
-                        </div>
 
-                        <!-- Request Name -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Judul Permintaan</p>
-                            <p class="text-[#666666]"><span class="sm">: </span><span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></p>
-                        </div>
+                        <table class="w-full">
+                            <tbody>
+                                <!-- Request Number -->
+                                <tr>
+                                    <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Penawaran</td>
+                                    <td class="py-1 align-top text-[#666666]">: <span id="requestNumber">{{ $comparison['comparison_code'] ?? 'N/A' }}</span></td>
+                                </tr>
 
-                        <!-- Input Date -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Tanggal Penawaran</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>
-                                @if(isset($comparison['created_at']))
-                                    @php
-                                        $date = \Carbon\Carbon::parse($comparison['created_at']);
-                                        $monthsIndonesian = [
-                                            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                                            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                                        ];
-                                        echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
-                                    @endphp
-                                @else
-                                    N/A
-                                @endif
-                            </p>
-                        </div>
+                                <!-- Request Name -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Judul Permintaan</td>
+                                    <td class="py-1 align-top text-[#666666]">: <span id="requestName">{{ $comparison['title'] ?? 'N/A' }}</span></td>
+                                </tr>
+
+                                <!-- Input Date -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Tanggal Penawaran</td>
+                                    <td class="py-1 align-top text-[#666666]">:
+                                        @if(isset($comparison['created_at']))
+                                            @php
+                                                $date = \Carbon\Carbon::parse($comparison['created_at']);
+                                                $monthsIndonesian = [
+                                                    1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                                                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                                                ];
+                                                echo $date->format('d') . ' ' . $monthsIndonesian[$date->format('n')] . ' ' . $date->format('Y');
+                                            @endphp
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div class="space-y-5">
                         <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil & Status</h2>
-                        
-                        <!-- User Input -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Dibuat oleh</p>
-                            <p class="text-[#666666]"><span class="sm">: </span><span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></p>
-                        </div>
 
-                        <!-- Completer (if available) -->
-                        @if(isset($comparison['completer']) && !empty($comparison['completer']))
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Diselesaikan oleh</p>
-                            <p class="text-[#666666]"><span class="sm">: </span><span>{{ $comparison['completer']['employee_number'] }}</span>
-                                @if(isset($comparison['completed_at']))
-                                    <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($comparison['completed_at'])->locale('id')->translatedFormat('d F Y') }})</span>
-                                @endif
-                            </p>
-                        </div>
-                        @endif
+                        <table class="w-full">
+                            <tbody>
+                                <!-- User Input -->
+                                <tr>
+                                    <td class="py-1 align-top w-48 font-medium text-[#666666]">Dibuat oleh</td>
+                                    <td class="py-1 align-top text-[#666666]">: <span id="userInput">{{ isset($comparison['creator']) ? $comparison['creator']['employee_number'] : 'N/A' }}</span></td>
+                                </tr>
 
-                        <!-- Status -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                            <p class="w-40 sm:w-48 text-[#666666] font-medium">Status</p>
-                            <p class="text-[#666666]"><span class="sm">: </span>
-                                <span class="px-2 py-1 rounded-full text-xs
-                                    @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
-                                    @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
-                                    @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
-                                    @else bg-gray-100 text-gray-800 @endif">
-                                    @if(isset($comparison['status']))
-                                        @if($comparison['status'] == 'Completed')
-                                            Selesai
-                                        @elseif($comparison['status'] == 'In Progress')
-                                            Dalam Proses
-                                        @elseif($comparison['status'] == 'Draft')
-                                            Draft
-                                        @else
-                                            {{ $comparison['status'] }}
+                                <!-- Completer (if available) -->
+                                @if(isset($comparison['completer']) && !empty($comparison['completer']))
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Diselesaikan oleh</td>
+                                    <td class="py-1 align-top text-[#666666]">:
+                                        <span>{{ $comparison['completer']['employee_number'] }}</span>
+                                        @if(isset($comparison['completed_at']))
+                                            <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($comparison['completed_at'])->locale('id')->translatedFormat('d F Y') }})</span>
                                         @endif
-                                    @else
-                                        Tidak Ada
-                                    @endif
-                                </span>
-                            </p>
-                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+
+                                <!-- Status -->
+                                <tr>
+                                    <td class="py-1 align-top font-medium text-[#666666]">Status</td>
+                                    <td class="py-1 align-top text-[#666666]">:
+                                        <span class="px-2 py-1 rounded-full text-xs
+                                            @if(isset($comparison['status']) && $comparison['status'] == 'Completed') bg-green-100 text-green-800
+                                            @elseif(isset($comparison['status']) && $comparison['status'] == 'In Progress') bg-blue-100 text-blue-800
+                                            @elseif(isset($comparison['status']) && $comparison['status'] == 'Draft') bg-yellow-100 text-yellow-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            @if(isset($comparison['status']))
+                                                @if($comparison['status'] == 'Completed')
+                                                    Selesai
+                                                @elseif($comparison['status'] == 'In Progress')
+                                                    Dalam Proses
+                                                @elseif($comparison['status'] == 'Draft')
+                                                    Draft
+                                                @else
+                                                    {{ $comparison['status'] }}
+                                                @endif
+                                            @else
+                                                Tidak Ada
+                                            @endif
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 

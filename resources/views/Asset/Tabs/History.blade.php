@@ -133,7 +133,7 @@
                                 <div class="flex items-start">
                                     <div class="w-20 text-sm text-gray-500">${time}</div>
                                     <div class="flex-1">
-                                        <span class="font-semibold">${history.user?.employee?.name || 'Pengguna Tidak Dikenal'}</span> ${translateStatusMessage(history.message)}
+                                        ${formatHistoryMessage(history)}
                                     </div>
                                 </div>
                             </div>
@@ -186,13 +186,40 @@
         return `${hours}:${minutes}`;
     }
 
+    function formatHistoryMessage(history) {
+        const employeeNumber = history.user?.employee_number || 'Sistem';
+
+        switch(history.action_type) {
+            case 'ASSET_STATUS_CHANGE':
+                return `<span class="font-semibold">Pegawai ${employeeNumber}</span> ${translateStatusMessage(history.message)}`;
+
+            case 'CALIBRATION':
+                return `<span class="font-semibold">Pegawai ${employeeNumber}</span> melakukan kalibrasi:
+                        <span style="color: #25B1FF; font-weight: bold;">${history.calibration?.notes || history.message}</span>`;
+
+            case 'MAINTENANCE_SCHEDULE':
+                return `<span class="font-semibold">Pegawai ${employeeNumber}</span> menjadwalkan pemeliharaan:
+                        <span style="color: #25B1FF; font-weight: bold;">${history.maintenance?.description || history.message}</span>`;
+
+            case 'DOCUMENT_UPLOAD':
+                return `<span class="font-semibold">Pegawai ${employeeNumber}</span> mengunggah dokumen:
+                        <span class="text-[#213268] font-bold">${history.document?.title || history.message}</span>`;
+
+            default:
+                return `<span class="font-semibold">Pegawai ${employeeNumber}</span> ${history.message}`;
+        }
+    }
+
     function translateStatusMessage(message) {
         const statusColors = {
             'Tersedia': '#659B09',      // Available - green
             'Dipinjam': '#F59E0B',      // Checked out - amber/yellow
             'Hilang': '#EF4444',        // Lost - red
             'Ditemukan': '#659B09',     // Found - green (same as available)
-            'Dihapuskan': '#ACC3EF'     // Dispose - light blue
+            'Dihapuskan': '#ACC3EF',    // Dispose - light blue
+            'Keluhan': '#25B1FF',       // Complaint - blue
+            'Perbaikan': '#25B1FF',     // Under repair - blue
+            'Kalibrasi': '#25B1FF'      // Calibration - blue
         };
 
         let translatedMessage = message
@@ -205,6 +232,9 @@
             .replace(/Lost/gi, 'Hilang')
             .replace(/Found/gi, 'Ditemukan')
             .replace(/Disposed/gi, 'Dihapuskan')
+            .replace(/Complaint/gi, 'Keluhan')
+            .replace(/Under repair/gi, 'Perbaikan')
+            .replace(/Calibration/gi, 'Kalibrasi')
             .replace(/Admin System/g, 'Sistem Admin');
 
         Object.keys(statusColors).forEach(status => {
