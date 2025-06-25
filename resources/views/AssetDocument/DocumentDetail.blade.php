@@ -339,21 +339,19 @@
                                     value="{{ $document['document_id'] ?? '' }}">
                                 <div class="space-y-4">
                                     <!-- Document Title -->
-                                    <div class="space-y-2">
+                                    <div>
                                         <label for="edit_document_title"
                                             class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span
                                                 class="text-red-500">*</span></label>
                                         <input type="text" id="edit_document_title" name="document_title"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
                                             value="{{ $document['document_title'] ?? '' }}">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi
-                                        </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
 
                                     <!-- File Upload -->
                                     <div>
-                                        <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File
-                                            (Opsional)</label>
+                                        <label for="edit_file" class="block text-sm font-medium text-gray-700 mb-1">Ganti File <span class="text-red-500">*</span></label>
                                         <div
                                             class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                             <!-- Current File Info (if any) -->
@@ -462,6 +460,7 @@
                                                 accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                         </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">File harus dipilih</div>
                                     </div>
 
                                     <!-- Notes -->
@@ -834,7 +833,7 @@
                     const closeBtn = document.createElement('span');
                     closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
                     closeBtn.textContent = '×';
-                    closeBtn.onclick = function () {
+                    closeBtn.onclick = function() {
                         toast.remove();
                     };
 
@@ -866,6 +865,33 @@
                     </style>
                 `);
 
+            function clearModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+
+                const imagePreview = modal.querySelector('#edit_image_preview');
+                if (imagePreview) imagePreview.classList.add('hidden');
+
+                const filePreview = modal.querySelector('#edit_file_preview');
+                if (filePreview) filePreview.classList.add('hidden');
+
+                const progressContainer = modal.querySelector('#editUploadProgressContainer');
+                if (progressContainer) progressContainer.classList.add('hidden');
+
+                const errorMessages = modal.querySelectorAll('.error-message');
+                errorMessages.forEach(msg => {
+                    if (msg) msg.classList.add('hidden');
+                });
+
+                const inputs = modal.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.classList.remove('border-red-500');
+                });
+            }
+
             const openModal = function (modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -879,6 +905,10 @@
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
                     modal.classList.add('hidden');
+
+                    if (modal.id === 'editDocumentModal') {
+                        clearModal('editDocumentModal');
+                    }
 
                     if (modal.id === 'linkAssetsModal') {
                         selectedAssets = [];
@@ -899,7 +929,7 @@
             };
 
             const isImageFile = function (file) {
-                return file && file.type.match(/^image\/(jpeg|jpg|png|gif|webp)$/i);
+                return file && file.type.match(/^image\/(jpeg|jpg|png)$/i);
             };
 
             const hasImageExtension = function (filename) {
@@ -1105,6 +1135,11 @@
                     removeFileInput.name = 'remove_file';
                     removeFileInput.value = '1';
                     document.getElementById('editDocumentForm').appendChild(removeFileInput);
+                    const fileInput = document.getElementById('edit_file');
+                    const fileErrorElement = fileInput.closest('div').nextElementSibling;
+                    if (fileErrorElement && (!fileInput.files || fileInput.files.length === 0)) {
+                        fileErrorElement.classList.remove('hidden');
+                    }
                 });
             };
 
@@ -1117,15 +1152,35 @@
                     e.preventDefault();
 
                     const titleInput = this.querySelector('#edit_document_title');
-                    const titleErrorElement = titleInput.closest('.space-y-2')?.querySelector('.error-message');
+                    const fileInput = this.querySelector('#edit_file');
+                    const titleErrorElement = titleInput.closest('div').querySelector('.error-message');
+                    const fileErrorElement = fileInput.closest('div').nextElementSibling;
+                    const hasCurrentFile = !document.getElementById('edit_current_file').classList.contains('hidden');
+                    const hasRemoveFileInput = this.querySelector('input[name="remove_file"]');
+
+                    let isValid = true;
 
                     titleInput.classList.remove('border-red-500');
                     if (titleErrorElement) titleErrorElement.classList.add('hidden');
+
+                    if (fileErrorElement) fileErrorElement.classList.add('hidden');
 
                     if (!titleInput.value.trim()) {
                         titleInput.classList.add('border-red-500');
                         if (titleErrorElement) titleErrorElement.classList.remove('hidden');
                         titleInput.focus();
+                        isValid = false;
+                    }
+
+                    if ((!hasCurrentFile || hasRemoveFileInput) && (!fileInput.files || fileInput.files.length === 0)) {
+                        if (fileErrorElement) fileErrorElement.classList.remove('hidden');
+                        if (isValid) fileInput.focus();
+                        isValid = false;
+                    } else {
+                        if (fileErrorElement) fileErrorElement.classList.add('hidden');
+                    }
+
+                    if (!isValid) {
                         return;
                     }
 
@@ -1140,6 +1195,7 @@
                     statusMessage.textContent = 'Memulai pembaruan...';
                     progressBar.classList.remove('bg-red-500');
                     progressBar.classList.add('bg-green-500');
+                    statusMessage.classList.remove('text-red-600');
                     progressContainer.classList.remove('hidden');
                     submitBtn.disabled = true;
                     const formData = new FormData(this);
@@ -1193,51 +1249,61 @@
                                     errorMessage = response.message;
                                 }
 
-                                if (response.data && response.data.errors && Array.isArray(response.data.errors)) {
-                                    const detailedErrors = response.data.errors.map(error => {
-                                        if (error.row && error.reason) {
-                                            return `Row ${error.row}: ${error.reason || 'Unknown error'}`;
-                                        } else if (typeof error === 'string') {
-                                            return error;
-                                        } else if (error.message) {
-                                            return error.message;
-                                        }
-                                        return 'Unknown error';
-                                    });
+                                let hasDetails = false;
+                                let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
 
-                                    if (detailedErrors.length > 0) {
-                                        errorMessage += '<ul class="mt-2 ml-4 list-disc">';
-                                        detailedErrors.forEach(err => {
-                                            errorMessage += `<li>${err}</li>`;
+                                if (response.data && response.data.errors) {
+                                    hasDetails = true;
+
+                                    if (Array.isArray(response.data.errors)) {
+                                        response.data.errors.forEach(error => {
+                                            if (typeof error === 'string') {
+                                                detailsHtml += `<li>${error}</li>`;
+                                            } else if (typeof error === 'object') {
+                                                if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
+                                                else if (error.message) detailsHtml += `<li>${error.message}</li>`;
+                                            }
                                         });
-                                        errorMessage += '</ul>';
+                                    } else if (typeof response.data.errors === 'string') {
+                                        detailsHtml += `<li>${response.data.errors}</li>`;
+                                    } else if (typeof response.data.errors === 'object') {
+                                        Object.entries(response.data.errors).forEach(([field, fieldErrors]) => {
+                                            if (Array.isArray(fieldErrors)) {
+                                                fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                                            } else if (typeof fieldErrors === 'string') {
+                                                detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
+                                            }
+                                        });
                                     }
                                 } else if (response.errors) {
-                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                    hasDetails = true;
 
                                     if (Array.isArray(response.errors)) {
                                         response.errors.forEach(error => {
                                             if (typeof error === 'string') {
-                                                errorMessage += `<li>${error}</li>`;
-                                            } else if (error.message) {
-                                                errorMessage += `<li>${error.message}</li>`;
-                                            } else if (error.reason) {
-                                                errorMessage += `<li>${error.reason}</li>`;
+                                                detailsHtml += `<li>${error}</li>`;
+                                            } else if (typeof error === 'object') {
+                                                if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
+                                                else if (error.message) detailsHtml += `<li>${error.message}</li>`;
                                             }
                                         });
-                                    } else {
-                                        Object.entries(response.errors).forEach(([field, errors]) => {
-                                            if (Array.isArray(errors)) {
-                                                errors.forEach(error => {
-                                                    errorMessage += `<li>${error}</li>`;
-                                                });
-                                            } else if (typeof errors === 'string') {
-                                                errorMessage += `<li>${errors}</li>`;
+                                    } else if (typeof response.errors === 'string') {
+                                        detailsHtml += `<li>${response.errors}</li>`;
+                                    } else if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
+                                        Object.entries(response.errors).forEach(([field, fieldErrors]) => {
+                                            if (Array.isArray(fieldErrors)) {
+                                                fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                                            } else if (typeof fieldErrors === 'string') {
+                                                detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
                                             }
                                         });
                                     }
+                                }
 
-                                    errorMessage += '</ul>';
+                                detailsHtml += '</ul>';
+
+                                if (hasDetails) {
+                                    errorMessage += detailsHtml;
                                 }
                             } catch (e) {
                                 console.error('Error parsing error response:', e);
@@ -1919,6 +1985,30 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                 });
+            });
+
+            document.getElementById('edit_document_title')?.addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+                const errorElement = this.closest('div').querySelector('.error-message');
+                if (errorElement) errorElement.classList.add('hidden');
+            });
+
+            document.getElementById('edit_file')?.addEventListener('change', function() {
+                const errorElement = this.closest('div').nextElementSibling;
+                if (errorElement && errorElement.classList.contains('error-message')) {
+                    errorElement.classList.add('hidden');
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('[id$="Modal"]:not(.hidden)').forEach(modal => {
+                        const content = modal.querySelector('[id$="Content"]');
+                        if (content) {
+                            closeModal(modal, content);
+                        }
+                    });
+                }
             });
         });
     </script>

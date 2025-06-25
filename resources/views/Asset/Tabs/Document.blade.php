@@ -79,14 +79,14 @@
                                             class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span
                                                 class="text-red-500">*</span></label>
                                         <input type="text" id="document_title" name="document_title"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
-                                            required>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
 
                                     <!-- File Upload -->
                                     <div>
                                         <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Upload
-                                            File</label>
+                                            File <span class="text-red-500">*</span></label>
                                         <div
                                             class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                             <!-- Image preview -->
@@ -145,8 +145,9 @@
                                             </div>
                                             <input type="file" id="file" name="document"
                                                 accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                         </div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">File harus dipilih</div>
                                     </div>
 
                                     <!-- Notes -->
@@ -181,7 +182,7 @@
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2.5">
                                             <div id="uploadProgressBar"
-                                                class="bg-[#213268] h-2.5 rounded-full transition-all duration-300"
+                                                class="bg-green-500 h-2.5 rounded-full transition-all duration-300"
                                                 style="width: 0%"></div>
                                         </div>
                                         <div id="uploadStatusMessage" class="mt-2 text-sm text-gray-600"></div>
@@ -273,8 +274,8 @@
                     }
                     if (progressBar) {
                         progressBar.style.width = '0%';
-                        progressBar.classList.remove('bg-red-500', 'bg-green-500');
-                        progressBar.classList.add('bg-[#213268]');
+                        progressBar.classList.remove('bg-red-500');
+                        progressBar.classList.add('bg-green-500');
                     }
 
                     modal.classList.remove('hidden');
@@ -349,22 +350,39 @@
             documentForm.addEventListener('submit', function (e) {
                 e.preventDefault();
 
+                const docTitleInput = document.getElementById('document_title');
+                const docFileInput = document.getElementById('file');
+                const titleErrorElement = docTitleInput.closest('div').querySelector('.error-message');
+                const fileErrorElement = docFileInput.closest('div').nextElementSibling;
+
+                let isValid = true;
+
+                docTitleInput.classList.remove('border-red-500');
+                if(titleErrorElement) titleErrorElement.classList.add('hidden');
+
+                if(fileErrorElement) fileErrorElement.classList.add('hidden');
+
+                if (!docTitleInput.value.trim()) {
+                    docTitleInput.classList.add('border-red-500');
+                    if(titleErrorElement) titleErrorElement.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                if (!docFileInput.files || docFileInput.files.length === 0) {
+                    if(fileErrorElement) fileErrorElement.classList.remove('hidden');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    return;
+                }
+
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const progressContainer = document.getElementById('uploadProgressContainer');
                 const progressBar = document.getElementById('uploadProgressBar');
                 const progressText = document.getElementById('uploadProgressText');
                 const statusMessage = document.getElementById('uploadStatusMessage');
                 const formData = new FormData(this);
-
-                if (!formData.get('document_title')) {
-                    showToast('Document title is required', 'error');
-                    return;
-                }
-
-                if (!formData.get('document') || !(formData.get('document') instanceof File) || formData.get('document').size === 0) {
-                    showToast('Please select a valid file', 'error');
-                    return;
-                }
 
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
@@ -397,7 +415,7 @@
 
                         if (xhr.status >= 200 && xhr.status < 300) {
                             if (result.success === true) {
-                                progressBar.classList.remove('bg-[#213268]', 'bg-red-500');
+                                progressBar.classList.remove('bg-red-500');
                                 progressBar.classList.add('bg-green-500');
                                 statusMessage.textContent = 'Upload berhasil!';
                                 showToast(result.message || 'Dokumen berhasil diupload!', 'success');
@@ -419,7 +437,7 @@
                                     }
                                 }, 1000);
                             } else {
-                                progressBar.classList.remove('bg-[#213268]');
+                                progressBar.classList.remove('bg-green-500');
                                 progressBar.classList.add('bg-red-500');
 
                                 let errorMessage = 'Server error';
@@ -440,7 +458,7 @@
                                 showToast(errorMessage || 'Gagal mengupload dokumen', 'error');
                             }
                         } else {
-                            progressBar.classList.remove('bg-[#213268]');
+                            progressBar.classList.remove('bg-green-500');
                             progressBar.classList.add('bg-red-500');
 
                             let errorMessage = 'Server error: ' + xhr.status;
@@ -476,7 +494,7 @@
                 });
 
                 xhr.addEventListener('error', function () {
-                    progressBar.classList.remove('bg-[#213268]');
+                    progressBar.classList.remove('bg-green-500');
                     progressBar.classList.add('bg-red-500');
                     progressBar.style.width = '100%';
                     statusMessage.textContent = 'Error jaringan selama penguploadan file';
@@ -823,6 +841,19 @@
         DocumentSystem.init();
 
         window.DocumentSystem = DocumentSystem;
+
+        document.getElementById('document_title')?.addEventListener('input', function() {
+            this.classList.remove('border-red-500');
+            const errorElement = this.closest('div').querySelector('.error-message');
+            if (errorElement) errorElement.classList.add('hidden');
+        });
+
+        document.getElementById('file')?.addEventListener('change', function() {
+            const errorElement = this.closest('div').nextElementSibling;
+            if (errorElement && errorElement.classList.contains('error-message')) {
+                errorElement.classList.add('hidden');
+            }
+        });
 
         const submitBtn = document.getElementById('addDocumentSubmitBtn');
         const form = document.getElementById('addDocumentForm');
