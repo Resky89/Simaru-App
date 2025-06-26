@@ -139,7 +139,7 @@
                                                 <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span
                                                         class="text-[#213268] font-semibold">pilih file</span></p>
                                                 <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX,
-                                                    XLS, XLSX, JPG, JPEG, PNG</p>
+                                                    XLS, XLSX, JPG, JPEG, PNG (Ukuran maks: 10MB)</p>
                                                 <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area
                                                     ini untuk memilih file</p>
                                             </div>
