@@ -347,7 +347,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
                                         <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
-                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                        <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Ukuran maks: 5MB)</p>
                                         <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                     </div>
                                     <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
@@ -548,7 +548,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
                                             <p class="mt-1 text-sm text-gray-600">Seret file Anda atau <span class="text-[#213268] font-semibold">pilih file</span></p>
-                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</p>
+                                            <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Ukuran maks: 5MB)</p>
                                             <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini untuk memilih file</p>
                                         </div>
                                         <input type="file" id="edit_file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">

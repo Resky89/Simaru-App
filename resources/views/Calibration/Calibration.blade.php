@@ -704,7 +704,7 @@
                                                         <p class="mt-1 text-sm text-gray-600">Seret berkas Anda atau <span
                                                                 class="text-[#213268] font-semibold">jelajahi berkas</span></p>
                                                         <p class="mt-1 text-xs text-gray-500">Format yang diterima: PDF, JPG, JPEG,
-                                                            PNG (Maks: 10MB)</p>
+                                                            PNG (Maks: 5MB)</p>
                                                         <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area
                                                             ini untuk memilih berkas</p>
                                                     </div>

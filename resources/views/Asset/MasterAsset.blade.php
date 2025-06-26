@@ -411,7 +411,9 @@
                                                 </svg>
                                                 <p class="mt-1 text-sm text-gray-600">Seret gambar atau <span
                                                         class="text-[#213268] font-semibold">pilih file</span></p>
-                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png</p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
+                                                    (Ukuran maks: 5MB)
+                                                </p>
                                                 <p class="mt-1 text-xs text-[#213268] font-medium">Klik di mana saja di area ini
                                                     untuk memilih file</p>
                                             </div>
@@ -629,7 +631,9 @@
                                                 </svg>
                                                 <p class="mt-1 text-sm text-gray-600">Seret gambar atau <span
                                                         class="text-blue-600">pilih file</span></p>
-                                                <p class="mt-1 text-xs text-gray-500">jpg, jpeg, png</p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
+                                                    (Ukuran maks: 5MB)
+                                                </p>
                                             </div>
                                             <input type="file" id="edit_image_file" name="image_file" accept=".jpg,.jpeg,.png"
                                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
