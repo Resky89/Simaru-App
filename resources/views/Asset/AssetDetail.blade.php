@@ -414,7 +414,17 @@
                             @if($asset['current_status'] === 'dispose')
                                 <div class="flex flex-wrap items-center">
                                     <span class="w-[150px] font-semibold text-sm">Tanggal Dimusnahkan</span>
-                                    <span class="text-sm">{{ $asset['updated_at'] ?? '-' }}</span>
+                                    <span class="text-sm">
+                                        @if(isset($asset['updated_at']))
+                                            @php
+                                                // Convert the timestamp to a more readable format without time
+                                                $disposedDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
+                                            @endphp
+                                            {{ $disposedDate }}
+                                        @else
+                                            -
+                                        @endif
+                                    </span>
                                 </div>
                             @endif
 
