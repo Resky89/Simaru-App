@@ -250,7 +250,8 @@
                                             <td class="p-3 border-t border-[#EEF1F4] text-center">
                                                 <div class="flex justify-center items-center space-x-2">
                                                     <a href="{{ route('asset-details', $asset['asset_id']) }}"
-                                                        class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                                        class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
+                                                        title="Lihat Detail Aset">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -272,7 +273,8 @@
                                                             data-condition="{{ $asset['condition'] ?? '' }}"
                                                             data-room-id="{{ $asset['room_id'] ?? '' }}"
                                                             data-is-depreciable="{{ isset($asset['asset_master']) && isset($asset['asset_master']['is_depreciable']) && $asset['asset_master']['is_depreciable'] ? 'true' : 'false' }}"
-                                                            data-image-path="{{ $asset['picture_path'] ?? '' }}">
+                                                            data-image-path="{{ $asset['picture_path'] ?? '' }}"
+                                                            title="Edit Aset">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -284,7 +286,8 @@
                                                         <button
                                                             class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-asset-btn"
                                                             data-id="{{ $asset['asset_id'] ?? '' }}"
-                                                            data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}">
+                                                            data-name="{{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '' }}"
+                                                            title="Hapus Aset">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

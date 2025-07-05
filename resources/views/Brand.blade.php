@@ -114,7 +114,8 @@
                                                     <button
                                                         class="edit-brand-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         data-brand-id="{{ $brand['brand_id'] }}"
-                                                        data-brand-name="{{ $brand['brand_name'] }}">
+                                                        data-brand-name="{{ $brand['brand_name'] }}"
+                                                        title="Edit Merk">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,7 +127,8 @@
                                                     <button
                                                         class="delete-brand-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                         data-brand-id="{{ $brand['brand_id'] }}"
-                                                        data-brand-name="{{ $brand['brand_name'] }}">
+                                                        data-brand-name="{{ $brand['brand_name'] }}"
+                                                        title="Hapus Merk">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

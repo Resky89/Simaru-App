@@ -138,7 +138,8 @@
                                                         data-subcategory-id="{{ $subcategory['subcategory_id'] }}"
                                                         data-asset-type="{{ $subcategory['asset_type'] }}"
                                                         data-subcategory-name="{{ $subcategory['subcategory_name'] }}"
-                                                        data-description="{{ $subcategory['description'] ?? '' }}">
+                                                        data-description="{{ $subcategory['description'] ?? '' }}"
+                                                        title="Edit Kategori">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -149,7 +150,8 @@
                                                 @if(hasPermission('asset-subcategory:delete'))
                                                     <button
                                                         class="delete-subcategory-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-subcategory-id="{{ $subcategory['subcategory_id'] }}">
+                                                        data-subcategory-id="{{ $subcategory['subcategory_id'] }}"
+                                                        title="Hapus Kategori">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

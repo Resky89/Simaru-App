@@ -155,7 +155,8 @@
                                                 @if(hasPermission('room:edit'))
                                                     <button
                                                         class="edit-room-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
-                                                        data-id="{{ $room['room_id'] }}">
+                                                        data-id="{{ $room['room_id'] }}"
+                                                        title="Edit Ruangan">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -166,7 +167,8 @@
                                                 @if(hasPermission('room:delete'))
                                                     <button
                                                         class="delete-room-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-id="{{ $room['room_id'] }}">
+                                                        data-id="{{ $room['room_id'] }}"
+                                                        title="Hapus Ruangan">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

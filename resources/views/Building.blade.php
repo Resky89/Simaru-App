@@ -148,7 +148,8 @@
                                                         class="edit-building-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         data-id="{{ $building['building_id'] }}"
                                                         data-name="{{ $building['building_name'] }}"
-                                                        data-address="{{ $building['address'] }}">
+                                                        data-address="{{ $building['address'] }}"
+                                                        title="Edit Gedung">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -159,7 +160,8 @@
                                                 @if(hasPermission('building:delete'))
                                                     <button
                                                         class="delete-building-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-id="{{ $building['building_id'] }}">
+                                                        data-id="{{ $building['building_id'] }}"
+                                                        title="Hapus Gedung">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

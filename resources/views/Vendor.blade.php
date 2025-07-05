@@ -217,7 +217,8 @@
                                                         data-phone-number="{{ $vendor['phone_number'] }}"
                                                         data-email="{{ $vendor['email'] }}"
                                                         data-website="{{ $vendor['website'] ?? '' }}"
-                                                        data-address="{{ $vendor['address'] ?? '' }}">
+                                                        data-address="{{ $vendor['address'] ?? '' }}"
+                                                        title="Edit Vendor">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -228,7 +229,8 @@
                                                 @if(hasPermission('vendor:delete'))
                                                     <button
                                                         class="delete-vendor-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-vendor-id="{{ $vendor['vendor_id'] }}">
+                                                        data-vendor-id="{{ $vendor['vendor_id'] }}"
+                                                        title="Hapus Vendor">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

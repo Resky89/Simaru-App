@@ -103,7 +103,8 @@
                                                         data-employee-number="{{ $user['employee_number'] }}"
                                                         data-role-ids="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_id')) : '[]' }}"
                                                         data-role-names="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_name')) : '[]' }}"
-                                                        data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}">
+                                                        data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}"
+                                                        title="Edit Pengguna">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -114,7 +115,8 @@
                                                 @if(hasPermission('user:delete'))
                                                     <button
                                                         class="delete-user-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-user-id="{{ $user['user_id'] }}">
+                                                        data-user-id="{{ $user['user_id'] }}"
+                                                        title="Hapus Pengguna">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

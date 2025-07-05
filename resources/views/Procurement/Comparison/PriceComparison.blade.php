@@ -114,14 +114,14 @@
                                 </td>
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
-                                        <a href="{{ route('procurement.detail-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                        <a href="{{ route('procurement.detail-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors" title="Lihat Detail Perbandingan Harga">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </a>
                                         @if(hasPermission('price-comparison:edit') && (!isset($comparison['status']) || strtolower($comparison['status']) != 'completed'))
-                                        <a href="{{ route('procurement.edit-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors" title="Edit">
+                                        <a href="{{ route('procurement.edit-comparison', ['id' => $comparison['comparison_id'] ?? '']) }}" class="p-2 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors" title="Edit Perbandingan Harga">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
@@ -262,7 +262,7 @@
                 notification.remove();
             }, 500);
         }
-    }, 5000); 
+    }, 5000);
 </script>
 @endif
 
@@ -291,7 +291,7 @@
                 notification.remove();
             }, 500);
         }
-    }, 5000); 
+    }, 5000);
 </script>
 @endif
 
@@ -334,7 +334,7 @@
             if (statusValue) url.searchParams.set('status', statusValue);
             if (sortValue) url.searchParams.set('sort', sortValue);
 
-            url.searchParams.set('page', 1);    
+            url.searchParams.set('page', 1);
             window.location.href = url.toString();
         }
 

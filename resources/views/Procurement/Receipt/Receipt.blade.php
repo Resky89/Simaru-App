@@ -125,7 +125,7 @@
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex justify-center">
                                                 <a href="{{ route('procurement.receipt.show', $receipt['receipt_id']) }}"
-                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors">
+                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors" title="Lihat Detail Penerimaan">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

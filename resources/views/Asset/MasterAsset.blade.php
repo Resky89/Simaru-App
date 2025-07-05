@@ -201,7 +201,7 @@
                                                 <div class="flex justify-center items-center space-x-2">
                                                     <a href="{{ route('view-asset-master', $asset['asset_master_id'] ?? '') }}"
                                                         class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
-                                                        title="View Details">
+                                                        title="Lihat Detail Aset Master">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -213,7 +213,8 @@
                                                     @if(hasPermission('asset-master:edit'))
                                                         <button
                                                             class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors edit-asset-btn"
-                                                            data-id="{{ $asset['asset_master_id'] ?? '' }}">
+                                                            data-id="{{ $asset['asset_master_id'] ?? '' }}"
+                                                            title="Edit Aset Master">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -225,7 +226,8 @@
                                                         <button
                                                             class="p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors delete-asset-btn"
                                                             data-id="{{ $asset['asset_master_id'] ?? '' }}"
-                                                            data-name="{{ $asset['asset_name'] ?? '' }}">
+                                                            data-name="{{ $asset['asset_name'] ?? '' }}"
+                                                            title="Hapus Aset Master">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
