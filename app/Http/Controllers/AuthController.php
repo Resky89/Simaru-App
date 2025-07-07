@@ -797,4 +797,82 @@ class AuthController extends Controller
             cookie()->queue(cookie()->forget('refresh_token_payload'));
         }
     }
+
+    /**
+     * Show user profile page
+     */
+    public function showProfile(Request $request)
+    {
+        try {
+            $accessToken = $request->session()->get('access_token');
+
+            if (!$accessToken) {
+                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            }
+
+            $client = new Client();
+            $apiBaseUrl = config('services.api.base_url');
+
+            // Fetch profile data from API
+            $response = $client->get("{$apiBaseUrl}/users/profile", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken
+                ],
+                'http_errors' => false
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if ($statusCode === 200 && isset($responseData['success']) && $responseData['success']) {
+                $profileData = $responseData['data'] ?? [];
+
+                // Store profile data in session for access in the view
+                $request->session()->put('profile_data', $profileData);
+
+                return view('Profile');
+            } else if ($statusCode === 401 || $statusCode === 403) {
+                // Token might be expired, try to refresh
+                $apiService = app(ApiService::class);
+                if ($apiService->refreshToken()) {
+                    // Get the new access token and retry
+                    $newAccessToken = $request->session()->get('access_token');
+
+                    $retryResponse = $client->get("{$apiBaseUrl}/users/profile", [
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $newAccessToken
+                        ],
+                        'http_errors' => false
+                    ]);
+
+                    $retryStatusCode = $retryResponse->getStatusCode();
+                    $retryData = json_decode($retryResponse->getBody()->getContents(), true);
+
+                    if ($retryStatusCode === 200 && isset($retryData['success']) && $retryData['success']) {
+                        $profileData = $retryData['data'] ?? [];
+
+                        // Store profile data in session for access in the view
+                        $request->session()->put('profile_data', $profileData);
+
+                        return view('Profile');
+                    }
+                }
+
+                return redirect()->route('login')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            } else {
+                \Log::error('Failed to fetch profile data', [
+                    'status' => $statusCode,
+                    'response' => $responseData
+                ]);
+
+                return view('Profile');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error fetching profile data', [
+                'error' => $e->getMessage()
+            ]);
+
+            return view('Profile');
+        }
+    }
 }

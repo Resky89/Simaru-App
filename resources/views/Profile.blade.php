@@ -39,13 +39,20 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-xl font-semibold text-[#213268] mb-6">Informasi Profil</h3>
 
+                    <!-- Display error message if exists -->
+                    @if(isset($error))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ $error }}
+                        </div>
+                    @endif
+
                     <div class="space-y-4">
                         <!-- Employee Number -->
                         <div>
                             <label for="employee_number" class="block text-sm font-medium text-gray-700 mb-1">Nomor
                                 Karyawan</label>
                             <input type="text" id="employee_number"
-                                value="{{ $accessTokenPayload['employee_number'] ?? 'Tidak tersedia' }}"
+                                value="{{ isset($profileData['employee_number']) ? $profileData['employee_number'] : ($accessTokenPayload['employee_number'] ?? 'Tidak tersedia') }}"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
                                 disabled>
                         </div>
@@ -53,10 +60,22 @@
                         <!-- Role -->
                         <div>
                             <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Peran</label>
-                            <input type="text" id="role"
-                                value="{{ is_array($accessTokenPayload['role_names'] ?? null) ? implode(', ', $accessTokenPayload['role_names']) : ($accessTokenPayload['role_names'] ?? 'Tidak tersedia') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
-                                disabled>
+                            @if(isset($profileData['roles']) && is_array($profileData['roles']) && count($profileData['roles']) > 0)
+                                <div class="space-y-2">
+                                    @foreach($profileData['roles'] as $role)
+                                        <div class="flex items-center">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                                {{ $role['role_name'] ?? 'Unknown' }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <input type="text" id="role"
+                                    value="{{ is_array($accessTokenPayload['role_names'] ?? null) ? implode(', ', $accessTokenPayload['role_names']) : ($accessTokenPayload['role_names'] ?? 'Tidak tersedia') }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
+                                    disabled>
+                            @endif
                         </div>
                     </div>
                 </div>

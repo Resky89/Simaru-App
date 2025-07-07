@@ -1071,7 +1071,7 @@
             @endif
 
             @if(session('error') || isset($error))
-                showToast('{!! session('error') ?? $error ?? 'An error occurred' !!}', 'error');
+                showToast('{!! session('error') ?? $error ?? 'Terjadi kesalahan' !!}', 'error');
             @endif
 
             const openModal = function (modal, content) {
@@ -2767,6 +2767,7 @@
             });
 
             document.getElementById('editMasterAssetForm')?.addEventListener('submit', function (event) {
+                event.preventDefault();
                 const assetName = document.getElementById('edit_asset_name');
                 const assetType = document.getElementById('edit_asset_type');
                 const subcategoryId = document.getElementById('edit_subcategory_id');
@@ -2819,13 +2820,16 @@
                 }
 
                 if (!isValid) {
-                    event.preventDefault();
                     showToast('Silakan isi semua field yang diperlukan', 'error');
                     return;
                 }
 
                 const submitBtn = this.querySelector('button[type="submit"]');
+                const formData = new FormData(this);
+                const actionUrl = this.action;
+
                 if (submitBtn && !submitBtn.disabled) {
+                    const originalText = submitBtn.innerHTML;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
                         <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -2834,8 +2838,48 @@
                         </svg>
                         Menyimpan...
                     `;
-                }
 
+                    fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw errorData;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+
+                        // Close the modal
+                        const editModal = document.getElementById('editMasterAssetModal');
+                        const editContent = document.getElementById('editMasterAssetModalContent');
+                        if (editModal && editContent) {
+                            closeModal(editModal, editContent);
+                        }
+
+                        showToast(data.message || 'Aset master berhasil diperbarui', 'success');
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error('Error updating asset:', error);
+
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+
+                        showToast(error, 'error');
+                    });
+                }
             });
 
             document.querySelector('#createMasterAssetForm input[name="asset_name"]')?.addEventListener('input', function () {

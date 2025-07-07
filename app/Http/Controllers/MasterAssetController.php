@@ -273,7 +273,7 @@ class MasterAssetController extends Controller
             }
 
             return redirect()->route('asset-master')
-                ->with('success', 'Aset master berhasil dibuat');
+                ->with('success', $result['message'] ?? 'Aset master berhasil dibuat');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -401,7 +401,7 @@ class MasterAssetController extends Controller
             }
 
             return redirect()->route('asset-master')
-                ->with('success', 'Aset master berhasil diperbarui');
+                ->with('success', $result['message'] ?? 'Aset master berhasil diperbarui');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -430,7 +430,7 @@ class MasterAssetController extends Controller
             }
 
             return redirect()->route('asset-master')
-                ->with('success', 'Aset master berhasil dihapus');
+                ->with('success', $result['message'] ?? 'Aset master berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Gagal menghapus aset master: ' . $e->getMessage());

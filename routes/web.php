@@ -93,9 +93,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::post('/auth/refresh-token', [AuthController::class, 'refreshToken'])->name('auth.refresh-token');
 
     // User Profile
-    Route::get('/profile', function () {
-        return view('Profile');
-    })->name('profile');
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile');
 
     //-------------------------------------------------------------------------
     // ORGANIZATION MANAGEMENT

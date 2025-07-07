@@ -151,27 +151,29 @@
                                 <td class="p-4 text-sm border-t border-gray-200 text-center">
                                     @php
                                         $conditionClass = 'bg-gray-100 text-gray-800';
+                                        $conditionText = 'Tidak Diketahui';
 
                                         if(isset($asset['condition'])) {
                                             switch(strtolower($asset['condition'])) {
                                                 case 'good':
                                                     $conditionClass = 'bg-green-100 text-green-800';
+                                                    $conditionText = 'Baik';
                                                     break;
-                                                case 'fair':
-                                                case 'slightly damage':
+                                                case 'slighly damage':
                                                     $conditionClass = 'bg-yellow-100 text-yellow-800';
-                                                    break;
-                                                case 'poor':
-                                                    $conditionClass = 'bg-orange-100 text-orange-800';
+                                                    $conditionText = 'Rusak Ringan';
                                                     break;
                                                 case 'high damage':
                                                     $conditionClass = 'bg-red-100 text-red-800';
+                                                    $conditionText = 'Rusak Berat';
                                                     break;
+                                                default:
+                                                    $conditionText = ucfirst($asset['condition']);
                                             }
                                         }
                                     @endphp
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $conditionClass }}">
-                                        {{ ucfirst($asset['condition'] ?? 'Unknown') }}
+                                        {{ $conditionText }}
                                     </span>
                                 </td>
                                 <td class="p-4 text-sm border-t border-gray-200 text-center">
@@ -262,7 +264,7 @@
                     id="editMasterAssetModalContent">
                     <!-- Header -->
                     <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH ASSET MASTER</h2>
+                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH DATA ASET MASTER</h2>
                         <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
                             <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

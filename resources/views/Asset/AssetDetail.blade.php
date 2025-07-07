@@ -780,14 +780,14 @@
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                                             <div class="space-y-2">
-                                                <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Akusisi
+                                                <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
                                                 <input type="number" step="0.01" name="acquisition_cost"
                                                     id="edit_acquisition_cost"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                     placeholder="0.00"
                                                     value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya akusisi harus
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
                                                     diisi</div>
                                             </div>
                                             <div class="space-y-2">

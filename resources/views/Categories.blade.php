@@ -1533,7 +1533,7 @@
                                 const modal = document.getElementById('importCategoryModal');
                                 closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
 
-                                showToast('Sub kategori berhasil diimpor!', 'success');
+                                showToast('Kategori aset berhasil diimpor!', 'success');
 
                                 setTimeout(() => {
                                     window.location.reload();

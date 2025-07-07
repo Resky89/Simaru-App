@@ -60,10 +60,22 @@
             </div>
             <div class="text-white hidden md:block">
                 @php
+                    $profileData = session('profile_data', []);
                     $accessTokenPayload = session('access_token_payload', []);
-                    $employeeNumber = $accessTokenPayload['employee_number'] ?? 'N/A';
+
+                    // Use profile data if available, otherwise fallback to token payload
+                    $employeeNumber = $profileData['employee_number'] ?? $accessTokenPayload['employee_number'] ?? 'N/A';
+
+                    // Handle roles from profile data or fall back to token payload
+                    if (isset($profileData['roles']) && is_array($profileData['roles']) && !empty($profileData['roles'])) {
+                        $roleNames = array_map(function($role) {
+                            return $role['role_name'] ?? '';
+                        }, $profileData['roles']);
+                        $roleText = implode(', ', array_filter($roleNames));
+                    } else {
                     $roles = $accessTokenPayload['role_names'] ?? [];
                     $roleText = !empty($roles) ? (is_array($roles) ? implode(', ', $roles) : $roles) : 'No Role';
+                    }
                 @endphp
                 <div class="flex items-center gap-1">
                     <p class="text-sm font-medium">{{ $employeeNumber }}</p>
