@@ -146,9 +146,9 @@
                             <tbody>
                                 @forelse($rooms as $room)
                                     <tr>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['room_name'] }}</td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['building_name'] }}</td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['floor_number'] }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['room_name'] ?? '-'}}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['building_name'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['floor_number'] ?? '-'}}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['description'] ?? '-' }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">

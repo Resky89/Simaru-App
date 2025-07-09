@@ -153,7 +153,7 @@
                                         </div>
                                     </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Subkategori</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Merk</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Penyusutan</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Kalibrasi</th>

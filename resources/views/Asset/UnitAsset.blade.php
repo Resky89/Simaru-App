@@ -499,11 +499,16 @@
                                                 <label for="purchase_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
-                                                <input type="number" name="purchase_cost" id="purchase_cost" step="0.01"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
-                                                    harus diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="purchase_cost" id="purchase_cost"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
+                                                        harus diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -655,21 +660,31 @@
                                                 <label for="acquisition_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="number" name="acquisition_cost" id="acquisition_cost" step="0.01"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00" disabled>
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="acquisition_cost" id="acquisition_cost"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" disabled>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
+                                                        diisi</div>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label for="salvage_value"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span
                                                         class="text-red-500">*</span></label>
-                                                <input type="number" name="salvage_value" id="salvage_value" step="0.01"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00" disabled>
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="salvage_value" id="salvage_value"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" disabled>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
+                                                        diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -800,11 +815,16 @@
                                                 <label for="edit_purchase_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
-                                                <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
-                                                    harus diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="purchase_cost" id="edit_purchase_cost"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
+                                                        harus diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -956,22 +976,31 @@
                                                 <label for="edit_acquisition_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="number" step="0.01" name="acquisition_cost"
-                                                    id="edit_acquisition_cost"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00" disabled>
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="acquisition_cost" id="edit_acquisition_cost"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" disabled>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
+                                                        diisi</div>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label for="edit_salvage_value"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span
                                                         class="text-red-500">*</span></label>
-                                                <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00" disabled>
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="salvage_value" id="edit_salvage_value"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" disabled>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
+                                                        diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -1429,50 +1458,86 @@
                 initSearchComponents();
                 initEventHandlers();
                 checkUrlParams();
+                initCurrencyInputs();
 
-                const purchaseCostField = document.getElementById('purchase_cost');
-                const acquisitionCostField = document.getElementById('acquisition_cost');
-                const depreciationFields = document.getElementById('depreciation_fields');
+                function initCurrencyInputs() {
+                    document.querySelectorAll('.currency-input').forEach(input => {
+                        input.addEventListener('input', function() {
+                            formatCurrency(this);
+                        });
 
-                if (purchaseCostField && acquisitionCostField && depreciationFields) {
-                    purchaseCostField.addEventListener('input', function () {
-                        if (!depreciationFields.classList.contains('hidden')) {
-                            acquisitionCostField.value = this.value;
+                        input.addEventListener('blur', function() {
+                            formatCurrency(this, true);
+                        });
+
+                        if (input.value) {
+                            formatCurrency(input, true);
                         }
                     });
+
+                    const purchaseCostField = document.getElementById('purchase_cost');
+                    const acquisitionCostField = document.getElementById('acquisition_cost');
+                    const depreciationFields = document.getElementById('depreciation_fields');
+
+                    if (purchaseCostField && acquisitionCostField && depreciationFields) {
+                        purchaseCostField.addEventListener('input', function() {
+                            if (!depreciationFields.classList.contains('hidden')) {
+                                acquisitionCostField.value = this.value;
+                            }
+                        });
+                    }
+
+                    const editPurchaseCostField = document.getElementById('edit_purchase_cost');
+                    const editAcquisitionCostField = document.getElementById('edit_acquisition_cost');
+                    const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+
+                    if (editPurchaseCostField && editAcquisitionCostField && editDepreciationFields) {
+                        editPurchaseCostField.addEventListener('input', function() {
+                            if (!editDepreciationFields.classList.contains('hidden')) {
+                                editAcquisitionCostField.value = this.value;
+                            }
+                        });
+                    }
                 }
 
-                const editPurchaseCostField = document.getElementById('edit_purchase_cost');
-                const editAcquisitionCostField = document.getElementById('edit_acquisition_cost');
-                const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+                function formatCurrency(input, blur) {
+                    let value = input.value.replace(/[^\d]/g, '');
 
-                if (editPurchaseCostField && editAcquisitionCostField && editDepreciationFields) {
-                    editPurchaseCostField.addEventListener('input', function () {
-                        if (!editDepreciationFields.classList.contains('hidden')) {
-                            editAcquisitionCostField.value = this.value;
+                    if (value === '') {
+                        input.value = '';
+                        return;
+                    }
+
+                    if (value.length > 15) {
+                        value = value.substring(0, 15);
+                    }
+
+                    let formattedValue = '';
+                    let counter = 0;
+
+                    for (let i = value.length - 1; i >= 0; i--) {
+                        counter++;
+                        formattedValue = value.charAt(i) + formattedValue;
+                        if (counter % 3 === 0 && i > 0) {
+                            formattedValue = '.' + formattedValue;
+                        }
+                    }
+
+                    input.value = formattedValue;
+                }
+
+                function parseFormattedNumber(value) {
+                    return value.replace(/\./g, '').replace(/[^\d]/g, '');
+                }
+
+                document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
+                    this.querySelectorAll('.currency-input').forEach(input => {
+                        if (input.value) {
+                            const numericValue = parseFormattedNumber(input.value);
+                            input.value = numericValue;
                         }
                     });
-                }
 
-                initUserSearch(
-                    document.getElementById('user_search'),
-                    document.getElementById('user_dropdown'),
-                    document.getElementById('user_list'),
-                    document.getElementById('user_loading'),
-                    document.getElementById('selected_user_id')
-                );
-
-                initAssetMasterSearch(
-                    document.getElementById('asset_master_search'),
-                    document.getElementById('asset_master_dropdown'),
-                    document.getElementById('asset_master_list'),
-                    document.getElementById('asset_master_loading'),
-                    document.getElementById('selected_asset_master_id'),
-                    document.getElementById('selected_is_depreciable'),
-                    document.getElementById('depreciation_fields')
-                );
-
-                document.getElementById('addAssetForm')?.addEventListener('submit', function (event) {
                     const assetMasterSearch = document.getElementById('asset_master_search');
                     const selectedAssetMasterId = document.getElementById('selected_asset_master_id');
                     const buildingSearch = document.getElementById('building_search');
@@ -1525,7 +1590,14 @@
                     }
                 });
 
-                document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
+                document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
+                    this.querySelectorAll('.currency-input').forEach(input => {
+                        if (input.value) {
+                            const numericValue = parseFormattedNumber(input.value);
+                            input.value = numericValue;
+                        }
+                    });
+
                     const assetMasterSearch = document.getElementById('edit_asset_master_search');
                     const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
                     const roomSearch = document.getElementById('edit_room_search');
@@ -2117,7 +2189,16 @@
 
                             setFieldValue('edit_serial_number', asset.serial_number);
                             setFieldValue('edit_purchase_date', asset.purchase_date);
-                            setFieldValue('edit_purchase_cost', asset.purchase_cost);
+
+                            // Apply currency formatting to monetary fields
+                            if (asset.purchase_cost) {
+                                const purchaseCost = document.getElementById('edit_purchase_cost');
+                                if (purchaseCost) {
+                                    purchaseCost.value = asset.purchase_cost;
+                                    formatCurrency(purchaseCost);
+                                }
+                            }
+
                             setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
 
                             const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
@@ -2273,8 +2354,25 @@
                                     toggleDepreciationFields(depreciationFields, true);
 
                                     const depData = asset.depreciation || asset;
-                                    setFieldValue('edit_acquisition_cost', depData.acquisition_cost || '');
-                                    setFieldValue('edit_salvage_value', depData.salvage_value || '');
+
+                                    // Apply currency formatting to acquisition cost
+                                    const acquisitionCostField = document.getElementById('edit_acquisition_cost');
+                                    if (acquisitionCostField && depData.acquisition_cost) {
+                                        acquisitionCostField.value = depData.acquisition_cost;
+                                        formatCurrency(acquisitionCostField);
+                                    } else {
+                                        setFieldValue('edit_acquisition_cost', '');
+                                    }
+
+                                    // Apply currency formatting to salvage value
+                                    const salvageValueField = document.getElementById('edit_salvage_value');
+                                    if (salvageValueField && depData.salvage_value) {
+                                        salvageValueField.value = depData.salvage_value;
+                                        formatCurrency(salvageValueField);
+                                    } else {
+                                        setFieldValue('edit_salvage_value', '');
+                                    }
+
                                     setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
                                     setFieldValue('edit_date_acquired', depData.date_acquired || '');
 
