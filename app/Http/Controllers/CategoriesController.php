@@ -117,7 +117,6 @@ class CategoriesController extends Controller
 
                 return view('Categories', [
                     'subcategories' => [],
-                    'assetTypes' => [],
                     'pagination' => [
                         'current_page' => 1,
                         'last_page' => 1,
@@ -144,12 +143,6 @@ class CategoriesController extends Controller
                 ]);
             }
 
-            // For HTML view, continue with normal flow
-
-            // Get asset types for the dropdown
-            $assetTypesResult = $this->apiService->request('GET', '/asset-types');
-            $assetTypes = $assetTypesResult['data'] ?? [];
-
             // Format pagination similar to UserController
             $pagination = null;
             if (isset($result['pagination'])) {
@@ -163,7 +156,7 @@ class CategoriesController extends Controller
                     'per_page' => $paginationData['limit'] ?? 10,
                     'next_page_url' => isset($paginationData['has_next']) && $paginationData['has_next'] ?
                         request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] + 1)]) : null,
-                    'prev_page_url' => isset($paginationData['has_prev']) && $paginationData['has_prev'] ?
+                    'prev_url' => isset($paginationData['has_prev']) && $paginationData['has_prev'] ?
                         request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] - 1)]) : null,
                 ];
             } else {
@@ -179,7 +172,7 @@ class CategoriesController extends Controller
                 ];
             }
 
-            return view('Categories', compact('subcategories', 'assetTypes', 'pagination'));
+            return view('Categories', compact('subcategories', 'pagination'));
         } catch (\Exception $e) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
@@ -190,7 +183,6 @@ class CategoriesController extends Controller
 
             return view('Categories', [
                 'subcategories' => [],
-                'assetTypes' => [],
                 'pagination' => [
                     'current_page' => 1,
                     'last_page' => 1,
