@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use App\Helpers\DataFormatter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,5 +41,18 @@ class AppServiceProvider extends ServiceProvider
                 session(['refresh_token' => request()->cookie('refresh_token')]);
             }
         });
+
+        // Mendaftarkan helpers
+        $this->registerHelpers();
+    }
+
+    /**
+     * Mendaftarkan class helper
+     */
+    private function registerHelpers(): void
+    {
+        if (!class_exists('DataFormatter')) {
+            class_alias(DataFormatter::class, 'DataFormatter');
+        }
     }
 }

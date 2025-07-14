@@ -47,6 +47,15 @@
                     @endif
 
                     <div class="space-y-4">
+                        <!-- Employee Name -->
+                        <div>
+                            <label for="employee_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Karyawan</label>
+                            <input type="text" id="employee_name"
+                                value="{{ isset($profileData['employee_name']) ? $profileData['employee_name'] : ($accessTokenPayload['employee_name'] ?? 'Tidak tersedia') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
+                                disabled>
+                        </div>
+
                         <!-- Employee Number -->
                         <div>
                             <label for="employee_number" class="block text-sm font-medium text-gray-700 mb-1">Nomor

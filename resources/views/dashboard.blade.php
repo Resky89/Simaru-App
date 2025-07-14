@@ -501,20 +501,17 @@
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 w-full max-w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300 mx-2 sm:mx-auto"
                         id="viewCalibrationModalContent">
                         <!-- Header -->
-                        <div class="flex justify-between items-center p-4 sm:p-6 pb-0">
-                            <h2 class="text-lg sm:text-xl md:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">LAKUKAN KALIBRASI</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="viewCalibrationModal">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#757575]" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                        </div>
-
+                         </div>
                         <!-- Content -->
-                        <div class="p-4 sm:p-6 overflow-y-auto max-h-[80vh]">
+                        <div class="p-6">
                             <form id="performCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" id="calibration_id" name="calibration_id">
@@ -525,8 +522,15 @@
                                 </div>
 
                                 <!-- ASSET INFORMATION SECTION -->
-                                <div class="bg-blue-100 rounded-lg p-3 sm:p-4 mb-6">
-                                    <h3 class="text-[#213268] font-semibold text-base sm:text-lg mb-4">Informasi Aset</h3>
+                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+
+                                    <!-- Asset Image - Added based on Calibration.blade.php -->
+                                    <div class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                          <img id="asset_image_display" src="{{ asset('images/placeholder.png') }}"
+                                            alt="Asset Image" class="w-full h-full object-contain p-2"
+                                            onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                    </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                         <!-- Left Column -->
@@ -596,7 +600,7 @@
                                                 class="block text-sm font-medium text-gray-700">
                                                 TANGGAL RENCANA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="planning_date_display" name="planning_calibration_date"
+                                            <input type="date" id="planning_date_display" name="planning_calibration_date" required
                                                 class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
                                                 readonly>
                                         </div>
@@ -617,7 +621,7 @@
                                             <label for="next_calibration_date" class="block text-sm font-medium text-gray-700">
                                                 KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="next_calibration_date" name="next_calibration_date"
+                                            <input type="date" id="next_calibration_date" name="next_calibration_date" required
                                                 class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
                                                 required>
                                         </div>
@@ -636,7 +640,7 @@
                                                 <label for="certificate_number" class="block text-sm font-medium text-gray-700">
                                                     NOMOR SERTIFIKAT<span class="text-red-500">*</span>
                                                 </label>
-                                                <input type="text" id="certificate_number" name="certificate_number"
+                                                <input type="text" id="certificate_number" name="certificate_number" required
                                                     class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
                                                     required>
                                             </div>
@@ -662,16 +666,17 @@
                                             <!-- Service Price -->
                                             <div>
                                                 <label for="calibration_price" class="block text-sm font-medium text-gray-700">
-                                                    BIAYA LAYANAN
+                                                    BIAYA LAYANAN<span class="text-red-500">*</span>
                                                 </label>
                                                 <div class="relative mt-1">
                                                     <div
                                                         class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                         <span class="text-gray-500 sm:text-sm">Rp</span>
                                                     </div>
-                                                    <input type="number" id="calibration_price" name="calibration_price"
-                                                        step="0.01"
-                                                        class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                    <input type="text" id="calibration_price" name="calibration_price" required
+                                                        class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                        onkeyup="formatCurrency(this)"
+                                                        onblur="formatCurrency(this, 'blur')">
                                                 </div>
                                             </div>
 
@@ -680,7 +685,7 @@
                                                 <label class="block text-sm font-medium text-gray-700">
                                                     HASIL<span class="text-red-500">*</span>
                                                 </label>
-                                                <div class="mt-2 flex flex-wrap gap-3 sm:gap-6">
+                                                <div class="mt-2 flex flex-wrap gap-6">
                                                     <div class="flex items-center">
                                                         <input type="radio" id="result_pass" name="calibration_result"
                                                             value="pass" class="h-4 w-4 text-[#213268] focus:ring-[#213268]"
@@ -693,12 +698,6 @@
                                                             value="fail" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
                                                         <label for="result_fail"
                                                             class="ml-2 text-sm text-gray-700">Gagal</label>
-                                                    </div>
-                                                    <div class="flex items-center">
-                                                        <input type="radio" id="result_unknown" name="calibration_result"
-                                                            value="unknown" class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
-                                                        <label for="result_unknown" class="ml-2 text-sm text-gray-700">Tidak
-                                                            Ditemukan</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1084,6 +1083,52 @@
         let hasLoadedCalendar = false;
         let hasLoadedActivities = false;
 
+        // Currency formatter function
+        window.formatCurrency = function(input, blur) {
+            // Get input value
+            let input_val = input.value;
+
+            // Don't validate empty input
+            if (input_val === "") { return; }
+
+            // Check for decimal
+            if (input_val.indexOf(",") >= 0) {
+                // Get position of first decimal
+                var decimal_pos = input_val.indexOf(",");
+
+                // Split number by decimal point
+                var left_side = input_val.substring(0, decimal_pos);
+                var right_side = input_val.substring(decimal_pos);
+
+                // Remove all non-digits
+                left_side = left_side.replace(/\D/g, "");
+                right_side = right_side.replace(/\D/g, "");
+
+                // Limit decimal to only 2 digits
+                right_side = right_side.substring(0, 2);
+
+                // Add dots every 3 digits
+                left_side = left_side.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                // Join number with comma for decimal
+                input_val = left_side + "," + right_side;
+            } else {
+                // Remove all non-digits
+                input_val = input_val.replace(/\D/g, "");
+
+                // Add dots every 3 digits
+                input_val = input_val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                // Final formatting
+                if (blur === "blur") {
+                    input_val += ",00";
+                }
+            }
+
+            // Send updated string to input
+            input.value = input_val;
+        };
+
         function preventMultipleSubmits(form, buttonSelector) {
             if (!form) return;
 
@@ -1121,6 +1166,11 @@
             notification.setAttribute('role', 'alert');
 
             function processErrorObject(errorObj) {
+                // Handle {"success":"false","errors":"message"} format
+                if (errorObj.success === false && typeof errorObj.errors === 'string') {
+                    return errorObj.errors;
+                }
+
                 if (errorObj.success === false && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
                     const firstError = errorObj.errors[0];
                     if (typeof firstError === 'object' && firstError !== null &&
@@ -2216,6 +2266,16 @@
                             document.getElementById('model_number_display').value = calibration.model_number || '-';
                             document.getElementById('serial_number_display').value = calibration.serial_number || '-';
 
+                            // Set asset image
+                            const assetImageDisplay = document.getElementById('asset_image_display');
+                                if (assetImageDisplay) {
+                                    if (calibration.asset_image_path) {
+                                        assetImageDisplay.src = "{{ config('app.backend_url') }}/public" + calibration.asset_image_path;
+                                    } else {
+                                        assetImageDisplay.src = "{{ asset('images/placeholder.png') }}";
+                                    }
+                            }
+
                             let locationText = '-';
                             if (calibration.location) {
                                 const locationParts = [];
@@ -2234,9 +2294,12 @@
                             document.getElementById('calibration_price').value = '';
                             document.getElementById('notes').value = '';
 
-                            document.getElementById('result_pass').checked = false;
-                            document.getElementById('result_fail').checked = false;
-                            document.getElementById('result_unknown').checked = false;
+                            // Reset radio buttons with null checks
+                            const resultPassBtn = document.getElementById('result_pass');
+                            const resultFailBtn = document.getElementById('result_fail');
+
+                            if (resultPassBtn) resultPassBtn.checked = false;
+                            if (resultFailBtn) resultFailBtn.checked = false;
 
                             const fileInput = document.getElementById('document_file');
                             if (fileInput) fileInput.value = '';
@@ -2345,6 +2408,21 @@
                 el.classList.remove('border-red-500');
             });
 
+            // Process calibration price - convert from formatted to numeric value
+            const calibrationPriceInput = document.getElementById('calibration_price');
+            if (calibrationPriceInput && calibrationPriceInput.value) {
+                // Remove the original value from formData
+                formData.delete('calibration_price');
+
+                // Convert from formatted string (1.234,56) to numeric value (1234.56)
+                let numericValue = calibrationPriceInput.value
+                    .replace(/\./g, '')  // Remove thousand separators
+                    .replace(',', '.');  // Replace comma with dot for decimal
+
+                // Add the numeric value to formData
+                formData.append('calibration_price', numericValue);
+            }
+
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -2394,29 +2472,56 @@
                 .catch(error => {
                     console.error('Form submission error:', error);
 
-                    showToast(error, 'error');
+                    // Enhanced error handling to support various error formats
+                    try {
+                        // Check if error is a string that contains JSON
+                        if (typeof error === 'string' && (error.startsWith('{') || error.startsWith('['))) {
+                            try {
+                                const parsedError = JSON.parse(error);
+                                showToast(parsedError, 'error');
+                                return;
+                            } catch (e) {
+                                // If JSON parsing fails, continue with normal handling
+                            }
+                        }
 
-                    if (error.errors) {
-                        if (Array.isArray(error.errors)) {
-                            error.errors.forEach(err => {
-                                if (err.path) {
-                                    const field = document.getElementById(err.path) ||
-                                        document.querySelector(`[name="${err.path}"]`);
+                        // Handle specific error format {"success":"false","errors":"message"}
+                        if (error && typeof error === 'object') {
+                            if (error.success === false && typeof error.errors === 'string') {
+                                showToast(error.errors, 'error');
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnText;
+                                return;
+                            }
+                        }
+
+                        // Continue with existing error handling
+                        showToast(error, 'error');
+
+                        if (error.errors) {
+                            if (Array.isArray(error.errors)) {
+                                error.errors.forEach(err => {
+                                    if (err.path) {
+                                        const field = document.getElementById(err.path) ||
+                                            document.querySelector(`[name="${err.path}"]`);
+                                        if (field) {
+                                            field.classList.add('border-red-500');
+                                        }
+                                    }
+                                });
+                            }
+                            else if (typeof error.errors === 'object') {
+                                Object.keys(error.errors).forEach(fieldName => {
+                                    const field = document.getElementById(fieldName) ||
+                                        document.querySelector(`[name="${fieldName}"]`);
                                     if (field) {
                                         field.classList.add('border-red-500');
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                        else if (typeof error.errors === 'object') {
-                            Object.keys(error.errors).forEach(fieldName => {
-                                const field = document.getElementById(fieldName) ||
-                                    document.querySelector(`[name="${fieldName}"]`);
-                                if (field) {
-                                    field.classList.add('border-red-500');
-                                }
-                            });
-                        }
+                    } catch (e) {
+                        showToast('Terjadi kesalahan saat memproses kalibrasi', 'error');
                     }
 
                     submitBtn.disabled = false;
@@ -2493,37 +2598,57 @@
         const vendorIdInput = document.getElementById('vendor_id');
         const vendorResults = document.getElementById('vendor_results');
 
+        // Variables for vendor lazy loading
+        let vendorPage = 1;
+        let isLoadingVendors = false;
+        let hasMoreVendors = true;
+        let currentVendorSearch = '';
+
         vendorSearchInput?.addEventListener('focus', function () {
-            fetchVendors(this.value.trim());
+            filterAndDisplayVendors(this.value.trim());
             vendorResults.style.display = 'block';
         });
 
         document.addEventListener('click', function (e) {
-            if (e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
+            if (vendorResults && e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
                 vendorResults.style.display = 'none';
             }
         });
 
         vendorSearchInput?.addEventListener('input', debounce(function () {
             const searchTerm = this.value.trim();
-            fetchVendors(searchTerm);
+            filterAndDisplayVendors(searchTerm);
         }, 300));
 
-        function fetchVendors(searchTerm = '') {
-            vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-            vendorResults.style.display = 'block';
+        function filterAndDisplayVendors(searchTerm) {
+            if (vendorResults) vendorResults.style.display = 'block';
 
-            let queryParams = new URLSearchParams();
-            queryParams.append('json', 'true');
-            queryParams.append('limit', '20');
+            // Reset pagination variables when starting a new search
+            vendorPage = 1;
+            hasMoreVendors = true;
+            currentVendorSearch = searchTerm;
+
+            fetchVendors(searchTerm, displayVendorResults, vendorPage, false);
+        }
+
+        function fetchVendors(searchTerm = '', callback = null, page = 1, append = false) {
+            const params = new URLSearchParams({
+                json: 'true',
+                limit: '20',
+                page: page.toString()
+            });
 
             if (searchTerm) {
-                queryParams.append('search', searchTerm);
+                params.append('search', searchTerm);
             }
 
-            const url = `/vendors?${queryParams.toString()}`;
+            if (!append && vendorResults && vendorResults.style.display === 'block') {
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
+            }
 
-            fetch(url, {
+            isLoadingVendors = true;
+
+            fetch(`/vendors?${params.toString()}`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -2531,7 +2656,7 @@
             })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Server merespon dengan status: ${response.status}`);
+                        throw new Error(`Server responded with status: ${response.status}`);
                     }
                     return response.json();
                 })
@@ -2546,42 +2671,48 @@
                         vendors = data.data;
                     }
 
-                    vendors.forEach(vendor => {
-                        const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
-                        if (existingIndex === -1) {
-                            allVendors.push(vendor);
-                        }
-                    });
+                    if (!searchTerm && page === 1) {
+                        allVendors = vendors;
+                    }
 
-                    displayVendorResults(vendors);
+                    if (callback) {
+                        callback(vendors, append);
+                        }
+
+                    // Check if we have more pages to load
+                    hasMoreVendors = vendors.length === 20; // Assuming 20 is the page size
+
+                    isLoadingVendors = false;
                 })
                 .catch(error => {
                     console.error('Error fetching vendors:', error);
+
+                    if (vendorResults && vendorResults.style.display === 'block' && !append) {
                     vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                    }
+
+                    if (callback) {
+                        callback([]);
+                    }
+
+                    isLoadingVendors = false;
                 });
         }
 
-        function displayVendorResults(vendors) {
+        function displayVendorResults(vendors, append = false) {
+            if (!append) {
             vendorResults.innerHTML = '';
-
-            if (vendors.length === 0) {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor ditemukan</div>';
-                return;
+            } else {
+                // Remove loading indicator if it exists
+                const loadingIndicator = vendorResults.querySelector('.vendor-loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
             }
 
-            if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                const searchTerm = vendorSearchInput.value.trim().toLowerCase();
-                vendors.sort((a, b) => {
-                    if (a.vendor_name.toLowerCase() === searchTerm) return -1;
-                    if (b.vendor_name.toLowerCase() === searchTerm) return 1;
-
-                    const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm);
-                    const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm);
-                    if (aStarts && !bStarts) return -1;
-                    if (bStarts && !aStarts) return 1;
-
-                    return a.vendor_name.localeCompare(b.vendor_name);
-                });
+            if (vendors.length === 0 && !append) {
+                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Vendor tidak ditemukan</div>';
+                return;
             }
 
             vendors.forEach((vendor, index) => {
@@ -2594,7 +2725,11 @@
                 div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
                 div.textContent = vendor.vendor_name;
                 div.setAttribute('data-id', vendor.vendor_id);
+
+                if (!append) {
                 div.style.animationDelay = `${index * 30}ms`;
+                }
+
                 div.classList.add('fade-in');
 
                 div.addEventListener('click', function () {
@@ -2606,12 +2741,26 @@
                 vendorResults.appendChild(div);
             });
 
-            if (vendors.length > 10) {
-                const countDiv = document.createElement('div');
-                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                countDiv.textContent = `Menampilkan ${vendors.length} vendor`;
-                vendorResults.appendChild(countDiv);
+            if (hasMoreVendors) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'p-2 text-xs text-gray-500 text-center border-t vendor-loading-indicator';
+                loadingDiv.textContent = 'memuat lebih lanjut...';
+                vendorResults.appendChild(loadingDiv);
             }
+        }
+
+        // Setup infinite scrolling for vendor results
+        if (vendorResults) {
+            vendorResults.addEventListener('scroll', function() {
+                if (!hasMoreVendors || isLoadingVendors) return;
+
+                // Check if user scrolled to bottom
+                if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                    // Load next page
+                    vendorPage++;
+                    fetchVendors(currentVendorSearch, displayVendorResults, vendorPage, true);
+            }
+            });
         }
 
         function debounce(func, wait) {

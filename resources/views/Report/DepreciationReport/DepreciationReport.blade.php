@@ -723,7 +723,7 @@
                         try {
                             const controller = new AbortController();
                             const timeoutId = setTimeout(() => controller.abort(), 10000);
-                            const apiUrl = `{{ route('categories') }}?asset_type=${encodeURIComponent(assetType)}&search=${encodeURIComponent(searchTerm || '')}&json=true`;
+                            const apiUrl = `{{ route('categories') }}?asset_type=${encodeURIComponent(assetType)}&search=${encodeURIComponent(searchTerm || '')}&json=true&pagination=false`;
                             const response = await fetch(apiUrl, {
                                 method: 'GET',
                                 headers: {
@@ -752,7 +752,14 @@
                                 throw new Error('Server returned invalid JSON');
                             }
 
-                            const subcategories = Array.isArray(result) ? result : (result.data || []);
+                            let subcategories = [];
+                            if (Array.isArray(result)) {
+                                subcategories = result;
+                            } else if (result.subcategories && Array.isArray(result.subcategories)) {
+                                subcategories = result.subcategories;
+                            } else if (result.data && Array.isArray(result.data)) {
+                                subcategories = result.data;
+                            }
 
                             subcategoryList.innerHTML = '';
 

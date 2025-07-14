@@ -204,7 +204,7 @@ class ComplainRepairController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Data keluhan berhasil diambil',
-                    'data' => $complaint
+                    'complaint' => $complaint
                 ]);
             }
 

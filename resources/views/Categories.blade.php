@@ -175,7 +175,7 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $pagination['prev_page_url'] ?? '#' }}"
+                            <a href="{{ $subcategories_pagination['prev_page_url'] ?? '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -186,8 +186,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $lastPage = $pagination['last_page'] ?? 1;
+                                    $currentPage = $subcategories_pagination['current_page'] ?? 1;
+                                    $lastPage = $subcategories_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -228,8 +228,8 @@
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ $pagination['next_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ $subcategories_pagination['next_page_url'] ?? '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($subcategories_pagination['current_page'] ?? 1) >= ($subcategories_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -241,9 +241,9 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($pagination) && is_array($pagination))
-                                    Menampilkan {{ $pagination['from'] }} sampai {{ $pagination['to'] }} dari
-                                    {{ $pagination['total'] }} data
+                                @if(isset($subcategories_pagination) && is_array($subcategories_pagination))
+                                    Menampilkan {{ $subcategories_pagination['from'] }} sampai {{ $subcategories_pagination['to'] }} dari
+                                    {{ $subcategories_pagination['total'] }} data
                                 @else
                                     Menampilkan 0 data
                                 @endif
@@ -251,10 +251,10 @@
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changePerPage(this.value)">
-                                <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
-                                <option value="100" {{ isset($pagination['per_page']) && $pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
+                                <option value="10" {{ isset($subcategories_pagination['per_page']) && $subcategories_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($subcategories_pagination['per_page']) && $subcategories_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($subcategories_pagination['per_page']) && $subcategories_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="100" {{ isset($subcategories_pagination['per_page']) && $subcategories_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -263,7 +263,7 @@
         </div>
     </div>
 
-    <!-- Modal Add Sub Categories -->
+    <!-- Modal Add Category -->
     @if(hasPermission('asset-subcategory:create'))
         <div id="addSubCategoryModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -346,7 +346,7 @@
         </div>
     @endif
 
-    <!-- Modal Edit Sub Category -->
+    <!-- Modal Edit Category -->
     @if(hasPermission('asset-subcategory:edit'))
         <div id="editSubCategoryModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
@@ -621,7 +621,7 @@
                                                 <tr>
                                                     <th class="p-3 text-left text-xs font-semibold">No</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Tipe Aset</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Nama Sub Kategori</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Nama Kategori</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Deskripsi</th>
                                                 </tr>
                                             </thead>
@@ -1384,7 +1384,7 @@
                         }
 
                         if (!item.subcategory_name) {
-                            warnings.push(`Row ${rowIndex + 2}: Nama Sub Kategori tidak boleh kosong`);
+                            warnings.push(`Row ${rowIndex + 2}: Nama Kategori tidak boleh kosong`);
                         }
 
                         item._rowNum = rowIndex + 2;
@@ -1406,7 +1406,7 @@
                     Object.entries(subcategoryNameMap).forEach(([key, rows]) => {
                         if (rows.length > 1) {
                             const [assetType, subcategoryName] = key.split('|');
-                            warnings.push(`Sub Kategori duplikat "${subcategoryName}" untuk Tipe Aset "${assetType}" ditemukan di baris: ${rows.join(', ')}`);
+                            warnings.push(`Kategori duplikat "${subcategoryName}" untuk Tipe Aset "${assetType}" ditemukan di baris: ${rows.join(', ')}`);
                         }
                     });
 
@@ -1469,7 +1469,7 @@
                         const importBtn = document.getElementById('category-import-btn');
                         const hasCriticalWarnings = warnings.some(warning =>
                             warning.includes('Missing Asset Type') ||
-                            warning.includes('Missing Sub Category Name') ||
+                            warning.includes('Missing Category Name') ||
                             warning.includes('Invalid Asset Type')
                         );
 

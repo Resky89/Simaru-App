@@ -3,194 +3,55 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
-use Barryvdh\DomPDF\Facade\Pdf;
-
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Http\Controllers\Traits\ExportableToPdf;
 
 class UnitAssetController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations, ExportableToPdf;
 
     /**
      * Menampilkan halaman daftar aset.
      */
     public function index(Request $request)
     {
-        try {
-            // Mendapatkan parameter kueri
-            $page = $request->query('page', 1);
-            $limit = $request->query('limit', 10);
-            $search = $request->query('search', '');
-            $statusFilter = $request->query('current_status', '');
-            $typeFilter = $request->query('asset_type', '');
-            $sortOrder = $request->query('sort', '');
-            $needsCalibration = $request->query('needs_calibration', null);
+        $extraParams = [];
 
-            // Membangun parameter kueri
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-            ];
-
-            // Pengaturan pengurutan
-            if (!empty($sortOrder)) {
-                switch ($sortOrder) {
-                    case 'newest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'oldest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'name_asc':
-                        $queryParams['sort'] = 'name_asc';
-                        unset($queryParams['sort_by']);
-                        unset($queryParams['sort_order']);
-                        break;
-                    case 'name_desc':
-                        $queryParams['sort'] = 'name_desc';
-                        unset($queryParams['sort_by']);
-                        unset($queryParams['sort_order']);
-                        break;
-                    case 'code_asc':
-                        $queryParams['sort'] = 'code_asc';
-                        unset($queryParams['sort_by']);
-                        unset($queryParams['sort_order']);
-                        break;
-                    case 'code_desc':
-                        $queryParams['sort'] = 'code_desc';
-                        unset($queryParams['sort_by']);
-                        unset($queryParams['sort_order']);
-                        break;
-                    default:
-                        $queryParams['sort_by'] = 'asset_id';
-                        $queryParams['sort_order'] = 'desc';
-                }
-            } else {
-                $queryParams['sort_by'] = 'asset_id';
-                $queryParams['sort_order'] = 'desc';
-            }
-
-            // Menambahkan parameter pencarian jika disediakan
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            // Menambahkan filter status jika disediakan
-            if (!empty($statusFilter)) {
-                $queryParams['current_status'] = $statusFilter;
-            }
-
-            // Menambahkan filter tipe aset jika disediakan
-            if (!empty($typeFilter)) {
-                $queryParams['asset_type'] = $typeFilter;
-            }
-
-            // Menambahkan filter needs_calibration jika disediakan
-            if ($needsCalibration !== null) {
-                $queryParams['needs_calibration'] = $needsCalibration;
-            }
-
-            // Mengambil aset dari API
-            $assetsResult = $this->apiService->request('GET', '/assets', [
-                'query' => $queryParams
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $assetsResult['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-                return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
-                $errorData = $assetsResult['errors'] ?? 'Gagal mengambil data aset';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return view('Asset.UnitAsset', [
-                    'assets' => [],
-                    'assets_pagination' => null,
-                    'error' => $errorMessage
-                ]);
-            }
-
-            // Memproses data aset
-            $assets = $assetsResult['data'] ?? [];
-
-            // Format pagination untuk aset
-            $assetsPagination = null;
-            if (isset($assetsResult['pagination'])) {
-                $pagination = $assetsResult['pagination'];
-                $assetsPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] - 1) : null,
-                ];
-            }
-
-            // Return JSON for AJAX requests
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'assets' => $assets,
-                    'assets_pagination' => $assetsPagination
-                ]);
-            }
-
-            return view('Asset.UnitAsset', [
-                'assets' => $assets,
-                'assets_pagination' => $assetsPagination
-            ]);
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil data aset: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return view('Asset.UnitAsset', [
-                'assets' => [],
-                'assets_pagination' => null,
-                'error' => 'Gagal mengambil data aset: ' . $e->getMessage()
-            ]);
+        // Status filter
+        if ($request->filled('current_status')) {
+            $extraParams['current_status'] = $request->query('current_status');
         }
+
+        // Asset type filter
+        if ($request->filled('asset_type')) {
+            $extraParams['asset_type'] = $request->query('asset_type');
+            }
+
+        // Needs calibration filter
+        if ($request->has('needs_calibration')) {
+            $extraParams['needs_calibration'] = $request->query('needs_calibration');
+        }
+
+        // Custom sort mappings
+        $sortMappings = [
+            'name_asc' => ['sort' => 'name_asc'],
+            'name_desc' => ['sort' => 'name_desc'],
+            'code_asc' => ['sort' => 'code_asc'],
+            'code_desc' => ['sort' => 'code_desc'],
+            'newest' => ['sort_by' => 'created_at', 'sort_order' => 'desc'],
+            'oldest' => ['sort_by' => 'created_at', 'sort_order' => 'asc'],
+                ];
+
+        return $this->getResourceList(
+            $request,
+            '/assets',
+            'assets',
+            'Asset.UnitAsset',
+            'asset_id',
+            $extraParams,
+            $sortMappings
+        );
     }
 
     /**
@@ -199,26 +60,34 @@ class UnitAssetController extends Controller
     public function storeAsset(Request $request)
     {
         try {
-            // Menyiapkan data aset
-            $assetData = [
-                'asset_master_id' => (int) $request->input('asset_master_id'),
-                'serial_number' => $request->input('serial_number'),
-                'purchase_date' => $request->input('purchase_date'),
-                'purchase_cost' => (float) $request->input('purchase_cost'),
-                'warranty_end_date' => $request->input('warranty_end_date'),
-                'user_id' => $request->input('user_id') ? (int) $request->input('user_id') : null,
-                'current_status' => $request->input('current_status', 'available'),
-                'condition' => $request->input('condition', 'good'),
-                'room_id' => (int) $request->input('room_id')
+            // Definisikan field dengan tipe data untuk format data request
+            $fields = [
+                'asset_master_id' => 'integer',
+                'serial_number' => 'string',
+                'purchase_date' => 'string',
+                'purchase_cost' => 'float',
+                'warranty_end_date' => 'string',
+                'user_id' => 'integer',
+                'current_status' => 'string',
+                'condition' => 'string',
+                'room_id' => 'integer',
+                'depreciation_method' => 'string',
+                'acquisition_cost' => 'float',
+                'salvage_value' => 'float',
+                'asset_life_months' => 'integer',
+                'date_acquired' => 'string',
             ];
 
-            // Menambahkan data depresiasi jika ada
-            if ($request->has('depreciation_method')) {
-                $assetData['depreciation_method'] = $request->input('depreciation_method');
-                $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
-                $assetData['salvage_value'] = (float) $request->input('salvage_value');
-                $assetData['asset_life_months'] = (int) $request->input('asset_life_months');
-                $assetData['date_acquired'] = $request->input('date_acquired');
+            // Format data request
+            $assetData = DataFormatter::formatRequestData($request, $fields);
+
+            // Set default values jika tidak ada
+            if (!isset($assetData['current_status'])) {
+                $assetData['current_status'] = 'available';
+            }
+
+            if (!isset($assetData['condition'])) {
+                $assetData['condition'] = 'good';
             }
 
             // Menangani unggahan gambar jika ada
@@ -246,37 +115,26 @@ class UnitAssetController extends Controller
                     'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
-                $options = ['multipart' => $multipartData];
-                $result = $this->apiService->request('POST', '/assets', $options);
+                $result = $this->apiService->request('POST', '/assets', [
+                    'multipart' => $multipartData
+                ]);
             } else {
                 // Permintaan JSON standar jika tidak ada file yang diunggah
-                $options = ['json' => $assetData];
-                $result = $this->apiService->request('POST', '/assets', $options);
+                $result = $this->apiService->request('POST', '/assets', [
+                    'json' => $assetData
+                ]);
             }
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respons tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Memeriksa kesalahan API
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal membuat aset';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -285,11 +143,9 @@ class UnitAssetController extends Controller
 
             // Berhasil dibuat
             return redirect()->route('assets')
-                ->with('success', 'Aset berhasil dibuat');
+                ->with('success', $result['message'] ?? 'Aset berhasil dibuat');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat aset: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.UnitAsset');
         }
     }
 
@@ -299,28 +155,29 @@ class UnitAssetController extends Controller
     public function updateAsset(Request $request, $id)
     {
         try {
-            // Menyiapkan data aset
-            $assetData = [
-                'asset_id' => $id,
-                'asset_master_id' => (int) $request->input('asset_master_id'),
-                'serial_number' => $request->input('serial_number'),
-                'purchase_date' => $request->input('purchase_date'),
-                'purchase_cost' => (float) $request->input('purchase_cost'),
-                'warranty_end_date' => $request->input('warranty_end_date'),
-                'user_id' => $request->input('user_id') ? (int) $request->input('user_id') : null,
-                'current_status' => $request->input('current_status', 'available'),
-                'condition' => $request->input('condition'),
-                'room_id' => (int) $request->input('room_id')
+            // Definisikan field dengan tipe data untuk format data request
+            $fields = [
+                'asset_master_id' => 'integer',
+                'serial_number' => 'string',
+                'purchase_date' => 'string',
+                'purchase_cost' => 'float',
+                'warranty_end_date' => 'string',
+                'user_id' => 'integer',
+                'current_status' => 'string',
+                'condition' => 'string',
+                'room_id' => 'integer',
+                'depreciation_method' => 'string',
+                'acquisition_cost' => 'float',
+                'salvage_value' => 'float',
+                'asset_life_months' => 'integer',
+                'date_acquired' => 'string',
             ];
 
-            // Menambahkan data depresiasi jika ada
-            if ($request->has('depreciation_method')) {
-                $assetData['depreciation_method'] = $request->input('depreciation_method');
-                $assetData['acquisition_cost'] = (float) $request->input('acquisition_cost');
-                $assetData['salvage_value'] = (float) $request->input('salvage_value');
-                $assetData['asset_life_months'] = (int) $request->input('asset_life_months');
-                $assetData['date_acquired'] = $request->input('date_acquired');
-            }
+            // Format data request
+            $assetData = DataFormatter::formatRequestData($request, $fields);
+
+            // ID aset diperlukan untuk update
+            $assetData['asset_id'] = $id;
 
             // Menangani unggahan gambar jika ada
             if ($request->hasFile('image_file')) {
@@ -350,37 +207,26 @@ class UnitAssetController extends Controller
                     'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
-                $options = ['multipart' => $multipartData];
-                $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
+                $result = $this->apiService->request('PUT', "/assets/{$id}", [
+                    'multipart' => $multipartData
+                ]);
             } else {
                 // Permintaan JSON standar jika tidak ada file yang diunggah
-                $options = ['json' => $assetData];
-                $result = $this->apiService->request('PUT', "/assets/{$id}", $options);
+                $result = $this->apiService->request('PUT', "/assets/{$id}", [
+                    'json' => $assetData
+                ]);
             }
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respons tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Memeriksa kesalahan API
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal memperbarui aset';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -389,11 +235,9 @@ class UnitAssetController extends Controller
 
             // Berhasil diperbarui
             return redirect()->route('assets')
-                ->with('success', 'Aset berhasil diperbarui');
+                ->with('success', $result['message'] ?? 'Aset berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal memperbarui aset: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.UnitAsset');
         }
     }
 
@@ -402,44 +246,12 @@ class UnitAssetController extends Controller
      */
     public function destroyAsset($id)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/assets/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respons tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus aset';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dihapus
-            return redirect()->route('assets')
-                ->with('success', 'Aset berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus aset: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            request(),
+            "/assets/{$id}",
+            'Aset berhasil dihapus',
+            'assets'
+        );
     }
 
     /**
@@ -472,13 +284,14 @@ class UnitAssetController extends Controller
                 ]);
 
                 // Memeriksa kesalahan
-                if (isset($usersResult['errors']) || !isset($usersResult['success']) || $usersResult['success'] !== true) {
-                    $errorMessage = $usersResult['errors'] ?? 'Gagal mendapatkan data pengguna';
+                $authError = $this->handleAuthError($usersResult, request());
+                if ($authError) {
+                    return $authError;
+                }
 
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['auth' => $errorMessage]
-                    ], 401);
+                $apiError = $this->handleApiError($usersResult, request(), 'Asset.UnitAsset', 'Gagal mendapatkan data pengguna');
+                if ($apiError) {
+                    return $apiError;
                 }
 
                 // Mengembalikan data pengguna
@@ -489,93 +302,69 @@ class UnitAssetController extends Controller
                 ]);
             }
 
-            // Mengambil aset dengan ID yang diberikan
-            $result = $this->apiService->request('GET', "/assets/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if (request()->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['authentication' => 'Autentikasi gagal']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Ambil data aset dari API
+            $apiResult = $this->apiService->request('GET', "/assets/{$id}");
+            
+            // Cek kesalahan autentikasi
+            $authError = $this->handleAuthError($apiResult, request());
+            if ($authError) {
+                return $authError;
             }
-
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mendapatkan data aset';
-
+            
+            // Cek kesalahan API lainnya
+            if (!isset($apiResult['success']) || $apiResult['success'] !== true) {
+                $errorMessage = isset($apiResult['message']) ? $apiResult['message'] : 'Gagal mengambil data aset';
+                
                 if (request()->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], 500);
+                        'message' => $errorMessage
+                    ]);
                 }
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
+                
                 return redirect()->back()->with('error', $errorMessage);
             }
-
-            $asset = $result['data'] ?? null;
-
+            
+            // Ambil data aset dari respons API
+            $asset = $apiResult['data'] ?? null;
+            
             if (!$asset) {
-                $errorMessage = 'Aset tidak ditemukan atau data respons tidak valid';
-
                 if (request()->ajax()) {
-                    return response()->json(['success' => false, 'errors' => ['general' => $errorMessage]], 404);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Data aset tidak ditemukan'
+                    ]);
                 }
-
-                return redirect()->back()->with('error', $errorMessage);
+                
+                return redirect()->back()->with('error', 'Data aset tidak ditemukan');
             }
-
-            // Untuk permintaan AJAX, kembalikan hanya data aset
-            if (request()->ajax()) {
-                // Jika kita memiliki user_id, ambil detail pengguna
-                if (isset($asset['user_id']) && $asset['user_id']) {
-                    try {
-                        $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
-                        if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
-                            $asset['user'] = $userResult['data'];
-                        }
-                    } catch (\Exception $e) {
-                        // Lanjutkan meskipun gagal mengambil detail pengguna
+            
+            // Tambahkan data pengguna jika diperlukan
+            if (isset($asset['user_id']) && $asset['user_id']) {
+                try {
+                    $userResult = $this->apiService->request('GET', "/users/{$asset['user_id']}");
+                    if (isset($userResult['success']) && $userResult['success'] === true && isset($userResult['data'])) {
+                        $asset['user'] = $userResult['data'];
                     }
+                } catch (\Exception $e) {
+                    // Lanjutkan meskipun gagal mengambil detail pengguna
                 }
-
-                // Mengembalikan hanya data aset
+            }
+            
+            // Untuk permintaan AJAX, kembalikan response JSON
+            if (request()->ajax()) {
                 return response()->json([
                     'success' => true,
                     'data' => $asset
                 ]);
             }
-
-            // Mengembalikan tampilan lengkap dengan data aset untuk permintaan non-AJAX
-            return view('Asset.AssetDetail', ['asset' => $asset]);
+            
+            // Untuk permintaan non-AJAX, tampilkan view dengan data aset
+            return view('Asset.AssetDetail', [
+                'asset' => $asset
+            ]);
         } catch (\Exception $e) {
-            $errorMessage = 'Gagal mendapatkan data aset: ' . $e->getMessage();
-
-            if (request()->ajax()) {
-                return response()->json(['success' => false, 'errors' => ['exception' => $errorMessage]], 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
+            return $this->handleException($e, request(), 'Asset.UnitAsset');
         }
     }
 
@@ -1318,128 +1107,88 @@ class UnitAssetController extends Controller
 
     /**
      * Export unit assets data to PDF
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function exportUnitAssetPDF(Request $request)
     {
         try {
             // Get filter parameters
-            $search = $request->input('search', '');
-            $typeFilter = $request->input('asset_type', '');
-            $statusFilter = $request->input('current_status', '');
-            $sortOrder = $request->input('sort', 'newest');
-
-            // Build query parameters
-            $query = [
-                'page' => 1,
+            $queryParams = [
+                'pagination' => 'false',
                 'limit' => 1000  // Get a large number for export
             ];
 
-            // Set sort parameters based on user selection
-            if (!empty($sortOrder)) {
-                switch ($sortOrder) {
-                    case 'newest':
-                        $query['sort_by'] = 'created_at';
-                        $query['sort_order'] = 'desc';
-                        break;
-                    case 'oldest':
-                        $query['sort_by'] = 'created_at';
-                        $query['sort_order'] = 'asc';
-                        break;
-                    case 'name_asc':
-                        $query['sort_by'] = 'asset_name';
-                        $query['sort_order'] = 'asc';
-                        break;
-                    case 'name_desc':
-                        $query['sort_by'] = 'asset_name';
-                        $query['sort_order'] = 'desc';
-                        break;
-                    case 'code_asc':
-                        $query['sort'] = 'code_asc';
-                        unset($query['sort_by']);
-                        unset($query['sort_order']);
-                        break;
-                    case 'code_desc':
-                        $query['sort'] = 'code_desc';
-                        unset($query['sort_by']);
-                        unset($query['sort_order']);
-                        break;
-                    default:
-                        $query['sort_by'] = 'asset_id';
-                        $query['sort_order'] = 'desc';
-                }
+            // Tambahkan filter pencarian
+            if ($request->filled('search')) {
+                $queryParams['search'] = $request->input('search');
+            }
+
+            // Tambahkan filter status
+            if ($request->filled('current_status')) {
+                $queryParams['current_status'] = $request->input('current_status');
+            }
+
+            // Tambahkan filter tipe aset
+            if ($request->filled('asset_type')) {
+                $queryParams['asset_type'] = $request->input('asset_type');
+            }
+
+            // Menerapkan pengurutan
+            $sortOrder = $request->input('sort', 'newest');
+            $sortMappings = [
+                'newest' => ['sort_by' => 'created_at', 'sort_order' => 'desc'],
+                'oldest' => ['sort_by' => 'created_at', 'sort_order' => 'asc'],
+                'name_asc' => ['sort_by' => 'asset_name', 'sort_order' => 'asc'],
+                'name_desc' => ['sort_by' => 'asset_name', 'sort_order' => 'desc'],
+                'code_asc' => ['sort' => 'code_asc'],
+                'code_desc' => ['sort' => 'code_desc'],
+            ];
+
+            if (!empty($sortOrder) && isset($sortMappings[$sortOrder])) {
+                $queryParams = array_merge($queryParams, $sortMappings[$sortOrder]);
             } else {
-                $query['sort_by'] = 'asset_id';
-                $query['sort_order'] = 'desc';
-            }
-
-            // Add search filter if provided
-            if (!empty($search)) {
-                $query['search'] = $search;
-            }
-
-            // Add status filter if provided
-            if (!empty($statusFilter)) {
-                $query['current_status'] = $statusFilter;
-            }
-
-            // Add asset type filter if provided
-            if (!empty($typeFilter)) {
-                $query['asset_type'] = $typeFilter;
+                $queryParams['sort_by'] = 'asset_id';
+                $queryParams['sort_order'] = 'desc';
             }
 
             // Fetch assets for PDF
             $assetsResult = $this->apiService->request('GET', '/assets', [
-                'query' => $query
+                'query' => $queryParams
             ]);
 
-            // Check for auth errors
-            if (isset($assetsResult['errors']) && is_string($assetsResult['errors']) &&
-                in_array($assetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($assetsResult['errors']) ? $assetsResult['errors'] : 'Authentication failed');
+            // Handle errors
+            $authError = $this->handleAuthError($assetsResult, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for API errors based on success flag
-            if (!isset($assetsResult['success']) || $assetsResult['success'] !== true) {
-                $errorData = $assetsResult['errors'] ?? 'Failed to fetch unit assets data';
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
+            $apiError = $this->handleApiError($assetsResult, $request, 'Asset.UnitAsset', 'Gagal mengambil data untuk ekspor');
+            if ($apiError) {
+                return $apiError;
             }
 
             // Get assets data
             $assets = $assetsResult['data'] ?? [];
 
-            // Generate PDF
-            $pdf = Pdf::loadView('Asset.UnitAssetPDF', [
+            // Generate filename
+            $timestamp = date('YmdHis');
+            $filename = "laporan_unit_aset_{$timestamp}.pdf";
+
+            // Generate PDF menggunakan metode dari trait ExportableToPdf
+            return $this->generatePdf(
+                'Asset.UnitAssetPDF',
+                [
                 'assets' => $assets,
-                'search' => $search,
-                'typeFilter' => $typeFilter,
-                'statusFilter' => $statusFilter,
+                    'search' => $request->input('search', ''),
+                    'typeFilter' => $request->input('asset_type', ''),
+                    'statusFilter' => $request->input('current_status', ''),
                 'sortOrder' => $sortOrder,
-                'date_generated' => now()->format('d M Y H:i:s')
-            ]);
-
-            // Stream the PDF to browser
-            return $pdf->stream('unit_assets_report_' . now()->format('YmdHis') . '.pdf');
-
+                    'date_generated' => date('d M Y H:i:s')
+                ],
+                $filename,
+                'landscape'
+            );
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to export Unit Assets as PDF: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.UnitAsset');
         }
     }
 }

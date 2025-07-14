@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Rooms')
+@section('title', 'Ruangan')
 
 @section('content')
     @include('Layout.loading')
@@ -192,8 +192,8 @@
                     <!-- Pagination for Rooms -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ ($roomPagination['current_page'] ?? 1) <= 1 ? '#' : request()->fullUrlWithQuery(['room_page' => ($roomPagination['current_page'] ?? 1) - 1]) }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roomPagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ ($rooms_pagination['current_page'] ?? 1) <= 1 ? '#' : request()->fullUrlWithQuery(['page' => ($rooms_pagination['current_page'] ?? 1) - 1]) }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($rooms_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -203,8 +203,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $roomPagination['current_page'] ?? 1;
-                                    $lastPage = $roomPagination['last_page'] ?? 1;
+                                    $currentPage = $rooms_pagination['current_page'] ?? 1;
+                                    $lastPage = $rooms_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -215,7 +215,7 @@
                                 @endphp
 
                                 @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['room_page' => 1]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1
                                     </a>
@@ -227,7 +227,7 @@
                                 @endif
 
                                 @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['room_page' => $i]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
@@ -239,14 +239,14 @@
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['room_page' => $lastPage]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         {{ $lastPage }}
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['room_page' => ($roomPagination['current_page'] ?? 1) + 1]) }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roomPagination['current_page'] ?? 1) >= ($roomPagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ ($rooms_pagination['current_page'] ?? 1) >= ($rooms_pagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['page' => ($rooms_pagination['current_page'] ?? 1) + 1]) }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($rooms_pagination['current_page'] ?? 1) >= ($rooms_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -258,11 +258,11 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($roomPagination) && is_array($roomPagination))
+                                @if(isset($rooms_pagination) && is_array($rooms_pagination))
                                     @php
-                                        $currentPage = $roomPagination['current_page'] ?? 1;
-                                        $perPage = $roomPagination['per_page'] ?? 10;
-                                        $total = $roomPagination['total'] ?? count($rooms ?? []);
+                                        $currentPage = $rooms_pagination['current_page'] ?? 1;
+                                        $perPage = $rooms_pagination['per_page'] ?? 10;
+                                        $total = $rooms_pagination['total'] ?? count($rooms ?? []);
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -274,9 +274,10 @@
                             <select id="roomPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeRoomPerPage(this.value)">
-                                <option value="10" {{ isset($roomPagination['per_page']) && $roomPagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ isset($roomPagination['per_page']) && $roomPagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ isset($roomPagination['per_page']) && $roomPagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="10" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="50" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -334,15 +335,23 @@
 
                                                 <!-- Building Dropdown -->
                                                 <div id="add_building_dropdown"
-                                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base overflow-auto focus:outline-none hidden">
+                                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-lg py-1 text-base focus:outline-none hidden">
                                                     <!-- Loading indicator -->
-                                                    <div id="add_building_loading" class="flex justify-center py-2">
+                                                    <div id="add_building_loading" class="flex justify-center py-4">
                                                         <div
                                                             class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]">
                                                         </div>
                                                         <span class="ml-2 text-gray-600">Memuat gedung...</span>
                                                     </div>
-                                                    <ul id="add_building_list" class="max-h-56 overflow-y-auto"></ul>
+                                                    <div class="max-h-60 overflow-y-auto">
+                                                        <ul id="add_building_list"></ul>
+                                                    </div>
+                                                    <div id="add_building_no_results" class="p-2 text-center text-gray-500 hidden">
+                                                        Tidak ada gedung ditemukan
+                                                    </div>
+                                                    <div id="add_building_load_more" class="p-2 text-center border-t border-gray-200 hidden">
+                                                        <button type="button" class="text-[#213268] hover:underline text-sm">Muat lebih banyak</button>
+                                                    </div>
                                                 </div>
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus dipilih
                                                 </div>
@@ -436,15 +445,23 @@
 
                                                     <!-- Building Dropdown -->
                                                     <div id="edit_building_dropdown"
-                                                        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-lg py-1 text-base overflow-auto focus:outline-none hidden">
+                                                        class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-lg py-1 text-base focus:outline-none hidden">
                                                         <!-- Loading indicator -->
-                                                        <div id="edit_building_loading" class="flex justify-center py-2">
+                                                        <div id="edit_building_loading" class="flex justify-center py-4">
                                                             <div
                                                                 class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]">
                                                             </div>
                                                             <span class="ml-2 text-gray-600">Memuat gedung...</span>
                                                         </div>
-                                                        <ul id="edit_building_list" class="max-h-56 overflow-y-auto"></ul>
+                                                        <div class="max-h-60 overflow-y-auto">
+                                                            <ul id="edit_building_list"></ul>
+                                                        </div>
+                                                        <div id="edit_building_no_results" class="p-2 text-center text-gray-500 hidden">
+                                                            Tidak ada gedung ditemukan
+                                                        </div>
+                                                        <div id="edit_building_load_more" class="p-2 text-center border-t border-gray-200 hidden">
+                                                            <button type="button" class="text-[#213268] hover:underline text-sm">Muat lebih banyak</button>
+                                                        </div>
                                                     </div>
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Gedung harus
                                                         dipilih</div>
@@ -971,10 +988,8 @@
 
                 window.changeRoomPerPage = function (limit) {
                     const url = new URL(window.location.href);
-                    url.searchParams.set('room_limit', limit);
-
-                    url.searchParams.set('room_page', 1);
-
+                    url.searchParams.set('limit', limit);
+                    url.searchParams.set('page', 1);
                     window.location.href = url.toString();
                 }
 
@@ -987,14 +1002,14 @@
 
                     const url = new URL(window.location.href);
 
-                    ['search', 'sort', 'room_page'].forEach(param => {
+                    ['search', 'sort', 'page'].forEach(param => {
                         url.searchParams.delete(param);
                     });
 
                     if (searchValue) url.searchParams.set('search', searchValue);
                     if (sortValue) url.searchParams.set('sort', sortValue);
 
-                    url.searchParams.set('room_page', 1);
+                    url.searchParams.set('page', 1);
 
                     window.location.href = url.toString();
                 }
@@ -1032,17 +1047,49 @@
                     }, 300);
                 }
 
-                async function loadBuildings(searchTerm, dropdownId, listId, loadingId) {
+                // Variables for building lazy loading
+                let addBuildingPage = 1;
+                let isLoadingAddBuildings = false;
+                let hasMoreAddBuildings = true;
+                let currentAddBuildingSearch = '';
+
+                let editBuildingPage = 1;
+                let isLoadingEditBuildings = false;
+                let hasMoreEditBuildings = true;
+                let currentEditBuildingSearch = '';
+
+                async function loadBuildings(searchTerm, dropdownId, listId, loadingId, page = 1, append = false, noResultsId, loadMoreId) {
                     const buildingList = document.getElementById(listId);
                     const loadingIndicator = document.getElementById(loadingId);
+                    const noResultsDiv = document.getElementById(noResultsId);
+                    const loadMoreDiv = document.getElementById(loadMoreId);
 
                     if (!buildingList) return;
 
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    buildingList.innerHTML = '';
+                    if (dropdownId.includes('add')) {
+                        isLoadingAddBuildings = true;
+                    } else {
+                        isLoadingEditBuildings = true;
+                    }
+
+                    if (!append) {
+                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                        buildingList.innerHTML = '';
+                        if (noResultsDiv) noResultsDiv.classList.add('hidden');
+                        if (loadMoreDiv) loadMoreDiv.classList.add('hidden');
+                    }
 
                     try {
-                        const response = await fetch(`{{ route('buildings') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                        // Build URL with proper query parameters
+                        const baseUrl = `{{ route('buildings') }}`;
+                        const params = new URLSearchParams();
+                        if (searchTerm) {
+                            params.append('search', searchTerm);
+                        }
+                        params.append('page', page);
+                        params.append('limit', 10);
+
+                        const response = await fetch(`${baseUrl}?${params.toString()}`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -1059,16 +1106,20 @@
                         }
 
                         const result = await response.json();
-                        const buildings = result.data || [];
+                        const buildings = result.buildings || result.data || [];
 
-                        buildingList.innerHTML = '';
+                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
 
-                        if (buildings.length === 0) {
-                            const noResults = document.createElement('li');
-                            noResults.className = 'px-4 py-2 text-gray-500 italic';
-                            noResults.textContent = 'Tidak ada gedung ditemukan';
-                            buildingList.appendChild(noResults);
+                        if (!append) {
+                            buildingList.innerHTML = '';
+                        }
+
+                        if (buildings.length === 0 && !append) {
+                            if (noResultsDiv) noResultsDiv.classList.remove('hidden');
+                            if (loadMoreDiv) loadMoreDiv.classList.add('hidden');
                         } else {
+                            if (noResultsDiv) noResultsDiv.classList.add('hidden');
+
                             buildings.forEach(item => {
                                 const li = document.createElement('li');
                                 li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
@@ -1099,16 +1150,87 @@
 
                                 buildingList.appendChild(li);
                             });
+
+                            // Handle "Load More" button - show if there are more buildings (assuming 10 per page)
+                            const hasMore = buildings.length >= 10;
+
+                            if (dropdownId.includes('add')) {
+                                hasMoreAddBuildings = hasMore;
+                            } else {
+                                hasMoreEditBuildings = hasMore;
+                            }
+
+                            if (hasMore) {
+                                if (loadMoreDiv) {
+                                    loadMoreDiv.classList.remove('hidden');
+                                    const loadMoreButton = loadMoreDiv.querySelector('button');
+
+                                    if (loadMoreButton) {
+                                        // Replace the click event listener to prevent duplicates
+                                        const newLoadMoreButton = loadMoreButton.cloneNode(true);
+                                        loadMoreButton.parentNode.replaceChild(newLoadMoreButton, loadMoreButton);
+
+                                        newLoadMoreButton.addEventListener('click', function() {
+                                            const nextPage = page + 1;
+
+                                            if (dropdownId.includes('add')) {
+                                                addBuildingPage = nextPage;
+                                                this.disabled = true;
+                                                this.innerHTML = 'Memuat...';
+                                                loadBuildings(
+                                                    currentAddBuildingSearch,
+                                                    'add_building_dropdown',
+                                                    'add_building_list',
+                                                    'add_building_loading',
+                                                    nextPage,
+                                                    true,
+                                                    'add_building_no_results',
+                                                    'add_building_load_more'
+                                                );
+                                            } else {
+                                                editBuildingPage = nextPage;
+                                                this.disabled = true;
+                                                this.innerHTML = 'Memuat...';
+                                                loadBuildings(
+                                                    currentEditBuildingSearch,
+                                                    'edit_building_dropdown',
+                                                    'edit_building_list',
+                                                    'edit_building_loading',
+                                                    nextPage,
+                                                    true,
+                                                    'edit_building_no_results',
+                                                    'edit_building_load_more'
+                                                );
+                                            }
+
+                                            setTimeout(() => {
+                                                this.disabled = false;
+                                                this.innerHTML = 'Muat lebih banyak';
+                                            }, 1000);
+                                        });
+                                    }
+                                }
+                            } else {
+                                if (loadMoreDiv) loadMoreDiv.classList.add('hidden');
+                            }
                         }
                     } catch (error) {
                         console.error('Error loading buildings:', error);
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = 'Error loading buildings: ' + error.message;
-                        buildingList.innerHTML = '';
-                        buildingList.appendChild(errorItem);
-                    } finally {
                         if (loadingIndicator) loadingIndicator.classList.add('hidden');
+
+                        if (!append) {
+                            const errorItem = document.createElement('li');
+                            errorItem.className = 'px-4 py-2 text-red-500';
+                            errorItem.textContent = 'Error loading buildings: ' + error.message;
+                            buildingList.innerHTML = '';
+                            buildingList.appendChild(errorItem);
+                        }
+                    } finally {
+                        if (dropdownId.includes('add')) {
+                            isLoadingAddBuildings = false;
+                        } else {
+                            isLoadingEditBuildings = false;
+                        }
                     }
                 }
 
@@ -1121,19 +1243,97 @@
                     const editBuildingDropdown = document.getElementById('edit_building_dropdown');
                     const editBuildingList = document.getElementById('edit_building_list');
 
+                    // Setup infinite scrolling for building dropdowns
+                    if (addBuildingDropdown) {
+                        const addBuildingScrollContainer = addBuildingDropdown.querySelector('.max-h-60');
+                        if (addBuildingScrollContainer) {
+                            addBuildingScrollContainer.addEventListener('scroll', function() {
+                                if (!hasMoreAddBuildings || isLoadingAddBuildings) return;
+
+                                // Check if user scrolled to bottom
+                                if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                                    // Load next page
+                                    addBuildingPage++;
+                                    loadBuildings(
+                                        currentAddBuildingSearch,
+                                        'add_building_dropdown',
+                                        'add_building_list',
+                                        'add_building_loading',
+                                        addBuildingPage,
+                                        true,
+                                        'add_building_no_results',
+                                        'add_building_load_more'
+                                    );
+                                }
+                            });
+                        }
+                    }
+
+                    if (editBuildingDropdown) {
+                        const editBuildingScrollContainer = editBuildingDropdown.querySelector('.max-h-60');
+                        if (editBuildingScrollContainer) {
+                            editBuildingScrollContainer.addEventListener('scroll', function() {
+                                if (!hasMoreEditBuildings || isLoadingEditBuildings) return;
+
+                                // Check if user scrolled to bottom
+                                if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                                    // Load next page
+                                    editBuildingPage++;
+                                    loadBuildings(
+                                        currentEditBuildingSearch,
+                                        'edit_building_dropdown',
+                                        'edit_building_list',
+                                        'edit_building_loading',
+                                        editBuildingPage,
+                                        true,
+                                        'edit_building_no_results',
+                                        'edit_building_load_more'
+                                    );
+                                }
+                            });
+                        }
+                    }
+
                     if (addBuildingSearch && addBuildingDropdown) {
                         addBuildingSearch.addEventListener('focus', function () {
                             addBuildingDropdown.classList.remove('hidden');
-                            if (addBuildingList.children.length === 0) {
-                                loadBuildings('', 'add_building_dropdown', 'add_building_list', 'add_building_loading');
-                            }
+                            // Reset pagination when focusing on search
+                            addBuildingPage = 1;
+                            hasMoreAddBuildings = true;
+                            currentAddBuildingSearch = '';
+
+                            loadBuildings(
+                                '',
+                                'add_building_dropdown',
+                                'add_building_list',
+                                'add_building_loading',
+                                1,
+                                false,
+                                'add_building_no_results',
+                                'add_building_load_more'
+                            );
                         });
 
                         let addBuildingTimeout;
                         addBuildingSearch.addEventListener('input', function () {
+                            const searchTerm = this.value.trim();
+                            // Reset pagination when search term changes
+                            addBuildingPage = 1;
+                            hasMoreAddBuildings = true;
+                            currentAddBuildingSearch = searchTerm;
+
                             clearTimeout(addBuildingTimeout);
                             addBuildingTimeout = setTimeout(() => {
-                                loadBuildings(this.value, 'add_building_dropdown', 'add_building_list', 'add_building_loading');
+                                loadBuildings(
+                                    searchTerm,
+                                    'add_building_dropdown',
+                                    'add_building_list',
+                                    'add_building_loading',
+                                    1,
+                                    false,
+                                    'add_building_no_results',
+                                    'add_building_load_more'
+                                );
                             }, 300);
                         });
                     }
@@ -1141,16 +1341,43 @@
                     if (editBuildingSearch && editBuildingDropdown) {
                         editBuildingSearch.addEventListener('focus', function () {
                             editBuildingDropdown.classList.remove('hidden');
-                            if (editBuildingList.children.length === 0) {
-                                loadBuildings('', 'edit_building_dropdown', 'edit_building_list', 'edit_building_loading');
-                            }
+                            // Reset pagination when focusing on search
+                            editBuildingPage = 1;
+                            hasMoreEditBuildings = true;
+                            currentEditBuildingSearch = '';
+
+                            loadBuildings(
+                                '',
+                                'edit_building_dropdown',
+                                'edit_building_list',
+                                'edit_building_loading',
+                                1,
+                                false,
+                                'edit_building_no_results',
+                                'edit_building_load_more'
+                            );
                         });
 
                         let editBuildingTimeout;
                         editBuildingSearch.addEventListener('input', function () {
+                            const searchTerm = this.value.trim();
+                            // Reset pagination when search term changes
+                            editBuildingPage = 1;
+                            hasMoreEditBuildings = true;
+                            currentEditBuildingSearch = searchTerm;
+
                             clearTimeout(editBuildingTimeout);
                             editBuildingTimeout = setTimeout(() => {
-                                loadBuildings(this.value, 'edit_building_dropdown', 'edit_building_list', 'edit_building_loading');
+                                loadBuildings(
+                                    searchTerm,
+                                    'edit_building_dropdown',
+                                    'edit_building_list',
+                                    'edit_building_loading',
+                                    1,
+                                    false,
+                                    'edit_building_no_results',
+                                    'edit_building_load_more'
+                                );
                             }, 300);
                         });
                     }
@@ -1206,8 +1433,7 @@
 
                         openModal(editRoomModal, editRoomModal.querySelector('[id$="ModalContent"]'));
 
-                        const requestUrl = `{{ url('/rooms') }}/${roomId}`;
-                        console.log('Fetching room data from:', requestUrl);
+                        const requestUrl = `{{ url('rooms/') }}/${roomId}`;
 
                         fetch(requestUrl, {
                             headers: {
@@ -1216,29 +1442,28 @@
                             }
                         })
                             .then(response => {
-                                console.log('Response status:', response.status);
                                 if (!response.ok) {
                                     throw new Error(`Failed to fetch room data: ${response.status}`);
                                 }
                                 return response.json();
                             })
                             .then(data => {
-                                console.log('Room data received:', data);
-
                                 const loader = document.getElementById('editFormLoader');
                                 if (loader) loader.remove();
 
                                 if (formContent) formContent.classList.remove('opacity-50');
 
-                                if (!data.success) {
-                                    throw new Error(data.message || 'Failed to fetch room data');
+                                let room = null;
+
+                                if (data.room) {
+                                    room = data.room;
+                                } else if (data.data) {
+                                    room = data.data;
                                 }
 
-                                if (!data.data || typeof data.data !== 'object') {
-                                    throw new Error('Invalid room data received from server');
+                                if (!room) {
+                                    throw new Error('Room data not found in response');
                                 }
-
-                                const room = data.data;
 
                                 try {
                                     if (!room.room_name) console.warn('Room name is missing in fetched data');
@@ -1250,7 +1475,9 @@
                                     document.getElementById('editRoomFloor').value = room.floor_number || '';
                                     document.getElementById('editRoomDescription').value = room.description || '';
 
-                                    console.log('Form populated successfully with room data');
+                                    if (room.building_name) {
+                                        document.getElementById('edit_building_search').value = room.building_name;
+                                    }
 
                                     fetch(`{{ route('buildings') }}`, {
                                         headers: {
@@ -1265,16 +1492,26 @@
                                             return response.json();
                                         })
                                         .then(buildingData => {
+                                            if (document.getElementById('edit_building_search').value) {
+                                                return;
+                                            }
+
                                             if (!buildingData.success) {
                                                 console.warn('Building data fetch was not successful:', buildingData.message || 'Unknown error');
                                                 return;
                                             }
 
-                                            if (buildingData.success && buildingData.data) {
-                                                const building = buildingData.data.find(b => b.building_id == room.building_id);
+                                            const buildings = buildingData.buildings || buildingData.data || [];
+
+                                            if (buildings && buildings.length > 0) {
+                                                const building = buildings.find(b => b.building_id == room.building_id);
                                                 if (building) {
                                                     document.getElementById('edit_building_search').value = building.building_name || '';
+                                                } else {
+                                                    console.warn('Building not found for ID:', room.building_id);
                                                 }
+                                            } else {
+                                                console.warn('No buildings data available');
                                             }
                                         })
                                         .catch(error => {
@@ -1813,8 +2050,6 @@
                                 importBtn.innerHTML = originalBtnText;
 
                                 if (data.success === true) {
-                                    console.log('Import successful:', data);
-
                                     const modal = document.getElementById('importRoomModal');
                                     closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
 
@@ -1830,8 +2065,6 @@
                                     let errorDetails = [];
 
                                     if (data.data && data.data.errors) {
-                                        console.log('Server returned detailed errors:', data.data.errors);
-
                                         if (Array.isArray(data.data.errors)) {
                                             data.data.errors.forEach(error => {
                                                 if (typeof error === 'string') {
@@ -2168,7 +2401,7 @@
 
                         const url = new URL(window.location.href);
                         url.searchParams.set('sort', newSort);
-                        url.searchParams.set('room_page', 1);
+                        url.searchParams.set('page', 1);
                         window.location.href = url.toString();
                     });
                 }
@@ -2187,7 +2420,7 @@
 
                         const url = new URL(window.location.href);
                         url.searchParams.set('sort', newSort);
-                        url.searchParams.set('room_page', 1);
+                        url.searchParams.set('page', 1);
                         window.location.href = url.toString();
                     });
                 }

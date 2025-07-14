@@ -3,16 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Http\Controllers\Traits\ExportableToPdf;
 
 class AssetDepreciationController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations, ExportableToPdf;
 
     /**
      * Mendapatkan data depresiasi untuk aset tertentu
@@ -26,14 +23,10 @@ class AssetDepreciationController extends Controller
             // Fetch the depreciation data using ApiService
             $result = $this->apiService->request('GET', "/depreciations/calculate/asset/{$assetId}");
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                ], 401);
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, request());
+            if ($authError) {
+                return $authError;
             }
 
             // Check for the specific "asset cannot be depreciated" error in various formats
@@ -87,66 +80,22 @@ class AssetDepreciationController extends Controller
                 }
             }
 
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data depresiasi';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    // Try to extract the error message from various formats
-                    if (!empty($errorData)) {
-                        if (isset($errorData[0]) && is_array($errorData[0])) {
-                            // Format: [{"path": "general", "message": "Error message"}]
-                            foreach ($errorData as $error) {
-                                if (isset($error['message'])) {
-                                    if (strpos($error['message'], 'Aset tidak dapat didepresiasi') !== false) {
-                                        return response()->json([
-                                            'success' => true,
-                                            'no_depreciation' => true,
-                                            'message' => 'Aset tidak dapat didepresiasi',
-                                            'data' => [
-                                                'asset_id' => (int) $assetId
-                                            ]
-                                        ]);
-                                    }
-                                    $errorMessage .= $error['message'] . '; ';
-                                }
-                            }
-                        } else {
-                            // Regular format with field => messages structure
-                            foreach ($errorData as $field => $messages) {
-                                if (is_array($messages)) {
-                                    $errorMessage .= implode(', ', $messages) . '; ';
-                                } else {
-                                    $errorMessage .= $messages . '; ';
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $errorMessage
-                ], 400);
+            // Handle API errors
+            $apiError = $this->handleApiError(
+                $result, 
+                request(), 
+                'Asset.Depreciation', 
+                'Gagal mengambil data depresiasi'
+            );
+            if ($apiError) {
+                return $apiError;
             }
 
             // Return the depreciation data as JSON
             return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Exception in getAssetDepreciation: ' . $e->getMessage(), [
-                'asset_id' => $assetId,
-                'exception' => $e
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'errors' => 'Gagal mengambil data depresiasi: ' . $e->getMessage()
-            ], 500);
+            return $this->handleException($e, request(), 'Asset.Depreciation');
         }
     }
 
@@ -161,50 +110,31 @@ class AssetDepreciationController extends Controller
     {
         try {
             // Memvalidasi request
-            $validated = $request->validate([
-                'date_acquired' => 'required|date',
-                'acquisition_cost' => 'required|numeric',
-                'salvage_value' => 'required|numeric',
-                'asset_life_months' => 'required|integer',
-                'depreciation_method' => 'required|string'
-            ]);
+            $fields = [
+                'date_acquired' => ['type' => 'date', 'required' => true],
+                'acquisition_cost' => ['type' => 'numeric', 'required' => true],
+                'salvage_value' => ['type' => 'numeric', 'required' => true],
+                'asset_life_months' => ['type' => 'integer', 'required' => true],
+                'depreciation_method' => ['type' => 'string', 'required' => true]
+            ];
+
+            $data = DataFormatter::formatRequestData($request, $fields);
 
             // Kirim permintaan perbarui ke API
             $result = $this->apiService->request('PUT', "/depreciations/asset/{$assetId}", [
-                'json' => $validated
+                'json' => $data
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Autentikasi gagal');
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
+            // Handle API errors
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal memperbarui data depresiasi';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -213,7 +143,9 @@ class AssetDepreciationController extends Controller
                     ], 400);
                 }
 
-                return redirect()->back()->with('error', $errorMessage);
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
             }
 
             // Return success response
@@ -240,14 +172,55 @@ class AssetDepreciationController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
 
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal memperbarui data depresiasi: ' . $e->getMessage()
-                ], 500);
+            return $this->handleException($e, $request, 'Asset.Depreciation');
+        }
+    }
+
+    /**
+     * Export asset depreciation to PDF.
+     */
+    public function exportAssetDepreciationPDF(Request $request, $assetId)
+    {
+        try {
+            // Get depreciation data for export
+            $depreciationResult = $this->apiService->request('GET', "/depreciations/calculate/asset/{$assetId}");
+
+            // Handle errors
+            $authError = $this->handleAuthError($depreciationResult, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            return redirect()->back()->with('error', 'Gagal memperbarui data depresiasi: ' . $e->getMessage());
+            $apiError = $this->handleApiError(
+                $depreciationResult, 
+                $request, 
+                'Asset.Depreciation', 
+                'Gagal mengambil data untuk ekspor'
+            );
+            if ($apiError) {
+                return $apiError;
+            }
+
+            $depreciationData = $depreciationResult['data'] ?? [];
+            $assetData = $depreciationResult['asset'] ?? [];
+
+            // Generate filename
+            $timestamp = date('YmdHis');
+            $filename = "laporan_depresiasi_aset_{$assetId}_{$timestamp}.pdf";
+
+            // Generate PDF
+            return $this->generatePdf(
+                'Asset.DepreciationPDF',
+                [
+                    'depreciationData' => $depreciationData,
+                    'assetData' => $assetData,
+                    'date_generated' => date('d M Y H:i:s')
+                ],
+                $filename,
+                'portrait'
+            );
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'Asset.Depreciation');
         }
     }
 }

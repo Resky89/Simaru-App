@@ -76,7 +76,7 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[18%]">
                                         <div class="flex items-center space-x-1 cursor-pointer" id="sortByName">
                                             <span class="text-xs">Nama Vendor</span>
                                             <span class="sort-icon">
@@ -107,7 +107,7 @@
                                             </span>
                                         </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">
                                         <div class="flex items-center space-x-1 cursor-pointer" id="sortByContact">
                                             <span class="text-xs">Kontak Person</span>
                                             <span class="sort-icon">
@@ -136,7 +136,7 @@
                                             </span>
                                         </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[13%]">
                                         <div class="flex items-center space-x-1 cursor-pointer" id="sortByPhone">
                                             <span class="text-xs">No. Telepon</span>
                                             <span class="sort-icon">
@@ -165,7 +165,8 @@
                                             </span>
                                         </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[13%]">No. Telepon 2</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[18%]">
                                         <div class="flex items-center space-x-1 cursor-pointer" id="sortByEmail">
                                             <span class="text-xs">Email</span>
                                             <span class="sort-icon">
@@ -194,18 +195,19 @@
                                             </span>
                                         </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
-                                    </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Alamat</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[8%]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($vendors as $vendor)
                                     <tr>
-
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['vendor_name'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['contact_person'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['phone_number'] }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['second_phone_number'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['email'] }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['address'] }}</td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
                                                 @if(hasPermission('vendor:edit'))
@@ -215,6 +217,7 @@
                                                         data-vendor-name="{{ $vendor['vendor_name'] }}"
                                                         data-contact-person="{{ $vendor['contact_person'] }}"
                                                         data-phone-number="{{ $vendor['phone_number'] }}"
+                                                        data-second-phone-number="{{ $vendor['second_phone_number'] }}"
                                                         data-email="{{ $vendor['email'] }}"
                                                         data-website="{{ $vendor['website'] ?? '' }}"
                                                         data-address="{{ $vendor['address'] ?? '' }}"
@@ -243,7 +246,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-3 text-center text-gray-500">Tidak ada vendor ditemukan</td>
+                                        <td colspan="7" class="p-3 text-center text-gray-500">Tidak ada vendor ditemukan</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -253,9 +256,9 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-2">
-                            <button onclick="window.location.href='{{ $pagination['prev_page_url'] ?? '#' }}'"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            <button onclick="window.location.href='{{ $vendors_pagination['prev_page_url'] ?? '#' }}'"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($vendors_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ ($vendors_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -265,8 +268,8 @@
                             </button>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $lastPage = $pagination['last_page'] ?? 1;
+                                    $currentPage = $vendors_pagination['current_page'] ?? 1;
+                                    $lastPage = $vendors_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -308,9 +311,9 @@
                                     </button>
                                 @endif
                             </div>
-                            <button onclick="window.location.href='{{ $pagination['next_page_url'] ?? '#' }}'"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                {{ ($pagination['current_page'] ?? 1) >= ($pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
+                            <button onclick="window.location.href='{{ $vendors_pagination['next_page_url'] ?? '#' }}'"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($vendors_pagination['current_page'] ?? 1) >= ($vendors_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ ($vendors_pagination['current_page'] ?? 1) >= ($vendors_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -322,9 +325,9 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($pagination) && is_array($pagination))
-                                    Menampilkan {{ $pagination['from'] }} sampai {{ $pagination['to'] }} dari
-                                    {{ $pagination['total'] }} data
+                                @if(isset($vendors_pagination) && is_array($vendors_pagination))
+                                    Menampilkan {{ $vendors_pagination['from'] }} sampai {{ $vendors_pagination['to'] }} dari
+                                    {{ $vendors_pagination['total'] }} data
                                 @else
                                     Menampilkan 1 sampai {{ count($vendors) }} dari {{ count($vendors) }} data
                                 @endif
@@ -332,9 +335,10 @@
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeVendorPerPage(this.value)">
-                                <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="10" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="50" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -397,6 +401,16 @@
                                             Nomor Telepon
                                         </label>
                                         <input type="tel" name="phone_number" id="add_phone_number"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Ketik di sini">
+                                    </div>
+
+                                    <!-- Second Phone Number Input -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nomor Telepon 2
+                                        </label>
+                                        <input type="tel" name="second_phone_number" id="add_second_phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
                                     </div>
@@ -495,6 +509,17 @@
                                             Nomor Telepon
                                         </label>
                                         <input type="text" id="editPhoneNumber" name="phone_number"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Ketik di sini">
+                                    </div>
+
+                                    <!-- Second Phone Number Input -->
+
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">
+                                            Nomor Telepon 2
+                                        </label>
+                                        <input type="tel" id="editSecondPhoneNumber" name="second_phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
                                     </div>
@@ -1006,6 +1031,7 @@
                     const vendorName = button.getAttribute('data-vendor-name');
                     const contactPerson = button.getAttribute('data-contact-person');
                     const phoneNumber = button.getAttribute('data-phone-number');
+                    const secondPhoneNumber = button.getAttribute('data-second-phone-number');
                     const email = button.getAttribute('data-email');
                     const website = button.getAttribute('data-website');
                     const address = button.getAttribute('data-address');
@@ -1020,6 +1046,7 @@
                     const nameField = document.getElementById('editVendorName');
                     const contactField = document.getElementById('editContactPerson');
                     const phoneField = document.getElementById('editPhoneNumber');
+                    const secondPhoneField = document.getElementById('editSecondPhoneNumber');
                     const emailField = document.getElementById('editEmail');
                     const websiteField = document.getElementById('editWebsite');
                     const addressField = document.getElementById('editAddress');
@@ -1028,6 +1055,7 @@
                     if (nameField) nameField.value = vendorName;
                     if (contactField) contactField.value = contactPerson;
                     if (phoneField) phoneField.value = phoneNumber;
+                    if (secondPhoneField) secondPhoneField.value = secondPhoneNumber;
                     if (emailField) emailField.value = email;
                     if (websiteField) websiteField.value = website || '';
                     if (addressField) addressField.value = address || '';
@@ -1110,7 +1138,61 @@
                     return false;
                 }
 
-                createVendorForm.submit();
+                const submitBtn = document.getElementById('submitVendorBtn');
+                if (submitBtn && !submitBtn.disabled) {
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    (async function() {
+                        try {
+                            // Create FormData object
+                            const formData = new FormData(createVendorForm);
+
+                            // Send request using fetch API
+                            const response = await fetch(createVendorForm.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                // Success
+                                showToast(result.message || 'Vendor berhasil ditambahkan', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error
+                                if (result.errors) {
+                                    showToast(result.errors, 'error');
+                                } else {
+                                    showToast(result.message || 'Gagal menambahkan vendor', 'error');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error adding vendor:', error);
+                            showToast('Terjadi kesalahan saat menambahkan vendor', 'error');
+                        } finally {
+                            // Re-enable submit button
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        }
+                    })();
+                }
             }
 
             if (createVendorForm) {
@@ -1139,7 +1221,61 @@
                         return false;
                     }
 
-                    this.submit();
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        const originalText = submitBtn.innerHTML;
+
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        (async () => {
+                            try {
+                                // Create FormData object
+                                const formData = new FormData(this);
+
+                                // Send request using fetch API
+                                const response = await fetch(this.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json'
+                                    }
+                                });
+
+                                const result = await response.json();
+
+                                if (response.ok) {
+                                    // Success
+                                    showToast(result.message || 'Vendor berhasil diperbarui', 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    // Error
+                                    if (result.errors) {
+                                        showToast(result.errors, 'error');
+                                    } else {
+                                        showToast(result.message || 'Gagal memperbarui vendor', 'error');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error updating vendor:', error);
+                                showToast('Terjadi kesalahan saat memperbarui vendor', 'error');
+                            } finally {
+                                // Re-enable submit button
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            }
+                        })();
+                    }
                 });
             }
 
@@ -1205,6 +1341,7 @@
                 document.getElementById('add_vendor_name'),
                 document.getElementById('add_contact_person'),
                 document.getElementById('add_phone_number'),
+                document.getElementById('add_second_phone_number'),
                 document.getElementById('add_email'),
                 document.getElementById('add_website')
             ];
@@ -1223,6 +1360,7 @@
                 document.getElementById('editVendorName'),
                 document.getElementById('editContactPerson'),
                 document.getElementById('editPhoneNumber'),
+                document.getElementById('editSecondPhoneNumber'),
                 document.getElementById('editEmail'),
                 document.getElementById('editWebsite')
             ];
@@ -1238,73 +1376,116 @@
             });
 
             function showToast(message, type = 'info') {
-                let toastContainer = document.getElementById('toast-container');
-                if (!toastContainer) {
-                    toastContainer = document.createElement('div');
-                    toastContainer.id = 'toast-container';
-                    toastContainer.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
-                    document.body.appendChild(toastContainer);
-                }
+                const notification = document.createElement('div');
+                notification.id = type + 'Notification' + Date.now();
+                notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+                notification.role = 'alert';
 
-                const toast = document.createElement('div');
+                const hasHTML = typeof message === 'string' && /<[a-z][\s\S]*>/i.test(message);
+                const isArray = Array.isArray(message);
 
-                let bgColor, borderColor, textColor, icon;
                 if (type === 'success') {
-                    bgColor = 'bg-green-100';
-                    borderColor = 'border-green-500';
-                    textColor = 'text-green-700';
-                    icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
-                } else if (type === 'error') {
-                    bgColor = 'bg-red-100';
-                    borderColor = 'border-red-500';
-                    textColor = 'text-red-700';
-                    icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
-                } else {
-                    bgColor = 'bg-blue-100';
-                    borderColor = 'border-blue-500';
-                    textColor = 'text-blue-700';
-                    icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>`;
-                }
-
-                toast.className = `${bgColor} border-l-4 ${borderColor} ${textColor} p-4 rounded shadow-md z-50 opacity-0 transition-opacity duration-300`;
-                toast.setAttribute('role', 'alert');
-
-                toast.innerHTML = `
-                    <div class="flex items-center">
+                    notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                    notification.innerHTML = `
+                        <div class="flex items-start">
                         <div class="py-1">
-                            ${icon}
+                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                         </div>
                         <div>
-                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : type === 'error' ? 'Gagal!' : 'Info!'}</p>
-                            <p>${message}</p>
+                                <p class="font-bold">Berhasil!</p>
+                                <div>${message}</div>
                         </div>
                         <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                     </div>
                 `;
+                } else {
+                    notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
-                toastContainer.appendChild(toast);
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-start';
+
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'py-1 flex-shrink-0';
+                    iconContainer.innerHTML = `
+                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
+
+                    const contentContainer = document.createElement('div');
+                    contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                    const title = document.createElement('p');
+                    title.className = 'font-bold';
+                    title.textContent = 'Gagal!';
+                    contentContainer.appendChild(title);
+
+                    const messageContainer = document.createElement('div');
+                    messageContainer.className = 'error-message';
+
+                    if (isArray) {
+                        let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
+                        message.forEach(item => {
+                            htmlContent += `<li>${item}</li>`;
+                        });
+                        htmlContent += '</ul>';
+                        messageContainer.innerHTML = htmlContent;
+                    } else if (hasHTML) {
+                        messageContainer.innerHTML = message;
+                    } else {
+                        messageContainer.textContent = message;
+                    }
+
+                    contentContainer.appendChild(messageContainer);
+
+                    const closeBtn = document.createElement('span');
+                    closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                    closeBtn.textContent = '×';
+                    closeBtn.onclick = function () {
+                        notification.remove();
+                    };
+
+                    wrapper.appendChild(iconContainer);
+                    wrapper.appendChild(contentContainer);
+                    wrapper.appendChild(closeBtn);
+                    notification.appendChild(wrapper);
+                }
+
+                document.body.appendChild(notification);
 
                 setTimeout(() => {
-                    toast.classList.remove('opacity-0');
-                    toast.classList.add('opacity-100');
-                }, 10);
-
-                setTimeout(() => {
-                    toast.classList.remove('opacity-100');
-                    toast.classList.add('opacity-0');
-                    setTimeout(() => {
-                        if (toast.parentNode === toastContainer) {
-                            toastContainer.removeChild(toast);
-                        }
-                    }, 300);
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                    setTimeout(() => notification.remove(), 500);
                 }, 5000);
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.head.insertAdjacentHTML('beforeend', `
+                    <style>
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                        .animate-slide-in-right {
+                            animation: slideInRight 0.3s ease-out forwards;
+                        }
+
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                            list-style-type: disc;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
+                    </style>
+                `);
+            });
 
             const searchInput = document.getElementById('searchInput');
             const sortOrder = document.getElementById('sortOrder');
@@ -1501,6 +1682,7 @@
                     item.vendor_name = getValue(['vendor_name', 'vendor name', 'name', 'nama vendor', 'nama_vendor']);
                     item.contact_person = getValue(['contact_person', 'contact person', 'contactperson', 'kontak', 'kontak_person', 'cp']);
                     item.phone_number = getValue(['phone_number', 'phone number', 'phonenumber', 'no_telp', 'no telp', 'telepon', 'nomor_telepon', 'hp']);
+                    item.second_phone_number = getValue(['second_phone_number', 'second phone number', 'secondphonenumber', 'no_telp2', 'no telp2', 'telepon2', 'nomor_telepon2', 'hp2']);
                     item.email = getValue(['email', 'email_address', 'email address']);
                     item.website = getValue(['website', 'web', 'site', 'url']);
                     item.address = getValue(['address', 'alamat', 'location', 'lokasi']);
@@ -1559,7 +1741,7 @@
                     indexCell.textContent = index + 1;
                     row.appendChild(indexCell);
 
-                    const fields = ['vendor_name', 'contact_person', 'phone_number', 'email', 'website', 'address'];
+                    const fields = ['vendor_name', 'contact_person', 'phone_number', 'second_phone_number', 'email', 'website', 'address'];
 
                     fields.forEach(field => {
                         const cell = document.createElement('td');

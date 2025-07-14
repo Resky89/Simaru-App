@@ -127,7 +127,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to_employee_number'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to_employee_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['vendor_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
@@ -452,7 +452,7 @@
                                                 <input type="text" id="vendor_search" placeholder="Cari vendor..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                 <input type="hidden" id="vendor_id" name="vendor_id">
-                                                <div id="vendor_results" class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
+                                                <div id="vendor_results" class="absolute z-[100] w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
                                             </div>
                                         </div>
                                         <div>
@@ -830,7 +830,7 @@
                                                 <input type="text" id="edit_vendor_search" placeholder="Cari vendor..."
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                 <input type="hidden" id="edit_vendor_id" name="vendor_id">
-                                                <div id="edit_vendor_results" class="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
+                                                <div id="edit_vendor_results" class="absolute z-[100] w-full mt-1 bg-white shadow-lg max-h-60 rounded-md overflow-y-auto border border-gray-300"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -893,6 +893,13 @@
                                             <span id="report_asset_code" class="text-sm text-gray-500 block"></span>
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Asset Image - Add asset image display -->
+                                <div class="w-full h-40 bg-white mb-6 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                    <img id="maintenance_asset_image" src="{{ asset('images/placeholder.png') }}"
+                                        alt="Asset Image" class="w-full h-full object-contain p-2"
+                                        onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
                                 </div>
 
                                 <!-- Report Information -->
@@ -2133,13 +2140,25 @@
             const editVendorIdInput = document.getElementById('edit_vendor_id');
             const editVendorResults = document.getElementById('edit_vendor_results');
 
+            // Variables for vendor lazy loading
+            let vendorPage = 1;
+            let isLoadingVendors = false;
+            let hasMoreVendors = true;
+            let currentVendorSearch = '';
+
+            // Variables for edit vendor lazy loading
+            let editVendorPage = 1;
+            let isLoadingEditVendors = false;
+            let hasMoreEditVendors = true;
+            let currentEditVendorSearch = '';
+
             vendorSearchInput?.addEventListener('focus', function() {
-                fetchVendors(this.value.trim(), 'add');
+                filterAndDisplayVendors(this.value.trim(), 'add');
                 vendorResults.style.display = 'block';
             });
 
             editVendorSearchInput?.addEventListener('focus', function() {
-                fetchVendors(this.value.trim(), 'edit');
+                filterAndDisplayVendors(this.value.trim(), 'edit');
                 editVendorResults.style.display = 'block';
             });
 
@@ -2159,25 +2178,54 @@
 
             vendorSearchInput?.addEventListener('input', debounce(function() {
                 const searchTerm = this.value.trim();
-                fetchVendors(searchTerm, 'add');
+                filterAndDisplayVendors(searchTerm, 'add');
             }, 300));
 
             editVendorSearchInput?.addEventListener('input', debounce(function() {
                 const searchTerm = this.value.trim();
-                fetchVendors(searchTerm, 'edit');
+                filterAndDisplayVendors(searchTerm, 'edit');
             }, 300));
 
-            function fetchVendors(searchTerm = '', mode = 'add') {
+            function filterAndDisplayVendors(searchTerm, mode = 'add') {
+                const resultsElem = mode === 'add' ? vendorResults : editVendorResults;
+
+                if (resultsElem) resultsElem.style.display = 'block';
+
+                // Reset pagination variables when starting a new search
+                if (mode === 'add') {
+                    vendorPage = 1;
+                    hasMoreVendors = true;
+                    currentVendorSearch = searchTerm;
+                } else {
+                    editVendorPage = 1;
+                    hasMoreEditVendors = true;
+                    currentEditVendorSearch = searchTerm;
+                }
+
+                fetchVendors(searchTerm, mode, mode === 'add' ? vendorPage : editVendorPage, false);
+            }
+
+            function fetchVendors(searchTerm = '', mode = 'add', page = 1, append = false) {
                 const resultsElem = mode === 'add' ? vendorResults : editVendorResults;
                 const searchInputElem = mode === 'add' ? vendorSearchInput : editVendorSearchInput;
                 const idInputElem = mode === 'add' ? vendorIdInput : editVendorIdInput;
 
+                if (mode === 'add') {
+                    if (isLoadingVendors) return;
+                    isLoadingVendors = true;
+                } else {
+                    if (isLoadingEditVendors) return;
+                    isLoadingEditVendors = true;
+                }
+
+                if (!append && resultsElem && resultsElem.style.display === 'block') {
                 resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                resultsElem.style.display = 'block';
+                }
 
                 let queryParams = new URLSearchParams();
                 queryParams.append('json', 'true');
                 queryParams.append('limit', '20');
+                queryParams.append('page', page.toString());
 
                 if (searchTerm) {
                     queryParams.append('search', searchTerm);
@@ -2208,42 +2256,62 @@
                         vendors = data.data;
                     }
 
-                    vendors.forEach(vendor => {
-                        const existingIndex = allVendors.findIndex(v => v.vendor_id.toString() === vendor.vendor_id.toString());
-                        if (existingIndex === -1) {
-                            allVendors.push(vendor);
+                    // Cache all vendors on first load
+                    if (!searchTerm && page === 1 && mode === 'add') {
+                        allVendors = vendors;
+                        try {
+                            localStorage.setItem('allVendors', JSON.stringify(allVendors));
+                        } catch (e) {
+                            console.error('Error caching vendors:', e);
                         }
-                    });
+                    }
 
-                    displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem);
+                    // Check if we have more pages to load
+                    if (mode === 'add') {
+                        hasMoreVendors = vendors.length === 20; // Assuming 20 is the page size
+                        isLoadingVendors = false;
+                    } else {
+                        hasMoreEditVendors = vendors.length === 20;
+                        isLoadingEditVendors = false;
+                    }
+
+                    displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem, append);
                 })
                 .catch(error => {
                     console.error('Error fetching vendors:', error);
+
+                    if (resultsElem && resultsElem.style.display === 'block' && !append) {
                     resultsElem.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                    }
+
+                    if (typeof error === 'object' && error !== null) {
+                        showToast(error, 'error');
+                    } else {
+                        showToast('Gagal memuat vendor: ' + error.message, 'error');
+                    }
+
+                    if (mode === 'add') {
+                        isLoadingVendors = false;
+                    } else {
+                        isLoadingEditVendors = false;
+                    }
                 });
             }
 
-            function displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem) {
+            function displayVendorResults(vendors, resultsElem, idInputElem, searchInputElem, append = false) {
+                if (!append) {
                 resultsElem.innerHTML = '';
-
-                if (vendors.length === 0) {
-                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
-                    return;
+                } else {
+                    // Remove loading indicator if it exists
+                    const loadingIndicator = resultsElem.querySelector('.vendor-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
                 }
 
-                if (searchInputElem && searchInputElem.value.trim()) {
-                    const searchTerm = searchInputElem.value.trim().toLowerCase();
-                    vendors.sort((a, b) => {
-                        if (a.vendor_name.toLowerCase() === searchTerm) return -1;
-                        if (b.vendor_name.toLowerCase() === searchTerm) return 1;
-
-                        const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm);
-                        const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm);
-                        if (aStarts && !bStarts) return -1;
-                        if (bStarts && !aStarts) return 1;
-
-                        return a.vendor_name.localeCompare(b.vendor_name);
-                    });
+                if (vendors.length === 0 && !append) {
+                    resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Vendor tidak ditemukan</div>';
+                    return;
                 }
 
                 vendors.forEach((vendor, index) => {
@@ -2251,7 +2319,10 @@
                     div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
                     div.textContent = vendor.vendor_name;
                     div.setAttribute('data-id', vendor.vendor_id);
+
+                    if (!append) {
                     div.style.animationDelay = `${index * 30}ms`;
+                    }
 
                     div.addEventListener('click', function() {
                         idInputElem.value = this.getAttribute('data-id');
@@ -2262,13 +2333,58 @@
                     resultsElem.appendChild(div);
                 });
 
-                if (vendors.length > 10) {
-                    const countDiv = document.createElement('div');
-                    countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                    countDiv.textContent = `Menampilkan ${vendors.length} vendor`;
-                    resultsElem.appendChild(countDiv);
+                const isMainForm = resultsElem === vendorResults;
+                const hasMore = isMainForm ? hasMoreVendors : hasMoreEditVendors;
+
+                if (hasMore) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'p-2 text-xs text-gray-500 text-center border-t vendor-loading-indicator';
+                    loadingDiv.textContent = 'memuat lebih lanjut...';
+                    resultsElem.appendChild(loadingDiv);
                 }
             }
+
+            // Setup infinite scrolling for vendor results
+            if (vendorResults) {
+                vendorResults.addEventListener('scroll', function() {
+                    if (!hasMoreVendors || isLoadingVendors) return;
+
+                    // Check if user scrolled to bottom
+                    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                        // Load next page
+                        vendorPage++;
+                        fetchVendors(currentVendorSearch, 'add', vendorPage, true);
+                    }
+                });
+            }
+
+            // Setup infinite scrolling for edit vendor results
+            if (editVendorResults) {
+                editVendorResults.addEventListener('scroll', function() {
+                    if (!hasMoreEditVendors || isLoadingEditVendors) return;
+
+                    // Check if user scrolled to bottom
+                    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                        // Load next page
+                        editVendorPage++;
+                        fetchVendors(currentEditVendorSearch, 'edit', editVendorPage, true);
+                    }
+                });
+            }
+
+            // Preload vendors if available in cache
+            function loadAllVendors() {
+                const cachedVendors = localStorage.getItem('allVendors');
+                if (cachedVendors) {
+                    try {
+                        allVendors = JSON.parse(cachedVendors);
+                    } catch (e) {
+                        console.error('Error parsing cached vendors:', e);
+                    }
+                }
+            }
+
+            loadAllVendors();
 
             initUserSearch('user_search', 'user_dropdown', 'user_list', 'user_loading', 'selected_user_id');
             initUserSearch('edit_user_search', 'edit_user_dropdown', 'edit_user_list', 'edit_user_loading', 'edit_assigned_to');
@@ -2865,34 +2981,69 @@
                         return;
                     }
 
-                    if (!assetName || !assetCode) {
-                        assetName = this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
-                        assetCode = this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
-                    }
+                    // Fetch maintenance details to get all info including asset image
+                    fetch(`/maintenance/${maintenanceId}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Gagal mengambil detail pemeliharaan');
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (!result.success) {
+                            throw new Error(result.message || 'Gagal mengambil detail pemeliharaan');
+                        }
 
-                    const reportMaintenanceId = document.getElementById('report_maintenance_id');
-                    const reportAssetName = document.getElementById('report_asset_name');
-                    const reportAssetCode = document.getElementById('report_asset_code');
-                    const maintenanceDate = document.getElementById('maintenance_date');
-                    const createReportForm = document.getElementById('createReportForm');
-                    const imagePreview = document.getElementById('image-preview');
+                        const maintenance = result.data;
 
-                    if (reportMaintenanceId && reportAssetName && reportAssetCode && maintenanceDate && createReportForm && imagePreview) {
-                        reportMaintenanceId.value = maintenanceId;
-                        reportAssetName.textContent = assetName;
-                        reportAssetCode.textContent = assetCode;
+                        if (!assetName || !assetCode) {
+                            assetName = maintenance.asset_name || this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
+                            assetCode = maintenance.asset_code || this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
+                        }
 
-                    const today = new Date().toISOString().split('T')[0];
-                        maintenanceDate.value = today;
+                        const reportMaintenanceId = document.getElementById('report_maintenance_id');
+                        const reportAssetName = document.getElementById('report_asset_name');
+                        const reportAssetCode = document.getElementById('report_asset_code');
+                        const maintenanceDate = document.getElementById('maintenance_date');
+                        const createReportForm = document.getElementById('createReportForm');
+                        const imagePreview = document.getElementById('image-preview');
+                        const assetImage = document.getElementById('maintenance_asset_image');
 
-                        createReportForm.reset();
-                        reportMaintenanceId.value = maintenanceId;
-                        maintenanceDate.value = today;
+                        if (reportMaintenanceId && reportAssetName && reportAssetCode && maintenanceDate && createReportForm && imagePreview) {
+                            reportMaintenanceId.value = maintenanceId;
+                            reportAssetName.textContent = assetName;
+                            reportAssetCode.textContent = assetCode;
 
-                        imagePreview.classList.add('hidden');
+                            // Set asset image
+                            if (assetImage && maintenance.asset_image_path) {
+                                assetImage.src = maintenance.asset_image_path.startsWith('http')
+                                    ? maintenance.asset_image_path
+                                    : "{{ config('app.backend_url') }}/public" + maintenance.asset_image_path;
+                            } else if (assetImage) {
+                                assetImage.src = "{{ asset('images/placeholder.png') }}";
+                            }
 
-                    openModal(modals.report, modalContents.report);
-                    }
+                            const today = new Date().toISOString().split('T')[0];
+                            maintenanceDate.value = today;
+
+                            createReportForm.reset();
+                            reportMaintenanceId.value = maintenanceId;
+                            maintenanceDate.value = today;
+
+                            imagePreview.classList.add('hidden');
+
+                            openModal(modals.report, modalContents.report);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching maintenance details:', error);
+                        showToast(error.message || 'Gagal mengambil detail pemeliharaan', 'error');
+                    });
                 });
             });
 
@@ -3133,6 +3284,16 @@
 
         .fade-in {
             animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        #edit_vendor_results, #vendor_results {
+            position: absolute;
+            z-index: 9999;
+        }
+
+        .relative {
+            position: relative;
+            overflow: visible;
         }
     </style>
 @endsection

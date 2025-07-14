@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
 
 class BrandController extends Controller
 {
-    protected $apiService;
+    use ApiResourceOperations;
 
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+
 
     /**
      * Menampilkan daftar merek.
@@ -68,41 +66,20 @@ class BrandController extends Controller
             }
 
             // Mengambil merek dari API
-            $brandsResult = $this->apiService->request('GET', '/brands', [
+            $result = $this->apiService->request('GET', '/brands', [
                 'query' => $queryParams
             ]);
 
             // Memeriksa kesalahan autentikasi
-            if (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
-                in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $brandsResult['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($brandsResult['errors']) ? $brandsResult['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($brandsResult['success']) || $brandsResult['success'] !== true) {
-                $errorData = $brandsResult['errors'] ?? 'Gagal mengambil data';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengambil data';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
@@ -113,41 +90,73 @@ class BrandController extends Controller
 
                 return view('Brand', [
                     'brands' => [],
-                    'brands_pagination' => null,
-                    'error' => $errorMessage
+                    'pagination' => [
+                        'current_page' => 1,
+                        'last_page' => 1,
+                        'per_page' => $limit ?? 10,
+                        'total' => 0,
+                        'from' => 0,
+                        'to' => 0,
+                        'next_page_url' => null,
+                        'prev_page_url' => null
+                    ],
+                    'brands_pagination' => [
+                        'current_page' => 1,
+                        'last_page' => 1,
+                        'per_page' => $limit ?? 10,
+                        'total' => 0,
+                        'from' => 0,
+                        'to' => 0,
+                        'next_page_url' => null,
+                        'prev_page_url' => null
+                    ]
                 ]);
             }
 
-            $brands = $brandsResult['data'] ?? [];
+            $brands = $result['data'] ?? [];
 
             // Jika ini adalah permintaan AJAX atau JSON, kembalikan merek sebagai JSON
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $brandsResult['message'] ?? 'Data berhasil diambil',
+                    'message' => $result['message'] ?? 'Data berhasil diambil',
                     'data' => $brands
                 ]);
             }
 
             // Format pagination
-            $brandsPagination = null;
-            if (isset($brandsResult['pagination'])) {
-                $pagination = $brandsResult['pagination'];
-                $brandsPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => $pagination['total_pages'] ?? 1,
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . (($pagination['current_page'] ?? 1) + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . (($pagination['current_page'] ?? 1) - 1) : null,
+            $pagination = null;
+            if (isset($result['pagination'])) {
+                $paginationData = $result['pagination'];
+                $pagination = [
+                    'current_page' => $paginationData['current_page'] ?? 1,
+                    'last_page' => $paginationData['total_pages'] ?? 1,
+                    'from' => (($paginationData['current_page'] ?? 1) - 1) * ($paginationData['limit'] ?? 10) + 1,
+                    'to' => min(($paginationData['current_page'] ?? 1) * ($paginationData['limit'] ?? 10), $paginationData['total_items'] ?? 0),
+                    'total' => $paginationData['total_items'] ?? 0,
+                    'per_page' => $paginationData['limit'] ?? 10,
+                    'next_page_url' => isset($paginationData['has_next']) && $paginationData['has_next'] ?
+                        request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] + 1)]) : null,
+                    'prev_page_url' => isset($paginationData['has_prev']) && $paginationData['has_prev'] ?
+                        request()->fullUrlWithQuery(['page' => ($paginationData['current_page'] - 1)]) : null,
+                ];
+            } else {
+                $pagination = [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $limit,
+                    'total' => count($brands),
+                    'from' => 1,
+                    'to' => count($brands),
+                    'next_page_url' => null,
+                    'prev_page_url' => null
                 ];
             }
 
             return view('Brand', [
                 'brands' => $brands,
-                'brands_pagination' => $brandsPagination
+                'pagination' => $pagination,
+                'brands_pagination' => $pagination
             ]);
         } catch (\Exception $e) {
             if ($request->expectsJson() || $request->ajax()) {
@@ -159,8 +168,26 @@ class BrandController extends Controller
 
             return view('Brand', [
                 'brands' => [],
-                'brands_pagination' => null,
-                'error' => 'Gagal mengambil data: ' . $e->getMessage()
+                'pagination' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $limit ?? 10,
+                    'total' => 0,
+                    'from' => 0,
+                    'to' => 0,
+                    'next_page_url' => null,
+                    'prev_page_url' => null
+                ],
+                'brands_pagination' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $limit ?? 10,
+                    'total' => 0,
+                    'from' => 0,
+                    'to' => 0,
+                    'next_page_url' => null,
+                    'prev_page_url' => null
+                ]
             ]);
         }
     }
@@ -176,41 +203,20 @@ class BrandController extends Controller
                 'brand_name' => 'required|string'
             ]);
 
-            $brandsResult = $this->apiService->request('POST', '/brands', [
+            $result = $this->apiService->request('POST', '/brands', [
                 'json' => $validated
             ]);
 
             // Memeriksa kesalahan autentikasi
-            if (isset($brandsResult['errors']) && is_string($brandsResult['errors']) &&
-                in_array($brandsResult['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $brandsResult['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($brandsResult['errors']) ? $brandsResult['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($brandsResult['success']) || $brandsResult['success'] === false) {
-                $errorData = $brandsResult['errors'] ?? 'Gagal membuat merek';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal membuat merek';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -221,25 +227,15 @@ class BrandController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $brandsResult['message'] ?? 'Merek berhasil dibuat',
-                    'data' => $brandsResult['data'] ?? null
+                    'message' => $result['message'],
+                    'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('brands')
-                ->with('success', $brandsResult['message'] ?? 'Merek berhasil dibuat');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal menambahkan merek: ' . $e->getMessage()],
-                    'data' => null
-                ], status: 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat merek: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Brand');
         }
     }
 
@@ -259,36 +255,15 @@ class BrandController extends Controller
             ]);
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal memperbarui merek';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -299,25 +274,15 @@ class BrandController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'] ?? 'Merek berhasil diperbarui',
+                    'message' => $result['message'],
                     'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('brands')
-                ->with('success', $result['message'] ?? 'Merek berhasil diperbarui');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal memperbarui merek: ' . $e->getMessage()],
-                    'data' => null
-                ], status: 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal memperbarui merek: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Brand');
         }
     }
 
@@ -326,152 +291,25 @@ class BrandController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/brands/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus merek';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dihapus
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Merek berhasil dihapus',
-                    'data' => null
-                ]);
-            }
-
-            return redirect()->route('brands')
-                ->with('success', $result['message'] ?? 'Merek berhasil dihapus');
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal menghapus merek: ' . $e->getMessage()],
-                    'data' => null
-                ], status: 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus merek: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            $request,
+            "/brands/{$id}",
+            'Merek berhasil dihapus',
+            'brands'
+        );
     }
 
     /**
      * Mendapatkan merek tunggal untuk pengeditan.
      */
-    public function getBrand($id, Request $request)
+    public function show($id, Request $request)
     {
-        try {
-            // Mengambil merek dengan ID yang diberikan
-            $result = $this->apiService->request('GET', "/brands/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->ajax() || $request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil merek';
-
-                if ($request->ajax() || $request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorData
-                    ], 400);
-                }
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            $brand = $result['data'] ?? null;
-
-            if (!$brand) {
-                $errorMessage = 'Merek tidak ditemukan atau data respons tidak valid';
-
-                if ($request->ajax() || $request->expectsJson()) {
-                    return response()->json(['error' => $errorMessage], 404);
-                }
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            if ($request->ajax() || $request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Data merek berhasil diambil',
-                    'data' => $brand
-                ]);
-            }
-
-            return view('Brand', ['brand' => $brand]);
-        } catch (\Exception $e) {
-            $errorMessage = 'Gagal mengambil merek: ' . $e->getMessage();
-
-            if ($request->ajax() || $request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => $errorMessage],
-                    'data' => null
-                ], 500);
-            }
-            return redirect()->back()->with('error', $errorMessage);
-        }
+        return $this->getResource(
+            $request,
+            "/brands/{$id}",
+            'brand',
+            'BrandDetails'
+        );
     }
 
     /**
@@ -500,25 +338,18 @@ class BrandController extends Controller
             ]);
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], status: 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Memeriksa kesalahan API atau respon tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
                 $errorData = $result['errors'] ?? 'Gagal mengimpor merek';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->ajax()) {
                     // Format respons kesalahan terperinci untuk permintaan AJAX
-                    $formattedErrors = $errorData;
                     $errorDetails = [];
 
                     // Ekstrak detail kesalahan dari struktur array
@@ -561,52 +392,10 @@ class BrandController extends Controller
 
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
+                        'errors' => $errorData,
                         'errorDetails' => $errorDetails,
                         'data' => $result['data'] ?? null
-                    ], status: 400);
-                }
-
-                // Format pesan kesalahan untuk respons redirect
-                $errorMessage = '';
-
-                // Pertama periksa apakah kita memiliki kesalahan terstruktur di data
-                if (isset($result['data']) && isset($result['data']['errors']) && !empty($result['data']['errors'])) {
-                    $errorList = '<ul class="mt-2 ml-4 list-disc">';
-                    foreach ($result['data']['errors'] as $error) {
-                        if (is_array($error)) {
-                            if (isset($error['brand_name']) && isset($error['reason'])) {
-                                $rowInfo = isset($error['row']) ? "Baris {$error['row']}: " : '';
-                                $errorList .= "<li>{$rowInfo}\"{$error['brand_name']}\" - {$error['reason']}</li>";
-                            } else if (isset($error['reason'])) {
-                                $rowInfo = isset($error['row']) ? "Baris {$error['row']}: " : '';
-                                $errorList .= "<li>{$rowInfo}{$error['reason']}</li>";
-                            } else if (isset($error['message'])) {
-                                $errorList .= "<li>{$error['message']}</li>";
-                            }
-                        } else if (is_string($error)) {
-                            $errorList .= "<li>{$error}</li>";
-                        }
-                    }
-                    $errorList .= '</ul>';
-                    $errorMessage = 'Gagal mengimpor merek: ' . $errorList;
-                }
-                // Jika tidak ada kesalahan terstruktur dalam data, format kesalahan umum
-                else if (is_array($errorData)) {
-                    $errorList = '<ul class="mt-2 ml-4 list-disc">';
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            foreach ($messages as $msg) {
-                                $errorList .= "<li>{$msg}</li>";
-                            }
-                        } else {
-                            $errorList .= "<li>{$messages}</li>";
-                        }
-                    }
-                    $errorList .= '</ul>';
-                    $errorMessage = 'Gagal mengimpor merek: ' . $errorList;
-                } else {
-                    $errorMessage = $errorData;
+                    ], 400);
                 }
 
                 return redirect()->back()->with('error', $errorMessage);
@@ -643,8 +432,9 @@ class BrandController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Gagal mengimpor merek: ' . $e->getMessage()]
-                ], status: 500);
+                    'errors' => ['exception' => 'Gagal mengimpor merek: ' . $e->getMessage()],
+                    'data' => null
+                ], 500);
             }
 
             return redirect()->back()->with('error', 'Gagal mengimpor merek: ' . $e->getMessage());

@@ -64,7 +64,7 @@
                     $accessTokenPayload = session('access_token_payload', []);
 
                     // Use profile data if available, otherwise fallback to token payload
-                    $employeeNumber = $profileData['employee_number'] ?? $accessTokenPayload['employee_number'] ?? 'N/A';
+                    $employeeNumber = $profileData['employee_name'] ?? $accessTokenPayload['employee_name'] ?? 'N/A';
 
                     // Handle roles from profile data or fall back to token payload
                     if (isset($profileData['roles']) && is_array($profileData['roles']) && !empty($profileData['roles'])) {

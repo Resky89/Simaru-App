@@ -358,7 +358,7 @@
                                                 <div class="p-2" id="assetDropdownContent">
                                                     <!-- Options will be populated dynamically -->
                                                 </div>
-                                                <div id="assetLoadingIndicator" class="p-2 text-center text-gray-500 hidden">
+                                                <div id="assetLoadingIndicator" class="p-4 text-center text-gray-500 hidden">
                                                     <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg"
                                                         fill="none" viewBox="0 0 24 24">
                                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -371,6 +371,9 @@
                                                 </div>
                                                 <div id="assetNoResults" class="p-2 text-center text-gray-500 hidden">
                                                     Tidak ada aset ditemukan
+                                                </div>
+                                                <div id="assetLoadMore" class="p-2 text-center border-t border-gray-200 hidden">
+                                                    <button type="button" class="text-[#213268] hover:underline text-sm">Muat lebih banyak</button>
                                                 </div>
                                             </div>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
@@ -550,6 +553,35 @@
                                     <div class="mb-4 p-3 bg-gray-100 rounded-lg">
                                         <p class="text-sm text-gray-500">Memperbaiki Aset:</p>
                                         <p class="text-base font-medium" id="repairAssetName"></p>
+                                    </div>
+
+                                    <!-- Added: Asset and Complaint Image Section -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <!-- Asset Image -->
+                                        <div class="bg-white rounded-lg border border-gray-200 p-2">
+                                            <h3 class="text-sm font-semibold text-[#213268] mb-2">Gambar Aset</h3>
+                                            <div class="w-full h-40 bg-white rounded-lg overflow-hidden relative flex items-center justify-center">
+                                                <img id="repair_asset_image" src="{{ asset('images/placeholder.png') }}"
+                                                    alt="Asset Image" class="w-full h-full object-contain p-2"
+                                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                            </div>
+                                        </div>
+
+                                        <!-- Complaint Image -->
+                                        <div class="bg-white rounded-lg border border-gray-200 p-2">
+                                            <h3 class="text-sm font-semibold text-[#213268] mb-2">Gambar Keluhan</h3>
+                                            <div class="w-full h-40 bg-white rounded-lg overflow-hidden relative flex items-center justify-center">
+                                                <img id="repair_complaint_image" src="{{ asset('images/placeholder.png') }}"
+                                                    alt="Complaint Image" class="w-full h-full object-contain p-2"
+                                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Added: Complaint Description -->
+                                    <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <h3 class="text-sm font-semibold text-[#213268] mb-1">Deskripsi Keluhan:</h3>
+                                        <p id="repairComplaintDescription" class="text-sm text-gray-700"></p>
                                     </div>
 
                                     <!-- Repair Description -->
@@ -946,11 +978,13 @@
             if (assetSearch && assetDropdown && assetId && assetLoadingIndicator && assetNoResults && assetDropdownContent) {
                 assetSearch.addEventListener('focus', function () {
                     if (!assetId.value) {
-                        assetLoadingIndicator.classList.remove('hidden');
-                        assetNoResults.classList.add('hidden');
-                        assetDropdownContent.innerHTML = '';
+                        // Reset pagination when focusing on search
+                        assetPage = 1;
+                        hasMoreAssets = true;
+                        currentAssetSearch = '';
+
                         assetDropdown.classList.remove('hidden');
-                        searchAssets('');
+                        searchAssets('', assetPage, false);
                     }
                 });
             }
@@ -958,28 +992,41 @@
             if (assetSearch && assetLoadingIndicator && assetNoResults && assetDropdownContent && assetDropdown) {
                 assetSearch.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase().trim();
-                    assetLoadingIndicator.classList.remove('hidden');
-                    assetNoResults.classList.add('hidden');
-                    assetDropdownContent.innerHTML = '';
+
+                    // Reset pagination when search term changes
+                    assetPage = 1;
+                    hasMoreAssets = true;
+                    currentAssetSearch = searchTerm;
+
                     assetDropdown.classList.remove('hidden');
                     clearTimeout(assetSearchTimeout);
                     assetSearchTimeout = setTimeout(function () {
-                        searchAssets(searchTerm);
+                        searchAssets(searchTerm, assetPage, false);
                     }, 300);
                 });
             }
 
-            function searchAssets(searchTerm) {
+            // Variables for asset lazy loading
+            let assetPage = 1;
+            let isLoadingAssets = false;
+            let hasMoreAssets = true;
+            let currentAssetSearch = '';
+
+            function searchAssets(searchTerm, page = 1, append = false) {
                 if (!assetLoadingIndicator || !assetNoResults || !assetDropdownContent) {
                     console.error('Required DOM elements for asset search are missing');
                     return;
                 }
 
-                assetLoadingIndicator.classList.remove('hidden');
-                assetNoResults.classList.add('hidden');
-                assetDropdownContent.innerHTML = '';
+                if (!append) {
+                    assetLoadingIndicator.classList.remove('hidden');
+                    assetNoResults.classList.add('hidden');
+                    assetDropdownContent.innerHTML = '';
+                    document.getElementById('assetLoadMore').classList.add('hidden');
+                }
 
-                const searchUrl = `/assets?json=true&search=${encodeURIComponent(searchTerm)}&limit=20`;
+                isLoadingAssets = true;
+                const searchUrl = `/assets?json=true&search=${encodeURIComponent(searchTerm)}&limit=10&page=${page}`;
 
                 fetch(searchUrl, {
                     headers: {
@@ -1004,16 +1051,21 @@
                             fetchedAssets = data.data;
                         }
 
-                        fetchedAssets = fetchedAssets.filter(asset => asset.current_status !== 'dispose');
-                        displayFilteredAssets(fetchedAssets, searchTerm);
+                        // fetchedAssets = fetchedAssets.filter(asset => asset.current_status !== 'dispose');
+
+                        // Determine if more results are available
+                        hasMoreAssets = fetchedAssets.length >= 10; // Assuming 10 is the page size
+
+                        displayFilteredAssets(fetchedAssets, searchTerm, append);
                     })
                     .catch(error => {
                         console.error('Error searching assets:', error);
+
                         if (assetLoadingIndicator) {
                             assetLoadingIndicator.classList.add('hidden');
                         }
 
-                        if (assetDropdownContent) {
+                        if (!append && assetDropdownContent) {
                             assetDropdownContent.innerHTML = `
                                 <div class="p-2 text-center text-red-500">
                                     Gagal mencari aset. Silakan coba lagi.
@@ -1021,6 +1073,9 @@
                             `;
                         }
 
+                        isLoadingAssets = false;
+
+                        // Fall back to local filtering if API fails
                         if (assets && assets.length > 0) {
                             let filteredAssets = assets;
                             if (searchTerm) {
@@ -1033,22 +1088,30 @@
                             }
                             filteredAssets = filteredAssets.filter(asset => asset.current_status !== 'dispose');
 
-                            displayFilteredAssets(filteredAssets, searchTerm);
+                            displayFilteredAssets(filteredAssets, searchTerm, append);
                         }
                     });
             }
 
-            function displayFilteredAssets(filteredAssets, searchTerm) {
+            function displayFilteredAssets(filteredAssets, searchTerm, append = false) {
                 if (!assetDropdownContent || !assetLoadingIndicator || !assetNoResults) {
                     console.error('Required DOM elements for displaying assets are missing');
                     return;
                 }
 
-                assetDropdownContent.innerHTML = '';
+                if (!append) {
+                    assetDropdownContent.innerHTML = '';
+                }
+
                 assetLoadingIndicator.classList.add('hidden');
+                const loadMoreBtn = document.getElementById('assetLoadMore');
 
                 if (!filteredAssets || filteredAssets.length === 0) {
-                    assetNoResults.classList.remove('hidden');
+                    if (!append) {
+                        assetNoResults.classList.remove('hidden');
+                        loadMoreBtn.classList.add('hidden');
+                    }
+                    isLoadingAssets = false;
                     return;
                 }
 
@@ -1058,9 +1121,9 @@
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                     div.innerHTML = `
-                            <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
-                            <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
-                        `;
+                        <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
+                        <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
+                    `;
 
                     div.addEventListener('click', function () {
                         selectAsset(asset);
@@ -1069,12 +1132,44 @@
                     assetDropdownContent.appendChild(div);
                 });
 
-                if (filteredAssets.length > 10) {
-                    const countDiv = document.createElement('div');
-                    countDiv.className = 'p-2 text-center text-xs text-gray-500 border-t';
-                    countDiv.textContent = `Menampilkan ${filteredAssets.length} aset`;
-                    assetDropdownContent.appendChild(countDiv);
+                // Handle "Load More" button
+                if (hasMoreAssets) {
+                    loadMoreBtn.classList.remove('hidden');
+                    const loadMoreButton = loadMoreBtn.querySelector('button');
+
+                    // Replace the click event listener
+                    const newLoadMoreButton = loadMoreButton.cloneNode(true);
+                    loadMoreButton.parentNode.replaceChild(newLoadMoreButton, loadMoreButton);
+
+                    newLoadMoreButton.addEventListener('click', function() {
+                        assetPage++;
+                        searchAssets(currentAssetSearch, assetPage, true);
+                        this.disabled = true;
+                        this.innerHTML = 'Memuat...';
+                        setTimeout(() => {
+                            this.disabled = false;
+                            this.innerHTML = 'Muat lebih banyak';
+                        }, 1000);
+                    });
+                } else {
+                    loadMoreBtn.classList.add('hidden');
                 }
+
+                isLoadingAssets = false;
+            }
+
+            // Setup infinite scrolling for asset dropdown
+            if (assetDropdown) {
+                assetDropdown.addEventListener('scroll', function() {
+                    if (!hasMoreAssets || isLoadingAssets) return;
+
+                    // Check if user scrolled to bottom
+                    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                        // Load next page
+                        assetPage++;
+                        searchAssets(currentAssetSearch, assetPage, true);
+                    }
+                });
             }
 
             function selectAsset(asset) {
@@ -1253,12 +1348,81 @@
                         if (repairImagePreview) {
                             repairImagePreview.classList.add('hidden');
                         }
+
+                        // Fetch complaint details to get images and description
+                        fetchComplaintDetails(complaintId);
+
                         if (repairComplaintModal && repairComplaintModalContent) {
                             openModal(repairComplaintModal, repairComplaintModalContent);
                         }
                     }
                 });
             });
+
+            // Function to fetch complaint details
+            function fetchComplaintDetails(complaintId) {
+                if (!complaintId) return;
+
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.className = 'text-center py-4';
+                loadingIndicator.innerHTML = `
+                    <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-2 text-gray-600">Memuat data keluhan...</p>
+                `;
+
+                // Show loading indicator on images
+                document.getElementById('repair_asset_image').style.opacity = '0.3';
+                document.getElementById('repair_complaint_image').style.opacity = '0.3';
+
+                // Clear previous description
+                document.getElementById('repairComplaintDescription').textContent = 'Memuat...';
+
+                fetch(`complaint-repair/detail/${complaintId}?json=true`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.complaint) {
+                        const complaint = data.complaint;
+
+                        // Set complaint description
+                        document.getElementById('repairComplaintDescription').textContent = complaint.description || 'Tidak ada deskripsi';
+
+                        // Set asset image
+                        if (complaint.asset_image_path) {
+                            document.getElementById('repair_asset_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public${complaint.asset_image_path}`;
+                        } else {
+                            document.getElementById('repair_asset_image').src = `{{ asset('images/no-image.png') }}`;
+                        }
+
+                        // Set complaint image
+                        if (complaint.complaint_picture_path) {
+                            document.getElementById('repair_complaint_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/${complaint.complaint_picture_path.split('/').pop()}`;
+                        } else {
+                            document.getElementById('repair_complaint_image').src = `{{ asset('images/no-image.png') }}`;
+                        }
+                    } else {
+                        document.getElementById('repairComplaintDescription').textContent = 'Tidak dapat memuat deskripsi keluhan';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching complaint details:', error);
+                    document.getElementById('repairComplaintDescription').textContent = 'Terjadi kesalahan saat memuat data keluhan';
+                })
+                .finally(() => {
+                    // Reset opacity
+                    document.getElementById('repair_asset_image').style.opacity = '1';
+                    document.getElementById('repair_complaint_image').style.opacity = '1';
+                });
+            }
 
             const deleteComplaintForm = document.getElementById('deleteComplaintForm');
             if (deleteComplaintForm) {

@@ -544,6 +544,82 @@
                 Menyimpan...
             `;
 
+            // Use AJAX to submit the form
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            // Laravel menggunakan _method untuk simulasi PUT/DELETE
+            // Pastikan formData memiliki _method=PUT
+            if (this.getAttribute('method').toUpperCase() === 'PUT' || this.querySelector('input[name="_method"][value="PUT"]')) {
+                formData.set('_method', 'PUT');
+            }
+
+            fetch(this.action, {
+                method: 'POST', // Selalu gunakan POST dan biarkan _method menangani metode sebenarnya
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!response.ok) {
+                    // Jika respons bukan JSON, kembalikan pesan error umum
+                    if (!contentType || !contentType.includes('application/json')) {
+                        // Coba ambil teks respons untuk debugging
+                        return response.text().then(text => {
+                            console.error('Server returned non-JSON response:', text.substring(0, 200) + '...');
+                            throw new Error('Server mengembalikan respons HTML alih-alih JSON. Kemungkinan terjadi error pada server.');
+                        });
+                    }
+                    return response.json().then(errorData => {
+                        throw errorData;
+                    });
+                }
+
+                // Jika respons bukan JSON, kembalikan pesan sukses umum
+                if (!contentType || !contentType.includes('application/json')) {
+                    return { success: true, message: 'Data aset master berhasil diperbarui' };
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Close the modal
+                closeEditModal();
+                resetEditMasterAssetForm();
+
+                // Show success message
+                showToast(data.message || 'Data aset master berhasil diperbarui', 'success');
+
+                // Reload the page after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error updating asset master:', error);
+
+                // Show error message
+                if (typeof error === 'object' && error !== null) {
+                    if (error.message) {
+                        showToast(error.message, 'error');
+                    } else if (error.errors) {
+                        const errorMessages = Object.values(error.errors).flat();
+                        showToast(errorMessages.join('<br>'), 'error');
+                    } else {
+                        showToast('Terjadi kesalahan saat memperbarui data aset master', 'error');
+                    }
+                } else if (typeof error === 'string') {
+                    showToast(error, 'error');
+                } else {
+                    showToast('Terjadi kesalahan saat memperbarui data aset master. Periksa koneksi dan coba lagi.', 'error');
+                }
+
+                // Reset the submit button
+                resetSubmitButton();
+            });
         });
 
         function showFieldError(field) {
@@ -626,11 +702,8 @@
         });
 
         editButtons.forEach(button => {
-            console.log('Button attached:', button);
             button.addEventListener('click', function() {
-                console.log('Button clicked');
                 const assetId = this.getAttribute('data-master-asset-id');
-                console.log('Asset ID:', assetId);
                 if (!assetId) {
                     console.error('No asset ID provided');
                     return;
@@ -812,7 +885,6 @@
         initCustomSelects();
 
         window.testModal = function() {
-            console.log('Testing modal manually');
             const modal = document.getElementById('editMasterAssetModal');
             const content = document.getElementById('editMasterAssetModalContent');
             modal.style.display = 'block';
@@ -877,62 +949,142 @@
                 return;
             }
 
-            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat data merk...</div>';
+            optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat merk...</div>';
             optionsContainer.classList.remove('hidden');
 
-            let queryParams = new URLSearchParams();
-            queryParams.append('json', 'true');
-            queryParams.append('limit', '50');
+            // Add these variables for lazy loading
+            let page = 1;
+            const perPage = 15;
+            let isLoading = false;
+            let hasMoreData = true;
+            let allBrands = [];
 
-            if (searchTerm.trim() && !isShowAll) {
-                queryParams.append('search', searchTerm.trim());
+            // Function to load brands with pagination
+            function loadBrands(page, searchValue) {
+                if (isLoading || !hasMoreData) return;
+                
+                isLoading = true;
+                
+                let queryParams = new URLSearchParams();
+                queryParams.append('json', 'true');
+                queryParams.append('page', page);
+                queryParams.append('limit', perPage);
+
+                if (searchValue.trim() && !isShowAll) {
+                    queryParams.append('search', searchValue.trim());
+                }
+
+                fetch(`/brands?${queryParams.toString()}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let brands = [];
+                        let pagination = null;
+
+                        if (Array.isArray(data)) {
+                            brands = data;
+                        } else if (data.brands && Array.isArray(data.brands)) {
+                            brands = data.brands;
+                            pagination = data.pagination || null;
+                        } else if (data.data && Array.isArray(data.data)) {
+                            brands = data.data;
+                            pagination = data.pagination || data.meta || null;
+                        }
+
+                        allBrands = [...allBrands, ...brands];
+                        
+                        // Check if we have more data to load
+                        if (pagination) {
+                            hasMoreData = pagination.current_page < pagination.last_page;
+                        } else {
+                            hasMoreData = brands.length >= perPage;
+                        }
+
+                        displayBrandResults(allBrands, optionsContainer, hiddenInput, searchInput, true);
+                        
+                        isLoading = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching brands:', error);
+                        if (page === 1) {
+                            optionsContainer.innerHTML = `
+                            <div class="p-3 text-sm text-red-500 text-center">
+                                <p>Gagal memuat merk</p>
+                                <p class="text-xs mt-1 text-red-400">${error.message}</p>
+                                <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                            </div>`;
+                        }
+                        isLoading = false;
+                    });
             }
+            
+            // Initial load
+            loadBrands(page, searchTerm);
 
-            fetch(`/brands?${queryParams.toString()}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+            // Remove any existing scroll event listeners
+            optionsContainer.removeEventListener('scroll', brandScrollHandler);
+            
+            // Scroll event handler for lazy loading
+            function brandScrollHandler() {
+                const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
+                
+                // Load more data when user scrolls to 80% of the container
+                if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                    page++;
+                    loadBrands(page, searchTerm);
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                let brands = [];
-
-                if (Array.isArray(data)) {
-                    brands = data;
-                } else if (data.brands && Array.isArray(data.brands)) {
-                    brands = data.brands;
-                } else if (data.data && Array.isArray(data.data)) {
-                    brands = data.data;
-                }
-
-                displayBrandResults(brands, optionsContainer, hiddenInput, searchInput);
-            })
-            .catch(error => {
-                console.error('Error fetching brands:', error);
-                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat data merk</div>';
-            });
+            }
+            
+            // Add scroll event listener
+            optionsContainer.addEventListener('scroll', brandScrollHandler);
         }
 
-        function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem) {
-            resultsElem.innerHTML = '';
+        function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem, isLazyLoad = false) {
+            // Always clear the initial loading message
+            const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
+            if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat merk')) {
+                initialLoadingMessage.remove();
+            }
+            
+            if (!isLazyLoad) {
+                resultsElem.innerHTML = '';
+            } else {
+                // Remove loading indicator if it exists
+                const loadingIndicator = resultsElem.querySelector('.loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+            }
 
-            if (brands.length === 0) {
-                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada merk yang ditemukan</div>';
+            if (brands.length === 0 && !isLazyLoad) {
+                resultsElem.innerHTML = `
+                    <div class="p-4 text-center">
+                        <p class="text-gray-500 mb-2">Tidak ada merk yang ditemukan</p>
+                        <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
                 return;
             }
 
-            const searchHelp = document.createElement('div');
-            searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
-            searchHelp.textContent = 'Ketik untuk mencari merk...';
-            resultsElem.appendChild(searchHelp);
+            // Only add the header if it doesn't exist yet
+            const existingHeader = resultsElem.querySelector('.dropdown-header');
+            if (!existingHeader && brands.length > 0) {
+                const typeTitle = document.createElement('div');
+                typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                typeTitle.textContent = `Daftar Merk`;
+                resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
+            }
 
-            if (searchInputElem && searchInputElem.value.trim()) {
+            if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
                 const searchTerm = searchInputElem.value.trim().toLowerCase();
                 brands.sort((a, b) => {
                     const aName = a.brand_name?.toLowerCase() || '';
@@ -950,7 +1102,19 @@
                 });
             }
 
-            brands.forEach((brand, index) => {
+            const existingOptions = new Set();
+            const existingOptionElements = resultsElem.querySelectorAll('.option');
+            
+            existingOptionElements.forEach(element => {
+                existingOptions.add(element.getAttribute('data-value'));
+            });
+
+            brands.forEach((brand) => {
+                // Skip duplicates that might occur during lazy loading
+                if (existingOptions.has(brand.brand_id?.toString())) {
+                    return;
+                }
+                
                 const div = document.createElement('div');
                 div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
                 div.textContent = brand.brand_name || 'Unknown Brand';
@@ -970,13 +1134,22 @@
                 });
 
                 resultsElem.appendChild(div);
+                existingOptions.add(brand.brand_id?.toString());
             });
 
-            if (brands.length > 10) {
-                const countDiv = document.createElement('div');
-                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                countDiv.textContent = `Menampilkan ${brands.length} merk`;
-                resultsElem.appendChild(countDiv);
+            // Add loading indicator at the bottom for lazy loading
+            if (isLazyLoad) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
+                loadingDiv.textContent = 'Memuat merk lainnya...';
+                resultsElem.appendChild(loadingDiv);
+            }
+
+            // Add max height and scrollable class if not already set
+            if (!resultsElem.classList.contains('scrollable-dropdown')) {
+                resultsElem.classList.add('scrollable-dropdown');
+                resultsElem.style.maxHeight = '250px';
+                resultsElem.style.overflowY = 'auto';
             }
         }
 
@@ -994,63 +1167,143 @@
                 return;
             }
 
-            optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat kategori...</div>';
+            optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat kategori...</div>';
             optionsContainer.classList.remove('hidden');
 
-            let queryParams = new URLSearchParams();
-            queryParams.append('json', 'true');
-            queryParams.append('asset_type', assetType);
-            queryParams.append('limit', '50');
+            // Add these variables for lazy loading
+            let page = 1;
+            const perPage = 15;
+            let isLoading = false;
+            let hasMoreData = true;
+            let allCategories = [];
 
-            if (searchTerm.trim() && !isShowAll) {
-                queryParams.append('search', searchTerm.trim());
+            // Function to load categories with pagination
+            function loadCategories(page, searchValue) {
+                if (isLoading || !hasMoreData) return;
+                
+                isLoading = true;
+                
+                let queryParams = new URLSearchParams();
+                queryParams.append('json', 'true');
+                queryParams.append('asset_type', assetType);
+                queryParams.append('page', page);
+                queryParams.append('limit', perPage);
+
+                if (searchValue.trim() && !isShowAll) {
+                    queryParams.append('search', searchValue.trim());
+                }
+
+                fetch(`/categories?${queryParams.toString()}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let categories = [];
+                        let pagination = null;
+
+                        if (Array.isArray(data)) {
+                            categories = data;
+                        } else if (data.subcategories && Array.isArray(data.subcategories)) {
+                            categories = data.subcategories;
+                            pagination = data.pagination || null;
+                        } else if (data.data && Array.isArray(data.data)) {
+                            categories = data.data;
+                            pagination = data.pagination || data.meta || null;
+                        }
+
+                        allCategories = [...allCategories, ...categories];
+                        
+                        // Check if we have more data to load
+                        if (pagination) {
+                            hasMoreData = pagination.current_page < pagination.last_page;
+                        } else {
+                            hasMoreData = categories.length >= perPage;
+                        }
+
+                        displayCategoryResults(allCategories, optionsContainer, hiddenInput, searchInput, assetType, true);
+                        
+                        isLoading = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching categories:', error);
+                        if (page === 1) {
+                            optionsContainer.innerHTML = `
+                            <div class="p-3 text-sm text-red-500 text-center">
+                                <p>Gagal memuat kategori</p>
+                                <p class="text-xs mt-1 text-red-400">${error.message}</p>
+                                <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                            </div>`;
+                        }
+                        isLoading = false;
+                    });
             }
+            
+            // Initial load
+            loadCategories(page, searchTerm);
 
-            fetch(`/categories?${queryParams.toString()}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+            // Remove any existing scroll event listeners
+            optionsContainer.removeEventListener('scroll', categoryScrollHandler);
+            
+            // Scroll event handler for lazy loading
+            function categoryScrollHandler() {
+                const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
+                
+                // Load more data when user scrolls to 80% of the container
+                if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                    page++;
+                    loadCategories(page, searchTerm);
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                let categories = [];
-
-                if (Array.isArray(data)) {
-                    categories = data;
-                } else if (data.categories && Array.isArray(data.categories)) {
-                    categories = data.categories;
-                } else if (data.data && Array.isArray(data.data)) {
-                    categories = data.data;
-                }
-
-                displayCategoryResults(categories, optionsContainer, hiddenInput, searchInput, assetType);
-            })
-            .catch(error => {
-                console.error('Error fetching categories:', error);
-                optionsContainer.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat kategori</div>';
-            });
+            }
+            
+            // Add scroll event listener
+            optionsContainer.addEventListener('scroll', categoryScrollHandler);
         }
 
-        function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType) {
-            resultsElem.innerHTML = '';
+        function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType, isLazyLoad = false) {
+            // Always clear the initial loading message
+            const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
+            if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat kategori')) {
+                initialLoadingMessage.remove();
+            }
+            
+            if (!isLazyLoad) {
+                resultsElem.innerHTML = '';
+            } else {
+                // Remove loading indicator if it exists
+                const loadingIndicator = resultsElem.querySelector('.loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+            }
 
-            if (categories.length === 0) {
-                resultsElem.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada kategori yang ditemukan</div>';
+            if (categories.length === 0 && !isLazyLoad) {
+                resultsElem.innerHTML = `
+                    <div class="p-4 text-center">
+                        <p class="text-gray-500 mb-2">Tidak ada kategori yang ditemukan</p>
+                        <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
+                    </div>
+                `;
                 return;
             }
 
-            const searchHelp = document.createElement('div');
-            searchHelp.className = 'p-2 text-xs text-gray-500 text-center border-b';
-            searchHelp.textContent = 'Ketik untuk mencari kategori...';
-            resultsElem.appendChild(searchHelp);
+            // Only add the header if it doesn't exist yet
+            const existingHeader = resultsElem.querySelector('.dropdown-header');
+            if (!existingHeader && categories.length > 0) {
+                const typeTitle = document.createElement('div');
+                typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
+                resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
+            }
 
-            if (searchInputElem && searchInputElem.value.trim()) {
+            if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
                 const searchTerm = searchInputElem.value.trim().toLowerCase();
                 categories.sort((a, b) => {
                     const aName = a.subcategory_name?.toLowerCase() || '';
@@ -1068,12 +1321,19 @@
                 });
             }
 
-            const typeTitle = document.createElement('div');
-            typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b';
-            typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
-            resultsElem.appendChild(typeTitle);
+            const existingOptions = new Set();
+            const existingOptionElements = resultsElem.querySelectorAll('.option');
+            
+            existingOptionElements.forEach(element => {
+                existingOptions.add(element.getAttribute('data-value'));
+            });
 
             categories.forEach((category) => {
+                // Skip duplicates that might occur during lazy loading
+                if (existingOptions.has(category.subcategory_id?.toString())) {
+                    return;
+                }
+                
                 const div = document.createElement('div');
                 div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
                 div.textContent = category.subcategory_name || 'Unknown Category';
@@ -1092,15 +1352,58 @@
                 });
 
                 resultsElem.appendChild(div);
+                existingOptions.add(category.subcategory_id?.toString());
             });
 
-            if (categories.length > 10) {
-                const countDiv = document.createElement('div');
-                countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                countDiv.textContent = `Menampilkan ${categories.length} kategori`;
-                resultsElem.appendChild(countDiv);
+            // Add loading indicator at the bottom for lazy loading
+            if (isLazyLoad) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
+                loadingDiv.textContent = 'Memuat kategori lainnya...';
+                resultsElem.appendChild(loadingDiv);
+            }
+
+            // Add max height and scrollable class if not already set
+            if (!resultsElem.classList.contains('scrollable-dropdown')) {
+                resultsElem.classList.add('scrollable-dropdown');
+                resultsElem.style.maxHeight = '250px';
+                resultsElem.style.overflowY = 'auto';
             }
         }
     });
+
+    // Add CSS styles for scrollable dropdowns
+    document.head.insertAdjacentHTML('beforeend', `
+        <style>
+            .scrollable-dropdown {
+                max-height: 250px;
+                overflow-y: auto;
+                scrollbar-width: thin;
+            }
+            .scrollable-dropdown::-webkit-scrollbar {
+                width: 6px;
+            }
+            .scrollable-dropdown::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+            .scrollable-dropdown::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+            }
+            .scrollable-dropdown::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+            .loading-indicator {
+                border-top: 1px solid #eee;
+                padding-top: 8px;
+            }
+            .dropdown-header {
+                position: sticky;
+                top: 0;
+                background-color: white;
+                z-index: 10;
+            }
+        </style>
+    `);
 </script>
 @endpush

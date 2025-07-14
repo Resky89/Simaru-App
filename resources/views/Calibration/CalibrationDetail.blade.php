@@ -108,6 +108,13 @@
                         Informasi Aset
                     </h2>
 
+                    <!-- Asset Image -->
+                    <div class="w-full h-40 bg-white mb-4 rounded-lg border border-gray-200 overflow-hidden relative flex items-center justify-center">
+                        <img src="{{ isset($calibration['asset_image_path']) ? (config('app.backend_url') . '/public' . $calibration['asset_image_path']) : asset('images/placeholder.png') }}"
+                            alt="Asset Image" class="w-full h-full object-contain p-2"
+                            onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                    </div>
+
                     <div class="space-y-4">
                         <div class="flex flex-col">
                             <span class="text-sm text-gray-500">Aset</span>

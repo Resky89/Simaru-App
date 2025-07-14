@@ -3,171 +3,41 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
 
 class BuildingController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations;
 
     /**
      * Menampilkan halaman gedung.
      */
     public function index(Request $request)
     {
-        try {
-            // Mendapatkan parameter kueri
-            $buildingPage = $request->query('building_page', 1);
-            $buildingLimit = $request->query('building_limit', 10);
-            $search = $request->query('search', '');
-            $sort = $request->query('sort', '');
+        $extraParams = [];
 
-            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
-            if ($request->expectsJson() || $request->ajax()) {
-                $buildingLimit = $request->query('building_limit', 100);
-            }
+        // Parameter pencarian sudah dihandle oleh trait
 
-            $queryParams = [
-                'page' => $buildingPage,
-                'limit' => $buildingLimit,
-                'sort_by' => 'building_id',
-                'sort_order' => 'asc'
-            ];
+        // Custom sort mappings
+        $sortMappings = [
+            'name_asc' => ['sort_by' => 'building_name', 'sort_order' => 'asc'],
+            'name_desc' => ['sort_by' => 'building_name', 'sort_order' => 'desc'],
+            'address_asc' => ['sort_by' => 'address', 'sort_order' => 'asc'],
+            'address_desc' => ['sort_by' => 'address', 'sort_order' => 'desc'],
+            'id_asc' => ['sort_by' => 'building_id', 'sort_order' => 'asc'],
+            'id_desc' => ['sort_by' => 'building_id', 'sort_order' => 'desc'],
+        ];
 
-            // Parameter pencarian
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            // Pengurutan kustom
-            if (!empty($sort)) {
-                switch ($sort) {
-                    case 'name_asc':
-                        $queryParams['sort_by'] = 'building_name';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'name_desc':
-                        $queryParams['sort_by'] = 'building_name';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'address_asc':
-                        $queryParams['sort_by'] = 'address';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'address_desc':
-                        $queryParams['sort_by'] = 'address';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'id_asc':
-                        $queryParams['sort_by'] = 'building_id';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'id_desc':
-                        $queryParams['sort_by'] = 'building_id';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                }
-            }
-
-            // Mengambil gedung dari API
-            $buildingResult = $this->apiService->request('GET', '/buildings', [
-                'query' => $queryParams
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($buildingResult['errors']) && is_string($buildingResult['errors']) &&
-                in_array($buildingResult['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $buildingResult['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($buildingResult['errors']) ? $buildingResult['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($buildingResult['success']) || $buildingResult['success'] !== true) {
-                $errorData = $buildingResult['errors'] ?? 'Gagal mengambil data';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return view('Building', [
-                    'buildings' => [],
-                    'error' => $errorMessage
-                ]);
-            }
-
-            $buildings = $buildingResult['data'] ?? [];
-
-            // Format pagination
-            $buildingPagination = null;
-            if (isset($buildingResult['pagination'])) {
-                $pagination = $buildingResult['pagination'];
-                $buildingPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?building_page=' . (($pagination['current_page'] ?? 1) + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?building_page=' . (($pagination['current_page'] ?? 1) - 1) : null,
-                ];
-            }
-
-            // Jika ini adalah permintaan AJAX atau JSON, kembalikan gedung sebagai JSON
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $buildingResult['message'] ?? 'Data berhasil diambil',
-                    'data' => $buildings,
-                    'pagination' => $buildingPagination
-                ]);
-            }
-
-            return view('Building', [
-                'buildings' => $buildings,
-                'buildingPagination' => $buildingPagination
-            ]);
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil data gedung: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return view('Building', [
-                'buildings' => [],
-                'error' => 'Gagal mengambil data gedung: ' . $e->getMessage()
-            ]);
-        }
+        return $this->getResourceList(
+            $request,
+            '/buildings',
+            'buildings',
+            'Building',
+            'building_id',
+            $extraParams,
+            $sortMappings
+        );
     }
 
     /**
@@ -182,77 +52,15 @@ class BuildingController extends Controller
                 'address' => 'required|string'
             ]);
 
-            $result = $this->apiService->request('POST', '/buildings', [
-                'json' => $validated
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal membuat gedung';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dibuat
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Gedung berhasil dibuat',
-                    'data' => $result['data'] ?? null
-                ]);
-            }
-
-            return redirect()->route('buildings')
-                ->with('success', $result['message'] ?? 'Gedung berhasil dibuat');
+            return $this->storeResource(
+                $request,
+                '/buildings',
+                $validated,
+                'Gedung berhasil dibuat',
+                'buildings'
+            );
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal membuat gedung: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat gedung: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Building');
         }
     }
 
@@ -268,76 +76,18 @@ class BuildingController extends Controller
                 'address' => 'required|string'
             ]);
 
-            $result = $this->apiService->request('PUT', "/buildings/{$id}", [
-                'json' => array_merge(['building_id' => $id], $validated)
-            ]);
+            // Add building_id to the data
+            $data = array_merge(['building_id' => $id], $validated);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal mengubah gedung';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil diperbarui
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Gedung berhasil diubah',
-                    'data' => $result['data'] ?? null
-                ]);
-            }
-
-            return redirect()->route('buildings')
-                ->with('success', $result['message'] ?? 'Gedung berhasil diubah');
+            return $this->updateResource(
+                $request,
+                "/buildings/{$id}",
+                $data,
+                'Gedung berhasil diubah',
+                'buildings'
+            );
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengubah gedung: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal mengubah gedung: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Building');
         }
     }
 
@@ -346,74 +96,25 @@ class BuildingController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/buildings/{$id}");
+        return $this->deleteResource(
+            $request,
+            "/buildings/{$id}",
+            'Gedung berhasil dihapus',
+            'buildings'
+        );
+    }
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus gedung';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dihapus
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Gedung berhasil dihapus',
-                    'data' => null
-                ]);
-            }
-
-            return redirect()->route('buildings')
-                ->with('success', $result['message'] ?? 'Gedung berhasil dihapus');
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal menghapus gedung: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus gedung: ' . $e->getMessage());
-        }
+    /**
+     * Mendapatkan detail gedung tertentu.
+     */
+    public function show($id, Request $request)
+    {
+        return $this->getResource(
+            $request,
+            "/buildings/{$id}",
+            'building',
+            'BuildingDetails'
+        );
     }
 
     /**
@@ -442,26 +143,18 @@ class BuildingController extends Controller
             ]);
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Memeriksa kesalahan API atau respon tidak berhasil
             if (!isset($result['success']) || $result['success'] === false) {
                 $errorData = $result['errors'] ?? 'Gagal mengimpor gedung';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson()) {
                     // Format respons kesalahan terperinci untuk permintaan AJAX
-                    $formattedErrors = $errorData;
                     $errorDetails = [];
 
                     // Ekstrak detail kesalahan dari struktur array
@@ -481,28 +174,13 @@ class BuildingController extends Controller
 
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
+                        'errors' => $errorData,
                         'errorDetails' => $errorDetails,
                         'data' => $result['data'] ?? null
                     ], 400);
                 }
 
-                // Format pesan kesalahan untuk respons redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Berhasil diimpor
@@ -531,8 +209,7 @@ class BuildingController extends Controller
                 ]);
             }
 
-            return redirect()->route('buildings')
-                ->with('success', $successMessage);
+            return redirect()->route('buildings')->with('success', $successMessage);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -542,8 +219,7 @@ class BuildingController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('error', 'Gagal mengimpor data gedung: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor data gedung: ' . $e->getMessage());
         }
     }
 }

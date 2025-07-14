@@ -156,14 +156,19 @@
                                                 </svg>
                                             </a>
                                             @if(hasPermission('document:edit'))
-                                            <button class="edit-document-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors" data-id="{{ $document['document_id'] }}" title="Edit Dokumen">
+                                            <button class="edit-document-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                data-id="{{ $document['document_id'] }}"
+                                                data-title="{{ $document['document_title'] ?? 'Dokumen' }}"
+                                                title="Edit Dokumen">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
                                             @endif
                                             @if(hasPermission('document:delete'))
-                                            <button class="delete-document-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors" data-id="{{ $document['document_id'] }}" title="Hapus Dokumen">
+                                            <button class="delete-document-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                                                data-id="{{ $document['document_id'] }}"
+                                                title="Hapus Dokumen">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
@@ -269,6 +274,7 @@
                             <option value="10" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="100" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -305,7 +311,7 @@
                             <div>
                                 <label for="document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                 <input type="text" id="document_title" name="document_title"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan judul dokumen">
                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                             </div>
 
@@ -359,7 +365,7 @@
                             <div>
                                 <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                 <textarea id="notes" name="notes" rows="3"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan catatan"></textarea>
                             </div>
 
                             <!-- Associated Assets (optional field for future use) -->
@@ -476,7 +482,7 @@
                                 <div>
                                     <label for="edit_document_title" class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span class="text-red-500">*</span></label>
                                     <input type="text" id="edit_document_title" name="document_title"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan judul dokumen">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                 </div>
 
@@ -560,7 +566,7 @@
                                 <div>
                                     <label for="edit_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                     <textarea id="edit_notes" name="notes" rows="3"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan catatan"></textarea>
                                 </div>
 
                                 <!-- Associated Assets (hidden for future use) -->
@@ -1020,18 +1026,25 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.data) {
-                        openEditModal(data.data);
-                    } else {
-                        alert('Failed to fetch document details: ' + (data.message || 'Unknown error'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching document details:', error);
-                    alert('Error fetching document details. Please try again later.');
-                });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                logApiResponse('fetchDocumentDetails', data);
+
+                if (data.document) {
+                    openEditModal(data.document);
+                } else {
+                    showToast('Gagal mengambil detail dokumen: Format data tidak valid', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching document details:', error);
+                showToast('Gagal mengambil detail dokumen. Silakan coba lagi nanti.', 'error');
+            });
         }
 
         const hasImageExtension = function(filename) {
@@ -1040,6 +1053,11 @@
         };
 
         function openEditModal(docData) {
+            if (!docData || typeof docData !== 'object') {
+                showToast('Data dokumen tidak valid', 'error');
+                return;
+            }
+
             document.getElementById('edit_document_id').value = docData.document_id;
             const editForm = document.getElementById('editDocumentForm');
             editForm.action = `{{ url('asset-documents') }}/${docData.document_id}`;
@@ -1055,8 +1073,10 @@
 
             if (docData.file_path && docData.file_path.trim() !== '') {
                 const filename = docData.file_path.split('/').pop();
+
                 if (hasImageExtension(filename)) {
-                    currentImg.src = `{{ config('app.backend_url') }}/public${docData.file_path}`;
+                    const backendUrl = '{{ config('app.backend_url') }}';
+                    currentImg.src = `${backendUrl}/public${docData.file_path}`;
                     currentImageSection.classList.remove('hidden');
                 } else {
                     fileNameDisplay.textContent = filename || 'Document File';
@@ -1269,61 +1289,11 @@
                                 errorMessage = response.message;
                             }
 
-                            let hasDetails = false;
-                            let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
-
+                            // Handle error details if available
                             if (response.data && response.data.errors) {
-                                hasDetails = true;
-
-                                if (Array.isArray(response.data.errors)) {
-                                    response.data.errors.forEach(error => {
-                                        if (typeof error === 'string') {
-                                            detailsHtml += `<li>${error}</li>`;
-                                        } else if (typeof error === 'object') {
-                                            if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                            else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                        }
-                                    });
-                                } else if (typeof response.data.errors === 'string') {
-                                    detailsHtml += `<li>${response.data.errors}</li>`;
-                                } else if (typeof response.data.errors === 'object') {
-                                    Object.entries(response.data.errors).forEach(([field, fieldErrors]) => {
-                                        if (Array.isArray(fieldErrors)) {
-                                            fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                        } else if (typeof fieldErrors === 'string') {
-                                            detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                        }
-                                    });
-                                }
+                                errorMessage = handleErrorDetails(response.data.errors, errorMessage);
                             } else if (response.errors) {
-                                hasDetails = true;
-
-                                if (Array.isArray(response.errors)) {
-                                    response.errors.forEach(error => {
-                                        if (typeof error === 'string') {
-                                            detailsHtml += `<li>${error}</li>`;
-                                        } else if (typeof error === 'object') {
-                                            if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                            else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                        }
-                                    });
-                                } else if (typeof response.errors === 'string') {
-                                    detailsHtml += `<li>${response.errors}</li>`;
-                                } else if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
-                                    Object.entries(response.errors).forEach(([field, fieldErrors]) => {
-                                        if (Array.isArray(fieldErrors)) {
-                                            fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                        } else if (typeof fieldErrors === 'string') {
-                                            detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                        }
-                                    });
-                                }
-                            }
-
-                            detailsHtml += '</ul>';
-
-                            if (hasDetails) {
-                                errorMessage += detailsHtml;
+                                errorMessage = handleErrorDetails(response.errors, errorMessage);
                             }
                         } catch (e) {
                             console.error('Error parsing error response:', e);
@@ -1458,62 +1428,11 @@
                                 errorMessage = response.message;
                             }
 
-                            let hasDetails = false;
-
-                            let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
-
+                            // Handle error details if available
                             if (response.data && response.data.errors) {
-                                hasDetails = true;
-
-                                if (Array.isArray(response.data.errors)) {
-                                    response.data.errors.forEach(error => {
-                                        if (typeof error === 'string') {
-                                            detailsHtml += `<li>${error}</li>`;
-                                        } else if (typeof error === 'object') {
-                                            if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                            else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                        }
-                                    });
-                                } else if (typeof response.data.errors === 'string') {
-                                    detailsHtml += `<li>${response.data.errors}</li>`;
-                                } else if (typeof response.data.errors === 'object') {
-                                    Object.entries(response.data.errors).forEach(([field, fieldErrors]) => {
-                                        if (Array.isArray(fieldErrors)) {
-                                            fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                        } else if (typeof fieldErrors === 'string') {
-                                            detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                        }
-                                    });
-                                }
+                                errorMessage = handleErrorDetails(response.data.errors, errorMessage);
                             } else if (response.errors) {
-                                hasDetails = true;
-
-                                if (Array.isArray(response.errors)) {
-                                    response.errors.forEach(error => {
-                                        if (typeof error === 'string') {
-                                            detailsHtml += `<li>${error}</li>`;
-                                        } else if (typeof error === 'object') {
-                                            if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                            else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                        }
-                                    });
-                                } else if (typeof response.errors === 'string') {
-                                    detailsHtml += `<li>${response.errors}</li>`;
-                                } else if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
-                                    Object.entries(response.errors).forEach(([field, fieldErrors]) => {
-                                        if (Array.isArray(fieldErrors)) {
-                                            fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                        } else if (typeof fieldErrors === 'string') {
-                                            detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                        }
-                                    });
-                                }
-                            }
-
-                            detailsHtml += '</ul>';
-
-                            if (hasDetails) {
-                                errorMessage += detailsHtml;
+                                errorMessage = handleErrorDetails(response.errors, errorMessage);
                             }
                         } catch (e) {
                             console.error('Error parsing error response:', e);
@@ -1582,62 +1501,11 @@
                     } else {
                         let errorMessage = data.message || 'Gagal menghapus dokumen';
 
-                        let hasDetails = false;
-
-                        let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
-
+                        // Handle error details if available
                         if (data.data && data.data.errors) {
-                            hasDetails = true;
-
-                            if (Array.isArray(data.data.errors)) {
-                                data.data.errors.forEach(error => {
-                                    if (typeof error === 'string') {
-                                        detailsHtml += `<li>${error}</li>`;
-                                    } else if (typeof error === 'object') {
-                                        if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                        else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                    }
-                                });
-                            } else if (typeof data.data.errors === 'string') {
-                                detailsHtml += `<li>${data.data.errors}</li>`;
-                            } else if (typeof data.data.errors === 'object') {
-                                Object.entries(data.data.errors).forEach(([field, fieldErrors]) => {
-                                    if (Array.isArray(fieldErrors)) {
-                                        fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                    } else if (typeof fieldErrors === 'string') {
-                                        detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                    }
-                                });
-                            }
+                            errorMessage = handleErrorDetails(data.data.errors, errorMessage);
                         } else if (data.errors) {
-                            hasDetails = true;
-
-                            if (Array.isArray(data.errors)) {
-                                data.errors.forEach(error => {
-                                    if (typeof error === 'string') {
-                                        detailsHtml += `<li>${error}</li>`;
-                                    } else if (typeof error === 'object') {
-                                        if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                        else if (error.message) detailsHtml += `<li>${error.message}</li>`;
-                                    }
-                                });
-                            } else if (typeof data.errors === 'string') {
-                                detailsHtml += `<li>${data.errors}</li>`;
-                            } else if (typeof data.errors === 'object' && !Array.isArray(data.errors)) {
-                                Object.entries(data.errors).forEach(([field, fieldErrors]) => {
-                                    if (Array.isArray(fieldErrors)) {
-                                        fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
-                                    } else if (typeof fieldErrors === 'string') {
-                                        detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
-                                    }
-                                });
-                            }
-                        }
-
-                        detailsHtml += '</ul>';
-
-                        if (hasDetails) {
-                            errorMessage += detailsHtml;
+                            errorMessage = handleErrorDetails(data.errors, errorMessage);
                         }
 
                         showToast(errorMessage, 'error');
@@ -1738,6 +1606,44 @@
             });
         }
     });
+
+    // Helper function to format error details
+    function handleErrorDetails(errors, baseMessage) {
+        let hasDetails = false;
+        let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
+
+        if (Array.isArray(errors)) {
+            hasDetails = true;
+            errors.forEach(error => {
+                if (typeof error === 'string') {
+                    detailsHtml += `<li>${error}</li>`;
+                } else if (typeof error === 'object') {
+                    if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
+                    else if (error.message) detailsHtml += `<li>${error.message}</li>`;
+                }
+            });
+        } else if (typeof errors === 'string') {
+            detailsHtml += `<li>${errors}</li>`;
+            hasDetails = true;
+        } else if (typeof errors === 'object') {
+            hasDetails = true;
+            Object.entries(errors).forEach(([field, fieldErrors]) => {
+                if (Array.isArray(fieldErrors)) {
+                    fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                } else if (typeof fieldErrors === 'string') {
+                    detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
+                }
+            });
+        }
+
+        detailsHtml += '</ul>';
+
+        if (hasDetails) {
+            return baseMessage + detailsHtml;
+        }
+
+        return baseMessage;
+    }
 </script>
 
 <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>

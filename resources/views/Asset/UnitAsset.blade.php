@@ -3,6 +3,44 @@
 @section('title', 'Manajemen Aset')
 
 @section('content')
+    <style>
+        /* Fix dropdown positioning */
+        #user_dropdown, #edit_user_dropdown,
+        #building_dropdown, #edit_building_dropdown,
+        #room_dropdown, #edit_room_dropdown,
+        #asset_master_dropdown, #edit_asset_master_dropdown {
+            position: absolute;
+            z-index: 9999;
+        }
+
+        /* Fix parent container to allow overflow */
+        .relative {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        /* Fix for modals to allow dropdowns to appear outside */
+        .fixed.inset-0.z-50 {
+            overflow-y: auto !important;
+        }
+
+        .fixed.inset-0.z-50 .min-h-full {
+            min-height: auto !important;
+            padding: 2rem 0;
+        }
+
+        /* Reset inner content scrolling */
+        #addAssetModalContent, #editAssetModalContent, #deleteAssetModalContent,
+        #printQRModalContent, #importAssetModalContent {
+            overflow-y: visible !important;
+            max-height: none !important;
+        }
+
+        /* Prevent scroll propagation on building dropdowns */
+        .prevent-scroll-propagation {
+            overscroll-behavior: contain;
+        }
+    </style>
     @include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Asset Section -->
@@ -469,6 +507,18 @@
                                                         <span>Memuat master aset...</span>
                                                     </div>
                                                     <ul id="asset_master_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for infinite scroll -->
+                                                    <div id="asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -536,7 +586,7 @@
                                                         dipilih</div>
 
                                                     <div id="building_dropdown"
-                                                        class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                        class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden prevent-scroll-propagation">
                                                         <div id="building_loading" class="p-2 text-gray-500 text-center">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
                                                                 xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -547,9 +597,21 @@
                                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                                                 </path>
                                                             </svg>
-                                                            <span>Memuat gedung...</span>
+                                                            <span>Memuat Gedung...</span>
                                                         </div>
                                                         <ul id="building_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for building dropdown -->
+                                                        <div id="building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -581,6 +643,18 @@
                                                             <span>Memuat ruangan...</span>
                                                         </div>
                                                         <ul id="room_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for room dropdown -->
+                                                        <div id="room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -595,7 +669,7 @@
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                                     <option value="">Pilih Kondisi</option>
                                                     <option value="good">Baik</option>
-                                                    <option value="slightly damage">Sedikit Rusak</option>
+                                                    <option value="slighly damage">Sedikit Rusak</option>
                                                     <option value="high damage">Sangat Rusak</option>
                                                 </select>
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus
@@ -626,6 +700,18 @@
                                                             <span>Memuat karyawan...</span>
                                                         </div>
                                                         <ul id="user_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for user dropdown -->
+                                                        <div id="user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -785,6 +871,18 @@
                                                         <span>Memuat master aset...</span>
                                                     </div>
                                                     <ul id="edit_asset_master_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for infinite scroll -->
+                                                    <div id="edit_asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -852,7 +950,7 @@
                                                         dipilih</div>
 
                                                     <div id="edit_building_dropdown"
-                                                        class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                        class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden prevent-scroll-propagation">
                                                         <div id="edit_building_loading" class="p-2 text-gray-500 text-center">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
                                                                 xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -863,9 +961,21 @@
                                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                                                 </path>
                                                             </svg>
-                                                            <span>Memuat gedung...</span>
+                                                            <span>Memuat Gedung...</span>
                                                         </div>
                                                         <ul id="edit_building_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for building dropdown -->
+                                                        <div id="edit_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -897,6 +1007,18 @@
                                                             <span>Memuat ruangan...</span>
                                                         </div>
                                                         <ul id="edit_room_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for room dropdown -->
+                                                        <div id="edit_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -942,6 +1064,18 @@
                                                             <span>Memuat karyawan...</span>
                                                         </div>
                                                         <ul id="edit_user_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for user dropdown -->
+                                                        <div id="edit_user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1417,7 +1551,11 @@
     @endif
 
     @push('scripts')
-        <script>
+    <!-- Tambahkan di bagian head atau sebelum </body> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+            <script>
             document.addEventListener('DOMContentLoaded', function () {
                 @if(!hasPermission('asset:create'))
                     const addButtons = document.querySelectorAll('#addAssetBtn');
@@ -1591,6 +1729,22 @@
                 });
 
                 document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    // Process currency inputs
+                    const formData = new FormData(this);
+                    const formAction = this.action;
+                    const formMethod = this.method;
+
+                    // Parse currency inputs to ensure full values
+                    this.querySelectorAll('.currency-input').forEach(input => {
+                        if (input.value) {
+                            const numericValue = parseFormattedNumber(input.value);
+                            formData.set(input.name, numericValue);
+                        }
+                    });
+
+                    // Continue with validation
                     this.querySelectorAll('.currency-input').forEach(input => {
                         if (input.value) {
                             const numericValue = parseFormattedNumber(input.value);
@@ -2194,7 +2348,11 @@
                             if (asset.purchase_cost) {
                                 const purchaseCost = document.getElementById('edit_purchase_cost');
                                 if (purchaseCost) {
-                                    purchaseCost.value = asset.purchase_cost;
+                                    // Remove decimal part if it exists before formatting
+                                    const costValue = typeof asset.purchase_cost === 'string' ?
+                                        asset.purchase_cost.split('.')[0] :
+                                        Math.floor(parseFloat(asset.purchase_cost)).toString();
+                                    purchaseCost.value = costValue;
                                     formatCurrency(purchaseCost);
                                 }
                             }
@@ -2241,18 +2399,20 @@
                             }
 
                             if (buildingId || buildingName) {
+                                // Set building values
                                 if (buildingId) {
                                     document.getElementById('edit_selected_building_id').value = buildingId;
                                 }
-
                                 document.getElementById('edit_building_search').value = buildingName;
 
+                                // Enable room search
                                 const roomSearch = document.getElementById('edit_room_search');
                                 if (roomSearch) {
                                     roomSearch.disabled = false;
                                     roomSearch.placeholder = "Cari ruangan...";
                                 }
 
+                                // Get room information
                                 let roomId = '';
                                 let roomName = '';
 
@@ -2268,10 +2428,7 @@
                                     roomName = asset.room_name;
                                 }
 
-                                if (typeof asset.room_name === 'string' && asset.room_name.trim() !== '') {
-                                    roomName = asset.room_name;
-                                }
-
+                                // Set room values if available
                                 if (roomId) {
                                     document.getElementById('edit_selected_room_id').value = roomId;
                                 }
@@ -2280,21 +2437,10 @@
                                     document.getElementById('edit_room_search').value = roomName;
                                 } else if (roomId) {
                                     document.getElementById('edit_room_search').value = 'Ruangan ID: ' + roomId;
-
-                                    if (buildingId) {
-                                        loadRoomsForBuilding(
-                                            '',
-                                            buildingId,
-                                            document.getElementById('edit_room_list'),
-                                            document.getElementById('edit_room_loading'),
-                                            document.getElementById('edit_selected_room_id'),
-                                            document.getElementById('edit_room_search'),
-                                            document.getElementById('edit_room_dropdown')
-                                        );
-                                    }
                                 }
 
-                                if (!roomId && !roomName && buildingId) {
+                                // Only load rooms once if needed
+                                if (buildingId && (!roomId && !roomName)) {
                                     loadRoomsForBuilding(
                                         '',
                                         buildingId,
@@ -2315,8 +2461,8 @@
                                 let userDisplay = `User ID: ${asset.user_id}`;
 
                                 if (asset.user) {
-                                    if (asset.user.employee_number) {
-                                        userDisplay = asset.user.employee_number;
+                                    if (asset.user.employee_name) {
+                                        userDisplay = asset.user.employee_name;
                                         if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
                                     } else if (asset.user.name) {
                                         userDisplay = asset.user.name;
@@ -2324,8 +2470,8 @@
                                 } else {
                                     const user = window.usersData?.find(u => u.user_id == asset.user_id);
                                     if (user) {
-                                        if (user.employee_number) {
-                                            userDisplay = user.employee_number;
+                                        if (user.employee_name) {
+                                            userDisplay = user.employee_name;
                                             if (user.name) userDisplay += ` - ${user.name}`;
                                         } else if (user.name) {
                                             userDisplay = user.name;
@@ -2334,8 +2480,8 @@
                                 }
 
                                 document.getElementById('edit_user_search').value = userDisplay;
-                            } else if (asset.employee_number) {
-                                document.getElementById('edit_user_search').value = asset.employee_number;
+                            } else if (asset.employee_name) {
+                                document.getElementById('edit_user_search').value = asset.employee_name;
                             }
 
                             const depreciationFields = document.getElementById('edit_depreciation_fields');
@@ -2537,12 +2683,21 @@
                                 formData.append('current_status', 'available');
                             }
 
+                            // Process currency inputs to ensure full values
+                            const currencyInputs = ['edit_purchase_cost', 'edit_acquisition_cost', 'edit_salvage_value'];
+                            currencyInputs.forEach(inputId => {
+                                const element = document.getElementById(inputId);
+                                if (element && element.value) {
+                                    const fieldName = inputId.replace('edit_', '');
+                                    const numericValue = parseFormattedNumber(element.value);
+                                    formData.set(fieldName, numericValue);
+                                }
+                            });
+
                             const depreciationFields = document.getElementById('edit_depreciation_fields');
                             if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
                                 const fieldsToCheck = [
                                     { id: 'edit_depreciation_method', name: 'depreciation_method' },
-                                    { id: 'edit_acquisition_cost', name: 'acquisition_cost' },
-                                    { id: 'edit_salvage_value', name: 'salvage_value' },
                                     { id: 'edit_asset_life_months', name: 'asset_life_months' },
                                     { id: 'edit_date_acquired', name: 'date_acquired' }
                                 ];
@@ -2555,6 +2710,11 @@
                                 });
                             }
 
+                            // Add CSRF token
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                            formData.append('_token', csrfToken);
+
+                            // Create a dynamic form for submission
                             const form = document.createElement('form');
                             form.method = 'POST';
                             form.action = `{{ url('assets') }}/${assetId}`;
@@ -2742,12 +2902,47 @@
 
                     searchInput.addEventListener('input', debouncedSearch);
 
-                    async function loadAssetMasters(searchTerm) {
+                    // Add scroll event to load more data
+                    dropdown.addEventListener('scroll', function() {
+                        if (assetMasterList.dataset.loading === "true" || assetMasterList.dataset.hasMoreData === "false") return;
+
+                        // Check if we're near bottom
+                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                            // Load next page with current search term
+                            loadAssetMasters(assetMasterList.dataset.searchTerm || '', false);
+                        }
+                    });
+
+                    async function loadAssetMasters(searchTerm, resetList = true) {
+                        // Setup for lazy loading
+                        let page = assetMasterList.dataset.page ? parseInt(assetMasterList.dataset.page) : 1;
+                        let isLoading = assetMasterList.dataset.loading === "true";
+                        let hasMoreData = assetMasterList.dataset.hasMoreData !== "false";
+
+                        // Save current search term
+                        assetMasterList.dataset.searchTerm = searchTerm;
+
+                        if (isLoading) return;
+
+                        // Set loading state
+                        assetMasterList.dataset.loading = "true";
+
+                        // Use different loading indicators based on whether we're resetting or loading more
+                        const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                        if (resetList) {
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         assetMasterList.innerHTML = '';
+                            page = 1;
+                        } else {
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                        }
 
                         try {
-                            const response = await fetch(`{{ route('asset-master') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                            const response = await fetch(`asset-master?${searchTerm ? 'search=' + encodeURIComponent(searchTerm) : ''}&page=${page}&limit=15`, {
                                 headers: {
                                     'Accept': 'application/json',
                                     'X-Requested-With': 'XMLHttpRequest'
@@ -2761,9 +2956,14 @@
                             const data = await response.json();
                             let assetMasters = data.masterAssets || [];
 
-                            assetMasterList.innerHTML = '';
+                            // Check if we have more data to load
+                            hasMoreData = assetMasters.length === 15;
 
-                            if (assetMasters.length === 0) {
+                            // Save next page number and has more data state
+                            assetMasterList.dataset.page = page + 1;
+                            assetMasterList.dataset.hasMoreData = hasMoreData.toString();
+
+                            if (assetMasters.length === 0 && assetMasterList.children.length === 0) {
                                 const noResults = document.createElement('li');
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Master aset tidak ditemukan';
@@ -2803,12 +3003,17 @@
                             }
                         } catch (error) {
                             console.error('Error loading asset masters:', error);
+                            if (assetMasterList.children.length === 0) {
                             const errorItem = document.createElement('li');
                             errorItem.className = 'px-4 py-2 text-red-500';
                             errorItem.textContent = 'Galat memuat master aset';
                             assetMasterList.appendChild(errorItem);
+                            }
                         } finally {
+                            // Reset loading state
+                            assetMasterList.dataset.loading = "false";
                             if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                         }
                     }
                 }
@@ -2843,12 +3048,47 @@
 
                     searchInput.addEventListener('input', debouncedSearch);
 
-                    async function loadUsers(searchTerm) {
+                    // Add scroll event to load more data
+                    dropdown.addEventListener('scroll', function() {
+                        if (userList.dataset.loading === "true" || userList.dataset.hasMoreData === "false") return;
+
+                        // Check if we're near bottom
+                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                            // Load next page with current search term
+                            loadUsers(userList.dataset.searchTerm || '', false);
+                        }
+                    });
+
+                    async function loadUsers(searchTerm, resetList = true) {
+                        // Setup for lazy loading
+                        let page = userList.dataset.page ? parseInt(userList.dataset.page) : 1;
+                        let isLoading = userList.dataset.loading === "true";
+                        let hasMoreData = userList.dataset.hasMoreData !== "false";
+
+                        // Save current search term
+                        userList.dataset.searchTerm = searchTerm;
+
+                        if (isLoading) return;
+
+                        // Set loading state
+                        userList.dataset.loading = "true";
+
+                        // Use different loading indicators based on whether we're resetting or loading more
+                        const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                        if (resetList) {
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         userList.innerHTML = '';
+                            page = 1;
+                        } else {
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                        }
 
                         try {
-                            const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active`;
+                            const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active&page=${page}&limit=15`;
 
                             const response = await fetch(apiUrl, {
                                 headers: {
@@ -2864,9 +3104,14 @@
                             const data = await response.json();
                             const users = data.users || data.data || [];
 
-                            userList.innerHTML = '';
+                            // Check if we have more data to load
+                            hasMoreData = users.length === 15;
 
-                            if (users.length === 0) {
+                            // Save next page number and has more data state
+                            userList.dataset.page = page + 1;
+                            userList.dataset.hasMoreData = hasMoreData.toString();
+
+                            if (users.length === 0 && userList.children.length === 0) {
                                 const noResults = document.createElement('li');
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Pengguna tidak ditemukan';
@@ -2877,8 +3122,8 @@
                                     li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
                                     let displayText = '';
-                                    if (user.employee_number) {
-                                        displayText = user.employee_number;
+                                    if (user.employee_name) {
+                                        displayText = user.employee_name;
                                         if (user.name) {
                                             displayText += ` - ${user.name}`;
                                         }
@@ -2888,15 +3133,15 @@
 
                                     li.textContent = displayText;
                                     li.setAttribute('data-id', user.user_id);
-                                    li.setAttribute('data-employee-number', user.employee_number || '');
+                                    li.setAttribute('data-employee-name', user.employee_name || '');
                                     li.setAttribute('data-name', displayText);
 
                                     li.addEventListener('click', function () {
                                         selectedUserId.value = this.getAttribute('data-id');
 
-                                        const employeeNumber = this.getAttribute('data-employee-number');
-                                        if (employeeNumber) {
-                                            searchInput.value = employeeNumber;
+                                        const employeeName = this.getAttribute('data-employee-name');
+                                        if (employeeName) {
+                                            searchInput.value = employeeName;
                                         } else {
                                             searchInput.value = this.getAttribute('data-name');
                                         }
@@ -2909,32 +3154,31 @@
                             }
                         } catch (error) {
                             console.error('Error loading users:', error);
+                            if (userList.children.length === 0) {
                             const errorItem = document.createElement('li');
                             errorItem.className = 'px-4 py-2 text-red-500';
                             errorItem.textContent = `Galat memproses data pengguna: ${error.message}`;
                             userList.appendChild(errorItem);
+                            }
                         } finally {
+                            // Reset loading state
+                            userList.dataset.loading = "false";
                             if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                         }
                     }
                 }
 
                 function initSearchComponents() {
-                    initDropdown(
+                    // Replace initDropdown with initBuildingSearch for edit_building
+                    initBuildingSearch(
                         document.getElementById('edit_building_search'),
                         document.getElementById('edit_building_dropdown'),
                         document.getElementById('edit_building_list'),
-                        function (searchTerm) {
-                            loadBuildings(
-                                searchTerm,
-                                document.getElementById('edit_building_list'),
-                                document.getElementById('edit_building_loading'),
-                                document.getElementById('edit_selected_building_id'),
-                                document.getElementById('edit_building_search'),
-                                document.getElementById('edit_building_dropdown'),
-                                document.getElementById('edit_room_search')
-                            );
-                        }
+                        document.getElementById('edit_building_loading'),
+                        document.getElementById('edit_selected_building_id'),
+                        document.getElementById('edit_building_search'),
+                        document.getElementById('edit_room_search')
                     );
 
                     initDropdown(
@@ -2963,21 +3207,15 @@
                         }
                     );
 
-                    initDropdown(
+                    // Replace initDropdown with initBuildingSearch for building
+                    initBuildingSearch(
                         document.getElementById('building_search'),
                         document.getElementById('building_dropdown'),
                         document.getElementById('building_list'),
-                        function (searchTerm) {
-                            loadBuildings(
-                                searchTerm,
-                                document.getElementById('building_list'),
-                                document.getElementById('building_loading'),
-                                document.getElementById('selected_building_id'),
-                                document.getElementById('building_search'),
-                                document.getElementById('building_dropdown'),
-                                document.getElementById('room_search')
-                            );
-                        }
+                        document.getElementById('building_loading'),
+                        document.getElementById('selected_building_id'),
+                        document.getElementById('building_search'),
+                        document.getElementById('room_search')
                     );
 
                     initDropdown(
@@ -3068,6 +3306,20 @@
                     }, 300);
 
                     searchInput.addEventListener('input', debouncedSearch);
+
+                    // Add scroll event to load more data
+                    dropdown.addEventListener('scroll', function() {
+                        if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
+
+                        // Check if we're near bottom
+                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                            // Load next page with current search term
+                            searchFunction(list.dataset.searchTerm || '', false);
+                        }
+                    });
                 }
 
                 function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
@@ -3077,12 +3329,33 @@
                     return li;
                 }
 
-                async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    buildingList.innerHTML = '';
+                async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput, resetList = true) {
+                    // Setup for lazy loading
+                    let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
+                    let isLoading = buildingList.dataset.loading === "true";
+                    let hasMoreData = buildingList.dataset.hasMoreData !== "false";
+
+                    // Save current search term
+                    buildingList.dataset.searchTerm = searchTerm;
+
+                    if (isLoading) return;
+
+                    // Set loading state
+                    buildingList.dataset.loading = "true";
+
+                    // Use different loading indicators based on whether we're resetting or loading more
+                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                    if (resetList) {
+                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                        buildingList.innerHTML = '';
+                        page = 1;
+                    } else {
+                        if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                    }
 
                     try {
-                        const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                        const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -3094,10 +3367,17 @@
                         }
 
                         const data = await response.json();
-                        const buildings = data.data || [];
+                        const buildings = data.buildings || [];
 
-                        if (buildings.length === 0) {
-                            buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500 italic'));
+                        // Check if we have more data to load
+                        hasMoreData = buildings.length === 15;
+
+                        // Save next page number and has more data state
+                        buildingList.dataset.page = page + 1;
+                        buildingList.dataset.hasMoreData = hasMoreData.toString();
+
+                        if (buildings.length === 0 && buildingList.children.length === 0) {
+                            buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
                         } else {
                             buildings.forEach(building => {
                                 const li = document.createElement('li');
@@ -3149,14 +3429,18 @@
                         }
                     } catch (error) {
                         console.error('Error loading buildings:', error);
-                        buildingList.innerHTML = '';
-                        buildingList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                        if (buildingList.children.length === 0) {
+                            buildingList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                        }
                     } finally {
+                        // Reset loading state
+                        buildingList.dataset.loading = "false";
                         if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                     }
                 }
 
-                async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
+                async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown, resetList = true) {
                     if (!buildingId) {
                         searchInput.value = '';
                         searchInput.placeholder = 'Pilih gedung terlebih dahulu';
@@ -3167,13 +3451,35 @@
                     searchInput.disabled = false;
                     searchInput.placeholder = "Cari ruangan...";
 
+                    // Setup for lazy loading
+                    let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
+                    let isLoading = roomList.dataset.loading === "true";
+                    let hasMoreData = roomList.dataset.hasMoreData !== "false";
+
+                    // Save current search term and building ID
+                    roomList.dataset.searchTerm = searchTerm;
+                    roomList.dataset.buildingId = buildingId;
+
+                    if (isLoading) return;
+
+                    // Set loading state
+                    roomList.dataset.loading = "true";
+
+                    // Use different loading indicators based on whether we're resetting or loading more
+                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                    if (resetList) {
                     if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                     roomList.innerHTML = '';
+                        page = 1;
+                    } else {
+                        if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                    }
 
                     if (dropdown) dropdown.classList.remove('hidden');
 
                     try {
-                        const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                        const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`;
 
                         const response = await fetch(apiUrl, {
                             headers: {
@@ -3187,20 +3493,16 @@
                         }
 
                         const data = await response.json();
+                        const rooms = data.rooms || [];
 
-                        let rooms = [];
-                        if (Array.isArray(data)) {
-                            rooms = data;
-                        } else if (data.data && Array.isArray(data.data)) {
-                            rooms = data.data;
-                        } else if (data.rooms && Array.isArray(data.rooms)) {
-                            rooms = data.rooms;
-                        } else {
-                            console.error('Unexpected API response format:', data);
-                            throw new Error('Invalid response format from server');
-                        }
+                        // Check if we have more data to load
+                        hasMoreData = rooms.length === 15;
 
-                        if (rooms.length === 0) {
+                        // Save next page number and has more data state
+                        roomList.dataset.page = page + 1;
+                        roomList.dataset.hasMoreData = hasMoreData.toString();
+
+                        if (rooms.length === 0 && roomList.children.length === 0) {
                             roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
                         } else {
                             rooms.forEach(room => {
@@ -3230,10 +3532,14 @@
                         }
                     } catch (error) {
                         console.error('Error loading rooms:', error);
-                        roomList.innerHTML = '';
+                        if (roomList.children.length === 0) {
                         roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                        }
                     } finally {
+                        // Reset loading state
+                        roomList.dataset.loading = "false";
                         if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                        if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                     }
                 }
 
@@ -3903,6 +4209,209 @@
                         url.searchParams.set('page', 1);
                         window.location.href = url.toString();
                     });
+                }
+
+                // Add this new dedicated function for building dropdowns
+                function initBuildingSearch(
+                    searchInput,
+                    dropdown,
+                    buildingList,
+                    loadingIndicator,
+                    selectedBuildingId,
+                    searchInputField,
+                    roomSearchInput
+                ) {
+                    if (!searchInput || !dropdown || !buildingList) return;
+
+                    searchInput.addEventListener('focus', function () {
+                        dropdown.classList.remove('hidden');
+                        if (buildingList.children.length === 0) {
+                            loadBuildings(
+                                '',
+                                buildingList,
+                                loadingIndicator,
+                                selectedBuildingId,
+                                searchInputField,
+                                dropdown,
+                                roomSearchInput
+                            );
+                        }
+                    });
+
+                    // Prevent any mousedown events on dropdown from closing it
+                    dropdown.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    });
+
+                    // Prevent wheel events from propagating
+                    dropdown.addEventListener('wheel', function(e) {
+                        e.stopPropagation();
+                    }, { passive: true });
+
+                    document.addEventListener('click', function (e) {
+                        // Only close dropdown if the click is outside both searchInput and dropdown
+                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                            dropdown.classList.add('hidden');
+                        }
+                    });
+
+                    const debouncedSearch = debounce(function (e) {
+                        loadBuildings(
+                            e.target.value,
+                            buildingList,
+                            loadingIndicator,
+                            selectedBuildingId,
+                            searchInputField,
+                            dropdown,
+                            roomSearchInput
+                        );
+                    }, 300);
+
+                    searchInput.addEventListener('input', debouncedSearch);
+
+                    // Add scroll event directly here to prevent dropdown from closing
+                    dropdown.addEventListener('scroll', function(e) {
+                        // Prevent the event from propagating
+                        e.stopPropagation();
+
+                        if (buildingList.dataset.loading === "true" || buildingList.dataset.hasMoreData === "false") return;
+
+                        // Check if we're near bottom
+                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                            // Load next page with current search term
+                            loadBuildings(
+                                buildingList.dataset.searchTerm || '',
+                                buildingList,
+                                loadingIndicator,
+                                selectedBuildingId,
+                                searchInputField,
+                                dropdown,
+                                roomSearchInput,
+                                false // resetList = false to append results
+                            );
+                        }
+                    }, { passive: true });
+                }
+
+                function initSearchComponents() {
+                    // Replace initDropdown with initBuildingSearch for edit_building
+                    initBuildingSearch(
+                        document.getElementById('edit_building_search'),
+                        document.getElementById('edit_building_dropdown'),
+                        document.getElementById('edit_building_list'),
+                        document.getElementById('edit_building_loading'),
+                        document.getElementById('edit_selected_building_id'),
+                        document.getElementById('edit_building_search'),
+                        document.getElementById('edit_room_search')
+                    );
+
+                    initDropdown(
+                        document.getElementById('edit_room_search'),
+                        document.getElementById('edit_room_dropdown'),
+                        document.getElementById('edit_room_list'),
+                        function (searchTerm) {
+                            const buildingId = document.getElementById('edit_selected_building_id').value;
+                            if (buildingId) {
+                                loadRoomsForBuilding(
+                                    searchTerm,
+                                    buildingId,
+                                    document.getElementById('edit_room_list'),
+                                    document.getElementById('edit_room_loading'),
+                                    document.getElementById('edit_selected_room_id'),
+                                    document.getElementById('edit_room_search'),
+                                    document.getElementById('edit_room_dropdown')
+                                );
+                            } else {
+                                const roomList = document.getElementById('edit_room_list');
+                                if (roomList) {
+                                    roomList.innerHTML = '';
+                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                }
+                            }
+                        }
+                    );
+
+                    // Replace initDropdown with initBuildingSearch for building
+                    initBuildingSearch(
+                        document.getElementById('building_search'),
+                        document.getElementById('building_dropdown'),
+                        document.getElementById('building_list'),
+                        document.getElementById('building_loading'),
+                        document.getElementById('selected_building_id'),
+                        document.getElementById('building_search'),
+                        document.getElementById('room_search')
+                    );
+
+                    initDropdown(
+                        document.getElementById('room_search'),
+                        document.getElementById('room_dropdown'),
+                        document.getElementById('room_list'),
+                        function (searchTerm) {
+                            const buildingId = document.getElementById('selected_building_id').value;
+                            if (buildingId) {
+                                loadRoomsForBuilding(
+                                    searchTerm,
+                                    buildingId,
+                                    document.getElementById('room_list'),
+                                    document.getElementById('room_loading'),
+                                    document.getElementById('selected_room_id'),
+                                    document.getElementById('room_search'),
+                                    document.getElementById('room_dropdown')
+                                );
+                            } else {
+                                const roomList = document.getElementById('room_list');
+                                if (roomList) {
+                                    roomList.innerHTML = '';
+                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                }
+                            }
+                        }
+                    );
+
+                    initAssetMasterSearch(
+                        document.getElementById('asset_master_search'),
+                        document.getElementById('asset_master_dropdown'),
+                        document.getElementById('asset_master_list'),
+                        document.getElementById('asset_master_loading'),
+                        document.getElementById('selected_asset_master_id'),
+                        document.getElementById('selected_is_depreciable'),
+                        document.getElementById('depreciation_fields')
+                    );
+
+                    initAssetMasterSearch(
+                        document.getElementById('edit_asset_master_search'),
+                        document.getElementById('edit_asset_master_dropdown'),
+                        document.getElementById('edit_asset_master_list'),
+                        document.getElementById('edit_asset_master_loading'),
+                        document.getElementById('edit_selected_asset_master_id'),
+                        document.getElementById('edit_selected_is_depreciable'),
+                        document.getElementById('edit_depreciation_fields')
+                    );
+
+                    if (document.getElementById('user_search')) {
+                        initUserSearch(
+                            document.getElementById('user_search'),
+                            document.getElementById('user_dropdown'),
+                            document.getElementById('user_list'),
+                            document.getElementById('user_loading'),
+                            document.getElementById('selected_user_id')
+                        );
+                    }
+
+                    if (document.getElementById('edit_user_search')) {
+                        initUserSearch(
+                            document.getElementById('edit_user_search'),
+                            document.getElementById('edit_user_dropdown'),
+                            document.getElementById('edit_user_list'),
+                            document.getElementById('edit_user_loading'),
+                            document.getElementById('edit_selected_user_id')
+                        );
+                    }
                 }
             });
         </script>

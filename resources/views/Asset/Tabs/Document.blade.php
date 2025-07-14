@@ -78,7 +78,7 @@
                                         <label for="document_title"
                                             class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="text" id="document_title" name="document_title"
+                                        <input type="text" id="document_title" name="document_title" placeholder="Masukkan judul dokumen"
                                             class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
@@ -155,7 +155,7 @@
                                         <label for="notes"
                                             class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                         <textarea id="notes" name="notes" rows="3"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"></textarea>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan catatan"></textarea>
                                     </div>
 
                                     <!-- Form Actions -->

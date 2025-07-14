@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Role Management')
+@section('title', 'Manajemen Role')
 
 @section('content')
     @include('Layout.loading')
@@ -67,7 +67,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($roles['data'] ?? [] as $role)
+                                @forelse($roles as $role)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['role_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $role['description'] ?? '-' }}</td>
@@ -116,8 +116,8 @@
                     <!-- Pagination for ROLE section -->
                     <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $roles['pagination']['prev_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles['pagination']['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ $roles_pagination['prev_page_url'] ?? '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -127,8 +127,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $roles['pagination']['current_page'] ?? 1;
-                                    $lastPage = $roles['pagination']['last_page'] ?? 1;
+                                    $currentPage = $roles_pagination['current_page'] ?? 1;
+                                    $lastPage = $roles_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -139,7 +139,7 @@
                                 @endphp
 
                                 @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => 1]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1
                                     </a>
@@ -151,7 +151,7 @@
                                 @endif
 
                                 @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => $i]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
@@ -163,14 +163,14 @@
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['role_page' => $lastPage]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         {{ $lastPage }}
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ $roles['pagination']['next_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles['pagination']['current_page'] ?? 1) >= ($roles['pagination']['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ $roles_pagination['next_page_url'] ?? '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($roles_pagination['current_page'] ?? 1) >= ($roles_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -182,11 +182,11 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($roles['pagination']) && is_array($roles['pagination']))
+                                @if(isset($roles_pagination) && is_array($roles_pagination))
                                     @php
-                                        $currentPage = $roles['pagination']['current_page'] ?? 1;
-                                        $perPage = $roles['pagination']['per_page'] ?? 10;
-                                        $total = $roles['pagination']['total'] ?? count($roles['data'] ?? []);
+                                        $currentPage = $roles_pagination['current_page'] ?? 1;
+                                        $perPage = $roles_pagination['per_page'] ?? 10;
+                                        $total = $roles_pagination['total'] ?? count($roles['data'] ?? []);
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -199,9 +199,9 @@
                             <select id="rolePerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeRolePerPage(this.value)">
-                                <option value="10" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
-                                <option value="25" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
-                                <option value="50" {{ isset($roles['pagination']['per_page']) && $roles['pagination']['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman</option>
+                                <option value="10" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
+                                <option value="25" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
+                                <option value="50" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -430,28 +430,61 @@
                                 </div>
 
                                 <script>
-                                    document.getElementById('deleteRoleForm').addEventListener('submit', function (e) {
-                                        const submitBtn = document.getElementById('delete-role-btn');
+                                    document.getElementById('deleteRoleForm').addEventListener('submit', async function (e) {
+                                        e.preventDefault();
 
+                                        const submitBtn = document.getElementById('delete-role-btn');
                                         if (submitBtn && !submitBtn.disabled) {
                                             const originalText = submitBtn.innerHTML;
 
                                             submitBtn.disabled = true;
                                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                                             submitBtn.innerHTML = `
-                                                            <div class="flex items-center justify-center">
-                                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                                <span>Memproses...</span>
-                                                            </div>
-                                                        `;
+                                                <div class="flex items-center justify-center">
+                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    <span>Memproses...</span>
+                                                </div>
+                                            `;
 
-                                            setTimeout(() => {
-                                                if (submitBtn) {
-                                                    submitBtn.disabled = false;
-                                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                                    submitBtn.innerHTML = originalText;
+                                            try {
+                                                // Create FormData object
+                                                const formData = new FormData(this);
+
+                                                // Send request using fetch API
+                                                const response = await fetch(this.action, {
+                                                    method: 'POST',
+                                                    body: formData,
+                                                    headers: {
+                                                        'X-Requested-With': 'XMLHttpRequest',
+                                                        'Accept': 'application/json'
+                                                    }
+                                                });
+
+                                                const result = await response.json();
+
+                                                if (response.ok) {
+                                                    // Success
+                                                    showToast(result.message || 'Role berhasil dihapus', 'success');
+                                                    setTimeout(() => {
+                                                        window.location.reload();
+                                                    }, 1000);
+                                                } else {
+                                                    // Error
+                                                    if (result.errors) {
+                                                        showToast(result.errors, 'error');
+                                                    } else {
+                                                        showToast(result.message || 'Gagal menghapus role', 'error');
+                                                    }
                                                 }
-                                            }, 10000);
+                                            } catch (error) {
+                                                console.error('Error deleting role:', error);
+                                                showToast('Terjadi kesalahan saat menghapus role', 'error');
+                                            } finally {
+                                                // Re-enable submit button
+                                                submitBtn.disabled = false;
+                                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                                submitBtn.innerHTML = originalText;
+                                            }
                                         }
                                     });
                                 </script>
@@ -665,8 +698,8 @@
 
             window.changeRolePerPage = function (limit) {
                 const url = new URL(window.location.href);
-                url.searchParams.set('role_limit', limit);
-                url.searchParams.set('role_page', 1);
+                url.searchParams.set('limit', limit);
+                url.searchParams.set('page', 1);
                 window.location.href = url.toString();
             }
 
@@ -687,8 +720,89 @@
                 content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
                 content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
                 setTimeout(() => {
-                    modal.classList.add('hidden');
+                    if (modal.id === 'addRoleModal') {
+                        resetAddRoleForm();
+                    } else if (modal.id === 'editRoleModal') {
+                        resetEditRoleForm();
+                    } else if (modal.id === 'deleteRoleModal') {
+                        resetDeleteRoleForm();
+                    }
                 }, 300);
+            }
+
+            // Function to reset add role form
+            function resetAddRoleForm() {
+                const form = document.getElementById('addRoleForm');
+                if (form) {
+                    // Reset the form immediately
+                    form.reset();
+
+                    // Clear permission checkboxes
+                    const allCheckbox = document.getElementById('add-all-permission');
+                    if (allCheckbox) {
+                        allCheckbox.checked = false;
+                    }
+
+                    // Reset permissions container
+                    const permissionsContainer = document.getElementById('add-permissions-container');
+                    if (permissionsContainer) {
+                        permissionsContainer.innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
+                    }
+
+                    // Remove any validation styling
+                    const inputs = form.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                        input.classList.remove('border-red-500');
+                    });
+
+                    // Hide error messages
+                    const errorMessages = form.querySelectorAll('.error-message');
+                    errorMessages.forEach(el => {
+                        el.classList.add('hidden');
+                    });
+                }
+            }
+
+            // Function to reset edit role form
+            function resetEditRoleForm() {
+                const form = document.getElementById('editRoleForm');
+                if (form) {
+                    // Reset form inputs
+                    document.getElementById('edit_role_name').value = "";
+                    document.getElementById('edit_description').value = "";
+
+                    // Reset permissions container
+                    const permissionsContainer = document.getElementById('edit-permissions-container');
+                    if (permissionsContainer) {
+                        permissionsContainer.innerHTML = '<p class="text-center text-gray-500 py-4">Memuat data izin...</p>';
+                    }
+
+                    // Reset all permission checkbox
+                    const allCheckbox = document.getElementById('edit-all-permission');
+                    if (allCheckbox) {
+                        allCheckbox.checked = false;
+                    }
+
+                    // Remove any validation styling
+                    const inputs = form.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                        input.classList.remove('border-red-500');
+                    });
+
+                    // Hide error messages
+                    const errorMessages = form.querySelectorAll('.error-message');
+                    errorMessages.forEach(el => {
+                        el.classList.add('hidden');
+                    });
+                }
+            }
+
+            // Function to reset delete role form
+            function resetDeleteRoleForm() {
+                const form = document.getElementById('deleteRoleForm');
+                if (form) {
+                    form.reset();
+                }
             }
 
             async function fetchPermissions() {
@@ -1078,12 +1192,15 @@
             const addRoleButton = document.getElementById('addRoleBtn');
             if (addRoleButton) {
                 addRoleButton.addEventListener('click', async () => {
+                    // Reset the form completely first
+                    resetAddRoleForm();
+
+                    // Open the modal
+                    openModal(addRoleModal, document.getElementById('addRoleModalContent'));
+
+                    // Fetch and render permissions after modal is opened
                     const permissions = await fetchPermissions();
                     renderPermissionCheckboxes(permissions, [], 'add-permissions-container');
-
-                    document.getElementById('addRoleForm').reset();
-
-                    openModal(addRoleModal, document.getElementById('addRoleModalContent'));
                 });
             }
 
@@ -1098,22 +1215,35 @@
 
                         openModal(editRoleModal, document.getElementById('editRoleModalContent'));
 
-                        const response = await fetch(`{{ url('roles') }}/${roleId}`);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                        try {
+                            const response = await fetch(`{{ url('roles') }}/${roleId}`, {
+                                signal: controller.signal,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            clearTimeout(timeoutId);
 
                         if (!response.ok) {
-                            throw new Error('Gagal mengambil detail role');
-                        }
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
 
-                        const roleData = await response.json();
+                            const responseData = await response.json();;
 
-                        if (!roleData.success) {
-                            throw new Error(roleData.message || 'Gagal mengambil detail role');
+                            // Get the role data - now using the ApiResourceOperations structure
+                            const role = responseData.role;
+
+                            if (!role) {
+                                throw new Error('Data role tidak ditemukan');
                         }
 
                         document.getElementById('editRoleForm').action = `{{ url('roles') }}/${roleId}`;
-
-                        const role = roleData.data;
-                        document.getElementById('edit_role_name').value = role.role_name;
+                            document.getElementById('edit_role_name').value = role.role_name || '';
                         document.getElementById('edit_description').value = role.description || '';
 
                         const permissions = await fetchPermissions();
@@ -1121,9 +1251,17 @@
 
                         renderPermissionCheckboxes(permissions, selectedPermissionIds, 'edit-permissions-container');
 
+                        } catch (fetchError) {
+                            console.error('Fetch error:', fetchError);
+                            throw fetchError;
+                        }
+
                     } catch (error) {
                         console.error('Error loading role:', error);
-                        showToast(`Error loading role: ${error.message}`, 'error');
+                        showToast(`Gagal memuat data role: ${error.message}`, 'error');
+
+                        // Close the modal on error
+                        closeModal(editRoleModal, document.getElementById('editRoleModalContent'));
 
                         const permissions = await fetchPermissions();
                         renderPermissionCheckboxes(permissions, [], 'edit-permissions-container');
@@ -1184,7 +1322,7 @@
 
             const addRoleForm = document.getElementById('addRoleForm');
             if (addRoleForm) {
-                addRoleForm.addEventListener('submit', function (e) {
+                addRoleForm.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
                     const roleNameInput = this.querySelector('[name="role_name"]');
@@ -1209,71 +1347,72 @@
                                     </div>
                                 `;
 
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
-                    }
+                        try {
+                            // Create FormData object
+                            const formData = new FormData();
 
-                    try {
-                        const form = document.createElement('form');
-                        form.action = this.action;
-                        form.method = this.method;
-
+                            // Add CSRF token
                         const csrfToken = this.querySelector('input[name="_token"]');
                         if (csrfToken) {
-                            const tokenInput = document.createElement('input');
-                            tokenInput.type = 'hidden';
-                            tokenInput.name = '_token';
-                            tokenInput.value = csrfToken.value;
-                            form.appendChild(tokenInput);
-                        }
+                                formData.append('_token', csrfToken.value);
+                            }
 
-                        const roleName = this.querySelector('[name="role_name"]');
-                        const roleNameInput = document.createElement('input');
-                        roleNameInput.type = 'hidden';
-                        roleNameInput.name = 'role_name';
-                        roleNameInput.value = roleName.value.trim();
-                        form.appendChild(roleNameInput);
+                            // Add role name and description
+                            formData.append('role_name', roleNameInput.value.trim());
 
                         const description = this.querySelector('[name="description"]');
                         if (description && description.value && description.value.trim() !== '') {
-                            const descInput = document.createElement('input');
-                            descInput.type = 'hidden';
-                            descInput.name = 'description';
-                            descInput.value = description.value.trim();
-                            form.appendChild(descInput);
+                                formData.append('description', description.value.trim());
                         }
 
                         const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
                         const uniqueIds = new Set();
+
                         permissionInputs.forEach(input => {
                             uniqueIds.add(parseInt(input.value));
                         });
 
                         uniqueIds.forEach(id => {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'permission_ids[]';
-                            input.value = id;
-                            form.appendChild(input);
-                        });
+                                formData.append('permission_ids[]', id);
+                            });
 
-                        document.body.appendChild(form);
-                        form.submit();
-                        document.body.removeChild(form);
+                            // Send request using fetch API
+                            const response = await fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                // Success
+                                showToast(result.message || 'Role berhasil dibuat', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error
+                                if (result.errors) {
+                                    showToast(result.errors, 'error');
+                                } else {
+                                    showToast('Gagal membuat role', 'error');
+                                }
+                            }
                     } catch (error) {
                         console.error('Error submitting form:', error);
                         showToast('Terjadi kesalahan saat mengirim form', 'error');
-
+                        } finally {
+                            // Re-enable submit button
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText || 'Simpan';
+                            }
                         }
                     }
                 });
@@ -1281,7 +1420,7 @@
 
             const editRoleForm = document.getElementById('editRoleForm');
             if (editRoleForm) {
-                editRoleForm.addEventListener('submit', function (e) {
+                editRoleForm.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
                     const roleNameInput = this.querySelector('[name="role_name"]');
@@ -1306,80 +1445,75 @@
                                     </div>
                                 `;
 
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
-                    }
+                        try {
+                            // Create FormData object
+                            const formData = new FormData();
 
-                    try {
-                        const form = document.createElement('form');
-                        form.action = this.action;
-                        form.method = this.method;
-
+                            // Add CSRF token and method
                         const csrfToken = this.querySelector('input[name="_token"]');
                         if (csrfToken) {
-                            const tokenInput = document.createElement('input');
-                            tokenInput.type = 'hidden';
-                            tokenInput.name = '_token';
-                            tokenInput.value = csrfToken.value;
-                            form.appendChild(tokenInput);
-                        }
+                                formData.append('_token', csrfToken.value);
+                            }
 
-                        const methodField = this.querySelector('input[name="_method"]');
-                        if (methodField) {
-                            const methodInput = document.createElement('input');
-                            methodInput.type = 'hidden';
-                            methodInput.name = '_method';
-                            methodInput.value = methodField.value;
-                            form.appendChild(methodInput);
-                        }
+                            formData.append('_method', 'PUT');
 
-                        const roleName = this.querySelector('[name="role_name"]');
-                        const roleNameInput = document.createElement('input');
-                        roleNameInput.type = 'hidden';
-                        roleNameInput.name = 'role_name';
-                        roleNameInput.value = roleName.value.trim();
-                        form.appendChild(roleNameInput);
+                            // Add role name and description
+                            formData.append('role_name', roleNameInput.value.trim());
 
                         const description = this.querySelector('[name="description"]');
                         if (description && description.value && description.value.trim() !== '') {
-                            const descInput = document.createElement('input');
-                            descInput.type = 'hidden';
-                            descInput.name = 'description';
-                            descInput.value = description.value.trim();
-                            form.appendChild(descInput);
-                        }
+                                formData.append('description', description.value.trim());
+                            }
 
+                            // Add permission IDs
                         const permissionInputs = this.querySelectorAll('input[name="permission_ids[]"]:checked, input[name="permission_ids[]"][type="hidden"]');
 
                         const uniqueIds = new Set();
+
                         permissionInputs.forEach(input => {
                             uniqueIds.add(parseInt(input.value));
                         });
 
                         uniqueIds.forEach(id => {
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'permission_ids[]';
-                            input.value = id;
-                            form.appendChild(input);
-                        });
+                                formData.append('permission_ids[]', id);
+                            });
 
-                        document.body.appendChild(form);
-                        form.submit();
-                        document.body.removeChild(form);
+                            // Send request using fetch API
+                            const response = await fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                // Success
+                                showToast(result.message || 'Role berhasil diperbarui', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error
+                                if (result.errors) {
+                                    showToast(result.errors, 'error');
+                                } else {
+                                    showToast('Gagal memperbarui role', 'error');
+                                }
+                            }
                     } catch (error) {
                         console.error('Error submitting form:', error);
                         showToast('Terjadi kesalahan saat mengirim form', 'error');
-
+                        } finally {
+                            // Re-enable submit button
                         if (submitBtn) {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText || 'Perbarui';
+                            }
                         }
                     }
                 });
@@ -1394,14 +1528,14 @@
 
                 const url = new URL(window.location.href);
 
-                ['search', 'sort', 'role_page'].forEach(param => {
+                ['search', 'sort', 'page'].forEach(param => {
                     url.searchParams.delete(param);
                 });
 
                 if (searchValue) url.searchParams.set('search', searchValue);
                 if (sortValue) url.searchParams.set('sort', sortValue);
 
-                url.searchParams.set('role_page', 1);
+                url.searchParams.set('page', 1);
 
                 window.location.href = url.toString();
             }
@@ -1425,7 +1559,7 @@
 
             window.changePage = function (page) {
                 const url = new URL(window.location.href);
-                url.searchParams.set('role_page', page);
+                url.searchParams.set('page', page);
                 window.location.href = url.toString();
             };
 

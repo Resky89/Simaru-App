@@ -172,7 +172,7 @@
                                                     class="text-red-500">*</span></label>
                                             <input type="text" id="acquisition_cost" name="acquisition_cost" placeholder="0"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
-                                                required>
+                                                required onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan
                                                 harus diisi</div>
                                         </div>
@@ -182,7 +182,7 @@
                                                     class="text-red-500">*</span></label>
                                             <input type="text" id="salvage_value" name="salvage_value" placeholder="0"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
-                                                required>
+                                                required onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
                                                 diisi</div>
                                         </div>
@@ -355,24 +355,44 @@
                     const acquisitionCostInput = document.getElementById('acquisition_cost');
                     const salvageValueInput = document.getElementById('salvage_value');
 
-                    if (acquisitionCostInput) {
-                        acquisitionCostInput.addEventListener('input', function () {
+                    // Format currency inputs
+                    const formatCurrency = (element) => {
+                        element.addEventListener('input', function(e) {
+                            let value = this.value.replace(/[^\d]/g, '');
+
+                            if (value) {
+                                // Format with thousand separators
+                                value = new Intl.NumberFormat('id-ID').format(value);
+                            }
+
+                            this.value = value;
+                        });
+
+                        // Format on focus out to ensure proper display
+                        element.addEventListener('focusout', function(e) {
+                            if (this.value === '') return;
+
                             let value = this.value.replace(/[^\d]/g, '');
                             if (value) {
-                                value = parseInt(value, 10).toLocaleString('id-ID');
+                                value = new Intl.NumberFormat('id-ID').format(value);
                             }
                             this.value = value;
                         });
+
+                        // On focus, position cursor at the end
+                        element.addEventListener('focus', function(e) {
+                            const val = this.value;
+                            this.value = '';
+                            this.value = val;
+                        });
+                    };
+
+                    if (acquisitionCostInput) {
+                        formatCurrency(acquisitionCostInput);
                     }
 
                     if (salvageValueInput) {
-                        salvageValueInput.addEventListener('input', function () {
-                            let value = this.value.replace(/[^\d]/g, '');
-                            if (value) {
-                                value = parseInt(value, 10).toLocaleString('id-ID');
-                            }
-                            this.value = value;
-                        });
+                        formatCurrency(salvageValueInput);
                     }
                 },
 
@@ -906,12 +926,97 @@
                     }
 
                     const displayData = { ...this.originalChartData };
+                    const assetLifeMonths = this.currentDepreciation?.asset_life_months || 0;
+                    const showMonthlyView = assetLifeMonths <= 12;
+                    
+                    // Variables to track current value point for highlighting
+                    let currentValueIndex = -1;
+                    
+                    // If asset life is 12 months or less, prepare monthly chart data
+                    if (showMonthlyView && this.currentDepreciation && this.currentDepreciation.monthly_data) {
+                        const monthlyData = this.currentDepreciation.monthly_data;
+                        const totalCost = this.currentDepreciation.total_cost || 0;
+                        
+                        // Extract month names and book values
+                        const labels = [];
+                        const values = [];
+                        
+                        // Find the current month to highlight
+                        const today = new Date();
+                        const currentYear = today.getFullYear();
+                        const currentMonth = today.getMonth() + 1;
+                        const currentMonthMatch = this.findCurrentMonthMatch(monthlyData, currentYear, currentMonth);
+                        const mostRecentMonth = currentMonthMatch || this.findMostRecentMonth(monthlyData, this.currentDepreciation.date_acquired);
+                        
+                        monthlyData.forEach((month, index) => {
+                            if (month.month_name) {
+                                // Extract just the month name without year for readability
+                                const monthParts = month.month_name.split(' ');
+                                if (monthParts.length > 0) {
+                                    labels.push(monthParts[0]); // Just the month name
+                                } else {
+                                    labels.push(month.month_name);
+                                }
+                                
+                                // Get the book value
+                                const value = this.isPercentageView && totalCost > 0
+                                    ? (month.book_value / totalCost) * 100
+                                    : month.book_value;
+                                
+                                values.push(value);
+                                
+                                // Check if this is the current month or most recent month
+                                if (mostRecentMonth && 
+                                    ((month.month_number && mostRecentMonth.month_number === month.month_number) || 
+                                     (month.month_name && mostRecentMonth.month_name === month.month_name))) {
+                                    currentValueIndex = index;
+                                }
+                            }
+                        });
+                        
+                        // Update display data with monthly values
+                        displayData.years = labels;
+                        displayData.values = values;
+                    } else if (displayData.values && displayData.values.length > 0) {
+                        // For yearly view
+                        // Find current year index
+                        if (displayData.years && displayData.years.length > 0) {
+                            const currentYear = new Date().getFullYear();
+                            currentValueIndex = displayData.years.findIndex(year => parseInt(year) === currentYear);
+                            
+                            // If current year not found, use the last data point that's not in the future
+                            if (currentValueIndex === -1) {
+                                for (let i = displayData.years.length - 1; i >= 0; i--) {
+                                    if (parseInt(displayData.years[i]) <= currentYear) {
+                                        currentValueIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Apply percentage conversion if needed
+                        if (this.isPercentageView) {
+                            const totalCost = this.currentDepreciation?.total_cost || 0;
+                            displayData.values = displayData.values.map(value =>
+                                totalCost > 0 ? (value / totalCost) * 100 : 0
+                            );
+                        }
+                    }
 
-                    if (this.isPercentageView && displayData.values && displayData.values.length > 0) {
-                        const totalCost = this.currentDepreciation?.total_cost || 0;
-                        displayData.values = displayData.values.map(value =>
-                            totalCost > 0 ? (value / totalCost) * 100 : 0
-                        );
+                    const chartTitle = showMonthlyView ? 'Penyusutan Bulanan' : 'Penyusutan Tahunan';
+                    document.querySelector('#depreciationChartContainer h3').textContent = chartTitle;
+
+                    // Create point styles array with special style for current value
+                    const pointRadius = Array(displayData.values.length).fill(4);
+                    const pointBackgroundColors = Array(displayData.values.length).fill('#36A2EB');
+                    const borderWidth = Array(displayData.values.length).fill(2);
+                    
+                    // Highlight current value point if found
+                    if (currentValueIndex >= 0) {
+                        pointRadius[currentValueIndex] = 8;
+                        pointBackgroundColors[currentValueIndex] = '#FF6384'; // Highlight color
+                        borderWidth[currentValueIndex] = 3;
                     }
 
                     this.chart = new Chart(ctx, {
@@ -922,8 +1027,8 @@
                                 data: displayData.values,
                                 borderColor: '#36A2EB',
                                 backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                                pointBackgroundColor: '#36A2EB',
-                                pointRadius: 4,
+                                pointBackgroundColor: pointBackgroundColors,
+                                pointRadius: pointRadius,
                                 borderWidth: 2,
                                 tension: 0.1,
                                 fill: true
@@ -939,11 +1044,19 @@
                                 tooltip: {
                                     callbacks: {
                                         label: (context) => {
-                                            if (this.isPercentageView) {
-                                                return context.parsed.y.toFixed(2) + '%';
-                                            } else {
-                                                return this.formatCurrency(context.parsed.y);
+                                            let label = '';
+                                            
+                                            // Add "Nilai Saat Ini" label for highlighted point
+                                            if (context.dataIndex === currentValueIndex) {
+                                                label = 'Nilai Saat Ini: ';
                                             }
+                                            
+                                            if (this.isPercentageView) {
+                                                label += context.parsed.y.toFixed(2) + '%';
+                                            } else {
+                                                label += this.formatCurrency(context.parsed.y);
+                                            }
+                                            return label;
                                         }
                                     }
                                 }

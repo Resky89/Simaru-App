@@ -3,214 +3,62 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
 
 class VendorController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations;
 
     /**
-     * Menampilkan halaman vendor.
+     * Display a listing of vendors.
      */
     public function index(Request $request)
     {
-        try {
-            // Mendapatkan parameter kueri
-            $page = $request->query('page', 1);
-            $limit = $request->query('limit', 10);
-            $search = $request->query('search', '');
-            $sort = $request->query('sort', '');
+        // Custom sort mappings
+        $sortMappings = [
+            'id_asc' => ['sort_by' => 'vendor_id', 'sort_order' => 'asc'],
+            'id_desc' => ['sort_by' => 'vendor_id', 'sort_order' => 'desc'],
+            'name_asc' => ['sort_by' => 'vendor_name', 'sort_order' => 'asc'],
+            'name_desc' => ['sort_by' => 'vendor_name', 'sort_order' => 'desc'],
+            'contact_asc' => ['sort_by' => 'contact_person', 'sort_order' => 'asc'],
+            'contact_desc' => ['sort_by' => 'contact_person', 'sort_order' => 'desc'],
+            'phone_asc' => ['sort_by' => 'phone_number', 'sort_order' => 'asc'],
+            'phone_desc' => ['sort_by' => 'phone_number', 'sort_order' => 'desc'],
+            'email_asc' => ['sort_by' => 'email', 'sort_order' => 'asc'],
+            'email_desc' => ['sort_by' => 'email', 'sort_order' => 'desc'],
+        ];
 
-            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
-            if ($request->expectsJson() || $request->ajax()) {
-                $limit = $request->query('limit', 100);
-            }
-
-            // Pengaturan pengurutan default
-            $sortBy = 'vendor_id';
-            $sortOrder = 'asc';
-
-            // Pengurutan kustom
-            if (!empty($sort)) {
-                switch ($sort) {
-                    case 'id_asc':
-                $sortBy = 'vendor_id';
-                $sortOrder = 'asc';
-                        break;
-                    case 'id_desc':
-                $sortBy = 'vendor_id';
-                $sortOrder = 'desc';
-                        break;
-                    case 'name_asc':
-                $sortBy = 'vendor_name';
-                $sortOrder = 'asc';
-                        break;
-                    case 'name_desc':
-                $sortBy = 'vendor_name';
-                $sortOrder = 'desc';
-                        break;
-                    case 'contact_asc':
-                $sortBy = 'contact_person';
-                $sortOrder = 'asc';
-                        break;
-                    case 'contact_desc':
-                $sortBy = 'contact_person';
-                $sortOrder = 'desc';
-                        break;
-                    case 'phone_asc':
-                $sortBy = 'phone_number';
-                $sortOrder = 'asc';
-                        break;
-                    case 'phone_desc':
-                $sortBy = 'phone_number';
-                $sortOrder = 'desc';
-                        break;
-                    case 'email_asc':
-                $sortBy = 'email';
-                $sortOrder = 'asc';
-                        break;
-                    case 'email_desc':
-                $sortBy = 'email';
-                $sortOrder = 'desc';
-                        break;
-                }
-            }
-
-            // Membangun parameter kueri
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder
-            ];
-
-            // Tambahkan parameter pencarian jika disediakan
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            // Mengambil vendor dari API
-            $result = $this->apiService->request('GET', '/vendors', [
-                'query' => $queryParams
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data vendor';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return view('Vendor', [
-                    'vendors' => [],
-                    'error' => $errorMessage
-                ]);
-            }
-
-            $vendors = $result['data'] ?? [];
-
-            // Format pagination
-            $pagination = null;
-            if (isset($result['pagination'])) {
-                $paginationData = $result['pagination'];
-                $pagination = [
-                    'current_page' => $paginationData['current_page'] ?? 1,
-                    'last_page' => ceil(($paginationData['total_items'] ?? 0) / ($paginationData['limit'] ?? 10)),
-                    'from' => (($paginationData['current_page'] ?? 1) - 1) * ($paginationData['limit'] ?? 10) + 1,
-                    'to' => min(($paginationData['current_page'] ?? 1) * ($paginationData['limit'] ?? 10), $paginationData['total_items'] ?? 0),
-                    'total' => $paginationData['total_items'] ?? 0,
-                    'per_page' => $paginationData['limit'] ?? 10,
-                    'next_page_url' => ($paginationData['has_next'] ?? false) ? url()->current() . '?page=' . (($paginationData['current_page'] ?? 1) + 1) : null,
-                    'prev_page_url' => ($paginationData['has_prev'] ?? false) ? url()->current() . '?page=' . (($paginationData['current_page'] ?? 1) - 1) : null,
-                ];
-            }
-
-            // Jika ini adalah permintaan AJAX atau JSON, kembalikan vendor sebagai JSON
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Data berhasil diambil',
-                    'data' => $vendors,
-                    'pagination' => $pagination
-                ]);
-            }
-
-            return view('Vendor', [
-                'vendors' => $vendors,
-                'pagination' => $pagination
-            ]);
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil data vendor: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return view('Vendor', [
-                'vendors' => [],
-                'error' => 'Gagal mengambil data vendor: ' . $e->getMessage()
-            ]);
-        }
+        return $this->getResourceList(
+            $request,
+            '/vendors',
+            'vendors',
+            'Vendor',
+            'vendor_id',
+            [],
+            $sortMappings
+        );
     }
 
     /**
-     * Menyimpan vendor baru.
+     * Store a newly created vendor.
      */
     public function store(Request $request)
     {
         try {
-            // Memvalidasi request
+            // Validate the request
             $validated = $request->validate([
                 'vendor_name' => 'required|string',
                 'contact_person' => 'nullable|string',
                 'phone_number' => 'nullable|string',
+                'second_phone_number' => 'nullable|string',
                 'email' => 'nullable|string|email',
                 'website' => 'nullable|string|url',
                 'address' => 'nullable|string'
             ]);
 
-            // Hapus field kosong dari body request
-            $optionalFields = ['contact_person', 'phone_number', 'email', 'website', 'address'];
+            // Remove empty fields from request body
+            $optionalFields = ['contact_person', 'phone_number', 'second_phone_number', 'email', 'website', 'address'];
             foreach ($optionalFields as $field) {
                 if (!isset($validated[$field]) || $validated[$field] === null || $validated[$field] === '') {
                     unset($validated[$field]);
@@ -221,37 +69,16 @@ class VendorController extends Controller
                 'json' => $validated
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal membuat vendor';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
@@ -265,7 +92,7 @@ class VendorController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Berhasil dibuat
+            // Successfully created
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -277,81 +104,53 @@ class VendorController extends Controller
             return redirect()->route('vendor')
                 ->with('success', $result['message'] ?? 'Vendor berhasil dibuat');
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal membuat vendor: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat vendor: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Vendor');
         }
     }
 
     /**
-     * Memperbarui vendor yang ditentukan.
+     * Update the specified vendor.
      */
     public function update(Request $request, $id)
     {
         try {
-            // Memvalidasi request
+            // Validate the request
             $validated = $request->validate([
                 'vendor_name' => 'required|string',
                 'contact_person' => 'nullable|string',
                 'phone_number' => 'nullable|string',
+                'second_phone_number' => 'nullable|string',
                 'email' => 'nullable|string|email',
                 'website' => 'nullable|string|url',
                 'address' => 'nullable|string'
             ]);
 
-            // Hapus field kosong dari body request
-            $optionalFields = ['contact_person', 'phone_number', 'email', 'website', 'address'];
+            // Remove empty fields from request body
+            $optionalFields = ['contact_person', 'phone_number', 'second_phone_number', 'email', 'website', 'address'];
             foreach ($optionalFields as $field) {
                 if (!isset($validated[$field]) || $validated[$field] === null || $validated[$field] === '') {
                     unset($validated[$field]);
                 }
             }
 
-            // Tambahkan vendor_id ke data tervalidasi
+            // Add vendor_id to validated data
             $validated['vendor_id'] = $id;
 
             $result = $this->apiService->request('PUT', "/vendors/{$id}", [
                 'json' => $validated
+
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal mengubah vendor';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
@@ -365,7 +164,7 @@ class VendorController extends Controller
                     ->with('error', $errorMessage);
             }
 
-            // Berhasil diperbarui
+            // Successfully updated
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -377,107 +176,48 @@ class VendorController extends Controller
             return redirect()->route('vendor')
                 ->with('success', $result['message'] ?? 'Vendor berhasil diubah');
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengubah vendor: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal mengubah vendor: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Vendor');
         }
     }
 
     /**
-     * Menghapus vendor yang ditentukan.
+     * Remove the specified vendor.
      */
     public function destroy($id, Request $request)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/vendors/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus vendor';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dihapus
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Vendor berhasil dihapus',
-                    'data' => null
-                ]);
-            }
-
-            return redirect()->route('vendor')
-                ->with('success', $result['message'] ?? 'Vendor berhasil dihapus');
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal menghapus vendor: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus vendor: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            $request,
+            "/vendors/{$id}",
+            'Vendor berhasil dihapus',
+            'vendor'
+        );
     }
 
     /**
-     * Mengimpor vendor dari file Excel.
+     * Get details for a specific vendor.
+     */
+    public function getVendor($id)
+    {
+        return $this->getResource(
+            request(),
+            "/vendors/{$id}",
+            'vendor',
+            'VendorDetails'
+        );
+    }
+
+    /**
+     * Import vendors from Excel file.
      */
     public function import(Request $request)
     {
         try {
-            // Memvalidasi request
+            // Validate the request
             $validated = $request->validate([
                 'excel_file' => 'required|file|mimes:xlsx,xls,csv'
             ]);
 
-            // Membuat data formulir multipart untuk permintaan API
+            // Create multipart form data for the API request
             $multipart = [
                 [
                     'name' => 'excel_file',
@@ -486,80 +226,38 @@ class VendorController extends Controller
                 ]
             ];
 
-            // Mengirim permintaan impor ke API
+            // Send the import request to the API
             $result = $this->apiService->request('POST', '/vendors/import', [
                 'multipart' => $multipart
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for authentication errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
+            // Check for other API errors
             if (!isset($result['success']) || $result['success'] === false) {
                 $errorData = $result['errors'] ?? 'Gagal mengimpor data vendor';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson()) {
-                    // Format respon kesalahan terperinci untuk permintaan AJAX
-                    $formattedErrors = $errorData;
-                    $errorDetails = [];
-
-                    // Ekstrak detail kesalahan dari struktur array
-                    if (is_array($errorData)) {
-                        foreach ($errorData as $field => $messages) {
-                            if (is_array($messages)) {
-                                foreach ($messages as $msg) {
-                                    $errorDetails[] = $msg;
-                                }
-                            } else {
-                                $errorDetails[] = $messages;
-                            }
-                        }
-                    } else {
-                        $errorDetails[] = $errorData;
-                    }
-
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
-                        'errorDetails' => $errorDetails,
+                        'errors' => $errorData,
                         'data' => $result['data'] ?? null
                     ], 400);
                 }
 
-                // Format pesan kesalahan untuk respon redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Berhasil diimpor
+            // Successfully imported
             $successMessage = $result['message'] ?? 'Data vendor berhasil diimpor';
             $importData = $result['data'] ?? null;
 
-            // Format pesan sukses dengan jumlah impor jika tersedia
+            // Format success message with import counts if available
             if ($importData && isset($importData['total'])) {
                 $successMessage = sprintf(
                     'Berhasil mengimpor %d dari %d vendor',
@@ -567,7 +265,7 @@ class VendorController extends Controller
                     $importData['total'] ?? 0
                 );
 
-                // Tambahkan info tentang impor yang gagal jika ada
+                // Add info about failed imports if any
                 if (isset($importData['failed']) && $importData['failed'] > 0) {
                     $successMessage .= sprintf(', %d gagal', $importData['failed']);
                 }
@@ -581,8 +279,7 @@ class VendorController extends Controller
                 ]);
             }
 
-            return redirect()->route('vendor')
-                ->with('success', $successMessage);
+            return redirect()->route('vendor')->with('success', $successMessage);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -592,8 +289,7 @@ class VendorController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('error', 'Gagal mengimpor data vendor: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor data vendor: ' . $e->getMessage());
         }
     }
 }

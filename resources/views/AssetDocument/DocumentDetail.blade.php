@@ -344,7 +344,7 @@
                                             class="block text-sm font-medium text-gray-700 mb-1">Judul Dokumen <span
                                                 class="text-red-500">*</span></label>
                                         <input type="text" id="edit_document_title" name="document_title"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20"
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan judul dokumen"
                                             value="{{ $document['document_title'] ?? '' }}">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Judul dokumen harus diisi</div>
                                     </div>
@@ -468,7 +468,7 @@
                                         <label for="edit_notes"
                                             class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                                         <textarea id="edit_notes" name="notes" rows="3"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20">{{ $document['notes'] ?? '' }}</textarea>
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#28356B] focus:ring focus:ring-[#28356B] focus:ring-opacity-20" placeholder="Masukkan catatan">{{ $document['notes'] ?? '' }}</textarea>
                                     </div>
 
                                     <!-- Associated Assets (hidden for future use) -->
@@ -626,28 +626,22 @@
                             <!-- Pagination -->
                             <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                                 <div class="flex items-center space-x-2">
-                                    <button id="prev-page" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100"
-                                        disabled>
-                                        <span class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 19l-7-7 7-7" />
+                                    <button id="prev-page" class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                             </svg>
                                             Sebelumnya
-                                        </span>
                                     </button>
-                                    <div id="pagination-numbers" class="flex items-center space-x-1">
+
+                                    <div id="pagination-numbers" class="flex gap-2">
                                         <!-- Page numbers will be generated here -->
-                                        <button class="w-8 h-8 bg-[#213268] text-white rounded">1</button>
                                     </div>
-                                    <button id="next-page" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">
-                                        <span class="flex items-center">
+
+                                    <button id="next-page" class="flex items-center gap-2 px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                                             Selanjutnya
-                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 5l7 7-7 7" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                             </svg>
-                                        </span>
                                     </button>
                                 </div>
 
@@ -655,8 +649,7 @@
                                     <span class="text-sm text-gray-600" id="pagination-info">
                                         Menampilkan 1 sampai 10 dari 0 Data
                                     </span>
-                                    <select id="per-page"
-                                        class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
+                                    <select id="per-page" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm">
                                         <option value="10">10 per halaman</option>
                                         <option value="25">25 per halaman</option>
                                         <option value="50">50 per halaman</option>
@@ -668,8 +661,7 @@
                             <!-- Button Group -->
                             <div class="pt-4 flex justify-end gap-4">
                                 <button type="button" id="link-selected-assets"
-                                    class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200"
-                                    disabled>
+                                    class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
                                     Tautkan
                                 </button>
                             </div>
@@ -923,7 +915,7 @@
                             selectAllCheckbox.indeterminate = false;
                         }
 
-                        updateLinkButtonState();
+
                     }
                 }, 300);
             };
@@ -1439,40 +1431,31 @@
                     selectedAssets = selectedAssets.filter(id => !loadedAssets.some(asset => asset.asset_id === id));
                 }
 
-                updateLinkButtonState();
             });
 
             document.getElementById('link-selected-assets')?.addEventListener('click', function () {
                 if (selectedAssets.length === 0) {
-                    const errorToast = document.createElement('div');
-                    errorToast.id = 'errorNotification';
-                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
-                    errorToast.role = 'alert';
-                    errorToast.innerHTML = `
-                            <div class="flex items-center">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Gagal!</p>
-                                    <p>Silakan pilih setidaknya satu asset</p>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-                    document.body.appendChild(errorToast);
-
-                    setTimeout(() => {
-                        errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(() => errorToast.remove(), 500);
-                    }, 5000);
-
+                    showToast('Silakan pilih setidaknya satu asset', 'error');
                     return;
                 }
 
                 linkAssets();
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const perPageSelect = document.getElementById('per-page');
+                if (perPageSelect) {
+
+                    perPageSelect.value = perPage.toString();
+
+                    perPageSelect.addEventListener('change', function() {
+                        perPage = parseInt(this.value);
+                        currentPage = 1;
+                        loadAssets();
+                    });
+                }
+
+                loadAssets();
             });
 
             function loadAssets() {
@@ -1481,6 +1464,11 @@
                 const prevPageBtn = document.getElementById('prev-page');
                 const nextPageBtn = document.getElementById('next-page');
                 const paginationNumbers = document.getElementById('pagination-numbers');
+
+                const perPageSelect = document.getElementById('per-page');
+                if (perPageSelect) {
+                    perPage = parseInt(perPageSelect.value);
+                }
 
                 if (tableBody) {
                     tableBody.innerHTML = `
@@ -1519,12 +1507,6 @@
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
                         }
-
-                        const contentType = response.headers.get('content-type');
-                        if (!contentType || !contentType.includes('application/json')) {
-                            throw new Error('Response is not JSON!');
-                        }
-
                         return response.json();
                     })
                     .then(data => {
@@ -1532,89 +1514,79 @@
                             tableBody.innerHTML = '';
                         }
 
-                        const assetData = data.assets_pagination || data.assets || {};
-                        totalAssets = assetData.total || 0;
-                        totalPages = assetData.last_page || 1;
+                    let assets = [];
+                    let pagination = {};
 
-                        if (paginationInfo) {
-                            const start = (currentPage - 1) * perPage + 1;
-                            const end = Math.min(currentPage * perPage, totalAssets);
-                            paginationInfo.textContent = `Menampilkan ${start} sampai ${end} dari ${totalAssets} entri`;
-                        }
-
-                        if (prevPageBtn) {
-                            prevPageBtn.disabled = currentPage <= 1;
-                        }
-                        if (nextPageBtn) {
-                            nextPageBtn.disabled = currentPage >= totalPages;
-                        }
-
-                        if (paginationNumbers) {
-                            paginationNumbers.innerHTML = '';
-                            let startPage = Math.max(1, currentPage - 2);
-                            let endPage = Math.min(totalPages, startPage + 4);
-                            if (endPage - startPage < 4) {
-                                startPage = Math.max(1, endPage - 4);
-                            }
-                            if (startPage > 1) {
-                                const btn = document.createElement('button');
-                                btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
-                                btn.textContent = '1';
-                                btn.addEventListener('click', () => {
-                                    currentPage = 1;
-                                    loadAssets();
-                                });
-                                paginationNumbers.appendChild(btn);
-                                if (startPage > 2) {
-                                    const ellipsis = document.createElement('span');
-                                    ellipsis.classList.add('px-1', 'text-gray-500');
-                                    ellipsis.textContent = '...';
-                                    paginationNumbers.appendChild(ellipsis);
-                                }
-                            }
-                            for (let i = startPage; i <= endPage; i++) {
-                                const btn = document.createElement('button');
-                                if (i === currentPage) {
-                                    btn.classList.add('w-8', 'h-8', 'bg-[#213268]', 'text-white', 'rounded');
-                                } else {
-                                    btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
-                                }
-                                btn.textContent = i;
-                                btn.addEventListener('click', () => {
-                                    currentPage = i;
-                                    loadAssets();
-                                });
-                                paginationNumbers.appendChild(btn);
-                            }
-                            if (endPage < totalPages) {
-                                if (endPage < totalPages - 1) {
-                                    const ellipsis = document.createElement('span');
-                                    ellipsis.classList.add('px-1', 'text-gray-500');
-                                    ellipsis.textContent = '...';
-                                    paginationNumbers.appendChild(ellipsis);
-                                }
-
-                                const btn = document.createElement('button');
-                                btn.classList.add('w-8', 'h-8', 'text-gray-700', 'rounded', 'hover:bg-gray-200');
-                                btn.textContent = totalPages;
-                                btn.addEventListener('click', () => {
-                                    currentPage = totalPages;
-                                    loadAssets();
-                                });
-                                paginationNumbers.appendChild(btn);
-                            }
-                        }
-
-                        loadedAssets = data.assets || [];
+                    if (data.assets_pagination) {
+                        pagination = data.assets_pagination;
+                        assets = data.assets || [];
+                    } else if (data.assets && data.assets.data) {
+                        assets = data.assets.data;
+                        pagination = {
+                            current_page: data.assets.current_page,
+                            last_page: data.assets.last_page,
+                            per_page: data.assets.per_page,
+                            total: data.assets.total
+                        };
+                    } else if (data.data && data.meta) {
+                        assets = data.data;
+                        pagination = {
+                            current_page: data.meta.current_page,
+                            last_page: data.meta.last_page,
+                            per_page: data.meta.per_page,
+                            total: data.meta.total
+                        };
+                    } else if (data.pagination) {
+                        pagination = data.pagination;
+                        assets = data.assets || data.data || [];
+                    } else {
                         if (Array.isArray(data.assets)) {
-                            loadedAssets = data.assets;
+                            assets = data.assets;
                         } else if (data.assets && Array.isArray(data.assets.data)) {
-                            loadedAssets = data.assets.data;
+                            assets = data.assets.data;
                         } else if (Array.isArray(data.data)) {
-                            loadedAssets = data.data;
+                            assets = data.data;
                         } else {
-                            loadedAssets = [];
+                            assets = [];
                         }
+
+                        pagination = data.pagination || data.assets_pagination || {};
+                        if (!pagination.total && data.assets && data.assets.total) {
+                            pagination.total = data.assets.total;
+                            pagination.current_page = data.assets.current_page || currentPage;
+                            pagination.last_page = data.assets.last_page || Math.ceil(pagination.total / perPage);
+                            pagination.per_page = data.assets.per_page || perPage;
+                        }
+
+                        if (!pagination.total) {
+                            pagination = {
+                                current_page: currentPage,
+                                last_page: Math.max(1, Math.ceil(assets.length / perPage)),
+                                per_page: perPage,
+                                total: assets.length
+                            };
+                        }
+                    }
+
+                    if (pagination.per_page) {
+                        perPage = parseInt(pagination.per_page);
+                        const perPageSelect = document.getElementById('per-page');
+                        if (perPageSelect && perPageSelect.value != perPage) {
+                            perPageSelect.value = perPage.toString();
+                        }
+                    }
+
+                    currentPage = parseInt(pagination.current_page) || 1;
+                    totalPages = parseInt(pagination.last_page) || 1;
+                    totalAssets = parseInt(pagination.total) || assets.length;
+
+                    if (paginationInfo) {
+                        const start = Math.min((currentPage - 1) * perPage + 1, totalAssets);
+                        const end = Math.min(currentPage * perPage, totalAssets);
+                        paginationInfo.textContent = `Menampilkan ${start} sampai ${end} dari ${totalAssets} Data`;
+                    }
+
+                    loadedAssets = assets;
 
                         if (linkedAssetIds.length > 0) {
                             loadedAssets = loadedAssets.filter(asset => !linkedAssetIds.includes(asset.asset_id));
@@ -1631,26 +1603,34 @@
                                     `;
                             }
                         } else {
+                        if (tableBody) {
+                            tableBody.innerHTML = '';
+                        }
+
                             loadedAssets.forEach(asset => {
                                 const row = document.createElement('tr');
                                 row.classList.add('hover:bg-gray-50');
                                 const isChecked = selectedAssets.includes(asset.asset_id);
-                                const assetName = asset.asset_master_name ||
-                                    (asset.asset_master && asset.asset_master.asset_name) ||
-                                    asset.asset_name || '-';
 
-                                const description = asset.asset_master && asset.asset_master.description ?
-                                    asset.asset_master.description : '-';
-                                let assetType = asset.asset_type || 'Non Medical';
-                                if (asset.asset_master && asset.asset_master.asset_master_code) {
+                            const assetName = asset.asset_name ||
+                                    (asset.asset_master && asset.asset_master.asset_name) ||
+                                asset.asset_master_name || '-';
+
+                            const description = asset.description ||
+                                (asset.asset_master && asset.asset_master.description) || '-';
+
+                            let assetType = asset.asset_type_name ||
+                                (asset.asset_type && asset.asset_type.asset_type_name) ||
+                                'Non Medical';
+
+                            if (!assetType && asset.asset_master && asset.asset_master.asset_master_code) {
                                     const code = asset.asset_master.asset_master_code;
-                                    if (code.startsWith('MED-')) {
-                                        assetType = 'Medical';
+                                assetType = code.startsWith('MED-') ? 'Medical' : 'Non Medical';
                                     }
-                                }
+
                                 const categoryName = asset.category_name ||
-                                    (asset.asset_master && asset.asset_master.subcategory_name) ||
-                                    '-';
+                                (asset.category && asset.category.category_name) ||
+                                (asset.asset_master && asset.asset_master.subcategory_name) || '-';
 
                                 row.innerHTML = `
                                         <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
@@ -1687,15 +1667,80 @@
                                     }
 
                                     updateSelectAllCheckbox();
-
-                                    updateLinkButtonState();
                                 });
                             });
 
                             updateSelectAllCheckbox();
                         }
 
-                        updateLinkButtonState();
+                    if (prevPageBtn) {
+                        prevPageBtn.disabled = currentPage <= 1;
+                    }
+                    if (nextPageBtn) {
+                        nextPageBtn.disabled = currentPage >= totalPages;
+                    }
+
+                    if (paginationNumbers) {
+                        paginationNumbers.innerHTML = '';
+
+                        let startPage = Math.max(1, currentPage - 2);
+                        let endPage = Math.min(totalPages, startPage + 4);
+
+                        if (endPage - startPage < 4) {
+                            startPage = Math.max(1, endPage - 4);
+                        }
+
+                        if (startPage > 1) {
+                            const btn = document.createElement('button');
+                            btn.classList.add('h-8', 'w-8', 'flex', 'items-center', 'justify-center', 'border', 'border-[#D8DAE5]', 'text-[#213268]', 'rounded', 'hover:bg-gray-100');
+                            btn.textContent = '1';
+                            btn.addEventListener('click', () => {
+                                currentPage = 1;
+                                loadAssets();
+                            });
+                            paginationNumbers.appendChild(btn);
+
+                            if (startPage > 2) {
+                                const ellipsis = document.createElement('span');
+                                ellipsis.classList.add('flex', 'items-center', 'justify-center');
+                                ellipsis.textContent = '...';
+                                paginationNumbers.appendChild(ellipsis);
+                            }
+                        }
+
+                        for (let i = startPage; i <= endPage; i++) {
+                            const btn = document.createElement('button');
+                            if (i === currentPage) {
+                                btn.classList.add('h-8', 'w-8', 'flex', 'items-center', 'justify-center', 'border', 'border-[#213268]', 'bg-[#213268]', 'text-white', 'rounded');
+                            } else {
+                                btn.classList.add('h-8', 'w-8', 'flex', 'items-center', 'justify-center', 'border', 'border-[#D8DAE5]', 'text-[#213268]', 'rounded', 'hover:bg-gray-100');
+                            }
+                            btn.textContent = i;
+                            btn.addEventListener('click', () => {
+                                currentPage = i;
+                                loadAssets();
+                            });
+                            paginationNumbers.appendChild(btn);
+                        }
+
+                        if (endPage < totalPages) {
+                            if (endPage < totalPages - 1) {
+                                const ellipsis = document.createElement('span');
+                                ellipsis.classList.add('flex', 'items-center', 'justify-center');
+                                ellipsis.textContent = '...';
+                                paginationNumbers.appendChild(ellipsis);
+                            }
+
+                            const btn = document.createElement('button');
+                            btn.classList.add('h-8', 'w-8', 'flex', 'items-center', 'justify-center', 'border', 'border-[#D8DAE5]', 'text-[#213268]', 'rounded', 'hover:bg-gray-100');
+                            btn.textContent = totalPages;
+                            btn.addEventListener('click', () => {
+                                currentPage = totalPages;
+                                loadAssets();
+                            });
+                            paginationNumbers.appendChild(btn);
+                        }
+                    }
                     })
                     .catch(error => {
                         console.error('Error loading assets:', error);
@@ -1729,12 +1774,7 @@
                 selectAllCheckbox.indeterminate = someChecked && !allChecked;
             }
 
-            function updateLinkButtonState() {
-                const linkButton = document.getElementById('link-selected-assets');
-                if (linkButton) {
-                    linkButton.disabled = selectedAssets.length === 0;
-                }
-            }
+
 
             function linkAssets() {
                 if (selectedAssets.length === 0) return;
@@ -1742,31 +1782,7 @@
                 const assetsToLink = selectedAssets.filter(assetId => !linkedAssetIds.includes(assetId));
 
                 if (assetsToLink.length === 0) {
-                    const errorToast = document.createElement('div');
-                    errorToast.id = 'errorNotification';
-                    errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
-                    errorToast.role = 'alert';
-                    errorToast.innerHTML = `
-                            <div class="flex items-center">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Gagal!</p>
-                                    <p>Semua asset yang dipilih sudah terhubung dengan dokumen ini.</p>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-                    document.body.appendChild(errorToast);
-
-                    setTimeout(() => {
-                        errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(() => errorToast.remove(), 500);
-                    }, 5000);
-
+                    showToast('Semua asset yang dipilih sudah terhubung dengan dokumen ini.', 'error');
                     return;
                 }
 
@@ -1798,22 +1814,7 @@
                         },
                         body: JSON.stringify(data)
                     })
-                        .then(response => {
-                            if (response.status === 419) {
-                                throw new Error('CSRF token mismatch. Halaman perlu dimuat ulang. Silakan refresh halaman dan coba lagi.');
-                            }
-
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status}`);
-                            }
-
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                throw new Error('Response is not JSON!');
-                            }
-
-                            return response.json();
-                        })
+                    .then(response => response.json())
                         .then(result => {
                             if (result.success) {
                                 const modal = document.getElementById('linkAssetsModal');
@@ -1821,59 +1822,15 @@
                                 if (modal && content) {
                                     closeModal(modal, content);
                                 }
-                                const successMessage = document.createElement('div');
-                                successMessage.id = 'successNotification';
-                                successMessage.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-[70]';
-                                successMessage.role = 'alert';
-                                successMessage.innerHTML = `
-                                <div class="flex items-center">
-                                    <div class="py-1">
-                                        <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold">Berhasil!</p>
-                                        <p>${result.message || 'Asset berhasil ditautkan!'}</p>
-                                    </div>
-                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                </div>
-                                `;
-                                document.body.appendChild(successMessage);
-                                setTimeout(() => {
-                                    if (successMessage) {
-                                        successMessage.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                        setTimeout(() => successMessage.remove(), 500);
-                                    }
-                                }, 5000);
+
+                            showToast(result.message || 'Asset berhasil ditautkan!', 'success');
 
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                const errorToast = document.createElement('div');
-                                errorToast.id = 'errorNotification';
-                                errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
-                                errorToast.role = 'alert';
-                                errorToast.innerHTML = `
-                                <div class="flex items-center">
-                                    <div class="py-1">
-                                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold">Gagal!</p>
-                                        <p>${result.message || 'Gagal menautkan asset'}</p>
-                                    </div>
-                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                </div>
-                                `;
-                                document.body.appendChild(errorToast);
-                                setTimeout(() => {
-                                    errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                    setTimeout(() => errorToast.remove(), 500);
-                                }, 5000);
+                            showToast(result.message || 'Gagal menautkan asset', 'error');
+
                                 if (linkButton) {
                                     linkButton.disabled = false;
                                     linkButton.innerHTML = originalText;
@@ -1886,29 +1843,8 @@
                             if (error.message) {
                                 errorMessage += ' ' + error.message;
                             }
-                            const errorToast = document.createElement('div');
-                            errorToast.id = 'errorNotification';
-                            errorToast.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-[70]';
-                            errorToast.role = 'alert';
-                            errorToast.innerHTML = `
-                            <div class="flex items-center">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Gagal!</p>
-                                    <p>${errorMessage} Silakan coba lagi.</p>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                            `;
-                            document.body.appendChild(errorToast);
-                            setTimeout(() => {
-                                errorToast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                                setTimeout(() => errorToast.remove(), 500);
-                            }, 5000);
+
+                        showToast(errorMessage, 'error');
 
                             // Reset button
                             if (linkButton) {

@@ -3,178 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
 
 class RoomController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations;
 
     /**
      * Menampilkan halaman ruangan.
      */
     public function index(Request $request)
     {
-        try {
-            // Mendapatkan parameter kueri
-            $roomPage = $request->query('room_page', 1);
-            $roomLimit = $request->query('room_limit', 10);
-            $search = $request->query('search', '');
-            $sort = $request->query('sort', '');
-            $buildingId = $request->query('building_id', '');
-
-            // Untuk permintaan JSON, tingkatkan batas untuk memuat lebih banyak item
-            if ($request->expectsJson() || $request->ajax()) {
-                $roomLimit = $request->query('room_limit', 100);
-            }
-
-            // Build query parameters
-            $queryParams = [
-                'page' => $roomPage,
-                'limit' => $roomLimit,
-                'sort_by' => 'room_id',
-                'sort_order' => 'asc'
-            ];
-
-            // Parameter pencarian
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
+        $extraParams = [];
 
             // Parameter building_id
-            if (!empty($buildingId)) {
-                $queryParams['building_id'] = $buildingId;
+        if ($request->filled('building_id')) {
+            $extraParams['building_id'] = $request->input('building_id');
             }
 
-            // Pengurutan kustom
-            if (!empty($sort)) {
-                switch ($sort) {
-                    case 'name_asc':
-                        $queryParams['sort_by'] = 'room_name';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'name_desc':
-                        $queryParams['sort_by'] = 'room_name';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'floor_asc':
-                        $queryParams['sort_by'] = 'floor_number';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'floor_desc':
-                        $queryParams['sort_by'] = 'floor_number';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'id_asc':
-                        $queryParams['sort_by'] = 'room_id';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'id_desc':
-                        $queryParams['sort_by'] = 'room_id';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                }
-            }
+        // Custom sort mappings
+        $sortMappings = [
+            'name_asc' => ['sort_by' => 'room_name', 'sort_order' => 'asc'],
+            'name_desc' => ['sort_by' => 'room_name', 'sort_order' => 'desc'],
+            'floor_asc' => ['sort_by' => 'floor_number', 'sort_order' => 'asc'],
+            'floor_desc' => ['sort_by' => 'floor_number', 'sort_order' => 'desc'],
+            'id_asc' => ['sort_by' => 'room_id', 'sort_order' => 'asc'],
+            'id_desc' => ['sort_by' => 'room_id', 'sort_order' => 'desc'],
+        ];
 
-            // Mengambil ruangan dari API
-            $roomResult = $this->apiService->request('GET', '/rooms', [
-                'query' => $queryParams
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($roomResult['errors']) && is_string($roomResult['errors']) &&
-                in_array($roomResult['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $roomResult['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($roomResult['errors']) ? $roomResult['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API berdasarkan flag sukses
-            if (!isset($roomResult['success']) || $roomResult['success'] !== true) {
-                $errorData = $roomResult['errors'] ?? 'Gagal mengambil data';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return view('Room', [
-                    'rooms' => [],
-                    'error' => $errorMessage
-                ]);
-            }
-
-            $rooms = $roomResult['data'] ?? [];
-
-            // Format pagination
-            $roomPagination = null;
-            if (isset($roomResult['pagination'])) {
-                $pagination = $roomResult['pagination'];
-                $roomPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?room_page=' . (($pagination['current_page'] ?? 1) + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?room_page=' . (($pagination['current_page'] ?? 1) - 1) : null,
-                ];
-            }
-
-            // Jika ini adalah permintaan AJAX atau JSON, kembalikan ruangan sebagai JSON
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $roomResult['message'] ?? 'Data berhasil diambil',
-                    'data' => $rooms,
-                    'pagination' => $roomPagination
-                ]);
-            }
-
-            return view('Room', [
-                'rooms' => $rooms,
-                'roomPagination' => $roomPagination
-            ]);
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil data ruangan: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return view('Room', [
-                'rooms' => [],
-                'error' => 'Gagal mengambil data ruangan: ' . $e->getMessage()
-            ]);
-        }
+        return $this->getResourceList(
+            $request,
+            '/rooms',
+            'rooms',
+            'Room',
+            'room_id',
+            $extraParams,
+            $sortMappings
+        );
     }
 
     /**
@@ -207,44 +73,16 @@ class RoomController extends Controller
                 'json' => $payload
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal membuat ruangan';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -255,25 +93,15 @@ class RoomController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'] ?? 'Ruangan berhasil dibuat',
+                    'message' => $result['message'],
                     'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('rooms')
-                ->with('success', $result['message'] ?? 'Ruangan berhasil dibuat');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal membuat ruangan: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat ruangan: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Room');
         }
     }
 
@@ -308,43 +136,16 @@ class RoomController extends Controller
                 'json' => $payload
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal mengubah ruangan';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -355,25 +156,15 @@ class RoomController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'] ?? 'Ruangan berhasil diubah',
+                    'message' => $result['message'],
                     'data' => $result['data'] ?? null
                 ]);
             }
 
             return redirect()->route('rooms')
-                ->with('success', $result['message'] ?? 'Ruangan berhasil diubah');
+                ->with('success', $result['message']);
         } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengubah ruangan: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal mengubah ruangan: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Room');
         }
     }
 
@@ -382,115 +173,25 @@ class RoomController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/rooms/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus ruangan';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
-            }
-
-            // Berhasil dihapus
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Ruangan berhasil dihapus',
-                    'data' => null
-                ]);
-            }
-
-            return redirect()->route('rooms')
-                ->with('success', $result['message'] ?? 'Ruangan berhasil dihapus');
-        } catch (\Exception $e) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal menghapus ruangan: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus ruangan: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            $request,
+            "/rooms/{$id}",
+            'Ruangan berhasil dihapus',
+            'rooms'
+        );
     }
 
     /**
      * Mendapatkan ruangan berdasarkan ID.
      */
-    public function getById(Request $request, $id)
+    public function show($id, Request $request)
     {
-        try {
-            // Ambil ruangan berdasarkan ID
-            $result = $this->apiService->request('GET', "/rooms/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Autentikasi gagal'
-                ], 401);
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data ruangan';
-                return response()->json([
-                    'success' => false,
-                    'message' => is_array($errorData) ? implode(', ', $errorData) : $errorData
-                ], 400);
-            }
-
-            // Kembalikan respon sukses
-            return response()->json([
-                'success' => true,
-                'data' => $result['data'] ?? []
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data ruangan: ' . $e->getMessage()
-            ], 500);
-        }
+        return $this->getResource(
+            $request,
+            "/rooms/{$id}",
+            'room',
+            'RoomDetails'
+        );
     }
 
    /**
@@ -518,27 +219,19 @@ class RoomController extends Controller
                 'multipart' => $multipart
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
+            // Check for authentication errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
                 }
 
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API atau respon tidak berhasil
+            // Check for other API errors
             if (!isset($result['success']) || $result['success'] === false) {
                 $errorData = $result['errors'] ?? 'Gagal mengimpor data ruangan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson()) {
                     // Format respon kesalahan terperinci untuk permintaan AJAX
-                    $formattedErrors = $errorData;
                     $errorDetails = [];
 
                     // Ekstrak detail kesalahan dari struktur array
@@ -558,28 +251,13 @@ class RoomController extends Controller
 
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
+                        'errors' => $errorData,
                         'errorDetails' => $errorDetails,
                         'data' => $result['data'] ?? null
                     ], 400);
                 }
 
-                // Format pesan kesalahan untuk respon redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-            }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()
-                    ->with('error', $errorMessage);
+                return redirect()->back()->with('error', $errorMessage);
             }
 
             // Berhasil diimpor
@@ -608,19 +286,9 @@ class RoomController extends Controller
                 ]);
             }
 
-            return redirect()->route('rooms')
-                ->with('success', $successMessage);
+            return redirect()->route('rooms')->with('success', $successMessage);
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengimpor data ruangan: ' . $e->getMessage()],
-                    'data' => null
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal mengimpor data ruangan: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Room');
         }
     }
 }

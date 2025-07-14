@@ -68,7 +68,6 @@
                                 <option value="">Semua Hasil</option>
                                 <option value="pass">Lulus</option>
                                 <option value="fail">Gagal</option>
-                                <option value="unknown">Tidak Ditemukan</option>
                             </select>
                             <select id="sortOrder"
                                 class="w-[150px] h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
@@ -220,9 +219,6 @@
                                                 } elseif (strtolower($resultText) == 'fail') {
                                                     $resultClass = 'bg-red-100 text-red-800';
                                                     $resultText = 'Gagal';
-                                                } elseif (strtolower($resultText) == 'unknown') {
-                                                    $resultClass = 'bg-yellow-100 text-yellow-800';
-                                                    $resultText = 'Tidak Ditemukan';
                                                 }
                                             @endphp
                                             @if($resultText != '-')
@@ -473,6 +469,13 @@
                                         <div class="bg-blue-100 rounded-lg p-4 mb-6">
                                             <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
 
+                                            <!-- Asset Image - Added similar to AssetDetail.blade.php -->
+                                            <div class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                                <img id="asset_image_display" src="{{ asset('images/placeholder.png') }}"
+                                                    alt="Asset Image" class="w-full h-full object-contain p-2"
+                                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                            </div>
+
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <!-- Left Column -->
                                                 <div class="space-y-4">
@@ -607,16 +610,17 @@
                                                     <div>
                                                         <label for="calibration_price"
                                                             class="block text-sm font-medium text-gray-700">
-                                                            BIAYA LAYANAN
+                                                            BIAYA LAYANAN<span class="text-red-500">*</span>
                                                         </label>
                                                         <div class="relative mt-1">
                                                             <div
                                                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                 <span class="text-gray-500 sm:text-sm">Rp</span>
                                                             </div>
-                                                            <input type="number" id="calibration_price" name="calibration_price"
-                                                                step="0.01"
-                                                                class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                            <input type="text" id="calibration_price" name="calibration_price" required
+                                                                class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                                onkeyup="formatCurrency(this)"
+                                                                onblur="formatCurrency(this, 'blur')">
                                                         </div>
                                                     </div>
 
@@ -639,13 +643,6 @@
                                                                     class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
                                                                 <label for="result_fail"
                                                                     class="ml-2 text-sm text-gray-700">Gagal</label>
-                                                            </div>
-                                                            <div class="flex items-center">
-                                                                <input type="radio" id="result_unknown" name="calibration_result"
-                                                                    value="unknown"
-                                                                    class="h-4 w-4 text-[#213268] focus:ring-[#213268]">
-                                                                <label for="result_unknown" class="ml-2 text-sm text-gray-700">Tidak
-                                                                    Ditemukan</label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1155,7 +1152,59 @@
                         });
                     @endif
 
-                        if (typeof flashSuccess !== 'undefined' && flashSuccess) {
+                // Currency formatter function
+                window.formatCurrency = function(input, blur) {
+                    // Get input value
+                    let input_val = input.value;
+
+                    // Don't validate empty input
+                    if (input_val === "") { return; }
+
+                    // Check for decimal
+                    if (input_val.indexOf(",") >= 0) {
+                        // Get position of first decimal
+                        var decimal_pos = input_val.indexOf(",");
+
+                        // Split number by decimal point
+                        var left_side = input_val.substring(0, decimal_pos);
+                        var right_side = input_val.substring(decimal_pos);
+
+                        // Remove all non-digits
+                        left_side = left_side.replace(/\D/g, "");
+                        right_side = right_side.replace(/\D/g, "");
+
+                        // Limit decimal to only 2 digits
+                        right_side = right_side.substring(0, 2);
+
+                        // Add dots every 3 digits
+                        left_side = left_side.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                        // Join number with comma for decimal
+                        input_val = left_side + "," + right_side;
+                    } else {
+                        // Remove all non-digits
+                        input_val = input_val.replace(/\D/g, "");
+
+                        // Add dots every 3 digits
+                        input_val = input_val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                        // Final formatting
+                        if (blur === "blur") {
+                            input_val += ",00";
+                        }
+                    }
+
+                    // Send updated string to input
+                    input.value = input_val;
+                };
+
+                // Format existing values on page load
+                const calibrationPriceInput = document.getElementById('calibration_price');
+                if (calibrationPriceInput && calibrationPriceInput.value) {
+                    formatCurrency(calibrationPriceInput, 'blur');
+                }
+
+                if (typeof flashSuccess !== 'undefined' && flashSuccess) {
                     showToast(flashSuccess, 'success');
                 }
                 if (typeof flashError !== 'undefined' && flashError) {
@@ -1234,6 +1283,11 @@
                     notification.setAttribute('role', 'alert');
 
                     function processErrorObject(errorObj) {
+                        // Handle {"success":"false","errors":"message"} format
+                        if (errorObj.success === false && typeof errorObj.errors === 'string') {
+                            return errorObj.errors;
+                        }
+
                         if (errorObj.success === false && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
                             const firstError = errorObj.errors[0];
                             if (typeof firstError === 'object' && firstError !== null &&
@@ -1846,6 +1900,16 @@
                                     document.getElementById('model_number_display').value = calibration.model_number || '-';
                                     document.getElementById('serial_number_display').value = calibration.serial_number || '-';
 
+                                    // Set asset image if available
+                                    const assetImageDisplay = document.getElementById('asset_image_display');
+                                    if (assetImageDisplay) {
+                                        if (calibration.asset_image_path) {
+                                            assetImageDisplay.src = "{{ config('app.backend_url') }}/public" + calibration.asset_image_path;
+                                        } else {
+                                            assetImageDisplay.src = "{{ asset('images/placeholder.png') }}";
+                                        }
+                                    }
+
                                     let locationText = '-';
                                     if (calibration.location) {
                                         const locationParts = [];
@@ -1878,15 +1942,22 @@
                                     }
 
                                     document.getElementById('certificate_number').value = calibration.certificate_number || '';
-                                    document.getElementById('calibration_price').value = calibration.calibration_price || '';
+
+                                    // Format the calibration price with currency formatter
+                                    if (calibration.calibration_price) {
+                                        const priceInput = document.getElementById('calibration_price');
+                                        priceInput.value = calibration.calibration_price;
+                                        formatCurrency(priceInput, 'blur');
+                                    } else {
+                                        document.getElementById('calibration_price').value = '';
+                                    }
+
                                     document.getElementById('notes').value = calibration.notes || '';
 
                                     if (calibration.calibration_result === 'pass') {
                                         document.getElementById('result_pass').checked = true;
                                     } else if (calibration.calibration_result === 'fail') {
                                         document.getElementById('result_fail').checked = true;
-                                    } else if (calibration.calibration_result === 'unknown') {
-                                        document.getElementById('result_unknown').checked = true;
                                     }
 
                                     const filePreview = document.getElementById('file-preview');
@@ -2127,11 +2198,23 @@
                         const formData = new FormData();
                         const formElements = this.elements;
 
+                        // Process calibration price - convert from formatted to numeric value
+                        const calibrationPrice = document.getElementById('calibration_price');
+                        if (calibrationPrice && calibrationPrice.value) {
+                            // Convert from formatted string (1.234,56) to numeric value (1234.56)
+                            let numericValue = calibrationPrice.value
+                                .replace(/\./g, '')  // Remove thousand separators
+                                .replace(',', '.');  // Replace comma with dot for decimal
+
+                            formData.append('calibration_price', numericValue);
+                        }
+
                         for (let i = 0; i < formElements.length; i++) {
                             const element = formElements[i];
 
                             if (element.type === 'button' || element.type === 'submit' ||
-                                element.tagName === 'FIELDSET' || element.name === 'calibration_id') {
+                                element.tagName === 'FIELDSET' || element.name === 'calibration_id' ||
+                                element.name === 'calibration_price') {
                                 continue;
                             }
 
@@ -2183,7 +2266,35 @@
                                 }
                             })
                             .catch(error => {
-                                showToast(error, 'error');
+                                // Enhanced error handling to support various error formats
+                                console.error('Form submission error:', error);
+
+                                try {
+                                    // Check if error is a string that contains JSON
+                                    if (typeof error === 'string' && (error.startsWith('{') || error.startsWith('['))) {
+                                        try {
+                                            const parsedError = JSON.parse(error);
+                                            showToast(parsedError, 'error');
+                                            return;
+                                        } catch (e) {
+                                            // If JSON parsing fails, continue with normal handling
+                                        }
+                                    }
+
+                                    // Handle specific error format {"success":"false","errors":"message"}
+                                    if (error && typeof error === 'object') {
+                                        if (error.errors && typeof error.errors === 'string') {
+                                            showToast(error.errors, 'error');
+                                            return;
+                                        }
+                                        // Continue with existing error handling for other formats
+                                    }
+
+                                    // Fallback to original handler
+                                    showToast(error, 'error');
+                                } catch (e) {
+                                    showToast('Terjadi kesalahan saat memproses kalibrasi', 'error');
+                                }
                             });
                     });
                 }
@@ -3132,6 +3243,183 @@
                         updateSelectedAssetsList();
                     }
                 }
+
+                // Variables for vendor lazy loading
+                let vendorPage = 1;
+                let isLoadingVendors = false;
+                let hasMoreVendors = true;
+                let currentVendorSearch = '';
+
+                function fetchVendors(searchTerm = '', callback = null, page = 1, append = false) {
+                    const params = new URLSearchParams({
+                        json: 'true',
+                        limit: '20',
+                        page: page.toString()
+                    });
+
+                    if (searchTerm) {
+                        params.append('search', searchTerm);
+                    }
+
+                    if (!append && vendorResults && vendorResults.style.display === 'block') {
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                    }
+
+                    isLoadingVendors = true;
+
+                    fetch(`/vendors?${params.toString()}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Server responded with status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            let vendors = [];
+
+                            if (Array.isArray(data)) {
+                                vendors = data;
+                            } else if (data.vendors && Array.isArray(data.vendors)) {
+                                vendors = data.vendors;
+                            } else if (data.data && Array.isArray(data.data)) {
+                                vendors = data.data;
+                            }
+
+                            if (!searchTerm && page === 1) {
+                                allVendors = vendors;
+                                try {
+                                    localStorage.setItem('allVendors', JSON.stringify(allVendors));
+                                } catch (e) {
+                                    console.error('Error caching vendors:', e);
+                                }
+                            }
+
+                            if (callback) {
+                                callback(vendors, append);
+                            }
+
+                            // Check if we have more pages to load
+                            hasMoreVendors = vendors.length === 20; // Assuming 20 is the page size
+
+                            isLoadingVendors = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching vendors:', error);
+
+                            if (vendorResults && vendorResults.style.display === 'block' && !append) {
+                                vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                            }
+
+                            if (typeof error === 'object' && error !== null) {
+                                showToast(error, 'error');
+                            } else {
+                                showToast('Gagal memuat vendor: ' + error.message, 'error');
+                            }
+
+                            if (callback) {
+                                callback([]);
+                            }
+
+                            isLoadingVendors = false;
+                        });
+                }
+
+                function filterAndDisplayVendors(searchTerm) {
+                    if (vendorResults) vendorResults.style.display = 'block';
+
+                    // Reset pagination variables when starting a new search
+                    vendorPage = 1;
+                    hasMoreVendors = true;
+                    currentVendorSearch = searchTerm;
+
+                    if (searchTerm && searchTerm.length > 0) {
+                        fetchVendors(searchTerm, displayVendorResults, vendorPage, false);
+                    } else {
+                        if (allVendors.length > 0) {
+                            displayVendorResults(allVendors.slice(0, 20), false);
+                        } else {
+                            fetchVendors('', vendors => displayVendorResults(vendors, false), vendorPage, false);
+                        }
+                    }
+                }
+
+                function displayVendorResults(vendors, append = false) {
+                    if (!append) {
+                        vendorResults.innerHTML = '';
+                    } else {
+                        // Remove loading indicator if it exists
+                        const loadingIndicator = vendorResults.querySelector('.vendor-loading-indicator');
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                    }
+
+                    if (vendors.length === 0 && !append) {
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Vendor tidak ditemukan</div>';
+                        return;
+                    }
+
+                    vendors.forEach((vendor, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
+                        div.textContent = vendor.vendor_name;
+                        div.setAttribute('data-id', vendor.vendor_id);
+
+                        if (!append) {
+                            div.style.animationDelay = `${index * 30}ms`;
+                        }
+
+                        div.addEventListener('click', function () {
+                            vendorIdInput.value = this.getAttribute('data-id');
+                            vendorSearchInput.value = this.textContent;
+                            vendorResults.style.display = 'none';
+                        });
+
+                        vendorResults.appendChild(div);
+                    });
+
+                    if (hasMoreVendors) {
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'p-2 text-xs text-gray-500 text-center border-t vendor-loading-indicator';
+                        loadingDiv.textContent = 'memuat lebih lanjut...';
+                        vendorResults.appendChild(loadingDiv);
+                    }
+                }
+
+                // Setup infinite scrolling for vendor results
+                if (vendorResults) {
+                    vendorResults.addEventListener('scroll', function() {
+                        if (!hasMoreVendors || isLoadingVendors) return;
+
+                        // Check if user scrolled to bottom
+                        if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                            // Load next page
+                            vendorPage++;
+                            fetchVendors(currentVendorSearch, displayVendorResults, vendorPage, true);
+                        }
+                    });
+                }
+
+                vendorSearchInput?.addEventListener('focus', function () {
+                    filterAndDisplayVendors(this.value.trim());
+                    vendorResults.style.display = 'block';
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (vendorResults && e.target !== vendorSearchInput && !vendorResults.contains(e.target)) {
+                        vendorResults.style.display = 'none';
+                    }
+                });
+
+                vendorSearchInput?.addEventListener('input', debounce(function () {
+                    const searchTerm = this.value.trim();
+                    filterAndDisplayVendors(searchTerm);
+                }, 300));
             });
         </script>
     @endpush

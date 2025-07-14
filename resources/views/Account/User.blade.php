@@ -64,6 +64,7 @@
                             <thead>
                                 <tr>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nomor Pegawai</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Nama Pegawai</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Peran</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
@@ -74,6 +75,9 @@
                                 @forelse($users ?? [] as $user)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $user['employee_number'] ?? '-' }}
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $user['employee_name'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @if(isset($user['roles']) && is_array($user['roles']))
@@ -101,6 +105,7 @@
                                                         class="edit-user-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         data-user-id="{{ $user['user_id'] }}"
                                                         data-employee-number="{{ $user['employee_number'] }}"
+                                                        data-employee-name="{{ $user['employee_name'] }}"
                                                         data-role-ids="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_id')) : '[]' }}"
                                                         data-role-names="{{ isset($user['roles']) ? json_encode(array_column($user['roles'], 'role_name')) : '[]' }}"
                                                         data-is-active="{{ $user['is_active'] ? 'true' : 'false' }}"
@@ -141,8 +146,8 @@
                     <!-- Pagination for USERS section -->
                     <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $user_pagination['prev_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($user_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ $users_pagination['prev_page_url'] ?? '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($users_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -152,8 +157,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $user_pagination['current_page'] ?? 1;
-                                    $lastPage = $user_pagination['last_page'] ?? 1;
+                                    $currentPage = $users_pagination['current_page'] ?? 1;
+                                    $lastPage = $users_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -194,8 +199,8 @@
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ $user_pagination['next_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($user_pagination['current_page'] ?? 1) >= ($user_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ $users_pagination['next_page_url'] ?? '#' }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($users_pagination['current_page'] ?? 1) >= ($users_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -207,11 +212,11 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($user_pagination) && is_array($user_pagination))
+                                @if(isset($users_pagination) && is_array($users_pagination))
                                     @php
-                                        $currentPage = $user_pagination['current_page'] ?? 1;
-                                        $perPage = $user_pagination['per_page'] ?? 10;
-                                        $total = $user_pagination['total'] ?? count($users ?? []);
+                                        $currentPage = $users_pagination['current_page'] ?? 1;
+                                        $perPage = $users_pagination['per_page'] ?? 10;
+                                        $total = $users_pagination['total'] ?? count($users ?? []);
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -223,9 +228,9 @@
                             <select id="userPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeUserPerPage(this.value)">
-                                <option value="10" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ isset($user_pagination['per_page']) && $user_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="10" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -268,6 +273,18 @@
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 placeholder="Masukkan nomor pegawai">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor pegawai harus
+                                                diisi</div>
+                                        </div>
+
+                                        <!-- Employee Name Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Nama Pegawai <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="employee_name"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Masukkan nama pegawai">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pegawai harus
                                                 diisi</div>
                                         </div>
 
@@ -364,6 +381,18 @@
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 placeholder="Masukkan nomor pegawai">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor pegawai harus
+                                                diisi</div>
+                                        </div>
+
+                                        <!-- Employee Name Input -->
+                                        <div class="space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666]">
+                                                Nama Pegawai <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="edit_employee_name" name="employee_name"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                                placeholder="Masukkan nama pegawai">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Nama pegawai harus
                                                 diisi</div>
                                         </div>
 
@@ -509,7 +538,7 @@
 
                 const url = new URL(window.location.href);
 
-                ['search', 'status', 'sort', 'user_page'].forEach(param => {
+                ['search', 'status', 'sort', 'page'].forEach(param => {
                     url.searchParams.delete(param);
                 });
 
@@ -517,7 +546,7 @@
                 if (statusValue) url.searchParams.set('status', statusValue);
                 if (sortValue) url.searchParams.set('sort', sortValue);
 
-                url.searchParams.set('user_page', 1);
+                url.searchParams.set('page', 1);
 
                 window.location.href = url.toString();
             }
@@ -549,8 +578,8 @@
 
             window.changeUserPerPage = function (limit) {
                 const url = new URL(window.location.href);
-                url.searchParams.set('user_limit', limit);
-                url.searchParams.set('user_page', 1);
+                url.searchParams.set('limit', limit);
+                url.searchParams.set('page', 1);
                 window.location.href = url.toString();
             }
 
@@ -920,7 +949,7 @@
                 };
             }
 
-            window.setupEditUserForm = function (userId, employeeNumber, roleIds, isActive) {
+            window.setupEditUserForm = function (userId, employeeNumber, employeeName, roleIds, isActive) {
                 const form = document.getElementById('editUserForm');
                 if (!form) return;
 
@@ -928,6 +957,9 @@
 
                 const employeeInput = document.getElementById('edit_employee_number');
                 if (employeeInput) employeeInput.value = employeeNumber;
+
+                const nameInput = document.getElementById('edit_employee_name');
+                if (nameInput) nameInput.value = employeeName;
 
                 const activeSelect = document.getElementById('edit_is_active');
                 if (activeSelect) activeSelect.value = (isActive === 'true') ? '1' : '0';
@@ -1057,12 +1089,14 @@
                 button.addEventListener('click', function () {
                     let userId = '';
                     let employeeNumber = '';
+                    let employeeName = '';
                     let roleIds = [];
                     let isActive = 'false';
 
                     try {
                         userId = this.getAttribute('data-user-id') || '';
                         employeeNumber = this.getAttribute('data-employee-number') || '';
+                        employeeName = this.getAttribute('data-employee-name') || '';
 
                         const roleIdsStr = this.getAttribute('data-role-ids') || '[]';
                         roleIds = JSON.parse(roleIdsStr);
@@ -1072,7 +1106,7 @@
                         console.error('Error processing button data:', error);
                     }
 
-                    window.setupEditUserForm(userId, employeeNumber, roleIds, isActive);
+                    window.setupEditUserForm(userId, employeeNumber, employeeName, roleIds, isActive);
                 });
             });
 
@@ -1177,6 +1211,7 @@
 
                 let hasHTML = false;
                 let isArray = Array.isArray(message);
+                let isObject = typeof message === 'object' && message !== null && !isArray;
 
                 if (typeof message === 'string') {
                     hasHTML = message.indexOf('<') !== -1 && message.indexOf('>') !== -1;
@@ -1199,7 +1234,7 @@
                 const titleP = document.createElement('p');
                 titleP.className = 'font-bold';
                 titleP.textContent = type === 'success' ? 'Berhasil' :
-                    type === 'error' ? 'Kesalahan' :
+                    type === 'error' ? 'Gagal' :
                         type.charAt(0).toUpperCase() + type.slice(1);
                 messageDiv.appendChild(titleP);
 
@@ -1210,6 +1245,20 @@
                     let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
                     message.forEach(item => {
                         htmlContent += `<li>${item}</li>`;
+                    });
+                    htmlContent += '</ul>';
+                    messageP.innerHTML = htmlContent;
+                    hasHTML = true;
+                } else if (isObject) {
+                    let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
+                    Object.entries(message).forEach(([key, value]) => {
+                        if (Array.isArray(value)) {
+                            value.forEach(item => {
+                                htmlContent += `<li>${item}</li>`;
+                            });
+                        } else {
+                            htmlContent += `<li>${key}: ${value}</li>`;
+                        }
                     });
                     htmlContent += '</ul>';
                     messageP.innerHTML = htmlContent;
@@ -1303,10 +1352,12 @@
 
                     if (form.id === 'addUserForm') {
                         const employeeNumberInput = this.querySelector('[name="employee_number"]');
+                        const employeeNameInput = this.querySelector('[name="employee_name"]');
                         const passwordInput = this.querySelector('[name="password"]');
                         const roleInputsContainer = document.getElementById('add-role-hidden-inputs');
 
                         const isEmployeeNumberValid = validateField(employeeNumberInput);
+                        const isEmployeeNameValid = validateField(employeeNameInput);
                         const isPasswordValid = validateField(passwordInput);
 
                         const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
@@ -1322,12 +1373,14 @@
                             if (roleErrorElement) roleErrorElement.classList.add('hidden');
                         }
 
-                        isValid = isEmployeeNumberValid && isPasswordValid && hasRoles;
+                        isValid = isEmployeeNumberValid && isEmployeeNameValid && isPasswordValid && hasRoles;
                     } else if (form.id === 'editUserForm') {
                         const employeeNumberInput = this.querySelector('[name="employee_number"]');
+                        const employeeNameInput = this.querySelector('[name="employee_name"]');
                         const roleInputsContainer = document.getElementById('edit-role-hidden-inputs');
 
                         const isEmployeeNumberValid = validateField(employeeNumberInput);
+                        const isEmployeeNameValid = validateField(employeeNameInput);
 
                         const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
                         const roleSelector = document.getElementById('edit-selected-roles-display');
@@ -1342,7 +1395,7 @@
                             if (roleErrorElement) roleErrorElement.classList.add('hidden');
                         }
 
-                        isValid = isEmployeeNumberValid && hasRoles;
+                        isValid = isEmployeeNumberValid && isEmployeeNameValid && hasRoles;
                     }
 
                     if (!isValid) {
@@ -1375,16 +1428,126 @@
                 });
             }
 
-            preventMultipleSubmits(document.getElementById('addUserForm'), 'button[type="submit"]');
-            preventMultipleSubmits(document.getElementById('editUserForm'), 'button[type="submit"]');
+            // Only use preventMultipleSubmits for the delete form
+            // preventMultipleSubmits(document.getElementById('addUserForm'), 'button[type="submit"]');
+            // preventMultipleSubmits(document.getElementById('editUserForm'), 'button[type="submit"]');
             preventMultipleSubmits(document.getElementById('deleteUserForm'), 'button[type="submit"]');
 
+            // Add form submission handlers with fetch API
             const addUserFormElement = document.getElementById('addUserForm');
             if (addUserFormElement) {
-                addUserFormElement.querySelectorAll('input[required]').forEach(input => {
+                addUserFormElement.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Client-side validation
+                    const form = this;
+                    form.classList.add('was-validated');
+
+                    // Validate required fields
+                    const employeeNumberInput = form.querySelector('[name="employee_number"]');
+                    const employeeNameInput = form.querySelector('[name="employee_name"]');
+                    const passwordInput = form.querySelector('[name="password"]');
+                    const roleInputsContainer = document.getElementById('add-role-hidden-inputs');
+
+                    const isEmployeeNumberValid = validateField(employeeNumberInput);
+                    const isEmployeeNameValid = validateField(employeeNameInput);
+                    const isPasswordValid = validateField(passwordInput);
+
+                    const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
+                    const roleSelector = document.getElementById('add-selected-roles-display');
+                    const roleErrorElement = roleSelector.closest('.space-y-2').querySelector('.error-message');
+
+                    if (!hasRoles) {
+                        roleSelector.closest('.relative').classList.add('border-red-500');
+                        if (roleErrorElement) roleErrorElement.classList.remove('hidden');
+                    } else {
+                        roleSelector.closest('.relative').classList.remove('border-red-500');
+                        if (roleErrorElement) roleErrorElement.classList.add('hidden');
+                    }
+
+                    const isValid = isEmployeeNumberValid && isEmployeeNameValid && isPasswordValid && hasRoles;
+
+                    if (!isValid) {
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
+
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+                    }
+
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw data;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.message || 'User berhasil dibuat', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            throw data.errors || 'Gagal membuat user';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (error.errors) {
+                            showToast(error.errors, 'error');
+
+                            // Highlight fields with errors
+                            Object.keys(error.errors).forEach(field => {
+                                const input = form.querySelector(`[name="${field}"]`);
+                                if (input) {
+                                    input.classList.add('border-red-500');
+                                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                    if (errorElement) {
+                                        errorElement.textContent = Array.isArray(error.errors[field])
+                                            ? error.errors[field][0]
+                                            : error.errors[field];
+                                        errorElement.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                        } else {
+                            showToast(error.message || 'Terjadi kesalahan saat membuat user', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+                    });
+                });
+
+                addUserFormElement.querySelectorAll('input').forEach(input => {
                     input.addEventListener('input', function () {
                         this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
                         if (errorElement) errorElement.classList.add('hidden');
                     });
                 });
@@ -1392,10 +1555,117 @@
 
             const editUserFormElement = document.getElementById('editUserForm');
             if (editUserFormElement) {
-                editUserFormElement.querySelectorAll('input[required]').forEach(input => {
+                editUserFormElement.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Client-side validation
+                    const form = this;
+                    form.classList.add('was-validated');
+
+                    // Validate required fields
+                    const employeeNumberInput = form.querySelector('[name="employee_number"]');
+                    const employeeNameInput = form.querySelector('[name="employee_name"]');
+                    const roleInputsContainer = document.getElementById('edit-role-hidden-inputs');
+
+                    const isEmployeeNumberValid = validateField(employeeNumberInput);
+                    const isEmployeeNameValid = validateField(employeeNameInput);
+
+                    const hasRoles = roleInputsContainer.querySelectorAll('input[name="role_ids[]"]').length > 0;
+                    const roleSelector = document.getElementById('edit-selected-roles-display');
+                    const roleErrorElement = roleSelector.closest('.space-y-2').querySelector('.error-message');
+
+                    if (!hasRoles) {
+                        roleSelector.closest('.relative').classList.add('border-red-500');
+                        if (roleErrorElement) roleErrorElement.classList.remove('hidden');
+                    } else {
+                        roleSelector.closest('.relative').classList.remove('border-red-500');
+                        if (roleErrorElement) roleErrorElement.classList.add('hidden');
+                    }
+
+                    const isValid = isEmployeeNumberValid && isEmployeeNameValid && hasRoles;
+
+                    if (!isValid) {
+                        showToast('Silakan isi semua field yang diperlukan', 'error');
+                        return false;
+                    }
+
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+                    }
+
+                    const formData = new FormData(form);
+                    formData.append('_method', 'PUT');
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw data;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.message || 'User berhasil diperbarui', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            throw data.errors || 'Gagal memperbarui user';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (error.errors) {
+                            showToast(error.errors, 'error');
+
+                            // Highlight fields with errors
+                            Object.keys(error.errors).forEach(field => {
+                                const input = form.querySelector(`[name="${field}"]`);
+                                if (input) {
+                                    input.classList.add('border-red-500');
+                                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                    if (errorElement) {
+                                        errorElement.textContent = Array.isArray(error.errors[field])
+                                            ? error.errors[field][0]
+                                            : error.errors[field];
+                                        errorElement.classList.remove('hidden');
+                                    }
+                                }
+                            });
+                        } else {
+                            showToast(error.message || 'Terjadi kesalahan saat memperbarui user', 'error');
+                        }
+                    })
+                    .finally(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+                    });
+                });
+
+                editUserFormElement.querySelectorAll('input').forEach(input => {
                     input.addEventListener('input', function () {
                         this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
                         if (errorElement) errorElement.classList.add('hidden');
                     });
                 });

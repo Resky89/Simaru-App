@@ -220,7 +220,7 @@
     </div>
     <div class="header-line"></div>
 
-    <div class="page-title">DETIL ASET</div>
+    <div class="page-title">DETAIL ASET</div>
 
     <!-- Asset Image and QR Side by Side using a table for better PDF rendering -->
     <table border="0" cellpadding="0" cellspacing="0" width="100%">

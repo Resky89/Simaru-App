@@ -3,165 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Http\Controllers\Traits\ExportableToPdf;
 
 class MasterAssetController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations, ExportableToPdf;
 
     /**
      * Display a listing of master assets.
      */
     public function index(Request $request)
     {
-        try {
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
-            $search = $request->input('search', '');
-            $assetType = $request->input('type', '');
-            $sortOrder = $request->input('sort', 'newest');
+        $extraParams = [];
 
-            // Build query parameters
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit
-            ];
-
-            // Set sort parameters based on sortOrder
-            switch ($sortOrder) {
-                case 'oldest':
-                    $queryParams['sort_by'] = 'asset_master_id';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'name_asc':
-                    $queryParams['sort_by'] = 'asset_name';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'name_desc':
-                    $queryParams['sort_by'] = 'asset_name';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'code_asc':
-                    $queryParams['sort_by'] = 'asset_master_code';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'code_desc':
-                    $queryParams['sort_by'] = 'asset_master_code';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'newest':
-                default:
-                    $queryParams['sort_by'] = 'asset_master_id';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-            }
-
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            if (!empty($assetType)) {
-                $queryParams['asset_type'] = $assetType;
-            }
-
-            if (!empty($brandId)) {
-                $queryParams['brand_id'] = $brandId;
-            }
-
-            if (!empty($subcategoryId)) {
-                $queryParams['subcategory_id'] = $subcategoryId;
-            }
-
-            // Fetch master assets
-            $masterAssetsResult = $this->apiService->request('GET', '/asset-masters', [
-                'query' => $queryParams
-            ]);
-
-            // Check for auth errors
-            if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
-                in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                $errorMessage = $masterAssetsResult['errors'] ?? 'Autentikasi gagal';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'error' => is_string($errorMessage) ? $errorMessage : 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($errorMessage) ? $errorMessage : 'Autentikasi gagal');
-            }
-
-            // Check for API errors based on status flag
-            if (isset($masterAssetsResult['success']) && $masterAssetsResult['success'] !== true) {
-                $errorData = $masterAssetsResult['errors'] ?? 'Gagal mengambil data';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'error' => is_array($errorData) ? implode(', ', (array)$errorData) : $errorData
-                    ], 400);
-                }
-
-                return view('Asset.MasterAsset', [
-                    'masterAssets' => [],
-                    'masterAssets_pagination' => null,
-                    'error' => is_array($errorData) ? implode(', ', (array)$errorData) : $errorData
-                ]);
-            }
-
-            $masterAssets = $masterAssetsResult['data'] ?? [];
-
-            // Format pagination for masterAssets
-            $masterAssetsPagination = null;
-            if (isset($masterAssetsResult['pagination'])) {
-                $pagination = $masterAssetsResult['pagination'];
-                $masterAssetsPagination = [
-                    'current_page' => $pagination['current_page'] ?? 1,
-                    'last_page' => $pagination['total_pages'] ?? ceil(($pagination['total_items'] ?? 0) / ($pagination['limit'] ?? 10)),
-                    'from' => (($pagination['current_page'] ?? 1) - 1) * ($pagination['limit'] ?? 10) + 1,
-                    'to' => min(($pagination['current_page'] ?? 1) * ($pagination['limit'] ?? 10), $pagination['total_items'] ?? 0),
-                    'total' => $pagination['total_items'] ?? 0,
-                    'per_page' => $pagination['limit'] ?? 10,
-                    'next_page_url' => ($pagination['has_next'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] + 1) : null,
-                    'prev_page_url' => ($pagination['has_prev'] ?? false) ? url()->current() . '?page=' . ($pagination['current_page'] - 1) : null,
-                ];
-            }
-
-            // Return JSON response for AJAX requests
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'masterAssets' => $masterAssets,
-                    'pagination' => $masterAssetsPagination
-                ]);
-            }
-
-            // Return view for regular requests
-            return view('Asset.MasterAsset', [
-                'masterAssets' => $masterAssets,
-                'masterAssets_pagination' => $masterAssetsPagination
-            ]);
-        } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Gagal mengambil data: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return view('Asset.MasterAsset', [
-                'masterAssets' => [],
-                'masterAssets_pagination' => null,
-                'error' => 'Gagal mengambil data: ' . $e->getMessage()
-            ]);
+        // Asset type filter
+        if ($request->filled('type')) {
+            $extraParams['asset_type'] = $request->input('type');
         }
+
+        // Brand filter
+        if ($request->filled('brand_id')) {
+            $extraParams['brand_id'] = (int) $request->input('brand_id');
+        }
+
+        // Subcategory filter
+        if ($request->filled('subcategory_id')) {
+            $extraParams['subcategory_id'] = (int) $request->input('subcategory_id');
+        }
+
+        // Custom sort mappings
+        $sortMappings = [
+            'oldest' => ['sort_by' => 'asset_master_id', 'sort_order' => 'asc'],
+            'name_asc' => ['sort_by' => 'asset_name', 'sort_order' => 'asc'],
+            'name_desc' => ['sort_by' => 'asset_name', 'sort_order' => 'desc'],
+            'code_asc' => ['sort_by' => 'asset_master_code', 'sort_order' => 'asc'],
+            'code_desc' => ['sort_by' => 'asset_master_code', 'sort_order' => 'desc'],
+        ];
+
+        return $this->getResourceList(
+            $request,
+            '/asset-masters',
+            'masterAssets',
+            'Asset.MasterAsset',
+            'asset_master_id',
+            $extraParams,
+            $sortMappings
+        );
     }
 
     /**
@@ -170,50 +59,30 @@ class MasterAssetController extends Controller
     public function storeMasterAsset(Request $request)
     {
         try {
-            // Prepare master asset data - only include non-empty fields
-            $masterAssetData = [];
+            $fields = [
+                'asset_name' => ['type' => 'string', 'required' => true],
+                'description' => 'string',
+                'subcategory_id' => 'integer',
+                'brand_id' => 'integer',
+                'is_depreciable' => 'boolean',
+                'needs_calibration' => 'boolean',
+                'asset_type' => 'string',
+                'calibration_period' => 'integer',
+                'maintenance_period' => 'integer',
+                'warranty_period' => 'integer',
+                'estimated_useful_life' => 'integer',
+                'depreciation_method' => 'string',
+                'salvage_value_percentage' => 'float'
+            ];
 
-            // Only add non-empty fields to request body
-            if ($request->filled('asset_name')) {
-                $masterAssetData['asset_name'] = $request->input('asset_name');
-            }
-
-            if ($request->filled('description')) {
-                $masterAssetData['description'] = $request->input('description');
-            }
-
-            if ($request->filled('subcategory_id')) {
-                $masterAssetData['subcategory_id'] = (int) $request->input('subcategory_id');
-            }
-
-            if ($request->filled('brand_id')) {
-                $masterAssetData['brand_id'] = (int) $request->input('brand_id');
-            }
-
-            // Boolean fields - only include if they have values
-            if ($request->has('is_depreciable')) {
-                $masterAssetData['is_depreciable'] = $request->input('is_depreciable') === 'true' || $request->input('is_depreciable') === true;
-            }
-
-            if ($request->has('needs_calibration')) {
-                $masterAssetData['needs_calibration'] = $request->input('needs_calibration') === 'true' || $request->input('needs_calibration') === true;
-            }
-
-            if ($request->filled('asset_type')) {
-                $masterAssetData['asset_type'] = $request->input('asset_type');
-            }
+            $data = DataFormatter::formatRequestData($request, $fields);
 
             // Handle image upload if present
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Add asset data as form fields - only include fields that have values
-                foreach ($masterAssetData as $key => $value) {
-                    // Skip empty values except for boolean fields which might be false
-                    if ($value === null || ($value === '' && !is_bool($value))) {
-                        continue;
-                    }
-
+                // Add asset data as form fields
+                foreach ($data as $key => $value) {
                     // Convert boolean values to string
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
@@ -231,41 +100,25 @@ class MasterAssetController extends Controller
                     'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
-                $options = ['multipart' => $multipartData];
-                $result = $this->apiService->request('POST', '/asset-masters', $options);
+                $result = $this->apiService->request('POST', '/asset-masters', [
+                    'multipart' => $multipartData
+                ]);
             } else {
-                // Standard JSON request if no file is uploaded
-                $options = ['json' => $masterAssetData];
-                $result = $this->apiService->request('POST', '/asset-masters', $options);
+                $result = $this->apiService->request('POST', '/asset-masters', [
+                    'json' => $data
+                ]);
             }
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for other API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] === false) {
-                // Format error message properly before passing to session
-                $errorMessage = 'Gagal membuat aset master';
-
-                if (isset($result['errors'])) {
-                    if (is_array($result['errors'])) {
-                        // Handle array of error messages
-                        $errorMessage = '';
-                        foreach ($result['errors'] as $key => $error) {
-                            if (is_array($error) && isset($error['message'])) {
-                                $errorMessage .= $error['message'] . '. ';
-                            } else if (is_string($error)) {
-                                $errorMessage .= $error . '. ';
-                            }
-                        }
-                    } else {
-                        // Handle string error message
-                        $errorMessage = $result['errors'];
-                    }
-                }
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal membuat aset master';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -275,9 +128,7 @@ class MasterAssetController extends Controller
             return redirect()->route('asset-master')
                 ->with('success', $result['message'] ?? 'Aset master berhasil dibuat');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat aset master: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.MasterAsset');
         }
     }
 
@@ -287,113 +138,74 @@ class MasterAssetController extends Controller
     public function updateMasterAsset(Request $request, $id)
     {
         try {
-            // Prepare master asset data - only include non-empty fields
-            $masterAssetData = [
-                'asset_master_id' => $id // ID is always required for update
+            $fields = [
+                'asset_name' => ['type' => 'string', 'required' => true],
+                'description' => 'string',
+                'subcategory_id' => 'integer',
+                'brand_id' => 'integer',
+                'is_depreciable' => 'boolean',
+                'needs_calibration' => 'boolean',
+                'asset_type' => 'string',
+                'calibration_period' => 'integer',
+                'maintenance_period' => 'integer',
+                'warranty_period' => 'integer',
+                'estimated_useful_life' => 'integer',
+                'depreciation_method' => 'string',
+                'salvage_value_percentage' => 'float'
             ];
 
-            // Only add non-empty fields to request body
-            if ($request->filled('asset_name')) {
-                $masterAssetData['asset_name'] = $request->input('asset_name');
-            }
+            $data = DataFormatter::formatRequestData($request, $fields);
 
-            if ($request->filled('description')) {
-                $masterAssetData['description'] = $request->input('description');
-            }
-
-            if ($request->filled('subcategory_id')) {
-                $masterAssetData['subcategory_id'] = (int) $request->input('subcategory_id');
-            }
-
-            if ($request->filled('brand_id')) {
-                $masterAssetData['brand_id'] = (int) $request->input('brand_id');
-            }
-
-            // Boolean fields need special handling - we need to explicitly include them
-            // because their absence means they should be false
-            $masterAssetData['is_depreciable'] = $request->has('is_depreciable');
-            $masterAssetData['needs_calibration'] = $request->has('needs_calibration');
-
-            if ($request->filled('asset_type')) {
-                $masterAssetData['asset_type'] = $request->input('asset_type');
-            }
+            // ID is always required for update
+            $data['asset_master_id'] = $id;
 
             // Check if the image should be removed
             if ($request->has('remove_image')) {
-                $masterAssetData['remove_image'] = true;
+                $data['remove_image'] = true;
             }
 
             // Handle image upload if present
             if ($request->hasFile('image_file')) {
                 $multipartData = [];
 
-                // Send each field asset data individually in multipart
-                foreach ($masterAssetData as $key => $value) {
-                    // Skip empty values except for booleans which might be false
-                    // and the asset_master_id which is required for updates
-                    if ($key !== 'asset_master_id' && $value === null ||
-                       ($value === '' && !is_bool($value))) {
-                        continue;
-                    }
-
-                    // Convert boolean values to string for multipart
+                // Add asset data as form fields
+                foreach ($data as $key => $value) {
+                    // Convert boolean values to string
                     if (is_bool($value)) {
-                        // Explicitly convert to 'true'/'false' strings
                         $value = $value ? 'true' : 'false';
                     } elseif (is_array($value)) {
                         $value = json_encode($value);
-                    } elseif ($value === null) {
-                        continue; // Skip null values altogether
                     }
 
-                    $multipartData[] = [
-                        'name' => $key,
-                        'contents' => (string)$value // Ensure all values are strings
-                    ];
+                    $multipartData[] = ['name' => $key, 'contents' => $value];
                 }
 
-                // Add file upload
+                // Add the image file
                 $multipartData[] = [
                     'name' => 'image_file',
                     'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
                     'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
-                $options = ['multipart' => $multipartData];
-                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", $options);
+                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", [
+                    'multipart' => $multipartData
+                ]);
             } else {
-                // No file upload, just send JSON data
-                $options = ['json' => $masterAssetData];
-                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", $options);
+                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", [
+                    'json' => $data
+                ]);
             }
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for other API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] === false) {
-                // Format error message properly before passing to session
-                $errorMessage = 'Gagal memperbarui aset master';
-
-                if (isset($result['errors'])) {
-                    if (is_array($result['errors'])) {
-                        // Handle array of error messages
-                        $errorMessage = '';
-                        foreach ($result['errors'] as $key => $error) {
-                            if (is_array($error) && isset($error['message'])) {
-                                $errorMessage .= $error['message'] . '. ';
-                            } else if (is_string($error)) {
-                                $errorMessage .= $error . '. ';
-                            }
-                        }
-                    } else {
-                        // Handle string error message
-                        $errorMessage = $result['errors'];
-                    }
-                }
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal memperbarui aset master';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return redirect()->back()
                     ->withInput()
@@ -403,9 +215,7 @@ class MasterAssetController extends Controller
             return redirect()->route('asset-master')
                 ->with('success', $result['message'] ?? 'Aset master berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal memperbarui aset master: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.MasterAsset');
         }
     }
 
@@ -414,27 +224,12 @@ class MasterAssetController extends Controller
      */
     public function destroyMasterAsset($id)
     {
-        try {
-            $result = $this->apiService->request('DELETE', "/asset-masters/{$id}");
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for other API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] === false) {
-                return redirect()->back()
-                    ->with('error', is_array($result['errors'] ?? 'Gagal menghapus aset master') ? implode(', ', (array)$result['errors']) : ($result['errors'] ?? 'Gagal menghapus aset master'));
-            }
-
-            return redirect()->route('asset-master')
-                ->with('success', $result['message'] ?? 'Aset master berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus aset master: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            request(),
+            "/asset-masters/{$id}",
+            'Aset master berhasil dihapus',
+            'asset-master'
+        );
     }
 
     /**
@@ -443,340 +238,249 @@ class MasterAssetController extends Controller
     public function getMasterAsset($id)
     {
         try {
-            // Fetch the master asset with the given ID
-            $result = $this->apiService->request('GET', "/asset-masters/{$id}");
+            $result = $this->getResource(
+                request(),
+                "/asset-masters/{$id}",
+                'masterAsset',
+                'Asset.EditMasterAsset'
+            );
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if (request()->ajax()) {
+            if (request()->ajax() && $result instanceof \Illuminate\Http\JsonResponse) {
+                $responseData = json_decode($result->getContent(), true);
+
+                if (isset($responseData['masterAsset'])) {
+
+                    // Return complete data set for the modal
                     return response()->json([
-                        'success' => false,
-                        'errors' => ['authentication' => 'Autentikasi gagal']
-                    ], 401);
+                        'masterAsset' => $responseData['masterAsset'],
+                    ]);
                 }
-
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
             }
 
-            // Check for API errors based on status flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data aset master';
-
-                if (request()->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], 400);
-                }
-
-                return redirect()->back()->with('error', is_array($errorData) ? implode(', ', (array)$errorData) : $errorData);
-            }
-
-            $masterAsset = $result['data'] ?? null;
-
-            if (!$masterAsset) {
-                $errorMessage = 'Aset master tidak ditemukan atau data respons tidak valid';
-
-                if (request()->ajax()) {
-                    return response()->json(['error' => $errorMessage], 404);
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
-            }
-
-            // For AJAX requests, also fetch subcategories and brands
-            if (request()->ajax()) {
-                // Fetch subcategories
-                $subcategoriesResult = $this->apiService->request('GET', '/asset-subcategories');
-                $subcategories = $subcategoriesResult['data'] ?? [];
-
-                // Fetch brands
-                $brandsResult = $this->apiService->request('GET', '/brands', [
-                    'query' => [
-                        'sort_by' => 'brand_id',
-                        'sort_order' => 'asc'
-                    ]
-                ]);
-                $brands = $brandsResult['data'] ?? [];
-
-                // Return complete data set for the modal
-                return response()->json([
-                    'masterAsset' => $masterAsset,
-                    'subcategories' => $subcategories,
-                    'brands' => $brands
-                ]);
-            }
-
-            // Return full view with master asset data for non-AJAX requests
-            return view('Asset.EditMasterAsset', ['masterAsset' => $masterAsset]);
+            return $result;
         } catch (\Exception $e) {
-            $errorMessage = 'Gagal mengambil data aset master: ' . $e->getMessage();
-
-            if (request()->ajax()) {
-                return response()->json(['error' => $errorMessage], 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
+            return $this->handleException($e, request(), 'Asset.MasterAsset');
         }
     }
 
     /**
-     * Export master assets data to PDF
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * Export master assets to PDF.
      */
     public function exportMasterAssetPDF(Request $request)
     {
         try {
-            // Get filter parameters
-            $search = $request->input('search', '');
-            $assetType = $request->input('type', '');
-            $sortOrder = $request->input('sort', 'newest');
+            // Ambil parameter filter yang sama dengan index
+            $queryParams = [];
 
-            // Build query parameters
-            $queryParams = [
-                'page' => 1,
-                'limit' => 1000  // Get a large number for export
+            if ($request->filled('search')) {
+                $queryParams['search'] = $request->input('search');
+            }
+
+            if ($request->filled('type')) {
+                $queryParams['asset_type'] = $request->input('type');
+            }
+
+            // Tidak menggunakan pagination untuk export
+            $queryParams['pagination'] = 'false';
+            $queryParams['limit'] = 1000;
+
+            // Mendapatkan sorting
+            $sortOrder = $request->input('sort', 'newest');
+            $sortMappings = [
+                'oldest' => ['sort_by' => 'asset_master_id', 'sort_order' => 'asc'],
+                'name_asc' => ['sort_by' => 'asset_name', 'sort_order' => 'asc'],
+                'name_desc' => ['sort_by' => 'asset_name', 'sort_order' => 'desc'],
+                'code_asc' => ['sort_by' => 'asset_master_code', 'sort_order' => 'asc'],
+                'code_desc' => ['sort_by' => 'asset_master_code', 'sort_order' => 'desc'],
             ];
 
-            // Set sort parameters based on sortOrder
-            switch ($sortOrder) {
-                case 'oldest':
-                    $queryParams['sort_by'] = 'asset_master_id';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'name_asc':
-                    $queryParams['sort_by'] = 'asset_name';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'name_desc':
-                    $queryParams['sort_by'] = 'asset_name';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'code_asc':
-                    $queryParams['sort_by'] = 'asset_master_code';
-                    $queryParams['sort_order'] = 'asc';
-                    break;
-                case 'code_desc':
-                    $queryParams['sort_by'] = 'asset_master_code';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
-                case 'newest':
-                default:
-                    $queryParams['sort_by'] = 'asset_master_id';
-                    $queryParams['sort_order'] = 'desc';
-                    break;
+            // Menerapkan sorting
+            if (!empty($sortOrder) && isset($sortMappings[$sortOrder])) {
+                $queryParams = array_merge($queryParams, $sortMappings[$sortOrder]);
+            } else {
+                $queryParams['sort_by'] = 'asset_master_id';
+                $queryParams['sort_order'] = 'desc';
             }
 
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            if (!empty($assetType)) {
-                $queryParams['asset_type'] = $assetType;
-            }
-
-            // Fetch master assets for PDF
+            // Get data for export
             $masterAssetsResult = $this->apiService->request('GET', '/asset-masters', [
                 'query' => $queryParams
             ]);
 
-            // Check for auth errors
-            if (isset($masterAssetsResult['errors']) && is_string($masterAssetsResult['errors']) &&
-                in_array($masterAssetsResult['errors'], ['auth_failed', 'session_expired'])) {
-                return redirect()->route('login')->with('error', is_string($masterAssetsResult['errors'] ?? 'Autentikasi gagal') ? $masterAssetsResult['errors'] : 'Autentikasi gagal');
+            // Handle errors
+            $authError = $this->handleAuthError($masterAssetsResult, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for API errors based on status flag
-            if (!isset($masterAssetsResult['success']) || $masterAssetsResult['success'] !== true) {
-                $errorData = $masterAssetsResult['errors'] ?? 'Gagal mengambil data aset master';
-                return redirect()->back()->with('error', is_array($errorData) ? implode(', ', (array)$errorData) : $errorData);
+            $apiError = $this->handleApiError($masterAssetsResult, $request, 'Asset.MasterAsset', 'Gagal mengambil data untuk ekspor');
+            if ($apiError) {
+                return $apiError;
             }
 
-            // Get master assets data
             $masterAssets = $masterAssetsResult['data'] ?? [];
 
-            // Generate PDF
-            $pdf = Pdf::loadView('Asset.MasterAssetPDF', [
-                'masterAssets' => $masterAssets,
-                'search' => $search,
-                'assetType' => $assetType,
-                'sort' => $sortOrder,
-                'date_generated' => now()->format('d M Y H:i:s')
-            ]);
+            // Generate filename
+            $timestamp = date('YmdHis');
+            $filename = "laporan_aset_master_{$timestamp}.pdf";
 
-            // Stream the PDF to browser
-            return $pdf->stream('laporan_aset_master_' . now()->format('YmdHis') . '.pdf');
+            // Generate PDF
+            return $this->generatePdf(
+                'Asset.MasterAssetPDF',
+                [
+                    'masterAssets' => $masterAssets,
+                    'search' => $request->input('search', ''),
+                    'assetType' => $request->input('type', ''),
+                    'sort' => $sortOrder,
+                    'date_generated' => date('d M Y H:i:s')
+                ],
+                $filename,
+                'landscape'
+            );
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor Aset Master sebagai PDF: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.MasterAsset');
         }
     }
 
     /**
-     * Import master assets from Excel data.
+     * Import master assets from Excel/CSV.
      */
     public function importMasterAsset(Request $request)
     {
         try {
+            if (!$request->hasFile('excel_file_upload') && !$request->has('excel_data')) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => 'Tidak ada file atau data yang diunggah'
+                ], 400);
+            }
+
             if ($request->hasFile('excel_file_upload')) {
-                // Use multipart form data to send the actual file
-                $multipartData = [];
+                $file = $request->file('excel_file_upload');
 
-                // Add the Excel file
-                $multipartData[] = [
-                    'name' => 'excel_file',
-                    'contents' => fopen($request->file('excel_file_upload')->getPathname(), 'r'),
-                    'filename' => $request->file('excel_file_upload')->getClientOriginalName()
-                ];
+                // Validasi file
+                if (!in_array($file->getClientOriginalExtension(), ['csv', 'xlsx', 'xls'])) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Format file tidak didukung. Gunakan CSV, XLSX, atau XLS.'
+                    ], 400);
+                }
 
-                // Send the actual file to API
+                // Kirim file ke API
                 $result = $this->apiService->request('POST', '/asset-masters/import', [
-                    'multipart' => $multipartData
+                    'multipart' => [
+                        [
+                            'name' => 'excel_file',
+                            'contents' => fopen($file->getPathname(), 'r'),
+                            'filename' => $file->getClientOriginalName()
+                        ]
+                    ]
                 ]);
-            } else if ($request->has('excel_data')) {
-                // Fallback to the previous method if no file but has parsed data
-                // Get the JSON data from the form
+            } else {
+                // Menggunakan data Excel dalam bentuk JSON
                 $excelData = $request->input('excel_data');
 
                 if (empty($excelData)) {
-                    if ($request->expectsJson()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => ['import' => 'Tidak ada data valid untuk diimpor']
-                        ], 400);
-                    }
-                    return redirect()->back()->with('error', 'Tidak ada data valid untuk diimpor');
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Tidak ada data valid untuk diimpor'
+                    ], 400);
                 }
 
-                // Decode the JSON data
+                // Mendekode data JSON
                 $parsedData = json_decode($excelData, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE || !is_array($parsedData) || empty($parsedData)) {
-                    if ($request->expectsJson()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => ['import' => 'Format data tidak valid untuk diimpor']
-                        ], 400);
-                    }
-                    return redirect()->back()->with('error', 'Format data tidak valid untuk diimpor');
+                    return response()->json([
+                        'success' => false,
+                        'errors' => 'Format data tidak valid untuk diimpor'
+                    ], 400);
                 }
 
-                // Send data to API
+                // Mengirim data ke API
                 $result = $this->apiService->request('POST', '/asset-masters/import', [
                     'json' => [
                         'data' => $parsedData
                     ]
                 ]);
-            } else {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['import' => 'Tidak ada file Excel atau data yang disediakan']
-                    ], 400);
-                }
-                return redirect()->back()->with('error', 'Tidak ada file Excel atau data yang disediakan');
             }
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-                return redirect()->route('login')->with('error', is_string($result['errors'] ?? 'Autentikasi gagal') ? $result['errors'] : 'Autentikasi gagal');
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for other API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal mengimpor aset master';
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengimpor data';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
-                // Handle JSON response for API requests
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorData,
-                        'data' => $result['data'] ?? null
-                    ], 400);
-                }
-
-                // Format error message for detailed errors
-                $errorMessage = 'Gagal mengimpor aset master: ';
-
-                if (is_array($errorData)) {
+                // Handle detailed error data
+                if (isset($result['data']['errors']) && is_array($result['data']['errors'])) {
                     $errorDetails = [];
 
-                    foreach ($errorData as $key => $error) {
+                    foreach ($result['data']['errors'] as $error) {
                         if (is_array($error)) {
-                            if (isset($error['message'])) {
+                            if (isset($error['row'], $error['reason'])) {
+                                $errorDetail = "Baris {$error['row']}: ";
+
+                                if (isset($error['asset_name'])) {
+                                    $errorDetail .= "{$error['asset_name']} - ";
+                                }
+
+                                $errorDetail .= $error['reason'];
+                                $errorDetails[] = $errorDetail;
+                            } elseif (isset($error['message'])) {
                                 $errorDetails[] = $error['message'];
-                            } else if (isset($error['asset_name'], $error['reason'])) {
-                                $errorDetails[] = "\"{$error['asset_name']}\" - {$error['reason']}";
-                            } else if (isset($error['row'], $error['reason'])) {
-                                $errorDetails[] = "Baris {$error['row']}: {$error['reason']}";
-                            } else {
-                                $errorDetails[] = implode(', ', $error);
                             }
-                        } else if (is_string($error)) {
+                        } elseif (is_string($error)) {
                             $errorDetails[] = $error;
                         }
                     }
 
-                    // Format as HTML list for non-AJAX response
-                    if (!empty($errorDetails)) {
-                        $errorMessage .= "<ul class='list-disc pl-4 mt-2'>";
-                        foreach ($errorDetails as $detail) {
-                            $errorMessage .= "<li>{$detail}</li>";
-                        }
-                        $errorMessage .= "</ul>";
-                    }
-                } else if (is_string($errorData)) {
-                    $errorMessage = $errorData;
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $errorDetails,
+                        'data' => [
+                            'total' => $result['data']['total'] ?? 0,
+                            'success' => $result['data']['success'] ?? 0,
+                            'failed' => $result['data']['failed'] ?? $result['data']['total'] ?? 0
+                        ]
+                    ], 400);
                 }
 
-                return redirect()->back()->with('error', $errorMessage);
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorMessage
+                ], 400);
             }
 
-            // Extract import results
-            $totalImported = $result['data']['total'] ?? 0;
+            // Success response
+            $importedCount = $result['data']['total'] ?? 0;
             $successCount = $result['data']['success'] ?? 0;
             $failedCount = $result['data']['failed'] ?? 0;
 
-            // Prepare success message
             $successMessage = "Berhasil mengimpor {$successCount} aset master";
             if ($failedCount > 0) {
                 $successMessage .= " ({$failedCount} gagal)";
             }
 
-            // Return response based on request type
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $successMessage,
-                    'data' => [
-                        'total' => $totalImported,
-                        'success' => $successCount,
-                        'failed' => $failedCount
-                    ]
-                ]);
-            }
-
-            // Redirect back with success message for non-AJAX requests
-            return redirect()->route('asset-master')->with('success', $successMessage);
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'data' => [
+                    'total' => $importedCount,
+                    'success' => $successCount,
+                    'failed' => $failedCount
+                ]
+            ]);
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengimpor aset master: ' . $e->getMessage()]
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'Gagal mengimpor aset master: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'errors' => 'Gagal memproses permintaan: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -185,8 +185,8 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $buildingPagination['prev_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildingPagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? '#' : request()->fullUrlWithQuery(['page' => ($buildings_pagination['current_page'] ?? 1) - 1]) }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -196,8 +196,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $buildingPagination['current_page'] ?? 1;
-                                    $lastPage = $buildingPagination['last_page'] ?? 1;
+                                    $currentPage = $buildings_pagination['current_page'] ?? 1;
+                                    $lastPage = $buildings_pagination['last_page'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -208,7 +208,7 @@
                                 @endphp
 
                                 @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['building_page' => 1]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1
                                     </a>
@@ -220,7 +220,7 @@
                                 @endif
 
                                 @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['building_page' => $i]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
                                     </a>
@@ -232,14 +232,14 @@
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['building_page' => $lastPage]) }}"
+                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         {{ $lastPage }}
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ $buildingPagination['next_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildingPagination['current_page'] ?? 1) >= ($buildingPagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <a href="{{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['page' => ($buildings_pagination['current_page'] ?? 1) + 1]) }}"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -251,11 +251,11 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-600">
-                                @if(isset($buildingPagination) && is_array($buildingPagination))
+                                @if(isset($buildings_pagination) && is_array($buildings_pagination))
                                     @php
-                                        $currentPage = $buildingPagination['current_page'] ?? 1;
-                                        $perPage = $buildingPagination['per_page'] ?? 10;
-                                        $total = $buildingPagination['total'] ?? count($buildings ?? []);
+                                        $currentPage = $buildings_pagination['current_page'] ?? 1;
+                                        $perPage = $buildings_pagination['per_page'] ?? 10;
+                                        $total = $buildings_pagination['total'] ?? count($buildings ?? []);
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -267,9 +267,10 @@
                             <select id="buildingPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changeBuildingPerPage(this.value)">
-                                <option value="10" {{ isset($buildingPagination['per_page']) && $buildingPagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ isset($buildingPagination['per_page']) && $buildingPagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ isset($buildingPagination['per_page']) && $buildingPagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="10" {{ isset($buildings_pagination['per_page']) && $buildings_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ isset($buildings_pagination['per_page']) && $buildings_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ isset($buildings_pagination['per_page']) && $buildings_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="50" {{ isset($buildings_pagination['per_page']) && $buildings_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -753,7 +754,8 @@
 
                 window.changeBuildingPerPage = function (limit) {
                     const url = new URL(window.location.href);
-                    url.searchParams.set('building_limit', limit);
+                    url.searchParams.set('limit', limit);
+                    url.searchParams.set('page', 1);
                     window.location.href = url.toString();
                 }
 
@@ -766,14 +768,14 @@
 
                     const url = new URL(window.location.href);
 
-                    ['search', 'sort', 'building_page'].forEach(param => {
+                    ['search', 'sort', 'page'].forEach(param => {
                         url.searchParams.delete(param);
                     });
 
                     if (searchValue) url.searchParams.set('search', searchValue);
                     if (sortValue) url.searchParams.set('sort', sortValue);
 
-                    url.searchParams.set('building_page', 1);
+                    url.searchParams.set('page', 1);
 
                     window.location.href = url.toString();
                 }
@@ -1575,7 +1577,7 @@
 
                         const url = new URL(window.location.href);
                         url.searchParams.set('sort', newSort);
-                        url.searchParams.set('building_page', 1);
+                        url.searchParams.set('page', 1);
                         window.location.href = url.toString();
                     });
                 }
@@ -1594,7 +1596,7 @@
 
                         const url = new URL(window.location.href);
                         url.searchParams.set('sort', newSort);
-                        url.searchParams.set('building_page', 1);
+                        url.searchParams.set('page', 1);
                         window.location.href = url.toString();
                     });
                 }

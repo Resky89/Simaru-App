@@ -348,10 +348,6 @@
                                 <span class="w-[150px] font-semibold text-sm">Kategori</span>
                                 <span class="text-sm">{{ $asset['asset_master']['subcategory_name'] ?? '-' }}</span>
                             </div>
-                            <div class="flex flex-wrap items-center">
-                                <span class="w-[150px] font-semibold text-sm">Merek</span>
-                                <span class="text-sm">{{ $asset['asset_master']['brand_name'] ?? '-' }}</span>
-                            </div>
                             <div class="flex flex-wrap items-start">
                                 <span class="w-[150px] font-semibold text-sm pt-0.5">Deskripsi</span>
                                 <span
@@ -364,6 +360,10 @@
                     <div>
                         <h2 class="text-lg font-semibold text-[#203268] sticky top-0 bg-white py-2 z-10">Informasi Aset</h2>
                         <div class="grid grid-cols-1 gap-y-3">
+                        <div class="flex flex-wrap items-center">
+                                <span class="w-[150px] font-semibold text-sm">Merk</span>
+                                <span class="text-sm">{{ $asset['brand_name'] ?? '-' }}</span>
+                            </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Ruangan</span>
                                 <span class="text-sm">{{ $asset['room_name'] ?? '-' }}</span>
@@ -391,7 +391,7 @@
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Garansi Berakhir</span>
-                                <span class="text-sm">{{ $asset['warranty_end_date'] ?? '-' }}</span>
+                                <span class="text-sm">{{ $asset['warranty_end_date'] ? \Carbon\Carbon::parse($asset['warranty_end_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Nomor Seri</span>
@@ -400,7 +400,7 @@
                             <!-- Add Employee Number for Responsible User -->
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Penanggung Jawab</span>
-                                <span class="text-sm">{{ $asset['employee_number'] ?? '-' }}</span>
+                                <span class="text-sm">{{ $asset['employee_name'] ?? '-' }}</span>
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Harga Beli</span>
@@ -408,7 +408,7 @@
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Tanggal Beli</span>
-                                <span class="text-sm">{{ $asset['purchase_date'] ?? '-' }}</span>
+                                <span class="text-sm">{{ $asset['purchase_date'] ? \Carbon\Carbon::parse($asset['purchase_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
                             </div>
 
                             @if($asset['current_status'] === 'dispose')
@@ -418,7 +418,7 @@
                                         @if(isset($asset['updated_at']))
                                             @php
                                                 // Convert the timestamp to a more readable format without time
-                                                $disposedDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
+                                                $disposedDate = \Carbon\Carbon::parse($asset['updated_at'])->locale('id')->translatedFormat('d F Y');
                                             @endphp
                                             {{ $disposedDate }}
                                         @else
@@ -435,7 +435,7 @@
                                         @if(isset($asset['updated_at']))
                                             @php
                                                 // Convert the timestamp to a more readable format
-                                                $lostDate = \Carbon\Carbon::parse($asset['updated_at'])->format('Y-m-d');
+                                                $lostDate = \Carbon\Carbon::parse($asset['updated_at'])->locale('id')->translatedFormat('d F Y');
                                             @endphp
                                             {{ $lostDate }}
                                         @else
@@ -545,7 +545,7 @@
     @if(hasPermission('asset:edit'))
         <div id="editAssetModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="editAssetModalContent">
@@ -601,6 +601,18 @@
                                                         <span>Memuat master aset...</span>
                                                     </div>
                                                     <ul id="edit_asset_master_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for infinite scroll -->
+                                                    <div id="edit_asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -631,12 +643,16 @@
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
-                                                <input type="number" name="purchase_cost" id="edit_purchase_cost" step="0.01"
-                                                    value="{{ $asset['purchase_cost'] ?? '0.00' }}"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
-                                                    harus diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="purchase_cost" id="edit_purchase_cost"
+                                                        value="{{ number_format($asset['purchase_cost'] ?? 0, 0, '', '.') }}"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -678,6 +694,18 @@
                                                             <span>Memuat Gedung...</span>
                                                         </div>
                                                         <ul id="edit_building_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for building dropdown -->
+                                                        <div id="edit_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -688,8 +716,8 @@
                                                     <input type="text" id="edit_room_search"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                         placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
-                                                    <input type="hidden" name="room_id" id="edit_selected_room_id"
-                                                        value="{{ $asset['room_id'] ?? '' }}">
+                                                    <input type="hidden" name="room_id" id="edit_selected_room_id">
+                                                    <input type="hidden" name="room_id" id="edit_selected_room_id" value="{{ $asset['room_id'] ?? '' }}">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus
                                                         dipilih</div>
                                                     <div id="edit_room_dropdown"
@@ -707,6 +735,18 @@
                                                             <span>Memuat ruangan...</span>
                                                         </div>
                                                         <ul id="edit_room_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for room dropdown -->
+                                                        <div id="edit_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -720,7 +760,7 @@
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                                     <option value="good" {{ $asset['condition'] == 'good' ? 'selected' : '' }}>
                                                         Baik</option>
-                                                    <option value="slightly damage" {{ $asset['condition'] == 'slightly damage' ? 'selected' : '' }}>Sedikit Rusak</option>
+                                                    <option value="slightly damage" {{ $asset['condition'] == 'slighly damage' ? 'selected' : '' }}>Sedikit Rusak</option>
                                                     <option value="high damage" {{ $asset['condition'] == 'high damage' ? 'selected' : '' }}>Sangat Rusak</option>
                                                 </select>
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Kondisi harus
@@ -733,8 +773,7 @@
                                                     <input type="text" id="edit_user_search"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                         placeholder="Cari karyawan (nomor karyawan)..." autocomplete="off">
-                                                    <input type="hidden" name="user_id" id="edit_selected_user_id"
-                                                        value="{{ $asset['user_id'] ?? '' }}">
+                                                    <input type="hidden" name="user_id" id="edit_selected_user_id">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Karyawan harus
                                                         dipilih</div>
                                                     <div id="edit_user_dropdown"
@@ -752,6 +791,18 @@
                                                             <span> Memuat Pengguna...</span>
                                                         </div>
                                                         <ul id="edit_user_list" class="py-1"></ul>
+                                                        <!-- Load more indicator for user dropdown -->
+                                                        <div id="edit_user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                            <svg class="animate-spin h-5 w-5 mx-auto"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor"
+                                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                                </path>
+                                                            </svg>
+                                                            <span>Memuat lebih banyak...</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -782,23 +833,30 @@
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="number" step="0.01" name="acquisition_cost"
-                                                    id="edit_acquisition_cost"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['acquisition_cost'] : '' }}">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="acquisition_cost" id="edit_acquisition_cost"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')"
+                                                        value="{{ isset($asset['depreciation']) ? number_format($asset['depreciation']['acquisition_cost'], 0, '', '.') : '0' }}">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus diisi</div>
+                                                </div>
                                             </div>
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="number" step="0.01" name="salvage_value" id="edit_salvage_value"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="0.00"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['salvage_value'] : '' }}">
-                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
-                                                    diisi</div>
+                                                <div class="relative">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <span class="text-gray-500">Rp</span>
+                                                    </div>
+                                                    <input type="text" name="salvage_value" id="edit_salvage_value"
+                                                        class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')"
+                                                        value="{{ isset($asset['depreciation']) ? number_format($asset['depreciation']['salvage_value'], 0, '', '.') : '0' }}">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -842,7 +900,7 @@
     @if(hasPermission('asset:checkout'))
         <div id="checkoutAssetModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="checkoutAssetModalContent">
@@ -918,6 +976,18 @@
                                                     <span>Memuat Pengguna...</span>
                                                 </div>
                                                 <ul id="checkout_user_list" class="py-1"></ul>
+                                                <!-- Load more indicator for checkout user dropdown -->
+                                                <div id="checkout_user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <svg class="animate-spin h-5 w-5 mx-auto"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                    <span>Memuat lebih banyak...</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -949,6 +1019,18 @@
                                                         <span>Memuat Gedung...</span>
                                                     </div>
                                                     <ul id="pinjam_building_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for pinjam building dropdown -->
+                                                    <div id="pinjam_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -978,6 +1060,18 @@
                                                         <span>Memuat Ruangan...</span>
                                                     </div>
                                                     <ul id="pinjam_room_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for pinjam room dropdown -->
+                                                    <div id="pinjam_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1009,7 +1103,7 @@
     @if(hasPermission('asset:checkout'))
         <div id="checkinAssetModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="checkinAssetModalContent">
@@ -1081,7 +1175,7 @@
     @if(hasPermission('asset:report-loss'))
         <div id="reportLostModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="reportLostModalContent">
@@ -1141,7 +1235,7 @@
     @if(hasPermission('asset:report-found'))
         <div id="foundAssetModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="foundAssetModalContent">
@@ -1190,7 +1284,7 @@
     @if(hasPermission('asset:dispose'))
         <div id="disposeAssetModal" class="fixed inset-0 z-50 hidden">
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-50 overflow-visible modal-container">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                     <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="disposeAssetModalContent">
@@ -1321,6 +1415,106 @@
             scrollbar-width: thin;
             scrollbar-color: #c1c1c1 #f1f1f1;
         }
+        
+        /* Fix dropdown positioning */
+        #user_dropdown, #edit_user_dropdown,
+        #building_dropdown, #edit_building_dropdown,
+        #room_dropdown, #edit_room_dropdown,
+        #asset_master_dropdown, #edit_asset_master_dropdown,
+        #checkout_user_dropdown, #pinjam_building_dropdown, #pinjam_room_dropdown {
+            position: absolute;
+            z-index: 9999;
+        }
+
+        /* Fix parent container to allow overflow */
+        .relative {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        /* Fix for modals to allow dropdowns to appear outside */
+        .modal-container {
+            overflow-y: auto !important; /* Enable vertical scrolling */
+            height: 100vh; /* Use full viewport height */
+            /* Hide scrollbar but keep functionality */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .modal-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Keep dropdowns visible */
+        .fixed.inset-0.z-50 {
+            overflow-y: auto !important;
+        }
+
+        .fixed.inset-0.z-50 .min-h-full {
+            min-height: auto !important;
+            padding: 2rem 0;
+        }
+        
+        /* Add spacing at the bottom for long forms */
+        .modal-container > div {
+            padding-bottom: 2rem;
+        }
+        
+        /* Reset inner content scrolling */
+        #editAssetModalContent, #checkoutAssetModalContent, #checkinAssetModalContent,
+        #reportLostModalContent, #foundAssetModalContent, #disposeAssetModalContent {
+            overflow-y: visible !important;
+            max-height: none !important;
+        }
+        
+        /* Asset Master Dropdown Styling */
+        .asset-master-item, .building-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .asset-master-item .name, .building-item .name {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .asset-master-item .code {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        /* User Dropdown Styling */
+        .user-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-item .name {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .user-item .code {
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        /* Room Dropdown Styling */
+        .room-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .room-item .name {
+            font-weight: 500;
+            color: #666;
+        }
+
+        /* Dropdown Scroll Loading Indicator */
+        #edit_asset_master_load_more, #edit_room_load_more, #edit_building_load_more, #edit_user_load_more {
+            padding: 8px 0;
+        }
     </style>
 @endsection
 
@@ -1330,6 +1524,39 @@
 
             const assetId = '{{ $asset['asset_id'] ?? "" }}';
             const currentStatus = '{{ $asset['current_status'] ?? "" }}';
+
+            // Currency formatting function from UnitAsset.blade.php
+            function formatCurrency(input, blur) {
+                let value = input.value.replace(/[^\d]/g, '');
+
+                if (value === '') {
+                    input.value = '';
+                    return;
+                }
+
+                if (value.length > 15) {
+                    value = value.substring(0, 15);
+                }
+
+                let formattedValue = '';
+                let counter = 0;
+
+                for (let i = value.length - 1; i >= 0; i--) {
+                    counter++;
+                    formattedValue = value.charAt(i) + formattedValue;
+                    if (counter % 3 === 0 && i > 0) {
+                        formattedValue = '.' + formattedValue;
+                    }
+                }
+
+                input.value = formattedValue;
+            }
+            window.formatCurrency = formatCurrency;
+
+            function parseFormattedNumber(value) {
+                return value.replace(/\./g, '').replace(/[^\d]/g, '');
+            }
+            window.parseFormattedNumber = parseFormattedNumber;
 
             function initializeButtons() {
                 @if(!hasPermission('asset:edit'))
@@ -1737,16 +1964,46 @@
 
                 searchInput.addEventListener('focus', function () {
                     dropdown.classList.remove('hidden');
-                    onSearch(this.value);
+                    if (list.children.length === 0) {
+                        onSearch('');
+                    }
                 });
 
                 searchInput.addEventListener('input', debounce(function (e) {
+                    // Reset pagination when searching
+                    list.dataset.page = "1";
+                    list.dataset.hasMoreData = "true";
+                    list.dataset.searchTerm = e.target.value;
                     onSearch(e.target.value);
                 }, 300));
 
                 document.addEventListener('click', function (e) {
                     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
                         dropdown.classList.add('hidden');
+                    }
+                });
+                
+                // Add scroll event listener for lazy loading
+                dropdown.addEventListener('scroll', function() {
+                    // Check if we're already loading or if there's no more data
+                    if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
+                    
+                    const { scrollTop, scrollHeight, clientHeight } = dropdown;
+                    // When user is near the bottom (20px threshold)
+                    if (scrollTop + clientHeight >= scrollHeight - 20) {
+                        // Get appropriate load more indicator
+                        const loadMoreId = list.id.replace('list', 'load_more');
+                        const loadMoreElement = document.getElementById(loadMoreId);
+                        
+                        if (loadMoreElement) {
+                            loadMoreElement.classList.remove('hidden');
+                            // Load more data after a small delay for better UX
+                            setTimeout(() => {
+                                onSearch(list.dataset.searchTerm || '');
+                            }, 100);
+                        } else {
+                            onSearch(list.dataset.searchTerm || '');
+                        }
                     }
                 });
             }
@@ -1895,11 +2152,29 @@
             }
 
             async function loadUsers(searchTerm, userList, loadingIndicator, selectedUserId, searchInput, dropdown) {
-                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                userList.innerHTML = '';
+                // Setup for lazy loading
+                let page = userList.dataset.page ? parseInt(userList.dataset.page) : 1;
+                let isLoading = userList.dataset.loading === "true";
+                let hasMoreData = userList.dataset.hasMoreData !== "false";
+                let resetList = !userList.dataset.page || userList.dataset.searchTerm !== searchTerm;
+                
+                // Save current search term
+                userList.dataset.searchTerm = searchTerm;
+                
+                if (isLoading) return;
+                
+                // Set loading state
+                userList.dataset.loading = "true";
+                
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    userList.innerHTML = '';
+                    page = 1;
+                }
 
                 try {
-                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active`, {
+                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -1910,28 +2185,64 @@
 
                     const result = await response.json();
                     let users = result.users || result.data || [];
+                    
+                    // Check if we have more data to load
+                    hasMoreData = users.length === 20;
+                    
+                    // Save next page number and has more data state
+                    userList.dataset.page = page + 1;
+                    userList.dataset.hasMoreData = hasMoreData.toString();
 
-                    if (users.length === 0) {
+                    if (users.length === 0 && userList.children.length === 0) {
                         userList.appendChild(createDropdownItem('No users found', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         users.forEach(user => {
-                            let displayText = '';
-                            if (user.employee_number) {
-                                displayText = user.employee_number;
-                                if (user.name) displayText += ` - ${user.name}`;
-                            } else if (user.name) {
-                                displayText = user.name;
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'user-item';
+                            
+                            let displayName = '';
+                            let displayId = '';
+                            
+                            if (user.employee_name) {
+                                displayName = user.employee_name;
+                                if (user.name) {
+                                    displayId = user.name;
+                                }
                             } else {
-                                displayText = `User ID: ${user.user_id}`;
+                                displayName = user.name || `User ID: ${user.user_id}`;
                             }
-
-                            const li = createDropdownItem(displayText);
+                            
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name';
+                            nameSpan.textContent = displayName;
+                            itemContainer.appendChild(nameSpan);
+                            
+                            if (displayId) {
+                                const idSpan = document.createElement('div');
+                                idSpan.className = 'code';
+                                idSpan.textContent = displayId;
+                                itemContainer.appendChild(idSpan);
+                            }
+                            
+                            li.appendChild(itemContainer);
+                            
                             li.setAttribute('data-id', user.user_id);
-                            li.setAttribute('data-name', displayText);
+                            li.setAttribute('data-employee-name', user.employee_name || '');
+                            li.setAttribute('data-name', displayName);
 
                             li.addEventListener('click', function () {
                                 selectedUserId.value = this.getAttribute('data-id');
-                                searchInput.value = this.getAttribute('data-name');
+
+                                const employeeName = this.getAttribute('data-employee-name');
+                                if (employeeName) {
+                                    searchInput.value = employeeName;
+                                } else {
+                                    searchInput.value = this.getAttribute('data-name');
+                                }
+
                                 dropdown.classList.add('hidden');
                             });
 
@@ -1940,18 +2251,49 @@
                     }
                 } catch (error) {
                     console.error('Error loading users:', error);
-                    userList.appendChild(createDropdownItem('Error loading users', 'px-4 py-2 text-red-500'));
+                    if (userList.children.length === 0) {
+                        userList.appendChild(createDropdownItem('Error loading users', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    userList.dataset.loading = "false";
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
 
             async function loadAssetMasters(searchTerm, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown) {
-                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                assetMasterList.innerHTML = '';
+                // Setup for lazy loading
+                let page = assetMasterList.dataset.page ? parseInt(assetMasterList.dataset.page) : 1;
+                let isLoading = assetMasterList.dataset.loading === "true";
+                let hasMoreData = assetMasterList.dataset.hasMoreData !== "false";
+                let resetList = !assetMasterList.dataset.page || assetMasterList.dataset.searchTerm !== searchTerm;
+                
+                // Get loading indicators
+                const initialLoadingIndicator = loadingIndicator;
+                const loadMoreIndicator = document.getElementById('edit_asset_master_load_more');
+                
+                // Save current search term
+                assetMasterList.dataset.searchTerm = searchTerm;
+                
+                if (isLoading) return;
+                
+                // Set loading state
+                assetMasterList.dataset.loading = "true";
+                
+                // Show appropriate loading indicator
+                if (resetList) {
+                    if (initialLoadingIndicator) initialLoadingIndicator.classList.remove('hidden');
+                    assetMasterList.innerHTML = '';
+                    page = 1;
+                    
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
+                } else {
+                    // Show bottom loading indicator when loading more items
+                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                }
 
                 try {
-                    const response = await fetch(`{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                    const response = await fetch(`{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -1962,22 +2304,60 @@
 
                     const result = await response.json();
                     let assetMasters = result.masterAssets || result.data || [];
+                    
+                    // Check if we have more data to load
+                    hasMoreData = assetMasters.length === 20;
+                    
+                    // Save next page number and has more data state
+                    assetMasterList.dataset.page = page + 1;
+                    assetMasterList.dataset.hasMoreData = hasMoreData.toString();
 
-                    if (assetMasters.length === 0) {
-                        assetMasterList.appendChild(createDropdownItem('No asset masters found', 'px-4 py-2 text-gray-500 italic'));
+                    if (assetMasters.length === 0 && assetMasterList.children.length === 0) {
+                        assetMasterList.appendChild(createDropdownItem('Master aset tidak ditemukan', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         assetMasters.forEach(item => {
                             const assetMasterName = item.asset_name || 'Unknown';
-                            const li = createDropdownItem(assetMasterName);
+                            const assetMasterCode = item.asset_master_code || '';
+                            
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            
+                            // Create more detailed display with code and name
+                            if (assetMasterCode) {
+                                const itemContainer = document.createElement('div');
+                                itemContainer.className = 'asset-master-item';
+                                
+                                // Create name element
+                                const nameSpan = document.createElement('div');
+                                nameSpan.className = 'name';
+                                nameSpan.textContent = assetMasterName;
+                                
+                                // Create code element
+                                const codeSpan = document.createElement('div');
+                                codeSpan.className = 'code';
+                                codeSpan.textContent = assetMasterCode;
+                                
+                                // Append name first, then code
+                                itemContainer.appendChild(nameSpan);
+                                itemContainer.appendChild(codeSpan);
+                                li.appendChild(itemContainer);
+                            } else {
+                                li.textContent = assetMasterName;
+                            }
 
                             const isDepreciable = item.is_depreciable === true;
                             li.setAttribute('data-id', item.asset_master_id);
                             li.setAttribute('data-name', assetMasterName);
+                            li.setAttribute('data-code', assetMasterCode || '');
                             li.setAttribute('data-depreciable', isDepreciable);
 
                             li.addEventListener('click', function () {
                                 selectedAssetMasterId.value = this.getAttribute('data-id');
-                                searchInput.value = this.getAttribute('data-name');
+                                
+                                // Display code and name in search field for better UX
+                                const code = this.getAttribute('data-code');
+                                const name = this.getAttribute('data-name');
+                                searchInput.value = code ? `${name} - ${code}` : name;
 
                                 const isDepreciable = this.getAttribute('data-depreciable') === 'true';
                                 selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
@@ -1994,9 +2374,16 @@
                     }
                 } catch (error) {
                     console.error('Error loading asset masters:', error);
-                    assetMasterList.appendChild(createDropdownItem('Error loading asset masters', 'px-4 py-2 text-red-500'));
+                    if (assetMasterList.children.length === 0) {
+                        assetMasterList.appendChild(createDropdownItem('Error loading asset masters', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
-                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    // Reset loading state
+                    assetMasterList.dataset.loading = "false";
+                    
+                    // Hide all loading indicators
+                    if (initialLoadingIndicator) initialLoadingIndicator.classList.add('hidden');
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
 
@@ -2185,8 +2572,13 @@
             const purchaseCostInput = document.getElementById('edit_purchase_cost');
             if (purchaseCostInput) {
                 purchaseCostInput.addEventListener('input', function () {
-                    if (document.getElementById('edit_is_depreciable').checked) {
-                        document.getElementById('edit_acquisition_cost').value = this.value;
+                    formatCurrency(this);
+
+                    if (document.getElementById('edit_selected_is_depreciable').value === 'true') {
+                        const acquisitionCostInput = document.getElementById('edit_acquisition_cost');
+                        if (acquisitionCostInput) {
+                            acquisitionCostInput.value = this.value;
+                        }
                     }
                 });
             }
@@ -2240,7 +2632,11 @@
                 form.reset();
 
                 document.getElementById('edit_serial_number').value = asset.serial_number || '';
-                document.getElementById('edit_purchase_cost').value = asset.purchase_cost || '';
+
+                // Format purchase cost with Indonesian format (dots for thousands)
+                const purchaseCost = asset.purchase_cost || '0';
+                const formattedPurchaseCost = Number(purchaseCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                document.getElementById('edit_purchase_cost').value = formattedPurchaseCost;
 
                 if (asset.purchase_date) {
                     document.getElementById('edit_purchase_date').value = asset.purchase_date.split(' ')[0];
@@ -2268,29 +2664,94 @@
                     }
                 }
 
-                document.getElementById('edit_selected_building_id').value = '{{ $asset["building_id"] ?? "" }}';
-                document.getElementById('edit_building_search').value = '{{ $asset["building_name"] ?? "" }}';
+                // Get building name from asset data
+                const buildingName = asset.building_name || '';
 
+                // Set the building name in the search field
+                document.getElementById('edit_building_search').value = buildingName;
+
+                // Enable room search field
                 const roomSearch = document.getElementById('edit_room_search');
                 if (roomSearch) {
                     roomSearch.disabled = false;
                     roomSearch.placeholder = "Cari ruangan...";
                 }
 
-                document.getElementById('edit_selected_room_id').value = '{{ $asset["room_id"] ?? "" }}';
-                document.getElementById('edit_room_search').value = '{{ $asset["room_name"] ?? "" }}';
+                // Set room data
+                const roomId = asset.room_id || '';
+                const roomName = asset.room_name || '';
+                document.getElementById('edit_selected_room_id').value = roomId;
+                document.getElementById('edit_room_search').value = roomName;
+
+                // If we have a building name, fetch building data to get the ID
+                if (buildingName) {
+                    // First check if building is in our cache
+                    let buildingId = asset.building_id || '';
+
+                    // If we have the building ID from asset data, use it directly
+                    if (buildingId) {
+                        document.getElementById('edit_selected_building_id').value = buildingId;
+
+                        // Load rooms for this building
+                        loadRoomsForBuilding(
+                            '',
+                            buildingId,
+                            document.getElementById('edit_room_list'),
+                            document.getElementById('edit_room_loading'),
+                            document.getElementById('edit_selected_room_id'),
+                            roomSearch,
+                            document.getElementById('edit_room_dropdown')
+                        );
+                    } else {
+                        // Otherwise, fetch buildings to find the ID by name
+                        fetch(`{{ route('buildings') }}?search=${encodeURIComponent(buildingName)}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const buildings = data.buildings || [];
+                            // Find the building with matching name
+                            const matchingBuilding = buildings.find(b =>
+                                b.building_name.toLowerCase() === buildingName.toLowerCase()
+                            );
+
+                            if (matchingBuilding) {
+                                document.getElementById('edit_selected_building_id').value = matchingBuilding.building_id;
+
+                                // Load rooms for this building
+                                loadRoomsForBuilding(
+                                    '',
+                                    matchingBuilding.building_id,
+                                    document.getElementById('edit_room_list'),
+                                    document.getElementById('edit_room_loading'),
+                                    document.getElementById('edit_selected_room_id'),
+                                    roomSearch,
+                                    document.getElementById('edit_room_dropdown')
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching buildings:', error);
+                        });
+                    }
+                }
 
                 if (asset.user_id) {
                     document.getElementById('edit_selected_user_id').value = asset.user_id;
 
                     let userDisplay = '';
                     if (asset.user) {
-                        if (asset.user.employee_number) {
-                            userDisplay = asset.user.employee_number;
+                        if (asset.user.employee_name) {
+                            userDisplay = asset.user.employee_name;
                             if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
                         } else if (asset.user.name) {
                             userDisplay = asset.user.name;
                         }
+                    } else if (asset.employee_name) {
+                        userDisplay = asset.employee_name;
                     }
 
                     document.getElementById('edit_user_search').value = userDisplay;
@@ -2310,8 +2771,17 @@
 
                         if (asset.depreciation) {
                             document.getElementById('edit_depreciation_method').value = asset.depreciation.depreciation_method || 'Straight Line';
-                            document.getElementById('edit_acquisition_cost').value = asset.depreciation.acquisition_cost || asset.purchase_cost || '0';
-                            document.getElementById('edit_salvage_value').value = asset.depreciation.salvage_value || '0';
+
+                            // Format acquisition cost with Indonesian format
+                            const acquisitionCost = asset.depreciation.acquisition_cost || asset.purchase_cost || '0';
+                            const formattedAcquisitionCost = Number(acquisitionCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            document.getElementById('edit_acquisition_cost').value = formattedAcquisitionCost;
+
+                            // Format salvage value with Indonesian format
+                            const salvageValue = asset.depreciation.salvage_value || '0';
+                            const formattedSalvageValue = Number(salvageValue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            document.getElementById('edit_salvage_value').value = formattedSalvageValue;
+
                             document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '12';
 
                             if (asset.depreciation.date_acquired) {
@@ -2321,8 +2791,15 @@
                             }
                         } else {
                             document.getElementById('edit_depreciation_method').value = 'Straight Line';
-                            document.getElementById('edit_acquisition_cost').value = asset.purchase_cost || '0';
+
+                            // Format acquisition cost with Indonesian format
+                            const acquisitionCost = asset.purchase_cost || '0';
+                            const formattedAcquisitionCost = Number(acquisitionCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            document.getElementById('edit_acquisition_cost').value = formattedAcquisitionCost;
+
+                            // Set default salvage value to 0
                             document.getElementById('edit_salvage_value').value = '0';
+
                             document.getElementById('edit_asset_life_months').value = '12';
 
                             if (asset.purchase_date) {
@@ -2351,11 +2828,29 @@
             );
 
             async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
-                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                buildingList.innerHTML = '';
+                // Setup for lazy loading
+                let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
+                let isLoading = buildingList.dataset.loading === "true";
+                let hasMoreData = buildingList.dataset.hasMoreData !== "false";
+                let resetList = !buildingList.dataset.page || buildingList.dataset.searchTerm !== searchTerm;
+                
+                // Save current search term
+                buildingList.dataset.searchTerm = searchTerm;
+                
+                if (isLoading) return;
+                
+                // Set loading state
+                buildingList.dataset.loading = "true";
+                
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    buildingList.innerHTML = '';
+                    page = 1;
+                }
 
                 try {
-                    const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}`, {
+                    const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -2367,17 +2862,37 @@
                     }
 
                     const data = await response.json();
-                    const buildings = data.data || [];
+                    const buildings = data.buildings || [];
+                    
+                    // Check if we have more data to load
+                    hasMoreData = buildings.length === 20;
+                    
+                    // Save next page number and has more data state
+                    buildingList.dataset.page = page + 1;
+                    buildingList.dataset.hasMoreData = hasMoreData.toString();
 
-                    if (buildings.length === 0) {
+                    if (buildings.length === 0 && buildingList.children.length === 0) {
                         buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
                     } else {
                         buildings.forEach(building => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            li.textContent = building.building_name;
-                            li.setAttribute('data-id', building.building_id);
-                            li.setAttribute('data-name', building.building_name);
+                            
+                            const buildingName = building.building_name || 'Unnamed Building';
+                            const buildingId = building.building_id || '';
+                            
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'building-item';
+                            
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name';
+                            nameSpan.textContent = buildingName;
+                            
+                            itemContainer.appendChild(nameSpan);
+                            li.appendChild(itemContainer);
+                            
+                            li.setAttribute('data-id', buildingId);
+                            li.setAttribute('data-name', buildingName);
 
                             li.addEventListener('click', function () {
                                 selectedBuildingId.value = this.getAttribute('data-id');
@@ -2386,25 +2901,33 @@
                                 if (roomSearchInput) {
                                     roomSearchInput.disabled = false;
                                     roomSearchInput.placeholder = "Cari ruangan...";
-                                    document.getElementById('pinjam_selected_room_id').value = '';
-                                    document.getElementById('pinjam_room_search').value = '';
+                                    
+                                    // Clear room selection
+                                    const isEditModal = roomSearchInput.id === 'edit_room_search';
+                                    const roomIdField = isEditModal ? 'edit_selected_room_id' : 'selected_room_id';
+                                    document.getElementById(roomIdField).value = '';
+                                    roomSearchInput.value = '';
 
-                                    const roomLoadingIndicator = document.getElementById('pinjam_room_loading');
+                                    const roomLoadingId = isEditModal ? 'edit_room_loading' : 'room_loading';
+                                    const roomLoadingIndicator = document.getElementById(roomLoadingId);
                                     if (roomLoadingIndicator) {
                                         roomLoadingIndicator.classList.remove('hidden');
                                     }
 
+                                    const roomListId = isEditModal ? 'edit_room_list' : 'room_list';
+                                    const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'room_dropdown';
+                                    
                                     loadRoomsForBuilding(
                                         '',
                                         this.getAttribute('data-id'),
-                                        document.getElementById('pinjam_room_list'),
-                                        document.getElementById('pinjam_room_loading'),
-                                        document.getElementById('pinjam_selected_room_id'),
+                                        document.getElementById(roomListId),
+                                        document.getElementById(roomLoadingId),
+                                        document.getElementById(roomIdField),
                                         roomSearchInput,
-                                        document.getElementById('pinjam_room_dropdown')
+                                        document.getElementById(roomDropdownId)
                                     );
 
-                                    document.getElementById('pinjam_room_dropdown').classList.remove('hidden');
+                                    document.getElementById(roomDropdownId).classList.remove('hidden');
                                 }
 
                                 dropdown.classList.add('hidden');
@@ -2415,8 +2938,12 @@
                     }
                 } catch (error) {
                     console.error('Error loading buildings:', error);
-                    buildingList.appendChild(createDropdownItem('Galat memuat gedung', 'px-4 py-2 text-red-500'));
+                    if (buildingList.children.length === 0) {
+                        buildingList.appendChild(createDropdownItem('Galat memuat gedung', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    buildingList.dataset.loading = "false";
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
@@ -2465,13 +2992,31 @@
                 searchInput.disabled = false;
                 searchInput.placeholder = "Cari ruangan...";
 
-                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                roomList.innerHTML = '';
-
+                // Setup for lazy loading
+                let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
+                let isLoading = roomList.dataset.loading === "true";
+                let resetList = !roomList.dataset.page || roomList.dataset.searchTerm !== searchTerm;
+                
+                // Save current search term
+                roomList.dataset.searchTerm = searchTerm;
+                
+                if (isLoading) return;
+                
+                // Set loading state
+                roomList.dataset.loading = "true";
+                
+                // Show/hide appropriate loading indicators
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    roomList.innerHTML = '';
+                    page = 1;
+                }
+                
+                // Show dropdown
                 if (dropdown) dropdown.classList.remove('hidden');
 
                 try {
-                    const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                    const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`;
                     const response = await fetch(apiUrl, {
                         headers: {
                             'Accept': 'application/json',
@@ -2488,16 +3033,21 @@
                     let rooms = [];
                     if (Array.isArray(data)) {
                         rooms = data;
-                    } else if (data.data && Array.isArray(data.data)) {
-                        rooms = data.data;
                     } else if (data.rooms && Array.isArray(data.rooms)) {
                         rooms = data.rooms;
                     } else {
                         console.error('Unexpected API response format:', data);
                         throw new Error('Invalid response format from server');
                     }
+                    
+                    // Check if we have more data to load
+                    let hasMoreData = rooms.length === 20;
+                    
+                    // Save next page number and has more data state
+                    roomList.dataset.page = page + 1;
+                    roomList.dataset.hasMoreData = hasMoreData.toString();
 
-                    if (rooms.length === 0) {
+                    if (rooms.length === 0 && (!roomList.children.length || resetList)) {
                         roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         rooms.forEach(room => {
@@ -2511,8 +3061,18 @@
                                 console.warn('Room missing required properties:', room);
                                 return;
                             }
+                            
+                            // Create the room item with styling similar to building and user items
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'room-item';
+                            
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name';
+                            nameSpan.textContent = roomName;
+                            
+                            itemContainer.appendChild(nameSpan);
+                            li.appendChild(itemContainer);
 
-                            li.textContent = roomName;
                             li.setAttribute('data-id', roomId);
                             li.setAttribute('data-name', roomName);
 
@@ -2527,9 +3087,15 @@
                     }
                 } catch (error) {
                     console.error('Error loading rooms:', error);
-                    roomList.innerHTML = '';
-                    roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                    if (!roomList.children.length || resetList) {
+                        roomList.innerHTML = '';
+                        roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    roomList.dataset.loading = "false";
+                    
+                    // Hide loading indicator
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
@@ -2983,7 +3549,15 @@
             });
 
             document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
-                event.preventDefault();
+                event.preventDefault(); // Prevent default form submission
+
+                // Process currency inputs
+                this.querySelectorAll('.currency-input').forEach(input => {
+                    if (input.value) {
+                        const numericValue = parseFormattedNumber(input.value);
+                        input.value = numericValue;
+                    }
+                });
 
                 if (validateEditForm()) {
                     const submitBtn = this.querySelector('button[type="submit"]');
@@ -3081,3 +3655,4 @@
         });
     </script>
 @endpush
+

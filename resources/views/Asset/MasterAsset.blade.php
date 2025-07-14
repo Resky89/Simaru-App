@@ -344,6 +344,7 @@
                                     <option value="10" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                     <option value="25" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                     <option value="50" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                    <option value="100" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                                 </select>
                             </div>
                         </div>
@@ -3033,12 +3034,26 @@
                 optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat merk...</div>';
                 optionsContainer.classList.remove('hidden');
 
+                // Add these variables for lazy loading
+                let page = 1;
+                const perPage = 15;
+                let isLoading = false;
+                let hasMoreData = true;
+                let allBrands = [];
+
+                // Function to load brands with pagination
+                function loadBrands(page, searchValue) {
+                    if (isLoading || !hasMoreData) return;
+                    
+                    isLoading = true;
+                    
                 let queryParams = new URLSearchParams();
                 queryParams.append('json', 'true');
-                queryParams.append('limit', '20');
+                    queryParams.append('page', page);
+                    queryParams.append('limit', perPage);
 
-                if (searchTerm.trim() && !isShowAll) {
-                    queryParams.append('search', searchTerm.trim());
+                    if (searchValue.trim() && !isShowAll) {
+                        queryParams.append('search', searchValue.trim());
                 }
 
                 fetch(`/brands?${queryParams.toString()}`, {
@@ -3055,33 +3070,84 @@
                     })
                     .then(data => {
                         let brands = [];
+                            let pagination = null;
 
                         if (Array.isArray(data)) {
                             brands = data;
                         } else if (data.brands && Array.isArray(data.brands)) {
                             brands = data.brands;
+                                pagination = data.pagination || null;
                         } else if (data.data && Array.isArray(data.data)) {
                             brands = data.data;
-                        }
+                                pagination = data.pagination || data.meta || null;
+                            }
 
-                        displayBrandResults(brands, optionsContainer, hiddenInput, searchInput);
+                            allBrands = [...allBrands, ...brands];
+                            
+                            // Check if we have more data to load
+                            if (pagination) {
+                                hasMoreData = pagination.current_page < pagination.last_page;
+                            } else {
+                                hasMoreData = brands.length >= perPage;
+                            }
+
+                            displayBrandResults(allBrands, optionsContainer, hiddenInput, searchInput, true);
+                            
+                            isLoading = false;
                     })
                     .catch(error => {
                         console.error('Error fetching brands:', error);
+                            if (page === 1) {
                         optionsContainer.innerHTML = `
                         <div class="p-3 text-sm text-red-500 text-center">
                             <p>Gagal memuat merk</p>
                             <p class="text-xs mt-1 text-red-400">${error.message}</p>
                             <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
-                        </div>
-                    `;
-                    });
+                                </div>`;
+                            }
+                            isLoading = false;
+                        });
+                }
+                
+                // Initial load
+                loadBrands(page, searchTerm);
+
+                // Remove any existing scroll event listeners
+                optionsContainer.removeEventListener('scroll', scrollHandler);
+                
+                // Scroll event handler for lazy loading
+                function scrollHandler() {
+                    const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
+                    
+                    // Load more data when user scrolls to 80% of the container
+                    if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                        page++;
+                        loadBrands(page, searchTerm);
+                    }
+                }
+                
+                // Add scroll event listener
+                optionsContainer.addEventListener('scroll', scrollHandler);
             }
 
-            function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem) {
+            function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem, isLazyLoad = false) {
+                // Always clear the initial loading message
+                const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
+                if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat merk')) {
+                    initialLoadingMessage.remove();
+                }
+                
+                if (!isLazyLoad) {
                 resultsElem.innerHTML = '';
+                } else {
+                    // Remove loading indicator if it exists
+                    const loadingIndicator = resultsElem.querySelector('.loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+                }
 
-                if (brands.length === 0) {
+                if (brands.length === 0 && !isLazyLoad) {
                     resultsElem.innerHTML = `
                         <div class="p-4 text-center">
                             <p class="text-gray-500 mb-2">Tidak ada merk yang ditemukan</p>
@@ -3091,12 +3157,16 @@
                     return;
                 }
 
+                // Only add the header if it doesn't exist yet
+                const existingHeader = resultsElem.querySelector('.dropdown-header');
+                if (!existingHeader && brands.length > 0) {
                 const typeTitle = document.createElement('div');
-                typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                    typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
                 typeTitle.textContent = `Daftar Merk`;
-                resultsElem.appendChild(typeTitle);
+                    resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
+                }
 
-                if (searchInputElem && searchInputElem.value.trim()) {
+                if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
                     const searchTerm = searchInputElem.value.trim().toLowerCase();
                     brands.sort((a, b) => {
                         const aName = a.brand_name?.toLowerCase() || '';
@@ -3114,7 +3184,19 @@
                     });
                 }
 
-                brands.forEach((brand, index) => {
+                const existingOptions = new Set();
+                const existingOptionElements = resultsElem.querySelectorAll('.option');
+                
+                existingOptionElements.forEach(element => {
+                    existingOptions.add(element.getAttribute('data-value'));
+                });
+
+                brands.forEach((brand) => {
+                    // Skip duplicates that might occur during lazy loading
+                    if (existingOptions.has(brand.brand_id?.toString())) {
+                        return;
+                    }
+                    
                     const div = document.createElement('div');
                     div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
                     div.textContent = brand.brand_name || 'Unknown Brand';
@@ -3136,13 +3218,22 @@
                     });
 
                     resultsElem.appendChild(div);
+                    existingOptions.add(brand.brand_id?.toString());
                 });
 
-                if (brands.length > 10) {
-                    const countDiv = document.createElement('div');
-                    countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                    countDiv.textContent = `Menampilkan ${brands.length} merk`;
-                    resultsElem.appendChild(countDiv);
+                // Add loading indicator at the bottom for lazy loading
+                if (isLazyLoad) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
+                    loadingDiv.textContent = 'Memuat merk lainnya...';
+                    resultsElem.appendChild(loadingDiv);
+                }
+
+                // Add max height and scrollable class if not already set
+                if (!resultsElem.classList.contains('scrollable-dropdown')) {
+                    resultsElem.classList.add('scrollable-dropdown');
+                    resultsElem.style.maxHeight = '250px';
+                    resultsElem.style.overflowY = 'auto';
                 }
             }
 
@@ -3163,13 +3254,27 @@
                 optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat kategori...</div>';
                 optionsContainer.classList.remove('hidden');
 
+                // Add these variables for lazy loading
+                let page = 1;
+                const perPage = 15;
+                let isLoading = false;
+                let hasMoreData = true;
+                let allCategories = [];
+
+                // Function to load categories with pagination
+                function loadCategories(page, searchValue) {
+                    if (isLoading || !hasMoreData) return;
+                    
+                    isLoading = true;
+
                 let queryParams = new URLSearchParams();
                 queryParams.append('json', 'true');
                 queryParams.append('asset_type', assetType);
-                queryParams.append('limit', '50');
+                    queryParams.append('page', page);
+                    queryParams.append('limit', perPage);
 
-                if (searchTerm.trim() && !isShowAll) {
-                    queryParams.append('search', searchTerm.trim());
+                    if (searchValue.trim() && !isShowAll) {
+                        queryParams.append('search', searchValue.trim());
                 }
 
                 fetch(`/categories?${queryParams.toString()}`, {
@@ -3186,33 +3291,84 @@
                     })
                     .then(data => {
                         let categories = [];
+                            let pagination = null;
 
                         if (Array.isArray(data)) {
                             categories = data;
-                        } else if (data.categories && Array.isArray(data.categories)) {
-                            categories = data.categories;
+                        } else if (data.subcategories && Array.isArray(data.subcategories)) {
+                            categories = data.subcategories;
+                                pagination = data.pagination || null;
                         } else if (data.data && Array.isArray(data.data)) {
                             categories = data.data;
-                        }
+                                pagination = data.pagination || data.meta || null;
+                            }
 
-                        displayCategoryResults(categories, optionsContainer, hiddenInput, searchInput, assetType);
+                            allCategories = [...allCategories, ...categories];
+                            
+                            // Check if we have more data to load
+                            if (pagination) {
+                                hasMoreData = pagination.current_page < pagination.last_page;
+                            } else {
+                                hasMoreData = categories.length >= perPage;
+                            }
+
+                            displayCategoryResults(allCategories, optionsContainer, hiddenInput, searchInput, assetType, true);
+                            
+                            isLoading = false;
                     })
                     .catch(error => {
                         console.error('Error fetching categories:', error);
+                            if (page === 1) {
                         optionsContainer.innerHTML = `
                         <div class="p-3 text-sm text-red-500 text-center">
                             <p>Gagal memuat kategori</p>
                             <p class="text-xs mt-1 text-red-400">${error.message}</p>
                             <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
-                        </div>
-                    `;
-                    });
+                                </div>`;
+                            }
+                            isLoading = false;
+                        });
+                }
+                
+                // Initial load
+                loadCategories(page, searchTerm);
+
+                // Remove any existing scroll event listeners
+                optionsContainer.removeEventListener('scroll', categoryScrollHandler);
+                
+                // Scroll event handler for lazy loading
+                function categoryScrollHandler() {
+                    const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
+                    
+                    // Load more data when user scrolls to 80% of the container
+                    if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                        page++;
+                        loadCategories(page, searchTerm);
+                    }
+                }
+                
+                // Add scroll event listener
+                optionsContainer.addEventListener('scroll', categoryScrollHandler);
             }
 
-            function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType) {
+            function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType, isLazyLoad = false) {
+                // Always clear the initial loading message
+                const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
+                if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat kategori')) {
+                    initialLoadingMessage.remove();
+                }
+                
+                if (!isLazyLoad) {
                 resultsElem.innerHTML = '';
+                } else {
+                    // Remove loading indicator if it exists
+                    const loadingIndicator = resultsElem.querySelector('.loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+                }
 
-                if (categories.length === 0) {
+                if (categories.length === 0 && !isLazyLoad) {
                     resultsElem.innerHTML = `
                         <div class="p-4 text-center">
                             <p class="text-gray-500 mb-2">Tidak ada kategori yang ditemukan</p>
@@ -3222,7 +3378,16 @@
                     return;
                 }
 
-                if (searchInputElem && searchInputElem.value.trim()) {
+                // Only add the header if it doesn't exist yet
+                const existingHeader = resultsElem.querySelector('.dropdown-header');
+                if (!existingHeader && categories.length > 0) {
+                    const typeTitle = document.createElement('div');
+                    typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                    typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
+                    resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
+                }
+
+                if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
                     const searchTerm = searchInputElem.value.trim().toLowerCase();
                     categories.sort((a, b) => {
                         const aName = a.subcategory_name?.toLowerCase() || '';
@@ -3240,12 +3405,19 @@
                     });
                 }
 
-                const typeTitle = document.createElement('div');
-                typeTitle.className = 'p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
-                typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
-                resultsElem.appendChild(typeTitle);
+                const existingOptions = new Set();
+                const existingOptionElements = resultsElem.querySelectorAll('.option');
+                
+                existingOptionElements.forEach(element => {
+                    existingOptions.add(element.getAttribute('data-value'));
+                });
 
                 categories.forEach((category) => {
+                    // Skip duplicates that might occur during lazy loading
+                    if (existingOptions.has(category.subcategory_id?.toString())) {
+                        return;
+                    }
+                    
                     const div = document.createElement('div');
                     div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
                     div.textContent = category.subcategory_name || 'Unknown Category';
@@ -3268,13 +3440,22 @@
                     });
 
                     resultsElem.appendChild(div);
+                    existingOptions.add(category.subcategory_id?.toString());
                 });
 
-                if (categories.length > 10) {
-                    const countDiv = document.createElement('div');
-                    countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
-                    countDiv.textContent = `Menampilkan ${categories.length} kategori`;
-                    resultsElem.appendChild(countDiv);
+                // Add loading indicator at the bottom for lazy loading
+                if (isLazyLoad) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
+                    loadingDiv.textContent = 'Memuat kategori lainnya...';
+                    resultsElem.appendChild(loadingDiv);
+                }
+
+                // Add max height and scrollable class if not already set
+                if (!resultsElem.classList.contains('scrollable-dropdown')) {
+                    resultsElem.classList.add('scrollable-dropdown');
+                    resultsElem.style.maxHeight = '250px';
+                    resultsElem.style.overflowY = 'auto';
                 }
             }
 
@@ -3344,6 +3525,30 @@
                 }
                 .error-message ul li:last-child {
                     margin-bottom: 0;
+                }
+                
+                /* Add these styles for brand dropdown */
+                .scrollable-dropdown {
+                    max-height: 250px;
+                    overflow-y: auto;
+                    scrollbar-width: thin;
+                }
+                .scrollable-dropdown::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .scrollable-dropdown::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                }
+                .scrollable-dropdown::-webkit-scrollbar-thumb {
+                    background: #888;
+                    border-radius: 3px;
+                }
+                .scrollable-dropdown::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+                .loading-indicator {
+                    border-top: 1px solid #eee;
+                    padding-top: 8px;
                 }
             </style>
         `);
