@@ -233,7 +233,7 @@ class AssetDetailsController extends Controller
 
             // Format request data
             $assetData = DataFormatter::formatRequestData($request, $fields);
-            
+
             // Always include the asset ID
             $assetData['asset_id'] = $id;
 
@@ -719,7 +719,7 @@ class AssetDetailsController extends Controller
 
             // Generate filename
             $filename = 'detail_aset_' . $id . '_' . now()->format('YmdHis') . '.pdf';
-            
+
             // Stream the PDF to browser
             return $this->streamPdf('Asset.AssetDetailPDF', [
                 'asset' => $asset,

@@ -5,10 +5,14 @@
 @section('content')
     <style>
         /* Fix dropdown positioning */
-        #user_dropdown, #edit_user_dropdown,
-        #building_dropdown, #edit_building_dropdown,
-        #room_dropdown, #edit_room_dropdown,
-        #asset_master_dropdown, #edit_asset_master_dropdown {
+        #user_dropdown,
+        #edit_user_dropdown,
+        #building_dropdown,
+        #edit_building_dropdown,
+        #room_dropdown,
+        #edit_room_dropdown,
+        #asset_master_dropdown,
+        #edit_asset_master_dropdown {
             position: absolute;
             z-index: 9999;
         }
@@ -30,8 +34,11 @@
         }
 
         /* Reset inner content scrolling */
-        #addAssetModalContent, #editAssetModalContent, #deleteAssetModalContent,
-        #printQRModalContent, #importAssetModalContent {
+        #addAssetModalContent,
+        #editAssetModalContent,
+        #deleteAssetModalContent,
+        #printQRModalContent,
+        #importAssetModalContent {
             overflow-y: visible !important;
             max-height: none !important;
         }
@@ -134,12 +141,18 @@
                             <select id="sortOrder"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Urutkan</option>
-                                <option value="newest" {{ request()->query('sort') === 'newest' ? 'selected' : '' }}>Terbaru</option>
-                                <option value="oldest" {{ request()->query('sort') === 'oldest' ? 'selected' : '' }}>Terlama</option>
-                                <option value="name_asc" {{ request()->query('sort') === 'name_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
-                                <option value="name_desc" {{ request()->query('sort') === 'name_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
-                                <option value="code_asc" {{ request()->query('sort') === 'code_asc' ? 'selected' : '' }}>Kode (A-Z)</option>
-                                <option value="code_desc" {{ request()->query('sort') === 'code_desc' ? 'selected' : '' }}>Kode (Z-A)</option>
+                                <option value="newest" {{ request()->query('sort') === 'newest' ? 'selected' : '' }}>Terbaru
+                                </option>
+                                <option value="oldest" {{ request()->query('sort') === 'oldest' ? 'selected' : '' }}>Terlama
+                                </option>
+                                <option value="name_asc" {{ request()->query('sort') === 'name_asc' ? 'selected' : '' }}>Nama
+                                    (A-Z)</option>
+                                <option value="name_desc" {{ request()->query('sort') === 'name_desc' ? 'selected' : '' }}>
+                                    Nama (Z-A)</option>
+                                <option value="code_asc" {{ request()->query('sort') === 'code_asc' ? 'selected' : '' }}>Kode
+                                    (A-Z)</option>
+                                <option value="code_desc" {{ request()->query('sort') === 'code_desc' ? 'selected' : '' }}>
+                                    Kode (Z-A)</option>
                             </select>
                         </div>
                     </div>
@@ -168,16 +181,22 @@
                                                 @endphp
 
                                                 @if($codeIconType === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 15l7-7 7 7" />
                                                     </svg>
                                                 @elseif($codeIconType === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                     </svg>
                                                 @endif
                                             </span>
@@ -198,16 +217,22 @@
                                                 @endphp
 
                                                 @if($nameIconType === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 15l7-7 7 7" />
                                                     </svg>
                                                 @elseif($nameIconType === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                     </svg>
                                                 @endif
                                             </span>
@@ -215,6 +240,9 @@
                                     </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Merk</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Model</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kondisi</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
                                 </tr>
@@ -249,6 +277,41 @@
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                 {{ $asset['asset_master']['subcategory_name'] ?? '-' }}
+                                            </td>
+                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                {{ $asset['brand_name'] ?? '-' }}
+                                            </td>
+                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                {{ $asset['model'] ?? '-' }}
+                                            </td>
+                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                @php
+                                                    $conditionClass = 'bg-gray-100 text-gray-800';
+                                                    $conditionText = 'Tidak Diketahui';
+
+                                                    if (isset($asset['condition'])) {
+                                                        switch (strtolower($asset['condition'])) {
+                                                            case 'good':
+                                                                $conditionClass = 'bg-green-100 text-green-800';
+                                                                $conditionText = 'Baik';
+                                                                break;
+                                                            case 'slighly damage':
+                                                                $conditionClass = 'bg-yellow-100 text-yellow-800';
+                                                                $conditionText = 'Rusak Ringan';
+                                                                break;
+                                                            case 'high damage':
+                                                                $conditionClass = 'bg-red-100 text-red-800';
+                                                                $conditionText = 'Rusak Berat';
+                                                                break;
+                                                            default:
+                                                                $conditionText = ucfirst($asset['condition']);
+                                                        }
+                                                    }
+                                                @endphp
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $conditionClass }}">
+                                                    {{ $conditionText }}
+                                                </span>
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                                 @php
@@ -311,8 +374,7 @@
                                                             data-condition="{{ $asset['condition'] ?? '' }}"
                                                             data-room-id="{{ $asset['room_id'] ?? '' }}"
                                                             data-is-depreciable="{{ isset($asset['asset_master']) && isset($asset['asset_master']['is_depreciable']) && $asset['asset_master']['is_depreciable'] ? 'true' : 'false' }}"
-                                                            data-image-path="{{ $asset['picture_path'] ?? '' }}"
-                                                            title="Edit Aset">
+                                                            data-image-path="{{ $asset['picture_path'] ?? '' }}" title="Edit Aset">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -440,6 +502,7 @@
                                     <option value="10" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                     <option value="25" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                     <option value="50" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                    <option value="100" {{ isset($assets_pagination['per_page']) && $assets_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                                 </select>
                             </div>
                         </div>
@@ -508,7 +571,8 @@
                                                     </div>
                                                     <ul id="asset_master_list" class="py-1"></ul>
                                                     <!-- Load more indicator for infinite scroll -->
-                                                    <div id="asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <div id="asset_master_load_more"
+                                                        class="p-2 text-gray-500 text-center hidden">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -534,6 +598,58 @@
                                             </div>
                                         </div>
 
+                                        <!-- Brand Dropdown -->
+                                        <div class="mb-5">
+                                            <label for="brand_search"
+                                                class="block text-base font-semibold text-[#666666] mb-2">Merk <span
+                                                    class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <input type="text" id="brand_search"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Cari merk..." autocomplete="off">
+                                                <input type="hidden" name="brand_id" id="selected_brand_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus
+                                                    dipilih</div>
+                                                <div id="brand_dropdown"
+                                                    class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                    <div id="brand_loading" class="p-2 text-gray-500 text-center">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat merk...</span>
+                                                    </div>
+                                                    <ul id="brand_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for brand dropdown -->
+                                                    <div id="brand_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Model field -->
+                                        <div class="mb-5">
+                                            <label for="model"
+                                                class="block text-base font-semibold text-[#666666] mb-2">Model</label>
+                                            <input type="text" name="model" id="model"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Masukkan model">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Model harus diisi</div>
+                                        </div>
+
                                         <!-- Purchase Information -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                             <div>
@@ -550,7 +666,8 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="purchase_cost" id="purchase_cost"
@@ -601,9 +718,11 @@
                                                         </div>
                                                         <ul id="building_list" class="py-1"></ul>
                                                         <!-- Load more indicator for building dropdown -->
-                                                        <div id="building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="building_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -646,7 +765,8 @@
                                                         <!-- Load more indicator for room dropdown -->
                                                         <div id="room_load_more" class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -703,7 +823,8 @@
                                                         <!-- Load more indicator for user dropdown -->
                                                         <div id="user_load_more" class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -747,13 +868,15 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="acquisition_cost" id="acquisition_cost"
                                                         class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                         placeholder="0" data-type="currency" disabled>
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan
+                                                        harus
                                                         diisi</div>
                                                 </div>
                                             </div>
@@ -762,7 +885,8 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span
                                                         class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="salvage_value" id="salvage_value"
@@ -872,7 +996,8 @@
                                                     </div>
                                                     <ul id="edit_asset_master_list" class="py-1"></ul>
                                                     <!-- Load more indicator for infinite scroll -->
-                                                    <div id="edit_asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <div id="edit_asset_master_load_more"
+                                                        class="p-2 text-gray-500 text-center hidden">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -898,6 +1023,58 @@
                                             </div>
                                         </div>
 
+                                        <!-- Brand Dropdown -->
+                                        <div class="mb-5">
+                                            <label for="edit_brand_search"
+                                                class="block text-base font-semibold text-[#666666] mb-2">Merk <span
+                                                    class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <input type="text" id="edit_brand_search"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Cari merk..." autocomplete="off">
+                                                <input type="hidden" name="brand_id" id="edit_selected_brand_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus
+                                                    dipilih</div>
+                                                <div id="edit_brand_dropdown"
+                                                    class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                    <div id="edit_brand_loading" class="p-2 text-gray-500 text-center">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat merk...</span>
+                                                    </div>
+                                                    <ul id="edit_brand_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for brand dropdown -->
+                                                    <div id="edit_brand_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Model field -->
+                                        <div class="mb-5">
+                                            <label for="edit_model"
+                                                class="block text-base font-semibold text-[#666666] mb-2">Model</label>
+                                            <input type="text" name="model" id="edit_model"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Masukkan model">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Model harus diisi</div>
+                                        </div>
+
                                         <!-- Purchase Information -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                                             <div>
@@ -914,7 +1091,8 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="purchase_cost" id="edit_purchase_cost"
@@ -965,9 +1143,11 @@
                                                         </div>
                                                         <ul id="edit_building_list" class="py-1"></ul>
                                                         <!-- Load more indicator for building dropdown -->
-                                                        <div id="edit_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_building_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -1008,9 +1188,11 @@
                                                         </div>
                                                         <ul id="edit_room_list" class="py-1"></ul>
                                                         <!-- Load more indicator for room dropdown -->
-                                                        <div id="edit_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_room_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -1065,9 +1247,11 @@
                                                         </div>
                                                         <ul id="edit_user_list" class="py-1"></ul>
                                                         <!-- Load more indicator for user dropdown -->
-                                                        <div id="edit_user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_user_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -1111,13 +1295,15 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="acquisition_cost" id="edit_acquisition_cost"
                                                         class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                         placeholder="0" data-type="currency" disabled>
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan
+                                                        harus
                                                         diisi</div>
                                                 </div>
                                             </div>
@@ -1126,7 +1312,8 @@
                                                     class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa <span
                                                         class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="salvage_value" id="edit_salvage_value"
@@ -1386,7 +1573,7 @@
                                         <p class="font-medium text-blue-600 mb-2">Instruksi Pengimporan:</p>
                                         <ul class="list-disc pl-5 space-y-1">
                                             <li>Gunakan format Excel untuk mengimpor</li>
-                                            <li>Kolom yang diperlukan: Asset Master ID, Nomor Seri, ID Ruangan, dll.</li>
+                                            <li>Kolom yang diperlukan: Master Aset, Merk, Model, Nomor Seri, Ruangan, dll.</li>
                                             <li>Maksimal 100 catatan per impor</li>
                                             <li>Jenis file yang didukung: .xlsx, .xls, .csv</li>
                                         </ul>
@@ -1493,17 +1680,20 @@
                                             <thead class="sticky top-0 bg-[#213268] text-white">
                                                 <tr>
                                                     <th class="p-3 text-left text-xs font-semibold">No</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Asset Master ID</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Master Aset</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Serial Number</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Room ID</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Merk</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Model</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Ruangan</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Tanggal Pembelian</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Biaya Pembelian</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Tanggal Berakhir Garansi
                                                     </th>
-                                                    <th class="p-3 text-left text-xs font-semibold">User ID</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Status Saat Ini</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Karyawan yang Bertanggung
+                                                        Jawab</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Status</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Kondisi</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Metode Depresiasi</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Metode Penyusutan</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Biaya Pengadaan</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Nilai Sisa</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Usia Aset (bulan)</th>
@@ -1551,11 +1741,11 @@
     @endif
 
     @push('scripts')
-    <!-- Tambahkan di bagian head atau sebelum </body> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
-            <script>
+        <!-- Tambahkan di bagian head atau sebelum </body> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+        <script>
             document.addEventListener('DOMContentLoaded', function () {
                 @if(!hasPermission('asset:create'))
                     const addButtons = document.querySelectorAll('#addAssetBtn');
@@ -1600,11 +1790,11 @@
 
                 function initCurrencyInputs() {
                     document.querySelectorAll('.currency-input').forEach(input => {
-                        input.addEventListener('input', function() {
+                        input.addEventListener('input', function () {
                             formatCurrency(this);
                         });
 
-                        input.addEventListener('blur', function() {
+                        input.addEventListener('blur', function () {
                             formatCurrency(this, true);
                         });
 
@@ -1618,7 +1808,7 @@
                     const depreciationFields = document.getElementById('depreciation_fields');
 
                     if (purchaseCostField && acquisitionCostField && depreciationFields) {
-                        purchaseCostField.addEventListener('input', function() {
+                        purchaseCostField.addEventListener('input', function () {
                             if (!depreciationFields.classList.contains('hidden')) {
                                 acquisitionCostField.value = this.value;
                             }
@@ -1630,7 +1820,7 @@
                     const editDepreciationFields = document.getElementById('edit_depreciation_fields');
 
                     if (editPurchaseCostField && editAcquisitionCostField && editDepreciationFields) {
-                        editPurchaseCostField.addEventListener('input', function() {
+                        editPurchaseCostField.addEventListener('input', function () {
                             if (!editDepreciationFields.classList.contains('hidden')) {
                                 editAcquisitionCostField.value = this.value;
                             }
@@ -1668,7 +1858,9 @@
                     return value.replace(/\./g, '').replace(/[^\d]/g, '');
                 }
 
-                document.getElementById('addAssetForm')?.addEventListener('submit', function(event) {
+                document.getElementById('addAssetForm')?.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
                     this.querySelectorAll('.currency-input').forEach(input => {
                         if (input.value) {
                             const numericValue = parseFormattedNumber(input.value);
@@ -1682,15 +1874,22 @@
                     const selectedBuildingId = document.getElementById('selected_building_id');
                     const roomSearch = document.getElementById('room_search');
                     const selectedRoomId = document.getElementById('selected_room_id');
-                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const brandSearch = document.getElementById('brand_search');
+                    const selectedBrandId = document.getElementById('selected_brand_id');
+                    const modelInput = document.getElementById('model');
                     const depreciationFields = document.getElementById('depreciation_fields');
-                    const isDepreciable = !depreciationFields.classList.contains('hidden');
+
+                    // Validate required fields
                     const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
                     const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
                     const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+                    const isBrandValid = validateField(brandSearch, selectedBrandId.value ? true : false);
+                    const isModelValid = validateField(modelInput);
 
-                    let isValid = isAssetMasterValid && isBuildingValid && isRoomValid;
+                    let isValid = isAssetMasterValid && isBuildingValid && isRoomValid && isBrandValid && isModelValid;
 
+                    // Check depreciation fields if applicable
+                    const isDepreciable = !depreciationFields.classList.contains('hidden');
                     if (isDepreciable) {
                         const depreciation_method = document.getElementById('depreciation_method');
                         const acquisition_cost = document.getElementById('acquisition_cost');
@@ -1708,11 +1907,11 @@
                     }
 
                     if (!isValid) {
-                        event.preventDefault();
                         showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
                         return;
                     }
 
+                    const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.disabled) {
                         const originalText = submitBtn.innerHTML;
 
@@ -1726,9 +1925,12 @@
                             submitBtn.innerHTML = originalText;
                         }, 10000);
                     }
+
+                    // Submit the form if validation passes
+                    this.submit();
                 });
 
-                document.getElementById('editAssetForm')?.addEventListener('submit', function(event) {
+                document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
                     event.preventDefault(); // Prevent default form submission
 
                     // Process currency inputs
@@ -1756,14 +1958,21 @@
                     const selectedAssetMasterId = document.getElementById('edit_selected_asset_master_id');
                     const roomSearch = document.getElementById('edit_room_search');
                     const selectedRoomId = document.getElementById('edit_selected_room_id');
-                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const brandSearch = document.getElementById('edit_brand_search');
+                    const selectedBrandId = document.getElementById('edit_selected_brand_id');
+                    const modelInput = document.getElementById('edit_model');
                     const depreciationFields = document.getElementById('edit_depreciation_fields');
-                    const isDepreciable = !depreciationFields.classList.contains('hidden');
+
+                    // Validate required fields
                     const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
                     const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+                    const isBrandValid = validateField(brandSearch, selectedBrandId.value ? true : false);
+                    const isModelValid = validateField(modelInput);
 
-                    let isValid = isAssetMasterValid && isRoomValid;
+                    let isValid = isAssetMasterValid && isRoomValid && isBrandValid && isModelValid;
 
+                    // Check depreciation fields if applicable
+                    const isDepreciable = !depreciationFields.classList.contains('hidden');
                     if (isDepreciable) {
                         const depreciation_method = document.getElementById('edit_depreciation_method');
                         const acquisition_cost = document.getElementById('edit_acquisition_cost');
@@ -1781,11 +1990,11 @@
                     }
 
                     if (!isValid) {
-                        event.preventDefault();
                         showToast('Silakan lengkapi semua field yang wajib diisi', 'error');
                         return;
                     }
 
+                    const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.disabled) {
                         const originalText = submitBtn.innerHTML;
 
@@ -1799,31 +2008,72 @@
                             submitBtn.innerHTML = originalText;
                         }, 10000);
                     }
+
+                    // Create a dynamic form for submission
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = formAction;
+                    form.style.display = 'none';
+
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PUT';
+                    form.appendChild(methodInput);
+
+                    for (const [key, value] of formData.entries()) {
+                        if (key === '_method') continue;
+
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
                 });
 
                 function validateField(field, customCheck = null) {
                     if (!field) return true;
 
-                    let isValid = true;
-                    if (customCheck !== null) {
-                        isValid = customCheck;
-                    } else if (field.tagName.toLowerCase() === 'select') {
-                        isValid = field.value !== '';
-                    } else {
-                        isValid = field.value.trim() !== '';
+                    let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                    if (!errorElement) {
+                        errorElement = field.closest('.mb-5')?.querySelector('.error-message');
                     }
 
-                    const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
-
-                    if (!isValid) {
-                        field.classList.add('border-red-500');
-                        if (errorElement) errorElement.classList.remove('hidden');
+                    if (field.tagName.toLowerCase() === 'select') {
+                        if (!field.value) {
+                            field.classList.add('border-red-500');
+                            if (errorElement) errorElement.classList.remove('hidden');
+                            return false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                            if (errorElement) errorElement.classList.add('hidden');
+                            return true;
+                        }
+                    } else if (customCheck !== null) {
+                        if (!customCheck) {
+                            field.classList.add('border-red-500');
+                            if (errorElement) errorElement.classList.remove('hidden');
+                            return false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                            if (errorElement) errorElement.classList.add('hidden');
+                            return true;
+                        }
                     } else {
-                        field.classList.remove('border-red-500');
-                        if (errorElement) errorElement.classList.add('hidden');
+                        if (!field.value.trim()) {
+                            field.classList.add('border-red-500');
+                            if (errorElement) errorElement.classList.remove('hidden');
+                            return false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                            if (errorElement) errorElement.classList.add('hidden');
+                            return true;
+                        }
                     }
-
-                    return isValid;
                 }
 
                 document.getElementById('asset_master_search')?.addEventListener('input', function () {
@@ -1908,2515 +2158,2750 @@
                     const notification = document.createElement('div');
                     notification.id = type + 'Notification' + Date.now();
                     notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-                    notification.role = 'alert';
+                            notification.role = 'alert';
 
-                    if (type === 'success') {
-                        notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                        notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-                    } else {
-                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-                        notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Error!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-                    }
-
-                    document.body.appendChild(notification);
-
-                    setTimeout(() => {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(() => notification.remove(), 500);
-                    }, 5000);
-                }
-
-                document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes slideInRight {
-                            from { transform: translateX(100%); }
-                            to { transform: translateX(0); }
-                        }
-                        .animate-slide-in-right {
-                            animation: slideInRight 0.3s ease-out forwards;
-                        }
-                    </style>
-                `);
-
-                function debounce(func, wait, immediate) {
-                    let timeout;
-                    return function () {
-                        const context = this, args = arguments;
-                        const later = function () {
-                            timeout = null;
-                            if (!immediate) func.apply(context, args);
-                        };
-                        const callNow = immediate && !timeout;
-                        clearTimeout(timeout);
-                        timeout = setTimeout(later, wait);
-                        if (callNow) func.apply(context, args);
-                    };
-                }
-
-                function toggleDepreciationFields(depreciationFields, isDepreciable) {
-                    if (!depreciationFields) return;
-
-                    const inputs = depreciationFields.querySelectorAll('input, select');
-
-                    if (isDepreciable) {
-                        depreciationFields.classList.remove('hidden');
-                        inputs.forEach(input => {
-                            input.disabled = false;
-                            input.required = true;
-
-                            const label = input.closest('.space-y-2')?.querySelector('label');
-                            if (label) {
-                                if (!label.innerHTML.includes('<span class="text-red-500">*</span>')) {
-                                    label.innerHTML += ' <span class="text-red-500">*</span>';
-                                }
+                            if (type === 'success') {
+                                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                                notification.innerHTML = `
+                                                        <div class="flex items-start">
+                                                            <div class="py-1">
+                                                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="font-bold">Berhasil!</p>
+                                                                <div>${message}</div>
+                                                            </div>
+                                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                        </div>
+                                                    `;
+                            } else {
+                                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+                                notification.innerHTML = `
+                                                        <div class="flex items-start">
+                                                            <div class="py-1">
+                                                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="font-bold">Gagal!</p>
+                                                                <div>${message}</div>
+                                                            </div>
+                                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                        </div>
+                                                    `;
                             }
 
-                            input.addEventListener('input', function () {
-                                this.classList.remove('border-red-500');
-                                const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                                if (errorElement) errorElement.classList.add('hidden');
-                            });
+                            document.body.appendChild(notification);
 
-                            if (input.tagName.toLowerCase() === 'select') {
-                                input.addEventListener('change', function () {
-                                    this.classList.remove('border-red-500');
-                                    const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                            setTimeout(() => {
+                                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                setTimeout(() => notification.remove(), 500);
+                            }, 5000);
+                        }
+
+                        document.head.insertAdjacentHTML('beforeend', `
+                                                <style>
+                                                    @keyframes slideInRight {
+                                                        from { transform: translateX(100%); }
+                                                        to { transform: translateX(0); }
+                                                    }
+                                                    .animate-slide-in-right {
+                                                        animation: slideInRight 0.3s ease-out forwards;
+                                                    }
+                                                </style>
+                                            `);
+
+                        function debounce(func, wait, immediate) {
+                            let timeout;
+                            return function () {
+                                const context = this, args = arguments;
+                                const later = function () {
+                                    timeout = null;
+                                    if (!immediate) func.apply(context, args);
+                                };
+                                const callNow = immediate && !timeout;
+                                clearTimeout(timeout);
+                                timeout = setTimeout(later, wait);
+                                if (callNow) func.apply(context, args);
+                            };
+                        }
+
+                        function toggleDepreciationFields(depreciationFields, isDepreciable) {
+                            if (!depreciationFields) return;
+
+                            const inputs = depreciationFields.querySelectorAll('input, select');
+
+                            if (isDepreciable) {
+                                depreciationFields.classList.remove('hidden');
+                                inputs.forEach(input => {
+                                    input.disabled = false;
+                                    input.required = true;
+
+                                    const label = input.closest('.space-y-2')?.querySelector('label');
+                                    if (label) {
+                                        if (!label.innerHTML.includes('<span class="text-red-500">*</span>')) {
+                                            label.innerHTML += ' <span class="text-red-500">*</span>';
+                                        }
+                                    }
+
+                                    input.addEventListener('input', function () {
+                                        this.classList.remove('border-red-500');
+                                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                                        if (errorElement) errorElement.classList.add('hidden');
+                                    });
+
+                                    if (input.tagName.toLowerCase() === 'select') {
+                                        input.addEventListener('change', function () {
+                                            this.classList.remove('border-red-500');
+                                            const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
+                                            if (errorElement) errorElement.classList.add('hidden');
+                                        });
+                                    }
+                                });
+                            } else {
+                                depreciationFields.classList.add('hidden');
+                                inputs.forEach(input => {
+                                    input.disabled = true;
+                                    input.required = false;
+
+                                    input.classList.remove('border-red-500');
+                                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
                                     if (errorElement) errorElement.classList.add('hidden');
+
+                                    const label = input.closest('.space-y-2')?.querySelector('label');
+                                    if (label) {
+                                        label.innerHTML = label.innerHTML.replace(' <span class="text-red-500">*</span>', '');
+                                    }
                                 });
                             }
-                        });
-                    } else {
-                        depreciationFields.classList.add('hidden');
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                            input.required = false;
+                        }
 
-                            input.classList.remove('border-red-500');
-                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                            if (errorElement) errorElement.classList.add('hidden');
-
-                            const label = input.closest('.space-y-2')?.querySelector('label');
-                            if (label) {
-                                label.innerHTML = label.innerHTML.replace(' <span class="text-red-500">*</span>', '');
-                            }
-                        });
-                    }
-                }
-
-                function setFieldValue(fieldId, value) {
-                    const field = document.getElementById(fieldId);
-                    if (field) {
-                        field.value = value || '';
-                    }
-                }
-
-                function setSelectValue(selectId, value) {
-                    const select = document.getElementById(selectId);
-                    if (select && value) {
-                        for (let i = 0; i < select.options.length; i++) {
-                            if (select.options[i].value == value) {
-                                select.selectedIndex = i;
-                                break;
+                        function setFieldValue(fieldId, value) {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                field.value = value || '';
                             }
                         }
-                    }
-                }
 
-                window.openModal = function (modal, content) {
-                    if (!modal || !content) return;
-
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
-                        content.classList.remove('opacity-0', 'scale-95', 'translate-y-4');
-                    }, 10);
-                };
-
-                window.closeModal = function (modal) {
-                    if (!modal) return;
-
-                    const content = modal.querySelector('.transform');
-                    if (!content) return;
-
-                    const modalId = modal.id;
-
-                    if (modalId === 'addAssetModal') {
-                        resetAddAssetForm();
-                    } else if (modalId === 'editAssetModal') {
-                        resetEditAssetForm();
-                    } else if (modalId === 'deleteAssetModal') {
-                        resetDeleteAssetForm();
-                    } else if (modalId === 'printQRModal') {
-                        resetPrintQRForm();
-                    } else if (modalId === 'importAssetModal') {
-                        resetImportAssetModal();
-                    }
-
-                    content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
-                    content.classList.add('opacity-0', 'scale-95', 'translate-y-4');
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 300);
-                };
-
-                function resetAddAssetForm() {
-                    const form = document.getElementById('addAssetForm');
-                    if (!form) return;
-
-                    form.reset();
-
-                    const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
-                    hiddenInputs.forEach(input => {
-                        input.value = '';
-                    });
-
-                    const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
-                    allInputs.forEach(input => {
-                        input.value = '';
-                        input.classList.remove('border-red-500');
-                    });
-
-                    const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-                    radioCheckboxInputs.forEach(input => {
-                        input.checked = input.defaultChecked;
-                    });
-
-                    const selects = form.querySelectorAll('select');
-                    selects.forEach(select => {
-                        if (select.options.length > 0) {
-                            select.selectedIndex = 0;
-                        }
-                        select.classList.remove('border-red-500');
-                    });
-
-                    const errorMessages = form.querySelectorAll('.error-message');
-                    errorMessages.forEach(msg => {
-                        msg.classList.add('hidden');
-                    });
-
-                    const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-
-                    const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
-                    searchFields.forEach(field => {
-                        field.value = '';
-                    });
-
-                    const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
-                    specialDisplays.forEach(display => {
-                        display.classList.add('hidden');
-                    });
-
-                    const depreciationFields = form.querySelector('#depreciation_fields');
-                    if (depreciationFields) {
-                        depreciationFields.classList.add('hidden');
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                            input.required = false;
-                            if (input.tagName === 'INPUT') {
-                                input.value = '';
-                            } else if (input.tagName === 'SELECT' && input.options.length > 0) {
-                                input.selectedIndex = 0;
-                            }
-                        });
-                    }
-
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Simpan';
-                    }
-                }
-
-                function resetEditAssetForm() {
-                    const form = document.getElementById('editAssetForm');
-                    if (!form) return;
-
-                    form.reset();
-
-                    form.action = '';
-
-                    const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
-                    hiddenInputs.forEach(input => {
-                        input.value = '';
-                    });
-
-                    const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
-                    allInputs.forEach(input => {
-                        input.value = '';
-                        input.classList.remove('border-red-500');
-                    });
-
-                    const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-                    radioCheckboxInputs.forEach(input => {
-                        input.checked = input.defaultChecked;
-                    });
-
-                    const selects = form.querySelectorAll('select');
-                    selects.forEach(select => {
-                        if (select.options.length > 0) {
-                            select.selectedIndex = 0;
-                        }
-                        select.classList.remove('border-red-500');
-                    });
-
-                    const errorMessages = form.querySelectorAll('.error-message');
-                    errorMessages.forEach(msg => {
-                        msg.classList.add('hidden');
-                    });
-
-                    const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-
-                    const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
-                    searchFields.forEach(field => {
-                        field.value = '';
-                    });
-
-                    const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
-                    specialDisplays.forEach(display => {
-                        display.classList.add('hidden');
-                    });
-
-                    const depreciationFields = form.querySelector('#edit_depreciation_fields');
-                    if (depreciationFields) {
-                        depreciationFields.classList.add('hidden');
-                        const inputs = depreciationFields.querySelectorAll('input, select');
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                            input.required = false;
-                            if (input.tagName === 'INPUT') {
-                                input.value = '';
-                            } else if (input.tagName === 'SELECT' && input.options.length > 0) {
-                                input.selectedIndex = 0;
-                            }
-                        });
-                    }
-
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Perbarui';
-                    }
-                }
-
-                function resetDeleteAssetForm() {
-                    const form = document.getElementById('deleteAssetForm');
-                    if (!form) return;
-
-                    form.reset();
-
-                    form.action = '';
-
-                    document.getElementById('deleteAssetName').textContent = '';
-
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Hapus';
-                    }
-                }
-
-                function resetPrintQRForm() {
-                    const form = document.getElementById('printQRForm');
-                    if (!form) return;
-
-                    form.reset();
-
-                    document.getElementById('printQRAssetIds').value = '';
-
-                    const printDirectRadio = document.getElementById('print_direct');
-                    if (printDirectRadio) {
-                        printDirectRadio.checked = true;
-                    }
-
-                    const quantityInput = document.getElementById('quantity');
-                    if (quantityInput) {
-                        quantityInput.value = '1';
-                    }
-                }
-
-                function resetImportAssetModal() {
-                    document.getElementById('import-step-1')?.classList.remove('hidden');
-                    document.getElementById('import-step-2')?.classList.add('hidden');
-
-                    const fileInput = document.getElementById('excel_file');
-                    if (fileInput) fileInput.value = '';
-
-                    const fileNameContainer = document.getElementById('excel-file-name');
-                    if (fileNameContainer) fileNameContainer.classList.add('hidden');
-
-                    const previewBtn = document.getElementById('preview-btn');
-                    if (previewBtn) previewBtn.disabled = true;
-
-                    document.getElementById('excel-error')?.classList.add('hidden');
-                    document.getElementById('excel-loading')?.classList.add('hidden');
-                    document.getElementById('preview-warnings')?.classList.add('hidden');
-
-                    const previewTableBody = document.getElementById('preview-table-body');
-                    if (previewTableBody) previewTableBody.innerHTML = '';
-
-                    const warningList = document.getElementById('warning-list');
-                    if (warningList) warningList.innerHTML = '';
-
-                    document.getElementById('excel_data')?.setAttribute('value', '');
-
-                    const importBtn = document.getElementById('import-btn');
-                    if (importBtn) {
-                        importBtn.disabled = false;
-                        importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        importBtn.innerHTML = 'Impor Data';
-                    }
-                }
-
-                window.setupWithData = function (assetId) {
-                    const editModal = document.getElementById('editAssetModal');
-                    const editModalContent = document.getElementById('editAssetModalContent');
-
-                    const form = document.getElementById('editAssetForm');
-                    if (form) {
-                        form.reset();
-                        form.action = `{{ url('assets') }}/${assetId}`;
-                    }
-
-                    if (editModal && editModalContent) {
-                        openModal(editModal, editModalContent);
-                    }
-
-                    fetch(`{{ url('assets') }}/${assetId}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'same-origin'
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(result => {
-                            if (!result.success) {
-                                console.error('Error fetching asset data:', result.message);
-                                alert('Gagal memuat data aset: ' + (result.message || 'Galat tidak diketahui'));
-                                return;
-                            }
-
-                            const asset = result.data;
-
-                            setFieldValue('edit_serial_number', asset.serial_number);
-                            setFieldValue('edit_purchase_date', asset.purchase_date);
-
-                            // Apply currency formatting to monetary fields
-                            if (asset.purchase_cost) {
-                                const purchaseCost = document.getElementById('edit_purchase_cost');
-                                if (purchaseCost) {
-                                    // Remove decimal part if it exists before formatting
-                                    const costValue = typeof asset.purchase_cost === 'string' ?
-                                        asset.purchase_cost.split('.')[0] :
-                                        Math.floor(parseFloat(asset.purchase_cost)).toString();
-                                    purchaseCost.value = costValue;
-                                    formatCurrency(purchaseCost);
-                                }
-                            }
-
-                            setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
-
-                            const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
-                            if (assetMasterId) {
-                                document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
-
-                                const assetMasterName = asset.asset_master && asset.asset_master.asset_name
-                                    ? asset.asset_master.asset_name
-                                    : 'Asset Master ID: ' + assetMasterId;
-
-                                document.getElementById('edit_asset_master_search').value = assetMasterName;
-
-                                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
-                                document.getElementById('edit_selected_is_depreciable').value = isDepreciable ? 'true' : 'false';
-
-                                const depreciationFields = document.getElementById('edit_depreciation_fields');
-                                if (depreciationFields) {
-                                    toggleDepreciationFields(depreciationFields, isDepreciable);
-                                }
-                            }
-
-                            let buildingId = '';
-                            let buildingName = '';
-
-                            if (asset.room && asset.room.building) {
-                                buildingId = asset.room.building.building_id;
-                                buildingName = asset.room.building.building_name;
-                            } else if (asset.building_id) {
-                                buildingId = asset.building_id;
-                                buildingName = asset.building_name || 'Gedung ID: ' + buildingId;
-                            } else if (asset.room && asset.room.building_id) {
-                                buildingId = asset.room.building_id;
-                                buildingName = asset.room.building_name || 'Gedung ID: ' + buildingId;
-                            } else if (asset.building_name) {
-                                buildingName = asset.building_name;
-                            }
-
-                            if (!buildingName && typeof asset.building_name === 'string' && asset.building_name.trim() !== '') {
-                                buildingName = asset.building_name;
-                            }
-
-                            if (buildingId || buildingName) {
-                                // Set building values
-                                if (buildingId) {
-                                    document.getElementById('edit_selected_building_id').value = buildingId;
-                                }
-                                document.getElementById('edit_building_search').value = buildingName;
-
-                                // Enable room search
-                                const roomSearch = document.getElementById('edit_room_search');
-                                if (roomSearch) {
-                                    roomSearch.disabled = false;
-                                    roomSearch.placeholder = "Cari ruangan...";
-                                }
-
-                                // Get room information
-                                let roomId = '';
-                                let roomName = '';
-
-                                if (asset.room_id) {
-                                    roomId = asset.room_id;
-                                } else if (asset.room && asset.room.room_id) {
-                                    roomId = asset.room.room_id;
-                                }
-
-                                if (asset.room && asset.room.room_name) {
-                                    roomName = asset.room.room_name;
-                                } else if (asset.room_name) {
-                                    roomName = asset.room_name;
-                                }
-
-                                // Set room values if available
-                                if (roomId) {
-                                    document.getElementById('edit_selected_room_id').value = roomId;
-                                }
-
-                                if (roomName) {
-                                    document.getElementById('edit_room_search').value = roomName;
-                                } else if (roomId) {
-                                    document.getElementById('edit_room_search').value = 'Ruangan ID: ' + roomId;
-                                }
-
-                                // Only load rooms once if needed
-                                if (buildingId && (!roomId && !roomName)) {
-                                    loadRoomsForBuilding(
-                                        '',
-                                        buildingId,
-                                        document.getElementById('edit_room_list'),
-                                        document.getElementById('edit_room_loading'),
-                                        document.getElementById('edit_selected_room_id'),
-                                        document.getElementById('edit_room_search'),
-                                        document.getElementById('edit_room_dropdown')
-                                    );
-                                }
-                            }
-
-                            setSelectValue('edit_condition', asset.condition || 'good');
-
-                            if (asset.user_id) {
-                                document.getElementById('edit_selected_user_id').value = asset.user_id;
-
-                                let userDisplay = `User ID: ${asset.user_id}`;
-
-                                if (asset.user) {
-                                    if (asset.user.employee_name) {
-                                        userDisplay = asset.user.employee_name;
-                                        if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
-                                    } else if (asset.user.name) {
-                                        userDisplay = asset.user.name;
-                                    }
-                                } else {
-                                    const user = window.usersData?.find(u => u.user_id == asset.user_id);
-                                    if (user) {
-                                        if (user.employee_name) {
-                                            userDisplay = user.employee_name;
-                                            if (user.name) userDisplay += ` - ${user.name}`;
-                                        } else if (user.name) {
-                                            userDisplay = user.name;
-                                        }
+                        function setSelectValue(selectId, value) {
+                            const select = document.getElementById(selectId);
+                            if (select && value) {
+                                for (let i = 0; i < select.options.length; i++) {
+                                    if (select.options[i].value == value) {
+                                        select.selectedIndex = i;
+                                        break;
                                     }
                                 }
+                            }
+                        }
 
-                                document.getElementById('edit_user_search').value = userDisplay;
-                            } else if (asset.employee_name) {
-                                document.getElementById('edit_user_search').value = asset.employee_name;
+                        window.openModal = function (modal, content) {
+                            if (!modal || !content) return;
+
+                            modal.classList.remove('hidden');
+                            setTimeout(() => {
+                                content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+                                content.classList.remove('opacity-0', 'scale-95', 'translate-y-4');
+                            }, 10);
+                        };
+
+                        window.closeModal = function (modal) {
+                            if (!modal) return;
+
+                            const content = modal.querySelector('.transform');
+                            if (!content) return;
+
+                            const modalId = modal.id;
+
+                            if (modalId === 'addAssetModal') {
+                                resetAddAssetForm();
+                            } else if (modalId === 'editAssetModal') {
+                                resetEditAssetForm();
+                            } else if (modalId === 'deleteAssetModal') {
+                                resetDeleteAssetForm();
+                            } else if (modalId === 'printQRModal') {
+                                resetPrintQRForm();
+                            } else if (modalId === 'importAssetModal') {
+                                resetImportAssetModal();
                             }
 
-                            const depreciationFields = document.getElementById('edit_depreciation_fields');
+                            content.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+                            content.classList.add('opacity-0', 'scale-95', 'translate-y-4');
+                            setTimeout(() => {
+                                modal.classList.add('hidden');
+                            }, 300);
+                        };
+
+                        function resetAddAssetForm() {
+                            const form = document.getElementById('addAssetForm');
+                            if (!form) return;
+
+                            form.reset();
+
+                            const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                            hiddenInputs.forEach(input => {
+                                input.value = '';
+                            });
+
+                            const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
+                            allInputs.forEach(input => {
+                                input.value = '';
+                                input.classList.remove('border-red-500');
+                            });
+
+                            const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+                            radioCheckboxInputs.forEach(input => {
+                                input.checked = input.defaultChecked;
+                            });
+
+                            const selects = form.querySelectorAll('select');
+                            selects.forEach(select => {
+                                if (select.options.length > 0) {
+                                    select.selectedIndex = 0;
+                                }
+                                select.classList.remove('border-red-500');
+                            });
+
+                            const errorMessages = form.querySelectorAll('.error-message');
+                            errorMessages.forEach(msg => {
+                                msg.classList.add('hidden');
+                            });
+
+                            const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+                            dropdowns.forEach(dropdown => {
+                                dropdown.classList.add('hidden');
+                            });
+
+                            const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
+                            searchFields.forEach(field => {
+                                field.value = '';
+                            });
+
+                            const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
+                            specialDisplays.forEach(display => {
+                                display.classList.add('hidden');
+                            });
+
+                            const depreciationFields = form.querySelector('#depreciation_fields');
                             if (depreciationFields) {
-                                const hasDepreciationData =
-                                    asset.depreciation_method ||
-                                    asset.acquisition_cost ||
-                                    asset.salvage_value ||
-                                    asset.asset_life_months ||
-                                    asset.date_acquired ||
-                                    (asset.depreciation && Object.keys(asset.depreciation).length > 0);
+                                depreciationFields.classList.add('hidden');
+                                const inputs = depreciationFields.querySelectorAll('input, select');
+                                inputs.forEach(input => {
+                                    input.disabled = true;
+                                    input.required = false;
+                                    if (input.tagName === 'INPUT') {
+                                        input.value = '';
+                                    } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                                        input.selectedIndex = 0;
+                                    }
+                                });
+                            }
 
-                                const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                            const submitBtn = form.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = 'Simpan';
+                            }
+                        }
 
-                                if (hasDepreciationData || isDepreciable) {
-                                    toggleDepreciationFields(depreciationFields, true);
+                        function resetEditAssetForm() {
+                            const form = document.getElementById('editAssetForm');
+                            if (!form) return;
 
-                                    const depData = asset.depreciation || asset;
+                            form.reset();
 
-                                    // Apply currency formatting to acquisition cost
-                                    const acquisitionCostField = document.getElementById('edit_acquisition_cost');
-                                    if (acquisitionCostField && depData.acquisition_cost) {
-                                        acquisitionCostField.value = depData.acquisition_cost;
-                                        formatCurrency(acquisitionCostField);
-                                    } else {
-                                        setFieldValue('edit_acquisition_cost', '');
+                            form.action = '';
+
+                            const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+                            hiddenInputs.forEach(input => {
+                                input.value = '';
+                            });
+
+                            const allInputs = form.querySelectorAll('input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"])');
+                            allInputs.forEach(input => {
+                                input.value = '';
+                                input.classList.remove('border-red-500');
+                            });
+
+                            const radioCheckboxInputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+                            radioCheckboxInputs.forEach(input => {
+                                input.checked = input.defaultChecked;
+                            });
+
+                            const selects = form.querySelectorAll('select');
+                            selects.forEach(select => {
+                                if (select.options.length > 0) {
+                                    select.selectedIndex = 0;
+                                }
+                                select.classList.remove('border-red-500');
+                            });
+
+                            const errorMessages = form.querySelectorAll('.error-message');
+                            errorMessages.forEach(msg => {
+                                msg.classList.add('hidden');
+                            });
+
+                            const dropdowns = form.querySelectorAll('[id$="_dropdown"]');
+                            dropdowns.forEach(dropdown => {
+                                dropdown.classList.add('hidden');
+                            });
+
+                            const searchFields = form.querySelectorAll('[id$="_search"], [id$="_master_search"]');
+                            searchFields.forEach(field => {
+                                field.value = '';
+                            });
+
+                            const specialDisplays = form.querySelectorAll('[id$="_display"], [id$="_selected_display"]');
+                            specialDisplays.forEach(display => {
+                                display.classList.add('hidden');
+                            });
+
+                            const depreciationFields = form.querySelector('#edit_depreciation_fields');
+                            if (depreciationFields) {
+                                depreciationFields.classList.add('hidden');
+                                const inputs = depreciationFields.querySelectorAll('input, select');
+                                inputs.forEach(input => {
+                                    input.disabled = true;
+                                    input.required = false;
+                                    if (input.tagName === 'INPUT') {
+                                        input.value = '';
+                                    } else if (input.tagName === 'SELECT' && input.options.length > 0) {
+                                        input.selectedIndex = 0;
+                                    }
+                                });
+                            }
+
+                            const submitBtn = form.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = 'Perbarui';
+                            }
+                        }
+
+                        function resetDeleteAssetForm() {
+                            const form = document.getElementById('deleteAssetForm');
+                            if (!form) return;
+
+                            form.reset();
+
+                            form.action = '';
+
+                            document.getElementById('deleteAssetName').textContent = '';
+
+                            const submitBtn = form.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = 'Hapus';
+                            }
+                        }
+
+                        function resetPrintQRForm() {
+                            const form = document.getElementById('printQRForm');
+                            if (!form) return;
+
+                            form.reset();
+
+                            document.getElementById('printQRAssetIds').value = '';
+
+                            const printDirectRadio = document.getElementById('print_direct');
+                            if (printDirectRadio) {
+                                printDirectRadio.checked = true;
+                            }
+
+                            const quantityInput = document.getElementById('quantity');
+                            if (quantityInput) {
+                                quantityInput.value = '1';
+                            }
+                        }
+
+                        function resetImportAssetModal() {
+                            document.getElementById('import-step-1')?.classList.remove('hidden');
+                            document.getElementById('import-step-2')?.classList.add('hidden');
+
+                            const fileInput = document.getElementById('excel_file');
+                            if (fileInput) fileInput.value = '';
+
+                            const fileNameContainer = document.getElementById('excel-file-name');
+                            if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+                            const previewBtn = document.getElementById('preview-btn');
+                            if (previewBtn) previewBtn.disabled = true;
+
+                            document.getElementById('excel-error')?.classList.add('hidden');
+                            document.getElementById('excel-loading')?.classList.add('hidden');
+                            document.getElementById('preview-warnings')?.classList.add('hidden');
+
+                            const previewTableBody = document.getElementById('preview-table-body');
+                            if (previewTableBody) previewTableBody.innerHTML = '';
+
+                            const warningList = document.getElementById('warning-list');
+                            if (warningList) warningList.innerHTML = '';
+
+                            document.getElementById('excel_data')?.setAttribute('value', '');
+
+                            const importBtn = document.getElementById('import-btn');
+                            if (importBtn) {
+                                importBtn.disabled = false;
+                                importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                importBtn.innerHTML = 'Impor Data';
+                            }
+                        }
+
+                        window.setupWithData = function (assetId) {
+                            const editModal = document.getElementById('editAssetModal');
+                            const editModalContent = document.getElementById('editAssetModalContent');
+
+                            const form = document.getElementById('editAssetForm');
+                            if (form) {
+                                form.reset();
+                                form.action = `{{ url('assets') }}/${assetId}`;
+                            }
+
+                            if (editModal && editModalContent) {
+                                openModal(editModal, editModalContent);
+                            }
+
+                            fetch(`{{ url('assets') }}/${assetId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'same-origin'
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP error! Status: ${response.status}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(result => {
+                                    if (!result.success) {
+                                        console.error('Error fetching asset data:', result.message);
+                                        alert('Gagal memuat data aset: ' + (result.message || 'Galat tidak diketahui'));
+                                        return;
                                     }
 
-                                    // Apply currency formatting to salvage value
-                                    const salvageValueField = document.getElementById('edit_salvage_value');
-                                    if (salvageValueField && depData.salvage_value) {
-                                        salvageValueField.value = depData.salvage_value;
-                                        formatCurrency(salvageValueField);
-                                    } else {
-                                        setFieldValue('edit_salvage_value', '');
+                                    const asset = result.data;
+
+                                    setFieldValue('edit_serial_number', asset.serial_number);
+                                    setFieldValue('edit_purchase_date', asset.purchase_date);
+
+                                    // Apply currency formatting to monetary fields
+                                    if (asset.purchase_cost) {
+                                        const purchaseCost = document.getElementById('edit_purchase_cost');
+                                        if (purchaseCost) {
+                                            // Remove decimal part if it exists before formatting
+                                            const costValue = typeof asset.purchase_cost === 'string' ?
+                                                asset.purchase_cost.split('.')[0] :
+                                                Math.floor(parseFloat(asset.purchase_cost)).toString();
+                                            purchaseCost.value = costValue;
+                                            formatCurrency(purchaseCost);
+                                        }
                                     }
 
-                                    setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
-                                    setFieldValue('edit_date_acquired', depData.date_acquired || '');
+                                    setFieldValue('edit_warranty_end_date', asset.warranty_end_date);
 
-                                    const depMethodSelect = document.getElementById('edit_depreciation_method');
-                                    const depreciationMethod = depData.depreciation_method || '';
+                                    const assetMasterId = asset.asset_master_id || (asset.asset_master && asset.asset_master.asset_master_id);
+                                    if (assetMasterId) {
+                                        document.getElementById('edit_selected_asset_master_id').value = assetMasterId;
 
-                                    if (depMethodSelect && depreciationMethod) {
-                                        let found = false;
-                                        for (let i = 0; i < depMethodSelect.options.length; i++) {
-                                            if (depMethodSelect.options[i].value === depreciationMethod) {
-                                                depMethodSelect.selectedIndex = i;
-                                                found = true;
-                                                break;
-                                            }
+                                        const assetMasterName = asset.asset_master && asset.asset_master.asset_name
+                                            ? asset.asset_master.asset_name
+                                            : 'Asset Master ID: ' + assetMasterId;
+
+                                        document.getElementById('edit_asset_master_search').value = assetMasterName;
+
+                                        const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
+                                        document.getElementById('edit_selected_is_depreciable').value = isDepreciable ? 'true' : 'false';
+
+                                        const depreciationFields = document.getElementById('edit_depreciation_fields');
+                                        if (depreciationFields) {
+                                            toggleDepreciationFields(depreciationFields, isDepreciable);
+                                        }
+                                    }
+
+                                    let buildingId = '';
+                                    let buildingName = '';
+
+                                    if (asset.room && asset.room.building) {
+                                        buildingId = asset.room.building.building_id;
+                                        buildingName = asset.room.building.building_name;
+                                    } else if (asset.building_id) {
+                                        buildingId = asset.building_id;
+                                        buildingName = asset.building_name || 'Gedung ID: ' + buildingId;
+                                    } else if (asset.room && asset.room.building_id) {
+                                        buildingId = asset.room.building_id;
+                                        buildingName = asset.room.building_name || 'Gedung ID: ' + buildingId;
+                                    } else if (asset.building_name) {
+                                        buildingName = asset.building_name;
+                                    }
+
+                                    if (!buildingName && typeof asset.building_name === 'string' && asset.building_name.trim() !== '') {
+                                        buildingName = asset.building_name;
+                                    }
+
+                                    if (buildingId || buildingName) {
+                                        // Set building values
+                                        if (buildingId) {
+                                            document.getElementById('edit_selected_building_id').value = buildingId;
+                                        }
+                                        document.getElementById('edit_building_search').value = buildingName;
+
+                                        // Enable room search
+                                        const roomSearch = document.getElementById('edit_room_search');
+                                        if (roomSearch) {
+                                            roomSearch.disabled = false;
+                                            roomSearch.placeholder = "Cari ruangan...";
                                         }
 
-                                        if (!found) {
-                                            const methodLower = depreciationMethod.toLowerCase();
-                                            for (let i = 0; i < depMethodSelect.options.length; i++) {
-                                                const optionText = depMethodSelect.options[i].textContent.toLowerCase();
-                                                if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
-                                                    depMethodSelect.selectedIndex = i;
-                                                    break;
+                                        // Get room information
+                                        let roomId = '';
+                                        let roomName = '';
+
+                                        if (asset.room_id) {
+                                            roomId = asset.room_id;
+                                        } else if (asset.room && asset.room.room_id) {
+                                            roomId = asset.room.room_id;
+                                        }
+
+                                        if (asset.room && asset.room.room_name) {
+                                            roomName = asset.room.room_name;
+                                        } else if (asset.room_name) {
+                                            roomName = asset.room_name;
+                                        }
+
+                                        // Set room values if available
+                                        if (roomId) {
+                                            document.getElementById('edit_selected_room_id').value = roomId;
+                                        }
+
+                                        if (roomName) {
+                                            document.getElementById('edit_room_search').value = roomName;
+                                        } else if (roomId) {
+                                            document.getElementById('edit_room_search').value = 'Ruangan ID: ' + roomId;
+                                        }
+
+                                        // Only load rooms once if needed
+                                        if (buildingId && (!roomId && !roomName)) {
+                                            loadRoomsForBuilding(
+                                                '',
+                                                buildingId,
+                                                document.getElementById('edit_room_list'),
+                                                document.getElementById('edit_room_loading'),
+                                                document.getElementById('edit_selected_room_id'),
+                                                document.getElementById('edit_room_search'),
+                                                document.getElementById('edit_room_dropdown')
+                                            );
+                                        }
+                                    }
+
+                                    setSelectValue('edit_condition', asset.condition || 'good');
+
+                                    if (asset.user_id) {
+                                        document.getElementById('edit_selected_user_id').value = asset.user_id;
+
+                                        let userDisplay = `User ID: ${asset.user_id}`;
+
+                                        if (asset.user) {
+                                            if (asset.user.employee_name) {
+                                                userDisplay = asset.user.employee_name;
+                                                if (asset.user.name) userDisplay += ` - ${asset.user.name}`;
+                                            } else if (asset.user.name) {
+                                                userDisplay = asset.user.name;
+                                            }
+                                        } else {
+                                            const user = window.usersData?.find(u => u.user_id == asset.user_id);
+                                            if (user) {
+                                                if (user.employee_name) {
+                                                    userDisplay = user.employee_name;
+                                                    if (user.name) userDisplay += ` - ${user.name}`;
+                                                } else if (user.name) {
+                                                    userDisplay = user.name;
                                                 }
                                             }
                                         }
-                                    }
-                                } else {
-                                    toggleDepreciationFields(depreciationFields, false);
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching asset data:', error);
-                        });
-                };
 
-                function initAssetMasterListeners() {
-                    const addSelectedIsDepreciable = document.getElementById('selected_is_depreciable');
-                    const addDepreciationFields = document.getElementById('depreciation_fields');
-
-                    if (addSelectedIsDepreciable && addDepreciationFields) {
-                        const observer = new MutationObserver(function (mutations) {
-                            mutations.forEach(function (mutation) {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                                    const isDepreciable = addSelectedIsDepreciable.value === 'true';
-                                    toggleDepreciationFields(addDepreciationFields, isDepreciable);
-                                }
-                            });
-                        });
-
-                        const config = { attributes: true, attributeFilter: ['value'] };
-                        observer.observe(addSelectedIsDepreciable, config);
-
-                        addSelectedIsDepreciable.addEventListener('change', function () {
-                            const isDepreciable = this.value === 'true';
-                            toggleDepreciationFields(addDepreciationFields, isDepreciable);
-                        });
-
-                        const isInitiallyDepreciable = addSelectedIsDepreciable.value === 'true';
-                        toggleDepreciationFields(addDepreciationFields, isInitiallyDepreciable);
-                    }
-
-                    const editAssetMasterSelect = document.getElementById('edit_asset_master_id');
-                    const editDepreciationFields = document.getElementById('edit_depreciation_fields');
-
-                    if (editAssetMasterSelect && editDepreciationFields) {
-                        editAssetMasterSelect.addEventListener('change', function () {
-                            const selectedOption = this.options[this.selectedIndex];
-                            const isDepreciable = selectedOption.getAttribute('data-depreciable') === 'true';
-                            toggleDepreciationFields(editDepreciationFields, isDepreciable);
-                        });
-                    }
-                }
-
-                function initEventHandlers() {
-                    document.querySelectorAll('.edit-asset-btn').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const assetId = this.getAttribute('data-id');
-                            setupWithData(assetId);
-                        });
-                    });
-
-                    document.querySelectorAll('.delete-asset-btn').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const assetId = this.getAttribute('data-id');
-                            const assetName = this.getAttribute('data-name');
-                            const deleteModal = document.getElementById('deleteAssetModal');
-                            const deleteContent = document.getElementById('deleteAssetModalContent');
-
-                            if (deleteModal && deleteContent) {
-                                document.getElementById('deleteAssetName').textContent = assetName;
-                                const deleteForm = document.getElementById('deleteAssetForm');
-                                if (deleteForm) {
-                                    deleteForm.action = `{{ url('assets') }}/${assetId}`;
-                                }
-                                openModal(deleteModal, deleteContent);
-                            }
-                        });
-                    });
-
-                    const addAssetBtn = document.getElementById('addAssetBtn');
-                    const addAssetModal = document.getElementById('addAssetModal');
-                    const addAssetModalContent = document.getElementById('addAssetModalContent');
-
-                    if (addAssetBtn && addAssetModal && addAssetModalContent) {
-                        addAssetBtn.addEventListener('click', function () {
-                            openModal(addAssetModal, addAssetModalContent);
-                        });
-                    }
-
-                    document.getElementById('printQRBtn')?.addEventListener('click', function () {
-                        const checkedAssets = document.querySelectorAll('.asset-checkbox:checked');
-                        const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
-
-                        if (assetIds.length === 0) {
-                            showToast('Silakan pilih setidaknya satu aset untuk mencetak kode QR.', 'error');
-                            return;
-                        }
-
-                        document.getElementById('printQRAssetIds').value = assetIds.join(',');
-
-                        const printQRModal = document.getElementById('printQRModal');
-                        const printQRModalContent = document.getElementById('printQRModalContent');
-                        openModal(printQRModal, printQRModalContent);
-                    });
-
-                    document.getElementById('select-all-assets')?.addEventListener('change', function () {
-                        const checkboxes = document.querySelectorAll('.asset-checkbox');
-                        checkboxes.forEach(checkbox => {
-                            checkbox.checked = this.checked;
-                        });
-                    });
-
-                    document.querySelectorAll('.close-modal').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const modal = this.closest('[id$="Modal"]');
-                            closeModal(modal);
-                        });
-                    });
-
-                    document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(overlay => {
-                        overlay.addEventListener('click', function (e) {
-                            if (e.target === this) {
-                                const modal = this.parentElement;
-                                if (modal) {
-                                    closeModal(modal);
-                                }
-                            }
-                        });
-                    });
-
-                    const editForm = document.getElementById('editAssetForm');
-                    if (editForm) {
-                        editForm.addEventListener('submit', function (e) {
-                            e.preventDefault();
-
-                            const formData = new FormData(this);
-                            const assetId = this.action.split('/').pop();
-
-                            if (!formData.has('current_status')) {
-                                formData.append('current_status', 'available');
-                            }
-
-                            // Process currency inputs to ensure full values
-                            const currencyInputs = ['edit_purchase_cost', 'edit_acquisition_cost', 'edit_salvage_value'];
-                            currencyInputs.forEach(inputId => {
-                                const element = document.getElementById(inputId);
-                                if (element && element.value) {
-                                    const fieldName = inputId.replace('edit_', '');
-                                    const numericValue = parseFormattedNumber(element.value);
-                                    formData.set(fieldName, numericValue);
-                                }
-                            });
-
-                            const depreciationFields = document.getElementById('edit_depreciation_fields');
-                            if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
-                                const fieldsToCheck = [
-                                    { id: 'edit_depreciation_method', name: 'depreciation_method' },
-                                    { id: 'edit_asset_life_months', name: 'asset_life_months' },
-                                    { id: 'edit_date_acquired', name: 'date_acquired' }
-                                ];
-
-                                fieldsToCheck.forEach(field => {
-                                    const element = document.getElementById(field.id);
-                                    if (element && element.value && !formData.has(field.name)) {
-                                        formData.append(field.name, element.value);
-                                    }
-                                });
-                            }
-
-                            // Add CSRF token
-                            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                            formData.append('_token', csrfToken);
-
-                            // Create a dynamic form for submission
-                            const form = document.createElement('form');
-                            form.method = 'POST';
-                            form.action = `{{ url('assets') }}/${assetId}`;
-                            form.style.display = 'none';
-
-                            const methodInput = document.createElement('input');
-                            methodInput.type = 'hidden';
-                            methodInput.name = '_method';
-                            methodInput.value = 'PUT';
-                            form.appendChild(methodInput);
-
-                            for (const [key, value] of formData.entries()) {
-                                if (key === '_method') continue;
-
-                                const input = document.createElement('input');
-                                input.type = 'hidden';
-                                input.name = key;
-                                input.value = value;
-                                form.appendChild(input);
-                            }
-
-                            document.body.appendChild(form);
-                            form.submit();
-                        });
-                    }
-
-                    const printQRForm = document.getElementById('printQRForm');
-                    if (printQRForm) {
-                        printQRForm.addEventListener('submit', function (e) {
-                            e.preventDefault();
-
-                            const formData = new FormData(this);
-                            const action = this.action;
-
-                            const modal = document.getElementById('printQRModal');
-                            if (modal) {
-                                closeModal(modal);
-                            }
-
-                            const form = document.createElement('form');
-                            form.method = 'POST';
-                            form.action = action;
-                            form.target = '_blank';
-                            form.style.display = 'none';
-
-                            for (const [key, value] of formData.entries()) {
-                                const input = document.createElement('input');
-                                input.type = 'hidden';
-                                input.name = key;
-                                input.value = value;
-                                form.appendChild(input);
-                            }
-
-                            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                            const csrfInput = document.createElement('input');
-                            csrfInput.type = 'hidden';
-                            csrfInput.name = '_token';
-                            csrfInput.value = csrfToken;
-                            form.appendChild(csrfInput);
-
-                            document.body.appendChild(form);
-                            form.submit();
-                        });
-                    }
-                }
-
-                function initRoomSearch(
-                    searchInput,
-                    dropdown,
-                    roomList,
-                    loadingIndicator,
-                    selectedRoomId
-                ) {
-                    if (!searchInput || !dropdown || !roomList) return;
-
-                    searchInput.addEventListener('focus', function () {
-                        dropdown.classList.remove('hidden');
-                        if (roomList.children.length === 0) {
-                            loadRooms('');
-                        }
-                    });
-
-                    document.addEventListener('click', function (e) {
-                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-
-                    const debouncedSearch = debounce(function (e) {
-                        loadRooms(e.target.value);
-                    }, 300);
-
-                    searchInput.addEventListener('input', debouncedSearch);
-
-                    async function loadRooms(searchTerm) {
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        roomList.innerHTML = '';
-
-                        try {
-                            const response = await fetch(`{{ url('/rooms') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch rooms from server');
-                            }
-
-                            const data = await response.json();
-                            const rooms = data.rooms || [];
-
-                            roomList.innerHTML = '';
-
-                            if (rooms.length === 0) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-gray-500 italic';
-                                noResults.textContent = 'Ruangan tidak ditemukan';
-                                roomList.appendChild(noResults);
-                            } else {
-                                rooms.forEach(room => {
-                                    const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                                    const buildingName = room.building ? room.building.building_name :
-                                        (room.building_name || 'Gedung Tidak Diketahui');
-
-                                    const roomDisplay = `${room.room_name} (${buildingName})`;
-
-                                    li.textContent = roomDisplay;
-                                    li.setAttribute('data-id', room.room_id);
-                                    li.setAttribute('data-name', roomDisplay);
-
-                                    li.addEventListener('click', function () {
-                                        selectedRoomId.value = this.getAttribute('data-id');
-
-                                        searchInput.value = this.getAttribute('data-name');
-
-                                        dropdown.classList.add('hidden');
-                                    });
-
-                                    roomList.appendChild(li);
-                                });
-                            }
-                        } catch (error) {
-                            console.error('Error loading rooms:', error);
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-                            errorItem.textContent = 'Galat memuat ruangan';
-                            roomList.appendChild(errorItem);
-                        } finally {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                        }
-                    }
-                }
-
-                function initAssetMasterSearch(
-                    searchInput,
-                    dropdown,
-                    assetMasterList,
-                    loadingIndicator,
-                    selectedAssetMasterId,
-                    selectedIsDepreciable,
-                    depreciationFields
-                ) {
-                    if (!searchInput || !dropdown || !assetMasterList) return;
-
-                    searchInput.addEventListener('focus', function () {
-                        dropdown.classList.remove('hidden');
-                        if (assetMasterList.children.length === 0) {
-                            loadAssetMasters('');
-                        }
-                    });
-
-                    document.addEventListener('click', function (e) {
-                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-
-                    const debouncedSearch = debounce(function (e) {
-                        loadAssetMasters(e.target.value);
-                    }, 300);
-
-                    searchInput.addEventListener('input', debouncedSearch);
-
-                    // Add scroll event to load more data
-                    dropdown.addEventListener('scroll', function() {
-                        if (assetMasterList.dataset.loading === "true" || assetMasterList.dataset.hasMoreData === "false") return;
-
-                        // Check if we're near bottom
-                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
-                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-
-                            // Load next page with current search term
-                            loadAssetMasters(assetMasterList.dataset.searchTerm || '', false);
-                        }
-                    });
-
-                    async function loadAssetMasters(searchTerm, resetList = true) {
-                        // Setup for lazy loading
-                        let page = assetMasterList.dataset.page ? parseInt(assetMasterList.dataset.page) : 1;
-                        let isLoading = assetMasterList.dataset.loading === "true";
-                        let hasMoreData = assetMasterList.dataset.hasMoreData !== "false";
-
-                        // Save current search term
-                        assetMasterList.dataset.searchTerm = searchTerm;
-
-                        if (isLoading) return;
-
-                        // Set loading state
-                        assetMasterList.dataset.loading = "true";
-
-                        // Use different loading indicators based on whether we're resetting or loading more
-                        const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-
-                        if (resetList) {
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        assetMasterList.innerHTML = '';
-                            page = 1;
-                        } else {
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-                        }
-
-                        try {
-                            const response = await fetch(`asset-master?${searchTerm ? 'search=' + encodeURIComponent(searchTerm) : ''}&page=${page}&limit=15`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch asset masters');
-                            }
-
-                            const data = await response.json();
-                            let assetMasters = data.masterAssets || [];
-
-                            // Check if we have more data to load
-                            hasMoreData = assetMasters.length === 15;
-
-                            // Save next page number and has more data state
-                            assetMasterList.dataset.page = page + 1;
-                            assetMasterList.dataset.hasMoreData = hasMoreData.toString();
-
-                            if (assetMasters.length === 0 && assetMasterList.children.length === 0) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-gray-500 italic';
-                                noResults.textContent = 'Master aset tidak ditemukan';
-                                assetMasterList.appendChild(noResults);
-                            } else {
-                                assetMasters.forEach(item => {
-                                    const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                                    const assetMasterName = item.asset_name || 'Unknown';
-
-                                    li.textContent = assetMasterName;
-                                    li.setAttribute('data-id', item.asset_master_id);
-                                    li.setAttribute('data-name', assetMasterName);
-
-                                    const isDepreciable = item.is_depreciable === true;
-
-                                    li.setAttribute('data-depreciable', isDepreciable);
-
-                                    li.addEventListener('click', function () {
-                                        selectedAssetMasterId.value = this.getAttribute('data-id');
-
-                                        searchInput.value = this.getAttribute('data-name');
-
-                                        const isDepreciable = this.getAttribute('data-depreciable') === 'true';
-                                        selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
-                                        const event = new Event('change');
-                                        selectedIsDepreciable.dispatchEvent(event);
-
-                                        toggleDepreciationFields(depreciationFields, isDepreciable);
-
-                                        dropdown.classList.add('hidden');
-                                    });
-
-                                    assetMasterList.appendChild(li);
-                                });
-                            }
-                        } catch (error) {
-                            console.error('Error loading asset masters:', error);
-                            if (assetMasterList.children.length === 0) {
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-                            errorItem.textContent = 'Galat memuat master aset';
-                            assetMasterList.appendChild(errorItem);
-                            }
-                        } finally {
-                            // Reset loading state
-                            assetMasterList.dataset.loading = "false";
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
-                        }
-                    }
-                }
-
-                function initUserSearch(
-                    searchInput,
-                    dropdown,
-                    userList,
-                    loadingIndicator,
-                    selectedUserId
-                ) {
-                    if (!searchInput || !dropdown || !userList) {
-                        return;
-                    }
-
-                    searchInput.addEventListener('focus', function () {
-                        dropdown.classList.remove('hidden');
-                        if (userList.children.length === 0) {
-                            loadUsers('');
-                        }
-                    });
-
-                    document.addEventListener('click', function (e) {
-                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-
-                    const debouncedSearch = debounce(function (e) {
-                        loadUsers(e.target.value);
-                    }, 300);
-
-                    searchInput.addEventListener('input', debouncedSearch);
-
-                    // Add scroll event to load more data
-                    dropdown.addEventListener('scroll', function() {
-                        if (userList.dataset.loading === "true" || userList.dataset.hasMoreData === "false") return;
-
-                        // Check if we're near bottom
-                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
-                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-
-                            // Load next page with current search term
-                            loadUsers(userList.dataset.searchTerm || '', false);
-                        }
-                    });
-
-                    async function loadUsers(searchTerm, resetList = true) {
-                        // Setup for lazy loading
-                        let page = userList.dataset.page ? parseInt(userList.dataset.page) : 1;
-                        let isLoading = userList.dataset.loading === "true";
-                        let hasMoreData = userList.dataset.hasMoreData !== "false";
-
-                        // Save current search term
-                        userList.dataset.searchTerm = searchTerm;
-
-                        if (isLoading) return;
-
-                        // Set loading state
-                        userList.dataset.loading = "true";
-
-                        // Use different loading indicators based on whether we're resetting or loading more
-                        const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-
-                        if (resetList) {
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        userList.innerHTML = '';
-                            page = 1;
-                        } else {
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-                        }
-
-                        try {
-                            const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active&page=${page}&limit=15`;
-
-                            const response = await fetch(apiUrl, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            });
-
-                            if (!response.ok) {
-                                throw new Error(`Failed to fetch users from server: ${response.status} ${response.statusText}`);
-                            }
-
-                            const data = await response.json();
-                            const users = data.users || data.data || [];
-
-                            // Check if we have more data to load
-                            hasMoreData = users.length === 15;
-
-                            // Save next page number and has more data state
-                            userList.dataset.page = page + 1;
-                            userList.dataset.hasMoreData = hasMoreData.toString();
-
-                            if (users.length === 0 && userList.children.length === 0) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-gray-500 italic';
-                                noResults.textContent = 'Pengguna tidak ditemukan';
-                                userList.appendChild(noResults);
-                            } else {
-                                users.forEach(user => {
-                                    const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                                    let displayText = '';
-                                    if (user.employee_name) {
-                                        displayText = user.employee_name;
-                                        if (user.name) {
-                                            displayText += ` - ${user.name}`;
-                                        }
-                                    } else {
-                                        displayText = user.name || `User ID: ${user.user_id}`;
+                                        document.getElementById('edit_user_search').value = userDisplay;
+                                    } else if (asset.employee_name) {
+                                        document.getElementById('edit_user_search').value = asset.employee_name;
                                     }
 
-                                    li.textContent = displayText;
-                                    li.setAttribute('data-id', user.user_id);
-                                    li.setAttribute('data-employee-name', user.employee_name || '');
-                                    li.setAttribute('data-name', displayText);
+                                    const depreciationFields = document.getElementById('edit_depreciation_fields');
+                                    if (depreciationFields) {
+                                        const hasDepreciationData =
+                                            asset.depreciation_method ||
+                                            asset.acquisition_cost ||
+                                            asset.salvage_value ||
+                                            asset.asset_life_months ||
+                                            asset.date_acquired ||
+                                            (asset.depreciation && Object.keys(asset.depreciation).length > 0);
 
-                                    li.addEventListener('click', function () {
-                                        selectedUserId.value = this.getAttribute('data-id');
+                                        const isDepreciable = asset.asset_master && asset.asset_master.is_depreciable === true;
 
-                                        const employeeName = this.getAttribute('data-employee-name');
-                                        if (employeeName) {
-                                            searchInput.value = employeeName;
+                                        if (hasDepreciationData || isDepreciable) {
+                                            toggleDepreciationFields(depreciationFields, true);
+
+                                            const depData = asset.depreciation || asset;
+
+                                            // Apply currency formatting to acquisition cost
+                                            const acquisitionCostField = document.getElementById('edit_acquisition_cost');
+                                            if (acquisitionCostField && depData.acquisition_cost) {
+                                                acquisitionCostField.value = depData.acquisition_cost;
+                                                formatCurrency(acquisitionCostField);
+                                            } else {
+                                                setFieldValue('edit_acquisition_cost', '');
+                                            }
+
+                                            // Apply currency formatting to salvage value
+                                            const salvageValueField = document.getElementById('edit_salvage_value');
+                                            if (salvageValueField && depData.salvage_value) {
+                                                salvageValueField.value = depData.salvage_value;
+                                                formatCurrency(salvageValueField);
+                                            } else {
+                                                setFieldValue('edit_salvage_value', '');
+                                            }
+
+                                            setFieldValue('edit_asset_life_months', depData.asset_life_months || '');
+                                            setFieldValue('edit_date_acquired', depData.date_acquired || '');
+
+                                            const depMethodSelect = document.getElementById('edit_depreciation_method');
+                                            const depreciationMethod = depData.depreciation_method || '';
+
+                                            if (depMethodSelect && depreciationMethod) {
+                                                let found = false;
+                                                for (let i = 0; i < depMethodSelect.options.length; i++) {
+                                                    if (depMethodSelect.options[i].value === depreciationMethod) {
+                                                        depMethodSelect.selectedIndex = i;
+                                                        found = true;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (!found) {
+                                                    const methodLower = depreciationMethod.toLowerCase();
+                                                    for (let i = 0; i < depMethodSelect.options.length; i++) {
+                                                        const optionText = depMethodSelect.options[i].textContent.toLowerCase();
+                                                        if (optionText.includes(methodLower) || methodLower.includes(optionText)) {
+                                                            depMethodSelect.selectedIndex = i;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         } else {
-                                            searchInput.value = this.getAttribute('data-name');
+                                            toggleDepreciationFields(depreciationFields, false);
                                         }
-
-                                        dropdown.classList.add('hidden');
-                                    });
-
-                                    userList.appendChild(li);
-                                });
-                            }
-                        } catch (error) {
-                            console.error('Error loading users:', error);
-                            if (userList.children.length === 0) {
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-                            errorItem.textContent = `Galat memproses data pengguna: ${error.message}`;
-                            userList.appendChild(errorItem);
-                            }
-                        } finally {
-                            // Reset loading state
-                            userList.dataset.loading = "false";
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
-                        }
-                    }
-                }
-
-                function initSearchComponents() {
-                    // Replace initDropdown with initBuildingSearch for edit_building
-                    initBuildingSearch(
-                        document.getElementById('edit_building_search'),
-                        document.getElementById('edit_building_dropdown'),
-                        document.getElementById('edit_building_list'),
-                        document.getElementById('edit_building_loading'),
-                        document.getElementById('edit_selected_building_id'),
-                        document.getElementById('edit_building_search'),
-                        document.getElementById('edit_room_search')
-                    );
-
-                    initDropdown(
-                        document.getElementById('edit_room_search'),
-                        document.getElementById('edit_room_dropdown'),
-                        document.getElementById('edit_room_list'),
-                        function (searchTerm) {
-                            const buildingId = document.getElementById('edit_selected_building_id').value;
-                            if (buildingId) {
-                                loadRoomsForBuilding(
-                                    searchTerm,
-                                    buildingId,
-                                    document.getElementById('edit_room_list'),
-                                    document.getElementById('edit_room_loading'),
-                                    document.getElementById('edit_selected_room_id'),
-                                    document.getElementById('edit_room_search'),
-                                    document.getElementById('edit_room_dropdown')
-                                );
-                            } else {
-                                const roomList = document.getElementById('edit_room_list');
-                                if (roomList) {
-                                    roomList.innerHTML = '';
-                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
-                                }
-                            }
-                        }
-                    );
-
-                    // Replace initDropdown with initBuildingSearch for building
-                    initBuildingSearch(
-                        document.getElementById('building_search'),
-                        document.getElementById('building_dropdown'),
-                        document.getElementById('building_list'),
-                        document.getElementById('building_loading'),
-                        document.getElementById('selected_building_id'),
-                        document.getElementById('building_search'),
-                        document.getElementById('room_search')
-                    );
-
-                    initDropdown(
-                        document.getElementById('room_search'),
-                        document.getElementById('room_dropdown'),
-                        document.getElementById('room_list'),
-                        function (searchTerm) {
-                            const buildingId = document.getElementById('selected_building_id').value;
-                            if (buildingId) {
-                                loadRoomsForBuilding(
-                                    searchTerm,
-                                    buildingId,
-                                    document.getElementById('room_list'),
-                                    document.getElementById('room_loading'),
-                                    document.getElementById('selected_room_id'),
-                                    document.getElementById('room_search'),
-                                    document.getElementById('room_dropdown')
-                                );
-                            } else {
-                                const roomList = document.getElementById('room_list');
-                                if (roomList) {
-                                    roomList.innerHTML = '';
-                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
-                                }
-                            }
-                        }
-                    );
-
-                    initAssetMasterSearch(
-                        document.getElementById('asset_master_search'),
-                        document.getElementById('asset_master_dropdown'),
-                        document.getElementById('asset_master_list'),
-                        document.getElementById('asset_master_loading'),
-                        document.getElementById('selected_asset_master_id'),
-                        document.getElementById('selected_is_depreciable'),
-                        document.getElementById('depreciation_fields')
-                    );
-
-                    initAssetMasterSearch(
-                        document.getElementById('edit_asset_master_search'),
-                        document.getElementById('edit_asset_master_dropdown'),
-                        document.getElementById('edit_asset_master_list'),
-                        document.getElementById('edit_asset_master_loading'),
-                        document.getElementById('edit_selected_asset_master_id'),
-                        document.getElementById('edit_selected_is_depreciable'),
-                        document.getElementById('edit_depreciation_fields')
-                    );
-
-                    if (document.getElementById('user_search')) {
-                        initUserSearch(
-                            document.getElementById('user_search'),
-                            document.getElementById('user_dropdown'),
-                            document.getElementById('user_list'),
-                            document.getElementById('user_loading'),
-                            document.getElementById('selected_user_id')
-                        );
-                    }
-
-                    if (document.getElementById('edit_user_search')) {
-                        initUserSearch(
-                            document.getElementById('edit_user_search'),
-                            document.getElementById('edit_user_dropdown'),
-                            document.getElementById('edit_user_list'),
-                            document.getElementById('edit_user_loading'),
-                            document.getElementById('edit_selected_user_id')
-                        );
-                    }
-                }
-
-                function initDropdown(searchInput, dropdown, list, searchFunction) {
-                    if (!searchInput || !dropdown || !list) return;
-
-                    searchInput.addEventListener('focus', function () {
-                        dropdown.classList.remove('hidden');
-                        if (list.children.length === 0) {
-                            searchFunction('');
-                        }
-                    });
-
-                    document.addEventListener('click', function (e) {
-                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-
-                    const debouncedSearch = debounce(function (e) {
-                        searchFunction(e.target.value);
-                    }, 300);
-
-                    searchInput.addEventListener('input', debouncedSearch);
-
-                    // Add scroll event to load more data
-                    dropdown.addEventListener('scroll', function() {
-                        if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
-
-                        // Check if we're near bottom
-                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
-                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-
-                            // Load next page with current search term
-                            searchFunction(list.dataset.searchTerm || '', false);
-                        }
-                    });
-                }
-
-                function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
-                    const li = document.createElement('li');
-                    li.className = className;
-                    li.textContent = text;
-                    return li;
-                }
-
-                async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput, resetList = true) {
-                    // Setup for lazy loading
-                    let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
-                    let isLoading = buildingList.dataset.loading === "true";
-                    let hasMoreData = buildingList.dataset.hasMoreData !== "false";
-
-                    // Save current search term
-                    buildingList.dataset.searchTerm = searchTerm;
-
-                    if (isLoading) return;
-
-                    // Set loading state
-                    buildingList.dataset.loading = "true";
-
-                    // Use different loading indicators based on whether we're resetting or loading more
-                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-
-                    if (resetList) {
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        buildingList.innerHTML = '';
-                        page = 1;
-                    } else {
-                        if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-                    }
-
-                    try {
-                        const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-
-                        if (!response.ok) {
-                            throw new Error('Failed to load buildings');
-                        }
-
-                        const data = await response.json();
-                        const buildings = data.buildings || [];
-
-                        // Check if we have more data to load
-                        hasMoreData = buildings.length === 15;
-
-                        // Save next page number and has more data state
-                        buildingList.dataset.page = page + 1;
-                        buildingList.dataset.hasMoreData = hasMoreData.toString();
-
-                        if (buildings.length === 0 && buildingList.children.length === 0) {
-                            buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
-                        } else {
-                            buildings.forEach(building => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                                li.textContent = building.building_name;
-                                li.setAttribute('data-id', building.building_id);
-                                li.setAttribute('data-name', building.building_name);
-
-                                li.addEventListener('click', function () {
-                                    selectedBuildingId.value = this.getAttribute('data-id');
-                                    searchInput.value = this.getAttribute('data-name');
-
-                                    if (roomSearchInput) {
-                                        roomSearchInput.disabled = false;
-                                        roomSearchInput.placeholder = "Cari ruangan...";
-
-                                        const isEditModal = roomSearchInput.id === 'edit_room_search';
-
-                                        const roomIdField = isEditModal ? 'edit_selected_room_id' : 'selected_room_id';
-                                        document.getElementById(roomIdField).value = '';
-                                        roomSearchInput.value = '';
-
-                                        const roomLoadingId = isEditModal ? 'edit_room_loading' : 'room_loading';
-                                        const roomLoadingIndicator = document.getElementById(roomLoadingId);
-                                        if (roomLoadingIndicator) {
-                                            roomLoadingIndicator.classList.remove('hidden');
-                                        }
-
-                                        const roomListId = isEditModal ? 'edit_room_list' : 'room_list';
-                                        const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'room_dropdown';
-                                        loadRoomsForBuilding(
-                                            '',
-                                            this.getAttribute('data-id'),
-                                            document.getElementById(roomListId),
-                                            document.getElementById(roomLoadingId),
-                                            document.getElementById(roomIdField),
-                                            roomSearchInput,
-                                            document.getElementById(roomDropdownId)
-                                        );
-
-                                        document.getElementById(roomDropdownId).classList.remove('hidden');
                                     }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching asset data:', error);
+                                });
+                        };
 
-                                    dropdown.classList.add('hidden');
+                        function initAssetMasterListeners() {
+                            const addSelectedIsDepreciable = document.getElementById('selected_is_depreciable');
+                            const addDepreciationFields = document.getElementById('depreciation_fields');
+
+                            if (addSelectedIsDepreciable && addDepreciationFields) {
+                                const observer = new MutationObserver(function (mutations) {
+                                    mutations.forEach(function (mutation) {
+                                        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                                            const isDepreciable = addSelectedIsDepreciable.value === 'true';
+                                            toggleDepreciationFields(addDepreciationFields, isDepreciable);
+                                        }
+                                    });
                                 });
 
-                                buildingList.appendChild(li);
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error loading buildings:', error);
-                        if (buildingList.children.length === 0) {
-                            buildingList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
-                        }
-                    } finally {
-                        // Reset loading state
-                        buildingList.dataset.loading = "false";
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                        if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
-                    }
-                }
+                                const config = { attributes: true, attributeFilter: ['value'] };
+                                observer.observe(addSelectedIsDepreciable, config);
 
-                async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown, resetList = true) {
-                    if (!buildingId) {
-                        searchInput.value = '';
-                        searchInput.placeholder = 'Pilih gedung terlebih dahulu';
-                        searchInput.disabled = true;
-                        return;
-                    }
+                                addSelectedIsDepreciable.addEventListener('change', function () {
+                                    const isDepreciable = this.value === 'true';
+                                    toggleDepreciationFields(addDepreciationFields, isDepreciable);
+                                });
 
-                    searchInput.disabled = false;
-                    searchInput.placeholder = "Cari ruangan...";
-
-                    // Setup for lazy loading
-                    let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
-                    let isLoading = roomList.dataset.loading === "true";
-                    let hasMoreData = roomList.dataset.hasMoreData !== "false";
-
-                    // Save current search term and building ID
-                    roomList.dataset.searchTerm = searchTerm;
-                    roomList.dataset.buildingId = buildingId;
-
-                    if (isLoading) return;
-
-                    // Set loading state
-                    roomList.dataset.loading = "true";
-
-                    // Use different loading indicators based on whether we're resetting or loading more
-                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-
-                    if (resetList) {
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    roomList.innerHTML = '';
-                        page = 1;
-                    } else {
-                        if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
-                    }
-
-                    if (dropdown) dropdown.classList.remove('hidden');
-
-                    try {
-                        const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`;
-
-                        const response = await fetch(apiUrl, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
+                                const isInitiallyDepreciable = addSelectedIsDepreciable.value === 'true';
+                                toggleDepreciationFields(addDepreciationFields, isInitiallyDepreciable);
                             }
-                        });
 
-                        if (!response.ok) {
-                            throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
+                            const editAssetMasterSelect = document.getElementById('edit_asset_master_id');
+                            const editDepreciationFields = document.getElementById('edit_depreciation_fields');
+
+                            if (editAssetMasterSelect && editDepreciationFields) {
+                                editAssetMasterSelect.addEventListener('change', function () {
+                                    const selectedOption = this.options[this.selectedIndex];
+                                    const isDepreciable = selectedOption.getAttribute('data-depreciable') === 'true';
+                                    toggleDepreciationFields(editDepreciationFields, isDepreciable);
+                                });
+                            }
                         }
 
-                        const data = await response.json();
-                        const rooms = data.rooms || [];
+                        function initEventHandlers() {
+                            document.querySelectorAll('.edit-asset-btn').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const assetId = this.getAttribute('data-id');
+                                    setupWithData(assetId);
+                                });
+                            });
 
-                        // Check if we have more data to load
-                        hasMoreData = rooms.length === 15;
+                            document.querySelectorAll('.delete-asset-btn').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const assetId = this.getAttribute('data-id');
+                                    const assetName = this.getAttribute('data-name');
+                                    const deleteModal = document.getElementById('deleteAssetModal');
+                                    const deleteContent = document.getElementById('deleteAssetModalContent');
 
-                        // Save next page number and has more data state
-                        roomList.dataset.page = page + 1;
-                        roomList.dataset.hasMoreData = hasMoreData.toString();
+                                    if (deleteModal && deleteContent) {
+                                        document.getElementById('deleteAssetName').textContent = assetName;
+                                        const deleteForm = document.getElementById('deleteAssetForm');
+                                        if (deleteForm) {
+                                            deleteForm.action = `{{ url('assets') }}/${assetId}`;
+                                        }
+                                        openModal(deleteModal, deleteContent);
+                                    }
+                                });
+                            });
 
-                        if (rooms.length === 0 && roomList.children.length === 0) {
-                            roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
-                        } else {
-                            rooms.forEach(room => {
-                                const li = document.createElement('li');
-                                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                            const addAssetBtn = document.getElementById('addAssetBtn');
+                            const addAssetModal = document.getElementById('addAssetModal');
+                            const addAssetModalContent = document.getElementById('addAssetModalContent');
 
-                                const roomName = room.room_name || room.name || '';
-                                const roomId = room.room_id || room.id || '';
+                            if (addAssetBtn && addAssetModal && addAssetModalContent) {
+                                addAssetBtn.addEventListener('click', function () {
+                                    openModal(addAssetModal, addAssetModalContent);
+                                });
+                            }
 
-                                if (!roomName || !roomId) {
-                                    console.warn('Room missing required properties:', room);
+                            document.getElementById('printQRBtn')?.addEventListener('click', function () {
+                                const checkedAssets = document.querySelectorAll('.asset-checkbox:checked');
+                                const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
+
+                                if (assetIds.length === 0) {
+                                    showToast('Silakan pilih setidaknya satu aset untuk mencetak kode QR.', 'error');
                                     return;
                                 }
 
-                                li.textContent = roomName;
-                                li.setAttribute('data-id', roomId);
-                                li.setAttribute('data-name', roomName);
+                                document.getElementById('printQRAssetIds').value = assetIds.join(',');
 
-                                li.addEventListener('click', function () {
-                                    selectedRoomId.value = this.getAttribute('data-id');
-                                    searchInput.value = this.getAttribute('data-name');
-                                    dropdown.classList.add('hidden');
-                                });
-
-                                roomList.appendChild(li);
+                                const printQRModal = document.getElementById('printQRModal');
+                                const printQRModalContent = document.getElementById('printQRModalContent');
+                                openModal(printQRModal, printQRModalContent);
                             });
+
+                            document.getElementById('select-all-assets')?.addEventListener('change', function () {
+                                const checkboxes = document.querySelectorAll('.asset-checkbox');
+                                checkboxes.forEach(checkbox => {
+                                    checkbox.checked = this.checked;
+                                });
+                            });
+
+                            document.querySelectorAll('.close-modal').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const modal = this.closest('[id$="Modal"]');
+                                    closeModal(modal);
+                                });
+                            });
+
+                            document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(overlay => {
+                                overlay.addEventListener('click', function (e) {
+                                    if (e.target === this) {
+                                        const modal = this.parentElement;
+                                        if (modal) {
+                                            closeModal(modal);
+                                        }
+                                    }
+                                });
+                            });
+
+                            const editForm = document.getElementById('editAssetForm');
+                            if (editForm) {
+                                editForm.addEventListener('submit', function (e) {
+                                    e.preventDefault();
+
+                                    const formData = new FormData(this);
+                                    const assetId = this.action.split('/').pop();
+
+                                    if (!formData.has('current_status')) {
+                                        formData.append('current_status', 'available');
+                                    }
+
+                                    // Process currency inputs to ensure full values
+                                    const currencyInputs = ['edit_purchase_cost', 'edit_acquisition_cost', 'edit_salvage_value'];
+                                    currencyInputs.forEach(inputId => {
+                                        const element = document.getElementById(inputId);
+                                        if (element && element.value) {
+                                            const fieldName = inputId.replace('edit_', '');
+                                            const numericValue = parseFormattedNumber(element.value);
+                                            formData.set(fieldName, numericValue);
+                                        }
+                                    });
+
+                                    const depreciationFields = document.getElementById('edit_depreciation_fields');
+                                    if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
+                                        const fieldsToCheck = [
+                                            { id: 'edit_depreciation_method', name: 'depreciation_method' },
+                                            { id: 'edit_asset_life_months', name: 'asset_life_months' },
+                                            { id: 'edit_date_acquired', name: 'date_acquired' }
+                                        ];
+
+                                        fieldsToCheck.forEach(field => {
+                                            const element = document.getElementById(field.id);
+                                            if (element && element.value && !formData.has(field.name)) {
+                                                formData.append(field.name, element.value);
+                                            }
+                                        });
+                                    }
+
+                                    // Add CSRF token
+                                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                                    formData.append('_token', csrfToken);
+
+                                    // Create a dynamic form for submission
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `{{ url('assets') }}/${assetId}`;
+                                    form.style.display = 'none';
+
+                                    const methodInput = document.createElement('input');
+                                    methodInput.type = 'hidden';
+                                    methodInput.name = '_method';
+                                    methodInput.value = 'PUT';
+                                    form.appendChild(methodInput);
+
+                                    for (const [key, value] of formData.entries()) {
+                                        if (key === '_method') continue;
+
+                                        const input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = key;
+                                        input.value = value;
+                                        form.appendChild(input);
+                                    }
+
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                });
+                            }
+
+                            const printQRForm = document.getElementById('printQRForm');
+                            if (printQRForm) {
+                                printQRForm.addEventListener('submit', function (e) {
+                                    e.preventDefault();
+
+                                    const formData = new FormData(this);
+                                    const action = this.action;
+
+                                    const modal = document.getElementById('printQRModal');
+                                    if (modal) {
+                                        closeModal(modal);
+                                    }
+
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = action;
+                                    form.target = '_blank';
+                                    form.style.display = 'none';
+
+                                    for (const [key, value] of formData.entries()) {
+                                        const input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = key;
+                                        input.value = value;
+                                        form.appendChild(input);
+                                    }
+
+                                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                                    const csrfInput = document.createElement('input');
+                                    csrfInput.type = 'hidden';
+                                    csrfInput.name = '_token';
+                                    csrfInput.value = csrfToken;
+                                    form.appendChild(csrfInput);
+
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                });
+                            }
                         }
-                    } catch (error) {
-                        console.error('Error loading rooms:', error);
-                        if (roomList.children.length === 0) {
-                        roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
-                        }
-                    } finally {
-                        // Reset loading state
-                        roomList.dataset.loading = "false";
-                        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                        if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
-                    }
-                }
 
-                function checkUrlParams() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    if (urlParams.has('success')) {
-                        alert('Aset berhasil diperbarui!');
-                    }
-                }
+                        function initRoomSearch(
+                            searchInput,
+                            dropdown,
+                            roomList,
+                            loadingIndicator,
+                            selectedRoomId
+                        ) {
+                            if (!searchInput || !dropdown || !roomList) return;
 
-                window.changeAssetPage = function (page) {
-                    const limit = document.getElementById('assetPerPageSelect')?.value || 10;
-
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('page', page);
-                    window.location.href = url.toString();
-                };
-
-                window.changeAssetPerPage = function (perPage) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('limit', perPage);
-                    url.searchParams.set('page', 1);
-                    window.location.href = url.toString();
-                };
-
-                const importAssetBtn = document.getElementById('importAssetBtn');
-                const importAssetModal = document.getElementById('importAssetModal');
-                const importAssetModalContent = document.getElementById('importAssetModalContent');
-
-                if (importAssetBtn && importAssetModal && importAssetModalContent) {
-                    importAssetBtn.addEventListener('click', function () {
-                        openModal(importAssetModal, importAssetModalContent);
-                    });
-                }
-
-                const excelFile = document.getElementById('excel_file');
-                const excelFileNameContainer = document.getElementById('excel-file-name');
-                const excelFileNameText = document.getElementById('file-name-text');
-                const removeExcelBtn = document.getElementById('remove-excel');
-                const previewBtn = document.getElementById('preview-btn');
-                const excelErrorMsg = document.getElementById('excel-error');
-                const excelLoadingIndicator = document.getElementById('excel-loading');
-
-                if (excelFile) {
-                    excelFile.addEventListener('change', function (e) {
-                        if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
-
-                        if (this.files && this.files[0]) {
-                            const file = this.files[0];
-                            const fileExt = file.name.split('.').pop().toLowerCase();
-
-                            if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
-                                if (excelErrorMsg) {
-                                    excelErrorMsg.textContent = 'Jenis file tidak valid. Silakan unggah file Excel (.xlsx, .xls) atau CSV.';
-                                    excelErrorMsg.classList.remove('hidden');
+                            searchInput.addEventListener('focus', function () {
+                                dropdown.classList.remove('hidden');
+                                if (roomList.children.length === 0) {
+                                    loadRooms('');
                                 }
-                                this.value = '';
-                                if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
-                                if (previewBtn) previewBtn.disabled = true;
+                            });
+
+                            document.addEventListener('click', function (e) {
+                                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
+
+                            const debouncedSearch = debounce(function (e) {
+                                loadRooms(e.target.value);
+                            }, 300);
+
+                            searchInput.addEventListener('input', debouncedSearch);
+
+                            async function loadRooms(searchTerm) {
+                                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                roomList.innerHTML = '';
+
+                                try {
+                                    const response = await fetch(`{{ url('/rooms') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    });
+
+                                    if (!response.ok) {
+                                        throw new Error('Failed to fetch rooms from server');
+                                    }
+
+                                    const data = await response.json();
+                                    const rooms = data.rooms || [];
+
+                                    roomList.innerHTML = '';
+
+                                    if (rooms.length === 0) {
+                                        const noResults = document.createElement('li');
+                                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                                        noResults.textContent = 'Ruangan tidak ditemukan';
+                                        roomList.appendChild(noResults);
+                                    } else {
+                                        rooms.forEach(room => {
+                                            const li = document.createElement('li');
+                                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                            const buildingName = room.building ? room.building.building_name :
+                                                (room.building_name || 'Gedung Tidak Diketahui');
+
+                                            const roomDisplay = `${room.room_name} (${buildingName})`;
+
+                                            li.textContent = roomDisplay;
+                                            li.setAttribute('data-id', room.room_id);
+                                            li.setAttribute('data-name', roomDisplay);
+
+                                            li.addEventListener('click', function () {
+                                                selectedRoomId.value = this.getAttribute('data-id');
+
+                                                searchInput.value = this.getAttribute('data-name');
+
+                                                dropdown.classList.add('hidden');
+                                            });
+
+                                            roomList.appendChild(li);
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.error('Error loading rooms:', error);
+                                    const errorItem = document.createElement('li');
+                                    errorItem.className = 'px-4 py-2 text-red-500';
+                                    errorItem.textContent = 'Galat memuat ruangan';
+                                    roomList.appendChild(errorItem);
+                                } finally {
+                                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                }
+                            }
+                        }
+
+                        function initAssetMasterSearch(
+                            searchInput,
+                            dropdown,
+                            assetMasterList,
+                            loadingIndicator,
+                            selectedAssetMasterId,
+                            selectedIsDepreciable,
+                            depreciationFields
+                        ) {
+                            if (!searchInput || !dropdown || !assetMasterList) return;
+
+                            searchInput.addEventListener('focus', function () {
+                                dropdown.classList.remove('hidden');
+                                if (assetMasterList.children.length === 0) {
+                                    loadAssetMasters('');
+                                }
+                            });
+
+                            document.addEventListener('click', function (e) {
+                                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
+
+                            const debouncedSearch = debounce(function (e) {
+                                loadAssetMasters(e.target.value);
+                            }, 300);
+
+                            searchInput.addEventListener('input', debouncedSearch);
+
+                            // Add scroll event to load more data
+                            dropdown.addEventListener('scroll', function () {
+                                if (assetMasterList.dataset.loading === "true" || assetMasterList.dataset.hasMoreData === "false") return;
+
+                                // Check if we're near bottom
+                                if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                                    // Load next page with current search term
+                                    loadAssetMasters(assetMasterList.dataset.searchTerm || '', false);
+                                }
+                            });
+
+                            async function loadAssetMasters(searchTerm, resetList = true) {
+                                // Setup for lazy loading
+                                let page = assetMasterList.dataset.page ? parseInt(assetMasterList.dataset.page) : 1;
+                                let isLoading = assetMasterList.dataset.loading === "true";
+                                let hasMoreData = assetMasterList.dataset.hasMoreData !== "false";
+
+                                // Save current search term
+                                assetMasterList.dataset.searchTerm = searchTerm;
+
+                                if (isLoading) return;
+
+                                // Set loading state
+                                assetMasterList.dataset.loading = "true";
+
+                                // Use different loading indicators based on whether we're resetting or loading more
+                                const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                                if (resetList) {
+                                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                    assetMasterList.innerHTML = '';
+                                    page = 1;
+                                } else {
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                                }
+
+                                try {
+                                    const response = await fetch(`asset-master?${searchTerm ? 'search=' + encodeURIComponent(searchTerm) : ''}&page=${page}&limit=15`, {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    });
+
+                                    if (!response.ok) {
+                                        throw new Error('Failed to fetch asset masters');
+                                    }
+
+                                    const data = await response.json();
+                                    let assetMasters = data.masterAssets || [];
+
+                                    // Check if we have more data to load
+                                    hasMoreData = assetMasters.length === 15;
+
+                                    // Save next page number and has more data state
+                                    assetMasterList.dataset.page = page + 1;
+                                    assetMasterList.dataset.hasMoreData = hasMoreData.toString();
+
+                                    if (assetMasters.length === 0 && assetMasterList.children.length === 0) {
+                                        const noResults = document.createElement('li');
+                                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                                        noResults.textContent = 'Master aset tidak ditemukan';
+                                        assetMasterList.appendChild(noResults);
+                                    } else {
+                                        assetMasters.forEach(item => {
+                                            const li = document.createElement('li');
+                                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                            const assetMasterName = item.asset_name || 'Unknown';
+                                            const assetMasterCode = item.asset_master_code || '';
+
+                                            // Create more detailed display with code and name
+                                            const itemContainer = document.createElement('div');
+                                            itemContainer.className = 'asset-master-item';
+
+                                            // Create name element
+                                            const nameSpan = document.createElement('div');
+                                            nameSpan.className = 'name text-black font-medium';
+                                            nameSpan.style.color = 'black';
+                                            nameSpan.textContent = assetMasterName;
+
+                                            // Create code element
+                                            const codeSpan = document.createElement('div');
+                                            codeSpan.className = 'code text-gray-600';
+                                            codeSpan.textContent = assetMasterCode;
+
+                                            // Append name first, then code
+                                            itemContainer.appendChild(nameSpan);
+                                            itemContainer.appendChild(codeSpan);
+                                            li.appendChild(itemContainer);
+
+                                            const isDepreciable = item.is_depreciable === true;
+
+                                            li.setAttribute('data-id', item.asset_master_id);
+                                            li.setAttribute('data-name', assetMasterName);
+                                            li.setAttribute('data-code', assetMasterCode || '');
+                                            li.setAttribute('data-depreciable', isDepreciable);
+
+                                            li.addEventListener('click', function () {
+                                                selectedAssetMasterId.value = this.getAttribute('data-id');
+
+                                                // Display code and name in search field for better UX
+                                                const code = this.getAttribute('data-code');
+                                                const name = this.getAttribute('data-name');
+                                                searchInput.value = code ? `${name} - ${code}` : name;
+
+                                                const isDepreciable = this.getAttribute('data-depreciable') === 'true';
+                                                selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
+                                                const event = new Event('change');
+                                                selectedIsDepreciable.dispatchEvent(event);
+
+                                                toggleDepreciationFields(depreciationFields, isDepreciable);
+
+                                                dropdown.classList.add('hidden');
+                                            });
+
+                                            assetMasterList.appendChild(li);
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.error('Error loading asset masters:', error);
+                                    if (assetMasterList.children.length === 0) {
+                                        const errorItem = document.createElement('li');
+                                        errorItem.className = 'px-4 py-2 text-red-500';
+                                        errorItem.textContent = 'Galat memuat master aset';
+                                        assetMasterList.appendChild(errorItem);
+                                    }
+                                } finally {
+                                    // Reset loading state
+                                    assetMasterList.dataset.loading = "false";
+                                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
+                                }
+                            }
+                        }
+
+                        function initUserSearch(
+                            searchInput,
+                            dropdown,
+                            userList,
+                            loadingIndicator,
+                            selectedUserId
+                        ) {
+                            if (!searchInput || !dropdown || !userList) {
                                 return;
                             }
 
-                            if (excelFileNameText) excelFileNameText.textContent = file.name;
-                            if (excelFileNameContainer) excelFileNameContainer.classList.remove('hidden');
-                            if (previewBtn) previewBtn.disabled = false;
-                        } else {
-                            if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
-                            if (previewBtn) previewBtn.disabled = true;
-                        }
-                    });
-                }
+                            searchInput.addEventListener('focus', function () {
+                                dropdown.classList.remove('hidden');
+                                if (userList.children.length === 0) {
+                                    loadUsers('');
+                                }
+                            });
 
-                if (removeExcelBtn) {
-                    removeExcelBtn.addEventListener('click', function () {
-                        if (excelFile) excelFile.value = '';
-                        if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
-                        if (previewBtn) previewBtn.disabled = true;
-                        if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
-                    });
-                }
+                            document.addEventListener('click', function (e) {
+                                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
 
-                if (previewBtn) {
-                    previewBtn.addEventListener('click', function () {
-                        if (!excelFile || !excelFile.files || !excelFile.files[0]) {
-                            if (excelErrorMsg) {
-                                excelErrorMsg.textContent = 'Silakan pilih file terlebih dahulu.';
-                                excelErrorMsg.classList.remove('hidden');
-                            }
-                            return;
-                        }
+                            const debouncedSearch = debounce(function (e) {
+                                loadUsers(e.target.value);
+                            }, 300);
 
-                        const file = excelFile.files[0];
+                            searchInput.addEventListener('input', debouncedSearch);
 
-                        if (excelLoadingIndicator) excelLoadingIndicator.classList.remove('hidden');
-                        if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+                            // Add scroll event to load more data
+                            dropdown.addEventListener('scroll', function () {
+                                if (userList.dataset.loading === "true" || userList.dataset.hasMoreData === "false") return;
 
-                        const reader = new FileReader();
+                                // Check if we're near bottom
+                                if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
 
-                        reader.onload = function (e) {
-                            try {
-                                const data = new Uint8Array(e.target.result);
-                                const workbook = XLSX.read(data, { type: 'array' });
-                                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                                    // Load next page with current search term
+                                    loadUsers(userList.dataset.searchTerm || '', false);
+                                }
+                            });
 
-                                if (rows.length < 2) {
-                                    throw new Error('The file contains no data or is missing headers.');
+                            async function loadUsers(searchTerm, resetList = true) {
+                                // Setup for lazy loading
+                                let page = userList.dataset.page ? parseInt(userList.dataset.page) : 1;
+                                let isLoading = userList.dataset.loading === "true";
+                                let hasMoreData = userList.dataset.hasMoreData !== "false";
+
+                                // Save current search term
+                                userList.dataset.searchTerm = searchTerm;
+
+                                if (isLoading) return;
+
+                                // Set loading state
+                                userList.dataset.loading = "true";
+
+                                // Use different loading indicators based on whether we're resetting or loading more
+                                const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                                if (resetList) {
+                                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                    userList.innerHTML = '';
+                                    page = 1;
+                                } else {
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
                                 }
 
-                                processExcelData(rows);
+                                try {
+                                    const apiUrl = `{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active&page=${page}&limit=15`;
 
-                                if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
-
-                                document.getElementById('import-step-1').classList.add('hidden');
-                                document.getElementById('import-step-2').classList.remove('hidden');
-                            } catch (error) {
-                                console.error('Excel parsing error:', error);
-                                if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
-                                if (excelErrorMsg) {
-                                    excelErrorMsg.textContent = 'Error processing file: ' + error.message;
-                                    excelErrorMsg.classList.remove('hidden');
-                                }
-                            }
-                        };
-
-                        reader.onerror = function () {
-                            console.error('FileReader error:', reader.error);
-                            if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
-                            if (excelErrorMsg) {
-                                excelErrorMsg.textContent = 'Galat membaca file. Silakan coba file lain.';
-                                excelErrorMsg.classList.remove('hidden');
-                            }
-                        };
-
-                        reader.readAsArrayBuffer(file);
-                    });
-                }
-
-                const backToUploadBtn = document.getElementById('back-to-upload-btn');
-                if (backToUploadBtn) {
-                    backToUploadBtn.addEventListener('click', function () {
-                        document.getElementById('import-step-2').classList.add('hidden');
-                        document.getElementById('import-step-1').classList.remove('hidden');
-                    });
-                }
-
-                function processExcelData(data) {
-                    const headers = data[0];
-                    const rows = data.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== null && cell !== ''));
-                    const headerMap = {};
-                    headers.forEach((header, index) => {
-                        if (header) {
-                            const normalizedHeader = String(header).toLowerCase().trim()
-                                .replace(/\s+/g, '_')
-                                .replace(/[^a-z0-9_]/g, '');
-                            headerMap[normalizedHeader] = index;
-                        }
-                    });
-
-                    const previewData = [];
-                    const warnings = [];
-
-                    rows.forEach((row, rowIndex) => {
-                        const item = {};
-
-                        const getValue = (possibleNames) => {
-                            for (const name of possibleNames) {
-                                const normalizedName = name.toLowerCase().trim()
-                                    .replace(/\s+/g, '_')
-                                    .replace(/[^a-z0-9_]/g, '');
-
-                                if (headerMap[normalizedName] !== undefined) {
-                                    return row[headerMap[normalizedName]];
-                                }
-                            }
-                            return null;
-                        };
-
-                        item.asset_master_id = getValue(['asset_master_id', 'asset master id', 'master id', 'master_id', 'kode master aset']);
-                        item.serial_number = getValue(['serial_number', 'serial number', 'serialnumber', 'serial', 'nomor serial']);
-                        item.room_id = getValue(['room_id', 'room id', 'room', 'nama ruangan']);
-                        item.purchase_date = getValue(['purchase_date', 'purchase date', 'date', 'purchasedate', 'tanggal pembelian']);
-                        item.purchase_cost = getValue(['purchase_cost', 'purchase cost', 'cost', 'price', 'biaya pembelian']);
-                        item.warranty_end_date = getValue(['warranty_end_date', 'warranty end date', 'warranty', 'warrantyenddate', 'tanggal akhir garansi']);
-                        item.condition = getValue(['condition', 'asset condition', 'asset_condition', 'kondisi']) || 'good';
-                        item.user_id = getValue(['user_id', 'user id', 'user', 'userid', 'nomor karyawan']);
-                        item.current_status = getValue(['current_status', 'current status', 'status']) || 'available';
-
-                        const rawDepreciationMethod = getValue(['depreciation_method', 'depreciation method', 'method', 'metode depresiasi']);
-
-                        let normalizedMethod = null;
-
-                        if (rawDepreciationMethod) {
-                            const depMethodLower = typeof rawDepreciationMethod === 'string'
-                                ? rawDepreciationMethod.toLowerCase().trim()
-                                : String(rawDepreciationMethod).toLowerCase().trim();
-
-                            if (depMethodLower === 'straight line') {
-                                normalizedMethod = 'straight_line';
-                            } else if (depMethodLower === 'declining balance') {
-                                normalizedMethod = 'declining_balance';
-                            } else if (depMethodLower === 'double declining balance') {
-                                normalizedMethod = 'double_declining_balance';
-                            } else if (depMethodLower === '150% declining balance') {
-                                normalizedMethod = 'declining_balance_150';
-                            } else if (depMethodLower === 'sum of the year\'s digits') {
-                                normalizedMethod = 'sum_of_years_digits';
-                            } else {
-                                normalizedMethod = depMethodLower;
-                            }
-                        }
-
-                        item.depreciation_method = normalizedMethod;
-                        item.acquisition_cost = getValue(['acquisition_cost', 'acquisition cost', 'acquisitioncost', 'biaya perolehan']);
-                        item.salvage_value = getValue(['salvage_value', 'salvage value', 'salvagevalue', 'nilai sisa']);
-                        item.asset_life_months = getValue(['asset_life_months', 'asset life months', 'asset life', 'umur aset', 'umur aset (bulan)']);
-                        item.date_acquired = getValue(['date_acquired', 'date acquired', 'dateacquired', 'tanggal perolehan']);
-
-                        if (!item.asset_master_id) {
-                            warnings.push(`Row ${rowIndex + 1}:  Asset Master ID Tidak Ditemukan`);
-                        }
-
-                        if (!item.serial_number) {
-                            warnings.push(`Row ${rowIndex + 1}: Nomor Seri Tidak Ditemukan`);
-                        }
-
-                        if (!item.room_id) {
-                            warnings.push(`Row ${rowIndex + 1}: ID Ruangan Tidak Ditemukan`);
-                        }
-
-                        item._rowNum = rowIndex + 1;
-
-                        previewData.push(item);
-                    });
-
-                    const serialNumberMap = {};
-                    previewData.forEach(item => {
-                        if (item.serial_number) {
-                            if (!serialNumberMap[item.serial_number]) {
-                                serialNumberMap[item.serial_number] = [];
-                            }
-                            serialNumberMap[item.serial_number].push(item._rowNum);
-                        }
-                    });
-
-                    Object.entries(serialNumberMap).forEach(([serialNumber, rows]) => {
-                        if (rows.length > 1) {
-                            warnings.push(`Nomor Seri Duplikat "${serialNumber}" ditemukan di baris: ${rows.join(', ')}`);
-                        }
-                    });
-
-                    document.getElementById('excel_data').value = JSON.stringify(previewData);
-
-                    showDataPreview(previewData, warnings);
-                }
-
-                function showDataPreview(data, warnings) {
-                    const previewTableBody = document.getElementById('preview-table-body');
-                    const previewCount = document.getElementById('preview-count');
-                    const warningsContainer = document.getElementById('preview-warnings');
-                    const warningsList = document.getElementById('warning-list');
-
-                    if (!previewTableBody || !previewCount) return;
-
-                    previewTableBody.innerHTML = '';
-                    if (warningsList) warningsList.innerHTML = '';
-                    if (warningsContainer) warningsContainer.classList.add('hidden');
-
-                    previewCount.textContent = `${data.length} item ditemukan`;
-
-                    data.forEach((item, index) => {
-                        const row = document.createElement('tr');
-                        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-
-                        const indexCell = document.createElement('td');
-                        indexCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
-                        indexCell.textContent = index + 1;
-                        row.appendChild(indexCell);
-
-                        const fields = ['asset_master_id', 'serial_number', 'room_id', 'purchase_date', 'purchase_cost',
-                            'warranty_end_date', 'user_id', 'current_status', 'condition', 'depreciation_method',
-                            'acquisition_cost', 'salvage_value', 'asset_life_months', 'date_acquired'];
-
-                        fields.forEach(field => {
-                            const cell = document.createElement('td');
-                            cell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
-
-                            if (typeof item[field] === 'boolean') {
-                                const isTrue = item[field];
-                                cell.innerHTML = isTrue ?
-                                    '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ya</span>' :
-                                    '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Tidak</span>';
-                            } else {
-                                cell.textContent = item[field] || '-';
-                            }
-
-                            row.appendChild(cell);
-                        });
-
-                        previewTableBody.appendChild(row);
-                    });
-
-                    if (warnings && warnings.length > 0 && warningsList && warningsContainer) {
-                        warnings.forEach(warning => {
-                            const li = document.createElement('li');
-                            li.textContent = warning;
-                            warningsList.appendChild(li);
-                        });
-                        warningsContainer.classList.remove('hidden');
-
-                        const importBtn = document.getElementById('import-btn');
-                        const hasCriticalWarnings = warnings.some(warning =>
-                            warning.includes('Asset Master ID Tidak Ditemukan') ||
-                            warning.includes('Nomor Seri Tidak Ditemukan') ||
-                            warning.includes('ID Ruangan Tidak Ditemukan')
-                        );
-
-                        if (importBtn && hasCriticalWarnings) {
-                            importBtn.disabled = true;
-                            importBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                        } else if (importBtn) {
-                            importBtn.disabled = false;
-                            importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        }
-                    }
-                }
-
-                const importForm = document.getElementById('import-form');
-                importForm?.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-
-                    const originalFileInput = document.getElementById('excel_file');
-                    if (originalFileInput && originalFileInput.files.length > 0) {
-                        formData.append('excel_file_upload', originalFileInput.files[0]);
-                    }
-
-                    const importBtn = document.getElementById('import-btn');
-                    const originalBtnText = importBtn.innerHTML;
-                    importBtn.disabled = true;
-                    importBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Mengimpor...</span>
-                        </div>
-                    `;
-
-                    fetch('{{ route('assets.import') }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                        .then(response => {
-                            const contentType = response.headers.get('content-type');
-                            if (contentType && contentType.includes('application/json')) {
-                                return response.json().then(data => {
-                                    data.status = response.status;
-                                    return data;
-                                });
-                            } else {
-                                throw new Error('Invalid response format');
-                            }
-                        })
-                        .then(data => {
-                            importBtn.disabled = false;
-                            importBtn.innerHTML = originalBtnText;
-
-                            if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                                const modal = document.getElementById('importAssetModal');
-                                closeModal(modal);
-                                showNotification('success', data.message || 'Aset berhasil diimpor!');
-
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
-                            } else {
-                                console.error('Import error:', data);
-
-                                let errorMessage = data.message || 'Galat terjadi selama pengimporan.';
-
-                                if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
-                                    const detailedErrors = data.data.errors.map(error => {
-                                        if (error.row && error.reason) {
-                                            return `Row ${error.row}: ${error.asset_master_code ? error.asset_master_code + ' - ' : ''}${error.reason || 'Unknown error'}`;
-                                        } else if (typeof error === 'string') {
-                                            return error;
-                                        } else if (error.message) {
-                                            return error.message;
+                                    const response = await fetch(apiUrl, {
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest'
                                         }
-                                        return 'Unknown error';
                                     });
 
-                                    if (detailedErrors.length > 0) {
-                                        errorMessage += '<ul class="mt-2 ml-4 list-disc">';
-                                        detailedErrors.forEach(err => {
-                                            errorMessage += `<li>${err}</li>`;
-                                        });
-                                        errorMessage += '</ul>';
+                                    if (!response.ok) {
+                                        throw new Error(`Failed to fetch users from server: ${response.status} ${response.statusText}`);
                                     }
-                                } else if (data.errors) {
-                                    errorMessage += '<ul class="mt-2 ml-4 list-disc">';
 
-                                    if (Array.isArray(data.errors)) {
-                                        data.errors.forEach(error => {
-                                            if (typeof error === 'string') {
-                                                errorMessage += `<li>${error}</li>`;
-                                            } else if (error.message) {
-                                                errorMessage += `<li>${error.message}</li>`;
-                                            } else if (error.reason) {
-                                                errorMessage += `<li>${error.reason}</li>`;
-                                            }
-                                        });
+                                    const data = await response.json();
+                                    const users = data.users || data.data || [];
+
+                                    // Check if we have more data to load
+                                    hasMoreData = users.length === 15;
+
+                                    // Save next page number and has more data state
+                                    userList.dataset.page = page + 1;
+                                    userList.dataset.hasMoreData = hasMoreData.toString();
+
+                                    if (users.length === 0 && userList.children.length === 0) {
+                                        const noResults = document.createElement('li');
+                                        noResults.className = 'px-4 py-2 text-gray-500 italic';
+                                        noResults.textContent = 'Pengguna tidak ditemukan';
+                                        userList.appendChild(noResults);
                                     } else {
-                                        Object.entries(data.errors).forEach(([field, errors]) => {
-                                            if (Array.isArray(errors)) {
-                                                errors.forEach(error => {
-                                                    errorMessage += `<li>${error}</li>`;
-                                                });
-                                            } else if (typeof errors === 'string') {
-                                                errorMessage += `<li>${errors}</li>`;
+                                        users.forEach(user => {
+                                            const li = document.createElement('li');
+                                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                            let displayText = '';
+                                            if (user.employee_name) {
+                                                displayText = user.employee_name;
+                                                if (user.name) {
+                                                    displayText += ` - ${user.name}`;
+                                                }
+                                            } else {
+                                                displayText = user.name || `User ID: ${user.user_id}`;
                                             }
+
+                                            li.textContent = displayText;
+                                            li.setAttribute('data-id', user.user_id);
+                                            li.setAttribute('data-employee-name', user.employee_name || '');
+                                            li.setAttribute('data-name', displayText);
+
+                                            li.addEventListener('click', function () {
+                                                selectedUserId.value = this.getAttribute('data-id');
+
+                                                const employeeName = this.getAttribute('data-employee-name');
+                                                if (employeeName) {
+                                                    searchInput.value = employeeName;
+                                                } else {
+                                                    searchInput.value = this.getAttribute('data-name');
+                                                }
+
+                                                dropdown.classList.add('hidden');
+                                            });
+
+                                            userList.appendChild(li);
                                         });
                                     }
+                                } catch (error) {
+                                    console.error('Error loading users:', error);
+                                    if (userList.children.length === 0) {
+                                        const errorItem = document.createElement('li');
+                                        errorItem.className = 'px-4 py-2 text-red-500';
+                                        errorItem.textContent = `Galat memproses data pengguna: ${error.message}`;
+                                        userList.appendChild(errorItem);
+                                    }
+                                } finally {
+                                    // Reset loading state
+                                    userList.dataset.loading = "false";
+                                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
+                                }
+                            }
+                        }
 
-                                    errorMessage += '</ul>';
+                        function initSearchComponents() {
+                            // Replace initDropdown with initBuildingSearch for edit_building
+                            initBuildingSearch(
+                                document.getElementById('edit_building_search'),
+                                document.getElementById('edit_building_dropdown'),
+                                document.getElementById('edit_building_list'),
+                                document.getElementById('edit_building_loading'),
+                                document.getElementById('edit_selected_building_id'),
+                                document.getElementById('edit_building_search'),
+                                document.getElementById('edit_room_search')
+                            );
+
+                            // Initialize brand search for edit form
+                            initDropdown(
+                                document.getElementById('edit_brand_search'),
+                                document.getElementById('edit_brand_dropdown'),
+                                document.getElementById('edit_brand_list'),
+                                function (searchTerm) {
+                                    loadBrands(
+                                        searchTerm,
+                                        document.getElementById('edit_brand_list'),
+                                        document.getElementById('edit_brand_loading'),
+                                        document.getElementById('edit_selected_brand_id'),
+                                        document.getElementById('edit_brand_search'),
+                                        document.getElementById('edit_brand_dropdown')
+                                    );
+                                }
+                            );
+
+                            initDropdown(
+                                document.getElementById('edit_room_search'),
+                                document.getElementById('edit_room_dropdown'),
+                                document.getElementById('edit_room_list'),
+                                function (searchTerm) {
+                                    const buildingId = document.getElementById('edit_selected_building_id').value;
+                                    if (buildingId) {
+                                        loadRoomsForBuilding(
+                                            searchTerm,
+                                            buildingId,
+                                            document.getElementById('edit_room_list'),
+                                            document.getElementById('edit_room_loading'),
+                                            document.getElementById('edit_selected_room_id'),
+                                            document.getElementById('edit_room_search'),
+                                            document.getElementById('edit_room_dropdown')
+                                        );
+                                    } else {
+                                        const roomList = document.getElementById('edit_room_list');
+                                        if (roomList) {
+                                            roomList.innerHTML = '';
+                                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                        }
+                                    }
+                                }
+                            );
+
+                            // Replace initDropdown with initBuildingSearch for building
+                            initBuildingSearch(
+                                document.getElementById('building_search'),
+                                document.getElementById('building_dropdown'),
+                                document.getElementById('building_list'),
+                                document.getElementById('building_loading'),
+                                document.getElementById('selected_building_id'),
+                                document.getElementById('building_search'),
+                                document.getElementById('room_search')
+                            );
+
+                            // Initialize brand search for add form
+                            initDropdown(
+                                document.getElementById('brand_search'),
+                                document.getElementById('brand_dropdown'),
+                                document.getElementById('brand_list'),
+                                function (searchTerm) {
+                                    loadBrands(
+                                        searchTerm,
+                                        document.getElementById('brand_list'),
+                                        document.getElementById('brand_loading'),
+                                        document.getElementById('selected_brand_id'),
+                                        document.getElementById('brand_search'),
+                                        document.getElementById('brand_dropdown')
+                                    );
+                                }
+                            );
+
+                            initDropdown(
+                                document.getElementById('room_search'),
+                                document.getElementById('room_dropdown'),
+                                document.getElementById('room_list'),
+                                function (searchTerm) {
+                                    const buildingId = document.getElementById('selected_building_id').value;
+                                    if (buildingId) {
+                                        loadRoomsForBuilding(
+                                            searchTerm,
+                                            buildingId,
+                                            document.getElementById('room_list'),
+                                            document.getElementById('room_loading'),
+                                            document.getElementById('selected_room_id'),
+                                            document.getElementById('room_search'),
+                                            document.getElementById('room_dropdown')
+                                        );
+                                    } else {
+                                        const roomList = document.getElementById('room_list');
+                                        if (roomList) {
+                                            roomList.innerHTML = '';
+                                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                        }
+                                    }
+                                }
+                            );
+
+                            initAssetMasterSearch(
+                                document.getElementById('asset_master_search'),
+                                document.getElementById('asset_master_dropdown'),
+                                document.getElementById('asset_master_list'),
+                                document.getElementById('asset_master_loading'),
+                                document.getElementById('selected_asset_master_id'),
+                                document.getElementById('selected_is_depreciable'),
+                                document.getElementById('depreciation_fields')
+                            );
+
+                            initAssetMasterSearch(
+                                document.getElementById('edit_asset_master_search'),
+                                document.getElementById('edit_asset_master_dropdown'),
+                                document.getElementById('edit_asset_master_list'),
+                                document.getElementById('edit_asset_master_loading'),
+                                document.getElementById('edit_selected_asset_master_id'),
+                                document.getElementById('edit_selected_is_depreciable'),
+                                document.getElementById('edit_depreciation_fields')
+                            );
+
+                            if (document.getElementById('user_search')) {
+                                initUserSearch(
+                                    document.getElementById('user_search'),
+                                    document.getElementById('user_dropdown'),
+                                    document.getElementById('user_list'),
+                                    document.getElementById('user_loading'),
+                                    document.getElementById('selected_user_id')
+                                );
+                            }
+
+                            if (document.getElementById('edit_user_search')) {
+                                initUserSearch(
+                                    document.getElementById('edit_user_search'),
+                                    document.getElementById('edit_user_dropdown'),
+                                    document.getElementById('edit_user_list'),
+                                    document.getElementById('edit_user_loading'),
+                                    document.getElementById('edit_selected_user_id')
+                                );
+                            }
+                        }
+
+                        function initDropdown(searchInput, dropdown, list, searchFunction) {
+                            if (!searchInput || !dropdown || !list) return;
+
+                            searchInput.addEventListener('focus', function () {
+                                dropdown.classList.remove('hidden');
+                                if (list.children.length === 0) {
+                                    searchFunction('');
+                                }
+                            });
+
+                            document.addEventListener('click', function (e) {
+                                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
+
+                            const debouncedSearch = debounce(function (e) {
+                                searchFunction(e.target.value);
+                            }, 300);
+
+                            searchInput.addEventListener('input', debouncedSearch);
+
+                            // Add scroll event to load more data
+                            dropdown.addEventListener('scroll', function () {
+                                if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
+
+                                // Check if we're near bottom
+                                if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                                    // Load next page with current search term
+                                    searchFunction(list.dataset.searchTerm || '', false);
+                                }
+                            });
+                        }
+
+                        function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                            const li = document.createElement('li');
+                            li.className = className;
+                            li.textContent = text;
+                            return li;
+                        }
+
+                        async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput, resetList = true) {
+                            // Setup for lazy loading
+                            let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
+                            let isLoading = buildingList.dataset.loading === "true";
+                            let hasMoreData = buildingList.dataset.hasMoreData !== "false";
+
+                            // Save current search term
+                            buildingList.dataset.searchTerm = searchTerm;
+
+                            if (isLoading) return;
+
+                            // Set loading state
+                            buildingList.dataset.loading = "true";
+
+                            // Use different loading indicators based on whether we're resetting or loading more
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                            if (resetList) {
+                                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                buildingList.innerHTML = '';
+                                page = 1;
+                            } else {
+                                if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                            }
+
+                            try {
+                                const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to load buildings');
                                 }
 
-                                showNotification('error', errorMessage);
+                                const data = await response.json();
+                                const buildings = data.buildings || [];
+
+                                // Check if we have more data to load
+                                hasMoreData = buildings.length === 15;
+
+                                // Save next page number and has more data state
+                                buildingList.dataset.page = page + 1;
+                                buildingList.dataset.hasMoreData = hasMoreData.toString();
+
+                                if (buildings.length === 0 && buildingList.children.length === 0) {
+                                    buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
+                                } else {
+                                    buildings.forEach(building => {
+                                        const li = document.createElement('li');
+                                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                        li.textContent = building.building_name;
+                                        li.setAttribute('data-id', building.building_id);
+                                        li.setAttribute('data-name', building.building_name);
+
+                                        li.addEventListener('click', function () {
+                                            selectedBuildingId.value = this.getAttribute('data-id');
+                                            searchInput.value = this.getAttribute('data-name');
+
+                                            if (roomSearchInput) {
+                                                roomSearchInput.disabled = false;
+                                                roomSearchInput.placeholder = "Cari ruangan...";
+
+                                                const isEditModal = roomSearchInput.id === 'edit_room_search';
+
+                                                const roomIdField = isEditModal ? 'edit_selected_room_id' : 'selected_room_id';
+                                                document.getElementById(roomIdField).value = '';
+                                                roomSearchInput.value = '';
+
+                                                const roomLoadingId = isEditModal ? 'edit_room_loading' : 'room_loading';
+                                                const roomLoadingIndicator = document.getElementById(roomLoadingId);
+                                                if (roomLoadingIndicator) {
+                                                    roomLoadingIndicator.classList.remove('hidden');
+                                                }
+
+                                                const roomListId = isEditModal ? 'edit_room_list' : 'room_list';
+                                                const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'room_dropdown';
+                                                loadRoomsForBuilding(
+                                                    '',
+                                                    this.getAttribute('data-id'),
+                                                    document.getElementById(roomListId),
+                                                    document.getElementById(roomLoadingId),
+                                                    document.getElementById(roomIdField),
+                                                    roomSearchInput,
+                                                    document.getElementById(roomDropdownId)
+                                                );
+
+                                                document.getElementById(roomDropdownId).classList.remove('hidden');
+                                            }
+
+                                            dropdown.classList.add('hidden');
+                                        });
+
+                                        buildingList.appendChild(li);
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error loading buildings:', error);
+                                if (buildingList.children.length === 0) {
+                                    buildingList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                                }
+                            } finally {
+                                // Reset loading state
+                                buildingList.dataset.loading = "false";
+                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                             }
-                        })
-                        .catch(error => {
-                            importBtn.disabled = false;
-                            importBtn.innerHTML = originalBtnText;
-
-                            console.error('Import fetch error:', error);
-
-                            showNotification('error', 'An unexpected error occurred. Please try again.');
-                        });
-                });
-
-                function showNotification(type, message) {
-                    const notification = document.createElement('div');
-                    notification.id = type + 'Notification' + Date.now();
-                    notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-                    notification.role = 'alert';
-
-                    const hasHTML = /<[a-z][\s\S]*>/i.test(message);
-
-                    if (type === 'success') {
-                        notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                        notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-                    } else {
-                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'flex items-start';
-
-                        const iconContainer = document.createElement('div');
-                        iconContainer.className = 'py-1 flex-shrink-0';
-                        iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        `;
-
-                        const contentContainer = document.createElement('div');
-                        contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                        const title = document.createElement('p');
-                        title.className = 'font-bold';
-                        title.textContent = 'Gagal!';
-                        contentContainer.appendChild(title);
-
-                        const messageContainer = document.createElement('div');
-                        messageContainer.className = 'error-message';
-
-                        if (hasHTML) {
-                            messageContainer.innerHTML = message;
-                        } else {
-                            messageContainer.textContent = message;
                         }
 
-                        contentContainer.appendChild(messageContainer);
+                        async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown, resetList = true) {
+                            if (!buildingId) {
+                                searchInput.value = '';
+                                searchInput.placeholder = 'Pilih gedung terlebih dahulu';
+                                searchInput.disabled = true;
+                                return;
+                            }
 
-                        const closeBtn = document.createElement('span');
-                        closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                        closeBtn.textContent = '×';
-                        closeBtn.onclick = function () {
-                            notification.remove();
+                            searchInput.disabled = false;
+                            searchInput.placeholder = "Cari ruangan...";
+
+                            // Setup for lazy loading
+                            let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
+                            let isLoading = roomList.dataset.loading === "true";
+                            let hasMoreData = roomList.dataset.hasMoreData !== "false";
+
+                            // Save current search term and building ID
+                            roomList.dataset.searchTerm = searchTerm;
+                            roomList.dataset.buildingId = buildingId;
+
+                            if (isLoading) return;
+
+                            // Set loading state
+                            roomList.dataset.loading = "true";
+
+                            // Use different loading indicators based on whether we're resetting or loading more
+                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+
+                            if (resetList) {
+                                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                roomList.innerHTML = '';
+                                page = 1;
+                            } else {
+                                if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                            }
+
+                            if (dropdown) dropdown.classList.remove('hidden');
+
+                            try {
+                                const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=15`;
+
+                                const response = await fetch(apiUrl, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
+                                }
+
+                                const data = await response.json();
+                                const rooms = data.rooms || [];
+
+                                // Check if we have more data to load
+                                hasMoreData = rooms.length === 15;
+
+                                // Save next page number and has more data state
+                                roomList.dataset.page = page + 1;
+                                roomList.dataset.hasMoreData = hasMoreData.toString();
+
+                                if (rooms.length === 0 && roomList.children.length === 0) {
+                                    roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
+                                } else {
+                                    rooms.forEach(room => {
+                                        const li = document.createElement('li');
+                                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                        const roomName = room.room_name || room.name || '';
+                                        const roomId = room.room_id || room.id || '';
+
+                                        if (!roomName || !roomId) {
+                                            console.warn('Room missing required properties:', room);
+                                            return;
+                                        }
+
+                                        li.textContent = roomName;
+                                        li.setAttribute('data-id', roomId);
+                                        li.setAttribute('data-name', roomName);
+
+                                        li.addEventListener('click', function () {
+                                            selectedRoomId.value = this.getAttribute('data-id');
+                                            searchInput.value = this.getAttribute('data-name');
+                                            dropdown.classList.add('hidden');
+                                        });
+
+                                        roomList.appendChild(li);
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error loading rooms:', error);
+                                if (roomList.children.length === 0) {
+                                    roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                                }
+                            } finally {
+                                // Reset loading state
+                                roomList.dataset.loading = "false";
+                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                                if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
+                            }
+                        }
+
+                        function checkUrlParams() {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.has('success')) {
+                                alert('Aset berhasil diperbarui!');
+                            }
+                        }
+
+                        window.changeAssetPage = function (page) {
+                            const limit = document.getElementById('assetPerPageSelect')?.value || 10;
+
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('page', page);
+                            window.location.href = url.toString();
                         };
 
-                        wrapper.appendChild(iconContainer);
-                        wrapper.appendChild(contentContainer);
-                        wrapper.appendChild(closeBtn);
-                        notification.appendChild(wrapper);
-                    }
+                        window.changeAssetPerPage = function (perPage) {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('limit', perPage);
+                            url.searchParams.set('page', 1);
+                            window.location.href = url.toString();
+                        };
 
-                    document.body.appendChild(notification);
+                        const importAssetBtn = document.getElementById('importAssetBtn');
+                        const importAssetModal = document.getElementById('importAssetModal');
+                        const importAssetModalContent = document.getElementById('importAssetModalContent');
 
-                    setTimeout(() => {
-                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                        setTimeout(() => notification.remove(), 500);
-                    }, 5000);
-                }
-
-                document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes slideInRight {
-                            from { transform: translateX(100%); }
-                            to { transform: translateX(0); }
-                        }
-                        .animate-slide-in-right {
-                            animation: slideInRight 0.3s ease-out forwards;
-                        }
-                    </style>
-                `);
-
-                const searchInput = document.getElementById('searchInput');
-                const assetTypeFilter = document.getElementById('assetTypeFilter');
-                const statusFilter = document.getElementById('statusFilter');
-                const sortOrder = document.getElementById('sortOrder');
-
-                function applyFilters() {
-                    const searchValue = searchInput?.value.trim() || '';
-                    const typeValue = assetTypeFilter?.value || '';
-                    const statusValue = statusFilter?.value || '';
-                    const sortValue = sortOrder?.value || '';
-
-                    const url = new URL(window.location.href);
-
-                    ['search', 'asset_type', 'current_status', 'sort', 'page'].forEach(param => {
-                        url.searchParams.delete(param);
-                    });
-
-                    if (searchValue) url.searchParams.set('search', searchValue);
-                    if (typeValue) url.searchParams.set('asset_type', typeValue);
-                    if (statusValue) url.searchParams.set('current_status', statusValue);
-                    if (sortValue) url.searchParams.set('sort', sortValue);
-
-                    url.searchParams.set('page', 1);
-
-                    window.location.href = url.toString();
-                }
-
-                let searchTimeout;
-                searchInput?.addEventListener('input', function () {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(applyFilters, 500);
-                });
-
-                assetTypeFilter?.addEventListener('change', applyFilters);
-                statusFilter?.addEventListener('change', applyFilters);
-                sortOrder?.addEventListener('change', applyFilters);
-
-                const urlParams = new URLSearchParams(window.location.search);
-                if (searchInput) searchInput.value = urlParams.get('search') || '';
-                if (assetTypeFilter) {
-                    const typeValue = urlParams.get('asset_type');
-                    if (typeValue) {
-                        assetTypeFilter.value = typeValue;
-                    }
-                }
-                if (statusFilter) {
-                    const statusValue = urlParams.get('current_status');
-                    if (statusValue) {
-                        statusFilter.value = statusValue;
-                    }
-                }
-                if (sortOrder) {
-                    const sortValue = urlParams.get('sort');
-                    if (sortValue) {
-                        sortOrder.value = sortValue;
-                    }
-                }
-
-                window.changeAssetPage = function (page) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('page', page);
-                    window.location.href = url.toString();
-                };
-
-                window.changeAssetPerPage = function (perPage) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('limit', perPage);
-                    url.searchParams.set('page', 1);
-                    window.location.href = url.toString();
-                };
-
-                document.getElementById('exportBtn')?.addEventListener('click', () => {
-                    const url = new URL(window.location.href);
-                    const searchParams = url.searchParams;
-
-                    const exportUrl = "{{ route('assets.export.pdf') }}?" + searchParams.toString();
-
-                    window.open(exportUrl, '_blank');
-                });
-
-                document.getElementById('deleteAssetForm')?.addEventListener('submit', function (event) {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-
-                    if (submitBtn && !submitBtn.disabled) {
-                        const originalText = submitBtn.innerHTML;
-
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
-
-                        setTimeout(() => {
-                            submitBtn.disabled = false;
-                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = originalText;
-                        }, 10000);
-                    }
-                });
-
-                // Column header sorting
-                const sortByCodeHeader = document.getElementById('sortByCode');
-                if (sortByCodeHeader) {
-                    sortByCodeHeader.addEventListener('click', function() {
-                        const currentSort = '{{ request()->query("sort") }}';
-                        let newSort;
-
-                        if (currentSort === 'code_asc') {
-                            newSort = 'code_desc';
-                        } else {
-                            newSort = 'code_asc';
+                        if (importAssetBtn && importAssetModal && importAssetModalContent) {
+                            importAssetBtn.addEventListener('click', function () {
+                                openModal(importAssetModal, importAssetModalContent);
+                            });
                         }
 
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('sort', newSort);
-                        url.searchParams.set('page', 1);
-                        window.location.href = url.toString();
-                    });
-                }
+                        const excelFile = document.getElementById('excel_file');
+                        const excelFileNameContainer = document.getElementById('excel-file-name');
+                        const excelFileNameText = document.getElementById('file-name-text');
+                        const removeExcelBtn = document.getElementById('remove-excel');
+                        const previewBtn = document.getElementById('preview-btn');
+                        const excelErrorMsg = document.getElementById('excel-error');
+                        const excelLoadingIndicator = document.getElementById('excel-loading');
 
-                const sortByNameHeader = document.getElementById('sortByName');
-                if (sortByNameHeader) {
-                    sortByNameHeader.addEventListener('click', function() {
-                        const currentSort = '{{ request()->query("sort") }}';
-                        let newSort;
+                        if (excelFile) {
+                            excelFile.addEventListener('change', function (e) {
+                                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
 
-                        if (currentSort === 'name_asc') {
-                            newSort = 'name_desc';
-                        } else {
-                            newSort = 'name_asc';
+                                if (this.files && this.files[0]) {
+                                    const file = this.files[0];
+                                    const fileExt = file.name.split('.').pop().toLowerCase();
+
+                                    if (!['xlsx', 'xls', 'csv'].includes(fileExt)) {
+                                        if (excelErrorMsg) {
+                                            excelErrorMsg.textContent = 'Jenis file tidak valid. Silakan unggah file Excel (.xlsx, .xls) atau CSV.';
+                                            excelErrorMsg.classList.remove('hidden');
+                                        }
+                                        this.value = '';
+                                        if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                                        if (previewBtn) previewBtn.disabled = true;
+                                        return;
+                                    }
+
+                                    if (excelFileNameText) excelFileNameText.textContent = file.name;
+                                    if (excelFileNameContainer) excelFileNameContainer.classList.remove('hidden');
+                                    if (previewBtn) previewBtn.disabled = false;
+                                } else {
+                                    if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                                    if (previewBtn) previewBtn.disabled = true;
+                                }
+                            });
                         }
 
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('sort', newSort);
-                        url.searchParams.set('page', 1);
-                        window.location.href = url.toString();
-                    });
-                }
-
-                // Add this new dedicated function for building dropdowns
-                function initBuildingSearch(
-                    searchInput,
-                    dropdown,
-                    buildingList,
-                    loadingIndicator,
-                    selectedBuildingId,
-                    searchInputField,
-                    roomSearchInput
-                ) {
-                    if (!searchInput || !dropdown || !buildingList) return;
-
-                    searchInput.addEventListener('focus', function () {
-                        dropdown.classList.remove('hidden');
-                        if (buildingList.children.length === 0) {
-                            loadBuildings(
-                                '',
-                                buildingList,
-                                loadingIndicator,
-                                selectedBuildingId,
-                                searchInputField,
-                                dropdown,
-                                roomSearchInput
-                            );
+                        if (removeExcelBtn) {
+                            removeExcelBtn.addEventListener('click', function () {
+                                if (excelFile) excelFile.value = '';
+                                if (excelFileNameContainer) excelFileNameContainer.classList.add('hidden');
+                                if (previewBtn) previewBtn.disabled = true;
+                                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+                            });
                         }
-                    });
 
-                    // Prevent any mousedown events on dropdown from closing it
-                    dropdown.addEventListener('mousedown', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    });
+                        if (previewBtn) {
+                            previewBtn.addEventListener('click', function () {
+                                if (!excelFile || !excelFile.files || !excelFile.files[0]) {
+                                    if (excelErrorMsg) {
+                                        excelErrorMsg.textContent = 'Silakan pilih file terlebih dahulu.';
+                                        excelErrorMsg.classList.remove('hidden');
+                                    }
+                                    return;
+                                }
 
-                    // Prevent wheel events from propagating
-                    dropdown.addEventListener('wheel', function(e) {
-                        e.stopPropagation();
-                    }, { passive: true });
+                                const file = excelFile.files[0];
 
-                    document.addEventListener('click', function (e) {
-                        // Only close dropdown if the click is outside both searchInput and dropdown
-                        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-                            dropdown.classList.add('hidden');
+                                if (excelLoadingIndicator) excelLoadingIndicator.classList.remove('hidden');
+                                if (excelErrorMsg) excelErrorMsg.classList.add('hidden');
+
+                                const reader = new FileReader();
+
+                                reader.onload = function (e) {
+                                    try {
+                                        const data = new Uint8Array(e.target.result);
+                                        const workbook = XLSX.read(data, { type: 'array' });
+                                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                                        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                                        if (rows.length < 2) {
+                                            throw new Error('The file contains no data or is missing headers.');
+                                        }
+
+                                        processExcelData(rows);
+
+                                        if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+
+                                        document.getElementById('import-step-1').classList.add('hidden');
+                                        document.getElementById('import-step-2').classList.remove('hidden');
+                                    } catch (error) {
+                                        console.error('Excel parsing error:', error);
+                                        if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+                                        if (excelErrorMsg) {
+                                            excelErrorMsg.textContent = 'Error processing file: ' + error.message;
+                                            excelErrorMsg.classList.remove('hidden');
+                                        }
+                                    }
+                                };
+
+                                reader.onerror = function () {
+                                    console.error('FileReader error:', reader.error);
+                                    if (excelLoadingIndicator) excelLoadingIndicator.classList.add('hidden');
+                                    if (excelErrorMsg) {
+                                        excelErrorMsg.textContent = 'Galat membaca file. Silakan coba file lain.';
+                                        excelErrorMsg.classList.remove('hidden');
+                                    }
+                                };
+
+                                reader.readAsArrayBuffer(file);
+                            });
                         }
-                    });
 
-                    const debouncedSearch = debounce(function (e) {
-                        loadBuildings(
-                            e.target.value,
+                        const backToUploadBtn = document.getElementById('back-to-upload-btn');
+                        if (backToUploadBtn) {
+                            backToUploadBtn.addEventListener('click', function () {
+                                document.getElementById('import-step-2').classList.add('hidden');
+                                document.getElementById('import-step-1').classList.remove('hidden');
+                            });
+                        }
+
+                        function processExcelData(data) {
+                            const headers = data[0];
+                            const rows = data.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== null && cell !== ''));
+                            const headerMap = {};
+                            headers.forEach((header, index) => {
+                                if (header) {
+                                    const normalizedHeader = String(header).toLowerCase().trim()
+                                        .replace(/\s+/g, '_')
+                                        .replace(/[^a-z0-9_]/g, '');
+                                    headerMap[normalizedHeader] = index;
+                                }
+                            });
+
+                            const previewData = [];
+                            const warnings = [];
+
+                            rows.forEach((row, rowIndex) => {
+                                const item = {};
+
+                                const getValue = (possibleNames) => {
+                                    for (const name of possibleNames) {
+                                        const normalizedName = name.toLowerCase().trim()
+                                            .replace(/\s+/g, '_')
+                                            .replace(/[^a-z0-9_]/g, '');
+
+                                        if (headerMap[normalizedName] !== undefined) {
+                                            return row[headerMap[normalizedName]];
+                                        }
+                                    }
+                                    return null;
+                                };
+
+                                item.asset_name = getValue(['Nama Master Aset', 'asset name', 'nama aset', 'nama_aset', 'nama asset']);
+                                item.serial_number = getValue(['Nomor Seri', 'serial number', 'serialnumber', 'serial', 'nomor serial']);
+                                item.brand_name = getValue(['Merk', 'brand name', 'brand', 'merk', 'nama merk']);
+                                item.model = getValue(['model', 'model', 'model', 'model']);
+                                item.room_id = getValue(['room_id', 'room id', 'room', 'nama ruangan']);
+                                item.purchase_date = getValue(['purchase_date', 'purchase date', 'date', 'purchasedate', 'tanggal pembelian']);
+                                item.purchase_cost = getValue(['purchase_cost', 'purchase cost', 'cost', 'price', 'biaya pembelian']);
+                                item.warranty_end_date = getValue(['warranty_end_date', 'warranty end date', 'warranty', 'warrantyenddate', 'tanggal akhir garansi']);
+                                item.condition = getValue(['condition', 'asset condition', 'asset_condition', 'kondisi']) || 'good';
+                                item.user_id = getValue(['user_id', 'user id', 'user', 'userid', 'nomor karyawan']);
+                                item.current_status = getValue(['current_status', 'current status', 'status']) || 'available';
+
+                                const rawDepreciationMethod = getValue(['depreciation_method', 'depreciation method', 'method', 'metode depresiasi']);
+
+                                let normalizedMethod = null;
+
+                                if (rawDepreciationMethod) {
+                                    const depMethodLower = typeof rawDepreciationMethod === 'string'
+                                        ? rawDepreciationMethod.toLowerCase().trim()
+                                        : String(rawDepreciationMethod).toLowerCase().trim();
+
+                                    if (depMethodLower === 'straight line') {
+                                        normalizedMethod = 'straight_line';
+                                    } else if (depMethodLower === 'declining balance') {
+                                        normalizedMethod = 'declining_balance';
+                                    } else if (depMethodLower === 'double declining balance') {
+                                        normalizedMethod = 'double_declining_balance';
+                                    } else if (depMethodLower === '150% declining balance') {
+                                        normalizedMethod = 'declining_balance_150';
+                                    } else if (depMethodLower === 'sum of the year\'s digits') {
+                                        normalizedMethod = 'sum_of_years_digits';
+                                    } else {
+                                        normalizedMethod = depMethodLower;
+                                    }
+                                }
+
+                                item.depreciation_method = normalizedMethod;
+                                item.acquisition_cost = getValue(['acquisition_cost', 'acquisition cost', 'acquisitioncost', 'biaya perolehan']);
+                                item.salvage_value = getValue(['salvage_value', 'salvage value', 'salvagevalue', 'nilai sisa']);
+                                item.asset_life_months = getValue(['asset_life_months', 'asset life months', 'asset life', 'umur aset', 'umur aset (bulan)']);
+                                item.date_acquired = getValue(['date_acquired', 'date acquired', 'dateacquired', 'tanggal perolehan']);
+
+                                if (!item.asset_name) {
+                                    warnings.push(`Row ${rowIndex + 1}: Master Aset Tidak Ditemukan`);
+                                }
+
+                                if (!item.serial_number) {
+                                    warnings.push(`Row ${rowIndex + 1}: Nomor Seri Tidak Ditemukan`);
+                                }
+
+                                if (!item.room_id) {
+                                    warnings.push(`Row ${rowIndex + 1}: Ruangan Tidak Ditemukan`);
+                                }
+
+                                if (!item.brand_name) {
+                                    warnings.push(`Row ${rowIndex + 1}: Merk Tidak Ditemukan`);
+                                }
+
+                                item._rowNum = rowIndex + 1;
+
+                                previewData.push(item);
+                            });
+
+                            const serialNumberMap = {};
+                            previewData.forEach(item => {
+                                if (item.serial_number) {
+                                    if (!serialNumberMap[item.serial_number]) {
+                                        serialNumberMap[item.serial_number] = [];
+                                    }
+                                    serialNumberMap[item.serial_number].push(item._rowNum);
+                                }
+                            });
+
+                            Object.entries(serialNumberMap).forEach(([serialNumber, rows]) => {
+                                if (rows.length > 1) {
+                                    warnings.push(`Nomor Seri Duplikat "${serialNumber}" ditemukan di baris: ${rows.join(', ')}`);
+                                }
+                            });
+
+                            document.getElementById('excel_data').value = JSON.stringify(previewData);
+
+                            showDataPreview(previewData, warnings);
+                        }
+
+                        function showDataPreview(data, warnings) {
+                            const previewTableBody = document.getElementById('preview-table-body');
+                            const previewCount = document.getElementById('preview-count');
+                            const warningsContainer = document.getElementById('preview-warnings');
+                            const warningsList = document.getElementById('warning-list');
+
+                            if (!previewTableBody || !previewCount) return;
+
+                            previewTableBody.innerHTML = '';
+                            if (warningsList) warningsList.innerHTML = '';
+                            if (warningsContainer) warningsContainer.classList.add('hidden');
+
+                            previewCount.textContent = `${data.length} item ditemukan`;
+
+                            data.forEach((item, index) => {
+                                const row = document.createElement('tr');
+                                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+
+                                const indexCell = document.createElement('td');
+                                indexCell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+                                indexCell.textContent = index + 1;
+                                row.appendChild(indexCell);
+
+                                const fields = ['asset_name', 'serial_number', 'brand_name', 'model', 'room_id', 'purchase_date', 'purchase_cost',
+                                    'warranty_end_date', 'user_id', 'current_status', 'condition', 'depreciation_method',
+                                    'acquisition_cost', 'salvage_value', 'asset_life_months', 'date_acquired'];
+
+                                fields.forEach(field => {
+                                    const cell = document.createElement('td');
+                                    cell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
+
+                                    if (typeof item[field] === 'boolean') {
+                                        const isTrue = item[field];
+                                        cell.innerHTML = isTrue ?
+                                            '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ya</span>' :
+                                            '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Tidak</span>';
+                                    } else {
+                                        cell.textContent = item[field] || '-';
+                                    }
+
+                                    row.appendChild(cell);
+                                });
+
+                                previewTableBody.appendChild(row);
+                            });
+
+                            if (warnings && warnings.length > 0 && warningsList && warningsContainer) {
+                                warnings.forEach(warning => {
+                                    const li = document.createElement('li');
+                                    li.textContent = warning;
+                                    warningsList.appendChild(li);
+                                });
+                                warningsContainer.classList.remove('hidden');
+
+                                const importBtn = document.getElementById('import-btn');
+                                const hasCriticalWarnings = warnings.some(warning =>
+                                    warning.includes('Master Aset Tidak Ditemukan') ||
+                                    warning.includes('Nomor Seri Tidak Ditemukan') ||
+                                    warning.includes('Ruangan Tidak Ditemukan') ||
+                                    warning.includes('Merk Tidak Ditemukan')
+                                );
+
+                                if (importBtn && hasCriticalWarnings) {
+                                    importBtn.disabled = true;
+                                    importBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                                } else if (importBtn) {
+                                    importBtn.disabled = false;
+                                    importBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                }
+                            }
+                        }
+
+                        const importForm = document.getElementById('import-form');
+                        importForm?.addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            const formData = new FormData(this);
+
+                            const originalFileInput = document.getElementById('excel_file');
+                            if (originalFileInput && originalFileInput.files.length > 0) {
+                                formData.append('excel_file_upload', originalFileInput.files[0]);
+                            }
+
+                            const importBtn = document.getElementById('import-btn');
+                            const originalBtnText = importBtn.innerHTML;
+                            importBtn.disabled = true;
+                            importBtn.innerHTML = `
+                                                    <div class="flex items-center justify-center">
+                                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                        <span>Mengimpor...</span>
+                                                    </div>
+                                                `;
+
+                            fetch('{{ route('assets.import') }}', {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            })
+                                .then(response => {
+                                    const contentType = response.headers.get('content-type');
+                                    if (contentType && contentType.includes('application/json')) {
+                                        return response.json().then(data => {
+                                            data.status = response.status;
+                                            return data;
+                                        });
+                                    } else {
+                                        throw new Error('Invalid response format');
+                                    }
+                                })
+                                .then(data => {
+                                    importBtn.disabled = false;
+                                    importBtn.innerHTML = originalBtnText;
+
+                                    if (data.success === true || (data.status >= 200 && data.status < 300)) {
+                                        const modal = document.getElementById('importAssetModal');
+                                        closeModal(modal);
+                                        showNotification('success', data.message || 'Aset berhasil diimpor!');
+
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1000);
+                                    } else {
+                                        console.error('Import error:', data);
+
+                                        let errorMessage = data.message || 'Galat terjadi selama pengimporan.';
+
+                                        if (data.data && data.data.errors && Array.isArray(data.data.errors)) {
+                                            const detailedErrors = data.data.errors.map(error => {
+                                                if (error.row && error.reason) {
+                                                    return `Row ${error.row}: ${error.asset_master_code ? error.asset_master_code + ' - ' : ''}${error.reason || 'Unknown error'}`;
+                                                } else if (typeof error === 'string') {
+                                                    return error;
+                                                } else if (error.message) {
+                                                    return error.message;
+                                                }
+                                                return 'Unknown error';
+                                            });
+
+                                            if (detailedErrors.length > 0) {
+                                                errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+                                                detailedErrors.forEach(err => {
+                                                    errorMessage += `<li>${err}</li>`;
+                                                });
+                                                errorMessage += '</ul>';
+                                            }
+                                        } else if (data.errors) {
+                                            errorMessage += '<ul class="mt-2 ml-4 list-disc">';
+
+                                            if (Array.isArray(data.errors)) {
+                                                data.errors.forEach(error => {
+                                                    if (typeof error === 'string') {
+                                                        errorMessage += `<li>${error}</li>`;
+                                                    } else if (error.message) {
+                                                        errorMessage += `<li>${error.message}</li>`;
+                                                    } else if (error.reason) {
+                                                        errorMessage += `<li>${error.reason}</li>`;
+                                                    }
+                                                });
+                                            } else {
+                                                Object.entries(data.errors).forEach(([field, errors]) => {
+                                                    if (Array.isArray(errors)) {
+                                                        errors.forEach(error => {
+                                                            errorMessage += `<li>${error}</li>`;
+                                                        });
+                                                    } else if (typeof errors === 'string') {
+                                                        errorMessage += `<li>${errors}</li>`;
+                                                    }
+                                                });
+                                            }
+
+                                            errorMessage += '</ul>';
+                                        }
+
+                                        showNotification('error', errorMessage);
+                                    }
+                                })
+                                .catch(error => {
+                                    importBtn.disabled = false;
+                                    importBtn.innerHTML = originalBtnText;
+
+                                    console.error('Import fetch error:', error);
+
+                                    showNotification('error', 'An unexpected error occurred. Please try again.');
+                                });
+                        });
+
+                        function showNotification(type, message) {
+                            const notification = document.createElement('div');
+                            notification.id = type + 'Notification' + Date.now();
+                            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+                            notification.role = 'alert';
+
+                            const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
+                            if (type === 'success') {
+                                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                                notification.innerHTML = `
+                                                        <div class="flex items-start">
+                                                            <div class="py-1">
+                                                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="font-bold">Berhasil!</p>
+                                                                <div>${message}</div>
+                                                            </div>
+                                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                        </div>
+                                                    `;
+                            } else {
+                                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                                const wrapper = document.createElement('div');
+                                wrapper.className = 'flex items-start';
+
+                                const iconContainer = document.createElement('div');
+                                iconContainer.className = 'py-1 flex-shrink-0';
+                                iconContainer.innerHTML = `
+                                                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    `;
+
+                                const contentContainer = document.createElement('div');
+                                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                                const title = document.createElement('p');
+                                title.className = 'font-bold';
+                                title.textContent = 'Gagal!';
+                                contentContainer.appendChild(title);
+
+                                const messageContainer = document.createElement('div');
+                                messageContainer.className = 'error-message';
+
+                                if (hasHTML) {
+                                    messageContainer.innerHTML = message;
+                                } else {
+                                    messageContainer.textContent = message;
+                                }
+
+                                contentContainer.appendChild(messageContainer);
+
+                                const closeBtn = document.createElement('span');
+                                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                                closeBtn.textContent = '×';
+                                closeBtn.onclick = function () {
+                                    notification.remove();
+                                };
+
+                                wrapper.appendChild(iconContainer);
+                                wrapper.appendChild(contentContainer);
+                                wrapper.appendChild(closeBtn);
+                                notification.appendChild(wrapper);
+                            }
+
+                            document.body.appendChild(notification);
+
+                            setTimeout(() => {
+                                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                                setTimeout(() => notification.remove(), 500);
+                            }, 5000);
+                        }
+
+                        document.head.insertAdjacentHTML('beforeend', `
+                                                <style>
+                                                    @keyframes slideInRight {
+                                                        from { transform: translateX(100%); }
+                                                        to { transform: translateX(0); }
+                                                    }
+                                                    .animate-slide-in-right {
+                                                        animation: slideInRight 0.3s ease-out forwards;
+                                                    }
+                                                </style>
+                                            `);
+
+                        const searchInput = document.getElementById('searchInput');
+                        const assetTypeFilter = document.getElementById('assetTypeFilter');
+                        const statusFilter = document.getElementById('statusFilter');
+                        const sortOrder = document.getElementById('sortOrder');
+
+                        function applyFilters() {
+                            const searchValue = searchInput?.value.trim() || '';
+                            const typeValue = assetTypeFilter?.value || '';
+                            const statusValue = statusFilter?.value || '';
+                            const sortValue = sortOrder?.value || '';
+
+                            const url = new URL(window.location.href);
+
+                            ['search', 'asset_type', 'current_status', 'sort', 'page'].forEach(param => {
+                                url.searchParams.delete(param);
+                            });
+
+                            if (searchValue) url.searchParams.set('search', searchValue);
+                            if (typeValue) url.searchParams.set('asset_type', typeValue);
+                            if (statusValue) url.searchParams.set('current_status', statusValue);
+                            if (sortValue) url.searchParams.set('sort', sortValue);
+
+                            url.searchParams.set('page', 1);
+
+                            window.location.href = url.toString();
+                        }
+
+                        let searchTimeout;
+                        searchInput?.addEventListener('input', function () {
+                            clearTimeout(searchTimeout);
+                            searchTimeout = setTimeout(applyFilters, 500);
+                        });
+
+                        assetTypeFilter?.addEventListener('change', applyFilters);
+                        statusFilter?.addEventListener('change', applyFilters);
+                        sortOrder?.addEventListener('change', applyFilters);
+
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (searchInput) searchInput.value = urlParams.get('search') || '';
+                        if (assetTypeFilter) {
+                            const typeValue = urlParams.get('asset_type');
+                            if (typeValue) {
+                                assetTypeFilter.value = typeValue;
+                            }
+                        }
+                        if (statusFilter) {
+                            const statusValue = urlParams.get('current_status');
+                            if (statusValue) {
+                                statusFilter.value = statusValue;
+                            }
+                        }
+                        if (sortOrder) {
+                            const sortValue = urlParams.get('sort');
+                            if (sortValue) {
+                                sortOrder.value = sortValue;
+                            }
+                        }
+
+                        window.changeAssetPage = function (page) {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('page', page);
+                            window.location.href = url.toString();
+                        };
+
+                        window.changeAssetPerPage = function (perPage) {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('limit', perPage);
+                            url.searchParams.set('page', 1);
+                            window.location.href = url.toString();
+                        };
+
+                        document.getElementById('exportBtn')?.addEventListener('click', () => {
+                            const url = new URL(window.location.href);
+                            const searchParams = url.searchParams;
+
+                            const exportUrl = "{{ route('assets.export.pdf') }}?" + searchParams.toString();
+
+                            window.open(exportUrl, '_blank');
+                        });
+
+                        document.getElementById('deleteAssetForm')?.addEventListener('submit', function (event) {
+                            const submitBtn = this.querySelector('button[type="submit"]');
+
+                            if (submitBtn && !submitBtn.disabled) {
+                                const originalText = submitBtn.innerHTML;
+
+                                submitBtn.disabled = true;
+                                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
+
+                                setTimeout(() => {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                }, 10000);
+                            }
+                        });
+
+                        // Column header sorting
+                        const sortByCodeHeader = document.getElementById('sortByCode');
+                        if (sortByCodeHeader) {
+                            sortByCodeHeader.addEventListener('click', function () {
+                                const currentSort = '{{ request()->query("sort") }}';
+                                let newSort;
+
+                                if (currentSort === 'code_asc') {
+                                    newSort = 'code_desc';
+                                } else {
+                                    newSort = 'code_asc';
+                                }
+
+                                const url = new URL(window.location.href);
+                                url.searchParams.set('sort', newSort);
+                                url.searchParams.set('page', 1);
+                                window.location.href = url.toString();
+                            });
+                        }
+
+                        const sortByNameHeader = document.getElementById('sortByName');
+                        if (sortByNameHeader) {
+                            sortByNameHeader.addEventListener('click', function () {
+                                const currentSort = '{{ request()->query("sort") }}';
+                                let newSort;
+
+                                if (currentSort === 'name_asc') {
+                                    newSort = 'name_desc';
+                                } else {
+                                    newSort = 'name_asc';
+                                }
+
+                                const url = new URL(window.location.href);
+                                url.searchParams.set('sort', newSort);
+                                url.searchParams.set('page', 1);
+                                window.location.href = url.toString();
+                            });
+                        }
+
+                        // Add this new dedicated function for building dropdowns
+                        function initBuildingSearch(
+                            searchInput,
+                            dropdown,
                             buildingList,
                             loadingIndicator,
                             selectedBuildingId,
                             searchInputField,
-                            dropdown,
                             roomSearchInput
-                        );
-                    }, 300);
+                        ) {
+                            if (!searchInput || !dropdown || !buildingList) return;
 
-                    searchInput.addEventListener('input', debouncedSearch);
+                            searchInput.addEventListener('focus', function () {
+                                dropdown.classList.remove('hidden');
+                                if (buildingList.children.length === 0) {
+                                    loadBuildings(
+                                        '',
+                                        buildingList,
+                                        loadingIndicator,
+                                        selectedBuildingId,
+                                        searchInputField,
+                                        dropdown,
+                                        roomSearchInput
+                                    );
+                                }
+                            });
 
-                    // Add scroll event directly here to prevent dropdown from closing
-                    dropdown.addEventListener('scroll', function(e) {
-                        // Prevent the event from propagating
-                        e.stopPropagation();
+                            // Prevent any mousedown events on dropdown from closing it
+                            dropdown.addEventListener('mousedown', function (e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return false;
+                            });
 
-                        if (buildingList.dataset.loading === "true" || buildingList.dataset.hasMoreData === "false") return;
+                            // Prevent wheel events from propagating
+                            dropdown.addEventListener('wheel', function (e) {
+                                e.stopPropagation();
+                            }, { passive: true });
 
-                        // Check if we're near bottom
-                        if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
-                            const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
-                            if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                            document.addEventListener('click', function (e) {
+                                // Only close dropdown if the click is outside both searchInput and dropdown
+                                if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
 
-                            // Load next page with current search term
-                            loadBuildings(
-                                buildingList.dataset.searchTerm || '',
-                                buildingList,
-                                loadingIndicator,
-                                selectedBuildingId,
-                                searchInputField,
-                                dropdown,
-                                roomSearchInput,
-                                false // resetList = false to append results
+                            const debouncedSearch = debounce(function (e) {
+                                loadBuildings(
+                                    e.target.value,
+                                    buildingList,
+                                    loadingIndicator,
+                                    selectedBuildingId,
+                                    searchInputField,
+                                    dropdown,
+                                    roomSearchInput
+                                );
+                            }, 300);
+
+                            searchInput.addEventListener('input', debouncedSearch);
+
+                            // Add scroll event directly here to prevent dropdown from closing
+                            dropdown.addEventListener('scroll', function (e) {
+                                // Prevent the event from propagating
+                                e.stopPropagation();
+
+                                if (buildingList.dataset.loading === "true" || buildingList.dataset.hasMoreData === "false") return;
+
+                                // Check if we're near bottom
+                                if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
+                                    const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
+                                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+
+                                    // Load next page with current search term
+                                    loadBuildings(
+                                        buildingList.dataset.searchTerm || '',
+                                        buildingList,
+                                        loadingIndicator,
+                                        selectedBuildingId,
+                                        searchInputField,
+                                        dropdown,
+                                        roomSearchInput,
+                                        false // resetList = false to append results
+                                    );
+                                }
+                            }, { passive: true });
+                        }
+
+                        function initSearchComponents() {
+                            // Replace initDropdown with initBuildingSearch for edit_building
+                            initBuildingSearch(
+                                document.getElementById('edit_building_search'),
+                                document.getElementById('edit_building_dropdown'),
+                                document.getElementById('edit_building_list'),
+                                document.getElementById('edit_building_loading'),
+                                document.getElementById('edit_selected_building_id'),
+                                document.getElementById('edit_building_search'),
+                                document.getElementById('edit_room_search')
                             );
-                        }
-                    }, { passive: true });
-                }
 
-                function initSearchComponents() {
-                    // Replace initDropdown with initBuildingSearch for edit_building
-                    initBuildingSearch(
-                        document.getElementById('edit_building_search'),
-                        document.getElementById('edit_building_dropdown'),
-                        document.getElementById('edit_building_list'),
-                        document.getElementById('edit_building_loading'),
-                        document.getElementById('edit_selected_building_id'),
-                        document.getElementById('edit_building_search'),
-                        document.getElementById('edit_room_search')
-                    );
-
-                    initDropdown(
-                        document.getElementById('edit_room_search'),
-                        document.getElementById('edit_room_dropdown'),
-                        document.getElementById('edit_room_list'),
-                        function (searchTerm) {
-                            const buildingId = document.getElementById('edit_selected_building_id').value;
-                            if (buildingId) {
-                                loadRoomsForBuilding(
-                                    searchTerm,
-                                    buildingId,
-                                    document.getElementById('edit_room_list'),
-                                    document.getElementById('edit_room_loading'),
-                                    document.getElementById('edit_selected_room_id'),
-                                    document.getElementById('edit_room_search'),
-                                    document.getElementById('edit_room_dropdown')
-                                );
-                            } else {
-                                const roomList = document.getElementById('edit_room_list');
-                                if (roomList) {
-                                    roomList.innerHTML = '';
-                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                            // Initialize brand search for edit form
+                            initDropdown(
+                                document.getElementById('edit_brand_search'),
+                                document.getElementById('edit_brand_dropdown'),
+                                document.getElementById('edit_brand_list'),
+                                function (searchTerm) {
+                                    loadBrands(
+                                        searchTerm,
+                                        document.getElementById('edit_brand_list'),
+                                        document.getElementById('edit_brand_loading'),
+                                        document.getElementById('edit_selected_brand_id'),
+                                        document.getElementById('edit_brand_search'),
+                                        document.getElementById('edit_brand_dropdown')
+                                    );
                                 }
+                            );
+
+                            initDropdown(
+                                document.getElementById('edit_room_search'),
+                                document.getElementById('edit_room_dropdown'),
+                                document.getElementById('edit_room_list'),
+                                function (searchTerm) {
+                                    const buildingId = document.getElementById('edit_selected_building_id').value;
+                                    if (buildingId) {
+                                        loadRoomsForBuilding(
+                                            searchTerm,
+                                            buildingId,
+                                            document.getElementById('edit_room_list'),
+                                            document.getElementById('edit_room_loading'),
+                                            document.getElementById('edit_selected_room_id'),
+                                            document.getElementById('edit_room_search'),
+                                            document.getElementById('edit_room_dropdown')
+                                        );
+                                    } else {
+                                        const roomList = document.getElementById('edit_room_list');
+                                        if (roomList) {
+                                            roomList.innerHTML = '';
+                                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                        }
+                                    }
+                                }
+                            );
+
+                            // Replace initDropdown with initBuildingSearch for building
+                            initBuildingSearch(
+                                document.getElementById('building_search'),
+                                document.getElementById('building_dropdown'),
+                                document.getElementById('building_list'),
+                                document.getElementById('building_loading'),
+                                document.getElementById('selected_building_id'),
+                                document.getElementById('building_search'),
+                                document.getElementById('room_search')
+                            );
+
+                            // Initialize brand search for add form
+                            initDropdown(
+                                document.getElementById('brand_search'),
+                                document.getElementById('brand_dropdown'),
+                                document.getElementById('brand_list'),
+                                function (searchTerm) {
+                                    loadBrands(
+                                        searchTerm,
+                                        document.getElementById('brand_list'),
+                                        document.getElementById('brand_loading'),
+                                        document.getElementById('selected_brand_id'),
+                                        document.getElementById('brand_search'),
+                                        document.getElementById('brand_dropdown')
+                                    );
+                                }
+                            );
+
+                            initDropdown(
+                                document.getElementById('room_search'),
+                                document.getElementById('room_dropdown'),
+                                document.getElementById('room_list'),
+                                function (searchTerm) {
+                                    const buildingId = document.getElementById('selected_building_id').value;
+                                    if (buildingId) {
+                                        loadRoomsForBuilding(
+                                            searchTerm,
+                                            buildingId,
+                                            document.getElementById('room_list'),
+                                            document.getElementById('room_loading'),
+                                            document.getElementById('selected_room_id'),
+                                            document.getElementById('room_search'),
+                                            document.getElementById('room_dropdown')
+                                        );
+                                    } else {
+                                        const roomList = document.getElementById('room_list');
+                                        if (roomList) {
+                                            roomList.innerHTML = '';
+                                            roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                                        }
+                                    }
+                                }
+                            );
+
+                            initAssetMasterSearch(
+                                document.getElementById('asset_master_search'),
+                                document.getElementById('asset_master_dropdown'),
+                                document.getElementById('asset_master_list'),
+                                document.getElementById('asset_master_loading'),
+                                document.getElementById('selected_asset_master_id'),
+                                document.getElementById('selected_is_depreciable'),
+                                document.getElementById('depreciation_fields')
+                            );
+
+                            initAssetMasterSearch(
+                                document.getElementById('edit_asset_master_search'),
+                                document.getElementById('edit_asset_master_dropdown'),
+                                document.getElementById('edit_asset_master_list'),
+                                document.getElementById('edit_asset_master_loading'),
+                                document.getElementById('edit_selected_asset_master_id'),
+                                document.getElementById('edit_selected_is_depreciable'),
+                                document.getElementById('edit_depreciation_fields')
+                            );
+
+                            if (document.getElementById('user_search')) {
+                                initUserSearch(
+                                    document.getElementById('user_search'),
+                                    document.getElementById('user_dropdown'),
+                                    document.getElementById('user_list'),
+                                    document.getElementById('user_loading'),
+                                    document.getElementById('selected_user_id')
+                                );
+                            }
+
+                            if (document.getElementById('edit_user_search')) {
+                                initUserSearch(
+                                    document.getElementById('edit_user_search'),
+                                    document.getElementById('edit_user_dropdown'),
+                                    document.getElementById('edit_user_list'),
+                                    document.getElementById('edit_user_loading'),
+                                    document.getElementById('edit_selected_user_id')
+                                );
                             }
                         }
-                    );
 
-                    // Replace initDropdown with initBuildingSearch for building
-                    initBuildingSearch(
-                        document.getElementById('building_search'),
-                        document.getElementById('building_dropdown'),
-                        document.getElementById('building_list'),
-                        document.getElementById('building_loading'),
-                        document.getElementById('selected_building_id'),
-                        document.getElementById('building_search'),
-                        document.getElementById('room_search')
-                    );
+                        async function loadBrands(searchTerm, brandList, loadingIndicator, selectedBrandId, searchInput, dropdown) {
+                            // Setup for lazy loading
+                            let page = brandList.dataset.page ? parseInt(brandList.dataset.page) : 1;
+                            let isLoading = brandList.dataset.loading === "true";
+                            let hasMoreData = brandList.dataset.hasMoreData !== "false";
+                            let resetList = page === 1 || brandList.dataset.searchTerm !== searchTerm;
 
-                    initDropdown(
-                        document.getElementById('room_search'),
-                        document.getElementById('room_dropdown'),
-                        document.getElementById('room_list'),
-                        function (searchTerm) {
-                            const buildingId = document.getElementById('selected_building_id').value;
-                            if (buildingId) {
-                                loadRoomsForBuilding(
-                                    searchTerm,
-                                    buildingId,
-                                    document.getElementById('room_list'),
-                                    document.getElementById('room_loading'),
-                                    document.getElementById('selected_room_id'),
-                                    document.getElementById('room_search'),
-                                    document.getElementById('room_dropdown')
-                                );
-                            } else {
-                                const roomList = document.getElementById('room_list');
-                                if (roomList) {
-                                    roomList.innerHTML = '';
-                                    roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                            // Save current search term
+                            brandList.dataset.searchTerm = searchTerm;
+
+                            if (isLoading) return;
+
+                            // Set loading state
+                            brandList.dataset.loading = "true";
+
+                            // Show loading indicator
+                            if (resetList) {
+                                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                                brandList.innerHTML = '';
+                            }
+
+                            try {
+                                // Construct URL with query parameters
+                                let queryParams = new URLSearchParams();
+                                queryParams.append('json', 'true');
+                                queryParams.append('page', page);
+                                queryParams.append('limit', 20);
+                                if (searchTerm && searchTerm.trim()) {
+                                    queryParams.append('search', searchTerm.trim());
                                 }
+
+                                const response = await fetch(`/brands?${queryParams.toString()}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to load brands');
+                                }
+
+                                const data = await response.json();
+                                let brands = [];
+                                let pagination = null;
+
+                                // Handle different response formats
+                                if (Array.isArray(data)) {
+                                    brands = data;
+                                } else if (data.brands && Array.isArray(data.brands)) {
+                                    brands = data.brands;
+                                    pagination = data.pagination || null;
+                                } else if (data.data && Array.isArray(data.data)) {
+                                    brands = data.data;
+                                    pagination = data.pagination || data.meta || null;
+                                }
+
+                                // Check if we have more data to load
+                                if (pagination) {
+                                    hasMoreData = pagination.current_page < pagination.last_page;
+                                } else {
+                                    hasMoreData = brands.length >= 20;
+                                }
+
+                                // Save next page number and has more data state
+                                brandList.dataset.page = page + 1;
+                                brandList.dataset.hasMoreData = hasMoreData.toString();
+
+                                if (brands.length === 0 && brandList.children.length === 0) {
+                                    brandList.appendChild(createDropdownItem('Tidak ada merk yang ditemukan', 'px-4 py-2 text-gray-500'));
+                                } else {
+                                    brands.forEach(brand => {
+                                        const li = document.createElement('li');
+                                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                                        const brandName = brand.brand_name || 'Unnamed Brand';
+                                        const brandId = brand.brand_id || '';
+
+                                        const itemContainer = document.createElement('div');
+                                        itemContainer.className = 'brand-item';
+
+                                        const nameSpan = document.createElement('div');
+                                        nameSpan.className = 'name text-black font-medium';
+                                        nameSpan.style.color = 'black';
+                                        nameSpan.textContent = brandName;
+
+                                        itemContainer.appendChild(nameSpan);
+                                        li.appendChild(itemContainer);
+
+                                        li.setAttribute('data-id', brandId);
+                                        li.setAttribute('data-name', brandName);
+
+                                        li.addEventListener('click', function () {
+                                            selectedBrandId.value = this.getAttribute('data-id');
+                                            searchInput.value = this.getAttribute('data-name');
+                                            dropdown.classList.add('hidden');
+                                        });
+
+                                        brandList.appendChild(li);
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error loading brands:', error);
+                                if (brandList.children.length === 0) {
+                                    brandList.appendChild(createDropdownItem('Galat memuat merk', 'px-4 py-2 text-red-500'));
+                                }
+                            } finally {
+                                // Reset loading state
+                                brandList.dataset.loading = "false";
+                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
                             }
                         }
-                    );
 
-                    initAssetMasterSearch(
-                        document.getElementById('asset_master_search'),
-                        document.getElementById('asset_master_dropdown'),
-                        document.getElementById('asset_master_list'),
-                        document.getElementById('asset_master_loading'),
-                        document.getElementById('selected_asset_master_id'),
-                        document.getElementById('selected_is_depreciable'),
-                        document.getElementById('depreciation_fields')
-                    );
+                        document.getElementById('brand_search')?.addEventListener('input', function () {
+                            this.classList.remove('border-red-500');
+                            const errorElement = this.closest('.mb-5')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
 
-                    initAssetMasterSearch(
-                        document.getElementById('edit_asset_master_search'),
-                        document.getElementById('edit_asset_master_dropdown'),
-                        document.getElementById('edit_asset_master_list'),
-                        document.getElementById('edit_asset_master_loading'),
-                        document.getElementById('edit_selected_asset_master_id'),
-                        document.getElementById('edit_selected_is_depreciable'),
-                        document.getElementById('edit_depreciation_fields')
-                    );
+                        document.getElementById('model')?.addEventListener('input', function () {
+                            this.classList.remove('border-red-500');
+                            const errorElement = this.closest('.mb-5')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
 
-                    if (document.getElementById('user_search')) {
-                        initUserSearch(
-                            document.getElementById('user_search'),
-                            document.getElementById('user_dropdown'),
-                            document.getElementById('user_list'),
-                            document.getElementById('user_loading'),
-                            document.getElementById('selected_user_id')
-                        );
-                    }
+                        document.getElementById('edit_brand_search')?.addEventListener('input', function () {
+                            this.classList.remove('border-red-500');
+                            const errorElement = this.closest('.mb-5')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
 
-                    if (document.getElementById('edit_user_search')) {
-                        initUserSearch(
-                            document.getElementById('edit_user_search'),
-                            document.getElementById('edit_user_dropdown'),
-                            document.getElementById('edit_user_list'),
-                            document.getElementById('edit_user_loading'),
-                            document.getElementById('edit_selected_user_id')
-                        );
-                    }
-                }
-            });
-        </script>
+                        document.getElementById('edit_model')?.addEventListener('input', function () {
+                            this.classList.remove('border-red-500');
+                            const errorElement = this.closest('.mb-5')?.querySelector('.error-message');
+                            if (errorElement) errorElement.classList.add('hidden');
+                        });
+                    });
+                </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     @endpush
 @endsection
 

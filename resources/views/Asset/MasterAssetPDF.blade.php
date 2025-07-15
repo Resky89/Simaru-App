@@ -168,7 +168,6 @@
                         @endif
                     </td>
                     <td>{{ $asset['subcategory_name'] ?? '-' }}</td>
-                    <td>{{ $asset['brand_name'] ?? '-' }}</td>
                     <td>
                         @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
                             <span class="badge badge-info">Dapat Disusutkan</span>

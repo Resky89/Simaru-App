@@ -55,7 +55,7 @@
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
                             <input type="text" id="searchInput"
-                                placeholder="Cari berdasarkan nama aset, tipe, atau brand..."
+                                placeholder="Cari berdasarkan nama aset..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +154,7 @@
                                     </th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tipe Aset</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Kategori</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Merk</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Deskripsi</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Penyusutan</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Kalibrasi</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Aksi</th>
@@ -182,7 +182,7 @@
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                 {{ $asset['subcategory_name'] ?? '-' }}</td>
-                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['brand_name'] ?? '-' }}</td>
+                                            <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $asset['description'] ?? '-' }}</td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                                 @if(isset($asset['is_depreciable']) && $asset['is_depreciable'])
                                                     <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ya</span>
@@ -451,61 +451,32 @@
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <!-- Subcategory Dropdown -->
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Kategori <span
-                                                    class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih
-                                                    tipe aset terlebih dahulu)</span></label>
-                                            <div class="custom-select-container relative">
-                                                <input type="text"
-                                                    class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
-                                                    placeholder="Pilih tipe aset terlebih dahulu" disabled
-                                                    id="subcategory_search">
-                                                <input type="hidden" name="subcategory_id" id="subcategory_id">
-                                                <div
-                                                    class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </div>
-                                                <div
-                                                    class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                    <div class="p-2 text-center text-gray-500" id="subcategory-loading-message">
-                                                        Pilih tipe aset terlebih dahulu</div>
-                                                    <!-- Subcategories will be loaded dynamically based on asset_type -->
-                                                </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Kategori <span
+                                                class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih
+                                                tipe aset terlebih dahulu)</span></label>
+                                        <div class="custom-select-container relative">
+                                            <input type="text"
+                                                class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                placeholder="Pilih tipe aset terlebih dahulu" disabled
+                                                id="subcategory_search">
+                                            <input type="hidden" name="subcategory_id" id="subcategory_id">
+                                            <div
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7" />
+                                                </svg>
                                             </div>
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih
+                                            <div
+                                                class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                                <div class="p-2 text-center text-gray-500" id="subcategory-loading-message">
+                                                    Pilih tipe aset terlebih dahulu</div>
+                                                <!-- Subcategories will be loaded dynamically based on asset_type -->
                                             </div>
                                         </div>
-
-                                        <!-- Brand Dropdown -->
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Merk <span
-                                                    class="text-red-500">*</span></label>
-                                            <div class="custom-select-container relative">
-                                                <input type="text"
-                                                    class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="Cari merk...">
-                                                <input type="hidden" name="brand_id" id="brand_id">
-                                                <div
-                                                    class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </div>
-                                                <div
-                                                    class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                    <div class="p-2 text-center text-gray-500" id="brand-loading-message">Memuat
-                                                        data merk...</div>
-                                                </div>
-                                            </div>
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih
                                         </div>
                                     </div>
 
@@ -670,63 +641,34 @@
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <!-- Subcategory Dropdown -->
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Kategori <span
-                                                    class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih
-                                                    tipe aset terlebih dahulu)</span></label>
-                                            <div class="custom-select-container relative">
-                                                <input type="text"
-                                                    class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
-                                                    placeholder="Pilih tipe aset terlebih dahulu" disabled
-                                                    id="edit_subcategory_search">
-                                                <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
-                                                <div
-                                                    class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </div>
-                                                <div
-                                                    class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                    <div class="p-2 text-center text-gray-500"
-                                                        id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu
-                                                    </div>
-                                                    <!-- Subcategories will be loaded dynamically based on asset_type -->
-                                                </div>
+                                    <!-- Subcategory Dropdown -->
+                                    <div class="space-y-2">
+                                        <label class="block text-base font-semibold text-[#666666]">Kategori <span
+                                                class="text-red-500">*</span> <span class="text-xs text-blue-600">(Pilih
+                                                tipe aset terlebih dahulu)</span></label>
+                                        <div class="custom-select-container relative">
+                                            <input type="text"
+                                                class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                placeholder="Pilih tipe aset terlebih dahulu" disabled
+                                                id="edit_subcategory_search">
+                                            <input type="hidden" name="subcategory_id" id="edit_subcategory_id">
+                                            <div
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
+                                                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7" />
+                                                </svg>
                                             </div>
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih
+                                            <div
+                                                class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
+                                                <div class="p-2 text-center text-gray-500"
+                                                    id="edit-subcategory-loading-message">Pilih tipe aset terlebih dahulu
+                                                </div>
+                                                <!-- Subcategories will be loaded dynamically based on asset_type -->
                                             </div>
                                         </div>
-
-                                        <!-- Brand Dropdown -->
-                                        <div class="space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666]">Merk <span
-                                                    class="text-red-500">*</span></label>
-                                            <div class="custom-select-container relative">
-                                                <input type="text"
-                                                    class="search-input w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    placeholder="Cari merk...">
-                                                <input type="hidden" name="brand_id" id="edit_brand_id">
-                                                <div
-                                                    class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer dropdown-icon">
-                                                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                </div>
-                                                <div
-                                                    class="options-container hidden absolute z-10 w-full mt-1 bg-white border border-[#CCCCCC] rounded-lg max-h-60 overflow-y-auto">
-                                                    <div class="p-2 text-center text-gray-500" id="edit-brand-loading-message">
-                                                        Memuat data merk...</div>
-                                                    <!-- Brands will be loaded dynamically -->
-                                                </div>
-                                            </div>
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus dipilih</div>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kategori harus dipilih
                                         </div>
                                     </div>
 
@@ -871,7 +813,7 @@
                                         <p class="font-medium text-blue-600 mb-2">Instruksi Import:</p>
                                         <ul class="list-disc pl-5 space-y-1">
                                             <li>Gunakan format Excel template untuk mengimpor</li>
-                                            <li>Kolom yang dibutuhkan: Nama Aset, Tipe Aset, Kategori, Merk</li>
+                                            <li>Kolom yang dibutuhkan: Nama Aset, Tipe Aset, Kategori, Deskripsi</li>
                                             <li>Maksimal 100 data per import</li>
                                             <li>Format file yang didukung: .xlsx, .xls, .csv</li>
                                         </ul>
@@ -981,7 +923,7 @@
                                                     <th class="p-3 text-left text-xs font-semibold">Nama Aset</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Tipe Aset</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Kategori</th>
-                                                    <th class="p-3 text-left text-xs font-semibold">Merk</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">Deskripsi</th>
                                                     <th class="p-3 text-center text-xs font-semibold">Penyusutan</th>
                                                     <th class="p-3 text-center text-xs font-semibold">Kalibrasi</th>
                                                 </tr>
@@ -1139,8 +1081,6 @@
                                 } else {
                                     optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Pilih tipe aset terlebih dahulu</div>';
                                 }
-                            } else if (hiddenInput.id.includes('brand')) {
-                                fetchBrands(searchInput.value.trim() || " ", hiddenInput.id);
                             }
 
                             optionsContainer.classList.remove('hidden');
@@ -1165,9 +1105,6 @@
                                 fetchCategories(assetTypeSelect.value, searchValue || " ", hiddenInput.id);
                                 optionsContainer.classList.remove('hidden');
                             }
-                        } else if (hiddenInput.id.includes('brand')) {
-                            fetchBrands(searchValue || " ", hiddenInput.id);
-                            optionsContainer.classList.remove('hidden');
                         }
                     }, 300));
 
@@ -1246,26 +1183,6 @@
                                 console.error('Error fetching subcategory details:', error);
                                 searchInput.value = value.toString();
                             });
-                    } else if (selectId === 'edit_brand_id') {
-                        fetch(`/brands/${value}?json=true`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data && data.brand_name) {
-                                    searchInput.value = data.brand_name;
-                                } else {
-                                    searchInput.value = value.toString();
-                                    console.warn(`Could not find brand name for ID ${value}`);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching brand details:', error);
-                                searchInput.value = value.toString();
-                            });
                     } else {
                         console.warn(`Option with value "${value}" not found for ${selectId}`);
                         searchInput.value = value.toString();
@@ -1303,16 +1220,6 @@
                     optionsContainer.innerHTML = '<div class="p-2 text-sm text-gray-500">Pilih tipe aset terlebih dahulu</div>';
                     return;
                 }
-            }
-
-            function loadBrands(targetElementId, loadingMessageId, searchTerm = '', silentLoad = false) {
-                if (typeof fetchBrands === 'function') {
-                    fetchBrands(searchTerm, targetElementId);
-                    return;
-                }
-
-                console.warn('fetchBrands not available, using legacy loadBrands');
-
             }
 
             document.getElementById('asset_type')?.addEventListener('change', function () {
@@ -1356,14 +1263,16 @@
             });
 
             document.getElementById('addMasterAssetBtn')?.addEventListener('click', function () {
-                loadBrands('brand_id', 'brand-loading-message');
+                const modal = document.getElementById('addMasterAssetModal');
+                const content = document.getElementById('addMasterAssetModalContent');
+                if (modal && content) {
+                    openModal(modal, content);
+                }
             });
 
             document.querySelectorAll('.edit-asset-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const originalFetchComplete = function (asset) {
-                        loadBrands('edit_brand_id', 'edit-brand-loading-message', '', true);
-
                         if (asset.asset_type) {
                             const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
                             const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
@@ -1404,14 +1313,6 @@
                         window.fetch = originalFetch;
                     }, 5000);
                 });
-            });
-
-            document.getElementById('addMasterAssetBtn')?.addEventListener('click', function () {
-                const modal = document.getElementById('addMasterAssetModal');
-                const content = document.getElementById('addMasterAssetModalContent');
-                if (modal && content) {
-                    openModal(modal, content);
-                }
             });
 
             document.getElementById('exportBtn')?.addEventListener('click', () => {
@@ -1484,12 +1385,6 @@
                                     if (asset.subcategory_id && asset.subcategory_name) {
                                         setSelectValue('edit_subcategory_id', asset.subcategory_id, asset.subcategory_name);
                                     }
-                                }
-
-                                loadBrands('edit_brand_id', 'edit-brand-loading-message', '', true);
-
-                                if (asset.brand_id && asset.brand_name) {
-                                    setSelectValue('edit_brand_id', asset.brand_id, asset.brand_name);
                                 }
 
                                 document.getElementById('edit_is_depreciable').checked = Boolean(asset.is_depreciable);
@@ -2121,10 +2016,6 @@
                     'nama kategori': 'subcategory_name',
                     'kategori': 'subcategory_name',
                     'category': 'subcategory_name',
-                    'brand': 'brand_name',
-                    'brand_name': 'brand_name',
-                    'nama_brand': 'brand_name',
-                    'nama brand': 'brand_name',
                     'description': 'description',
                     'deskripsi': 'description',
                     'is_depreciable': 'is_depreciable',
@@ -2147,7 +2038,7 @@
                     }
                 });
 
-                const requiredFields = ['asset_name', 'asset_type', 'subcategory_name', 'brand_name'];
+                const requiredFields = ['asset_name', 'asset_type', 'subcategory_name', 'description'];
                 const missingHeaders = [];
                 requiredFields.forEach(field => {
                     if (headerIndexes[field] === undefined) {
@@ -2171,7 +2062,6 @@
                         asset_name: '',
                         asset_type: '',
                         subcategory_name: '',
-                        brand_name: '',
                         description: '',
                         is_depreciable: false,
                         needs_calibration: false
@@ -2225,11 +2115,6 @@
                         hasErrors = true;
                     }
 
-                    if (!rowData.brand_name) {
-                        warnings.push(`Baris ${i + 1}: Missing Brand`);
-                        hasErrors = true;
-                    }
-
                     rowData._rowNum = i;
 
                     if (!hasErrors) {
@@ -2260,7 +2145,7 @@
                     for (const [key, indexes] of Object.entries(duplicates)) {
                         if (indexes.length > 1) {
                             const item = data[indexes[0]];
-                            warnings.push(`Duplikat ditemukan: "${item.asset_name}" (${formatAssetType(item.asset_type)}, ${item.subcategory_name}, ${item.brand_name})`);
+                            warnings.push(`Duplikat ditemukan: "${item.asset_name}" (${formatAssetType(item.asset_type)}, ${item.subcategory_name}, ${item.description})`);
                         }
                     }
                 }
@@ -2274,7 +2159,7 @@
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.asset_name || '-'}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.asset_type ? formatAssetType(item.asset_type) : '-'}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.subcategory_name || '-'}</td>
-                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.brand_name || '-'}</td>
+                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${item.description || '-'}</td>
                         <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                             ${item.is_depreciable ?
                             '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ya</span>' :
@@ -2301,7 +2186,7 @@
                 const duplicateMap = {};
 
                 data.forEach((item, index) => {
-                    const key = `${item.asset_name}|${item.asset_type}|${item.subcategory_name}|${item.brand_name}`.toLowerCase();
+                    const key = `${item.asset_name}|${item.asset_type}|${item.subcategory_name}|${item.description}`.toLowerCase();
 
                     if (!duplicateMap[key]) {
                         duplicateMap[key] = [];
@@ -2349,7 +2234,7 @@
                     warning.includes('Missing Asset Name') ||
                     warning.includes('Invalid Asset Type') ||
                     warning.includes('Missing Subcategory') ||
-                    warning.includes('Missing Brand')
+                    warning.includes('Missing Description')
                 );
 
                 if (importBtn && hasCriticalWarnings) {
@@ -2699,7 +2584,6 @@
                 const assetName = this.querySelector('input[name="asset_name"]');
                 const assetType = document.getElementById('asset_type');
                 const subcategoryId = document.getElementById('subcategory_id');
-                const brandId = document.getElementById('brand_id');
 
                 let isValid = true;
 
@@ -2730,18 +2614,6 @@
                     const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) {
                         errorElement.textContent = 'Kategori harus dipilih';
-                        errorElement.classList.remove('hidden');
-                    }
-                    isValid = false;
-                }
-
-                const brandContainer = brandId.closest('.custom-select-container');
-                const brandSearchInput = brandContainer.querySelector('.search-input');
-                if (!brandId.value) {
-                    brandSearchInput.classList.add('border-red-500');
-                    const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-                    if (errorElement) {
-                        errorElement.textContent = 'Merk harus dipilih';
                         errorElement.classList.remove('hidden');
                     }
                     isValid = false;
@@ -2772,7 +2644,7 @@
                 const assetName = document.getElementById('edit_asset_name');
                 const assetType = document.getElementById('edit_asset_type');
                 const subcategoryId = document.getElementById('edit_subcategory_id');
-                const brandId = document.getElementById('edit_brand_id');
+
 
                 let isValid = true;
 
@@ -2803,18 +2675,6 @@
                     const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
                     if (errorElement) {
                         errorElement.textContent = 'Kategori harus dipilih';
-                        errorElement.classList.remove('hidden');
-                    }
-                    isValid = false;
-                }
-
-                const brandContainer = brandId.closest('.custom-select-container');
-                const brandSearchInput = brandContainer.querySelector('.search-input');
-                if (!brandId.value) {
-                    brandSearchInput.classList.add('border-red-500');
-                    const errorElement = brandContainer.closest('.space-y-2')?.querySelector('.error-message');
-                    if (errorElement) {
-                        errorElement.textContent = 'Merk harus dipilih';
                         errorElement.classList.remove('hidden');
                     }
                     isValid = false;
@@ -3017,226 +2877,6 @@
             updateSubcategoryInputState('subcategory_id', 'asset_type');
             updateSubcategoryInputState('edit_subcategory_id', 'edit_asset_type');
 
-            function fetchBrands(searchTerm = '', targetId = '') {
-                if (!targetId) return;
-
-                const container = document.getElementById(targetId).closest('.custom-select-container');
-                const optionsContainer = container.querySelector('.options-container');
-                const searchInput = container.querySelector('.search-input');
-                const hiddenInput = container.querySelector('input[type="hidden"]');
-                const isShowAll = searchTerm === " ";
-
-                if (!searchTerm.trim() && !isShowAll) {
-                    optionsContainer.classList.add('hidden');
-                    return;
-                }
-
-                optionsContainer.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat merk...</div>';
-                optionsContainer.classList.remove('hidden');
-
-                // Add these variables for lazy loading
-                let page = 1;
-                const perPage = 15;
-                let isLoading = false;
-                let hasMoreData = true;
-                let allBrands = [];
-
-                // Function to load brands with pagination
-                function loadBrands(page, searchValue) {
-                    if (isLoading || !hasMoreData) return;
-                    
-                    isLoading = true;
-                    
-                let queryParams = new URLSearchParams();
-                queryParams.append('json', 'true');
-                    queryParams.append('page', page);
-                    queryParams.append('limit', perPage);
-
-                    if (searchValue.trim() && !isShowAll) {
-                        queryParams.append('search', searchValue.trim());
-                }
-
-                fetch(`/brands?${queryParams.toString()}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Server responded with status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        let brands = [];
-                            let pagination = null;
-
-                        if (Array.isArray(data)) {
-                            brands = data;
-                        } else if (data.brands && Array.isArray(data.brands)) {
-                            brands = data.brands;
-                                pagination = data.pagination || null;
-                        } else if (data.data && Array.isArray(data.data)) {
-                            brands = data.data;
-                                pagination = data.pagination || data.meta || null;
-                            }
-
-                            allBrands = [...allBrands, ...brands];
-                            
-                            // Check if we have more data to load
-                            if (pagination) {
-                                hasMoreData = pagination.current_page < pagination.last_page;
-                            } else {
-                                hasMoreData = brands.length >= perPage;
-                            }
-
-                            displayBrandResults(allBrands, optionsContainer, hiddenInput, searchInput, true);
-                            
-                            isLoading = false;
-                    })
-                    .catch(error => {
-                        console.error('Error fetching brands:', error);
-                            if (page === 1) {
-                        optionsContainer.innerHTML = `
-                        <div class="p-3 text-sm text-red-500 text-center">
-                            <p>Gagal memuat merk</p>
-                            <p class="text-xs mt-1 text-red-400">${error.message}</p>
-                            <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
-                                </div>`;
-                            }
-                            isLoading = false;
-                        });
-                }
-                
-                // Initial load
-                loadBrands(page, searchTerm);
-
-                // Remove any existing scroll event listeners
-                optionsContainer.removeEventListener('scroll', scrollHandler);
-                
-                // Scroll event handler for lazy loading
-                function scrollHandler() {
-                    const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
-                    
-                    // Load more data when user scrolls to 80% of the container
-                    if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
-                        page++;
-                        loadBrands(page, searchTerm);
-                    }
-                }
-                
-                // Add scroll event listener
-                optionsContainer.addEventListener('scroll', scrollHandler);
-            }
-
-            function displayBrandResults(brands, resultsElem, idInputElem, searchInputElem, isLazyLoad = false) {
-                // Always clear the initial loading message
-                const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
-                if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat merk')) {
-                    initialLoadingMessage.remove();
-                }
-                
-                if (!isLazyLoad) {
-                resultsElem.innerHTML = '';
-                } else {
-                    // Remove loading indicator if it exists
-                    const loadingIndicator = resultsElem.querySelector('.loading-indicator');
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                }
-
-                if (brands.length === 0 && !isLazyLoad) {
-                    resultsElem.innerHTML = `
-                        <div class="p-4 text-center">
-                            <p class="text-gray-500 mb-2">Tidak ada merk yang ditemukan</p>
-                            <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="this.closest('.options-container').classList.add('hidden')">Tutup</button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Only add the header if it doesn't exist yet
-                const existingHeader = resultsElem.querySelector('.dropdown-header');
-                if (!existingHeader && brands.length > 0) {
-                const typeTitle = document.createElement('div');
-                    typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
-                typeTitle.textContent = `Daftar Merk`;
-                    resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
-                }
-
-                if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
-                    const searchTerm = searchInputElem.value.trim().toLowerCase();
-                    brands.sort((a, b) => {
-                        const aName = a.brand_name?.toLowerCase() || '';
-                        const bName = b.brand_name?.toLowerCase() || '';
-
-                        if (aName === searchTerm) return -1;
-                        if (bName === searchTerm) return 1;
-
-                        const aStarts = aName.startsWith(searchTerm);
-                        const bStarts = bName.startsWith(searchTerm);
-                        if (aStarts && !bStarts) return -1;
-                        if (bStarts && !aStarts) return 1;
-
-                        return aName.localeCompare(bName);
-                    });
-                }
-
-                const existingOptions = new Set();
-                const existingOptionElements = resultsElem.querySelectorAll('.option');
-                
-                existingOptionElements.forEach(element => {
-                    existingOptions.add(element.getAttribute('data-value'));
-                });
-
-                brands.forEach((brand) => {
-                    // Skip duplicates that might occur during lazy loading
-                    if (existingOptions.has(brand.brand_id?.toString())) {
-                        return;
-                    }
-                    
-                    const div = document.createElement('div');
-                    div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
-                    div.textContent = brand.brand_name || 'Unknown Brand';
-                    div.setAttribute('data-value', brand.brand_id || '');
-
-                    div.addEventListener('click', function () {
-                        idInputElem.value = this.getAttribute('data-value');
-                        searchInputElem.value = this.textContent;
-
-                        searchInputElem.classList.remove('border-red-500');
-                        const container = searchInputElem.closest('.custom-select-container');
-                        const errorElement = container.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
-
-                        resultsElem.classList.add('hidden');
-
-                        const event = new Event('change', { bubbles: true });
-                        idInputElem.dispatchEvent(event);
-                    });
-
-                    resultsElem.appendChild(div);
-                    existingOptions.add(brand.brand_id?.toString());
-                });
-
-                // Add loading indicator at the bottom for lazy loading
-                if (isLazyLoad) {
-                    const loadingDiv = document.createElement('div');
-                    loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
-                    loadingDiv.textContent = 'Memuat merk lainnya...';
-                    resultsElem.appendChild(loadingDiv);
-                }
-
-                // Add max height and scrollable class if not already set
-                if (!resultsElem.classList.contains('scrollable-dropdown')) {
-                    resultsElem.classList.add('scrollable-dropdown');
-                    resultsElem.style.maxHeight = '250px';
-                    resultsElem.style.overflowY = 'auto';
-                }
-            }
-
             function fetchCategories(assetType, searchTerm = '', targetId = '') {
                 if (!assetType || !targetId) return;
 
@@ -3264,7 +2904,7 @@
                 // Function to load categories with pagination
                 function loadCategories(page, searchValue) {
                     if (isLoading || !hasMoreData) return;
-                    
+
                     isLoading = true;
 
                 let queryParams = new URLSearchParams();
@@ -3304,7 +2944,7 @@
                             }
 
                             allCategories = [...allCategories, ...categories];
-                            
+
                             // Check if we have more data to load
                             if (pagination) {
                                 hasMoreData = pagination.current_page < pagination.last_page;
@@ -3313,7 +2953,7 @@
                             }
 
                             displayCategoryResults(allCategories, optionsContainer, hiddenInput, searchInput, assetType, true);
-                            
+
                             isLoading = false;
                     })
                     .catch(error => {
@@ -3329,24 +2969,24 @@
                             isLoading = false;
                         });
                 }
-                
+
                 // Initial load
                 loadCategories(page, searchTerm);
 
                 // Remove any existing scroll event listeners
                 optionsContainer.removeEventListener('scroll', categoryScrollHandler);
-                
+
                 // Scroll event handler for lazy loading
                 function categoryScrollHandler() {
                     const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
-                    
+
                     // Load more data when user scrolls to 80% of the container
                     if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
                         page++;
                         loadCategories(page, searchTerm);
                     }
                 }
-                
+
                 // Add scroll event listener
                 optionsContainer.addEventListener('scroll', categoryScrollHandler);
             }
@@ -3357,7 +2997,7 @@
                 if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat kategori')) {
                     initialLoadingMessage.remove();
                 }
-                
+
                 if (!isLazyLoad) {
                 resultsElem.innerHTML = '';
                 } else {
@@ -3407,7 +3047,7 @@
 
                 const existingOptions = new Set();
                 const existingOptionElements = resultsElem.querySelectorAll('.option');
-                
+
                 existingOptionElements.forEach(element => {
                     existingOptions.add(element.getAttribute('data-value'));
                 });
@@ -3417,7 +3057,7 @@
                     if (existingOptions.has(category.subcategory_id?.toString())) {
                         return;
                     }
-                    
+
                     const div = document.createElement('div');
                     div.className = 'option p-3 hover:bg-gray-100 cursor-pointer text-[#666666]';
                     div.textContent = category.subcategory_name || 'Unknown Category';
@@ -3526,8 +3166,8 @@
                 .error-message ul li:last-child {
                     margin-bottom: 0;
                 }
-                
-                /* Add these styles for brand dropdown */
+
+                /* Add these styles for dropdown */
                 .scrollable-dropdown {
                     max-height: 250px;
                     overflow-y: auto;

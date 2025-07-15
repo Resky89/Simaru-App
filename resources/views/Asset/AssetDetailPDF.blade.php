@@ -324,11 +324,6 @@
             </td>
         </tr>
         <tr>
-            <th>Merek</th>
-            <td>{{ $asset['asset_master']['brand_name'] ?? $asset['asset_master']['brand']['brand_name'] ?? $asset['brand_name'] ?? 'Tidak Tersedia' }}
-            </td>
-        </tr>
-        <tr>
             <th>Deskripsi</th>
             <td>{{ $asset['asset_master']['description'] ?? 'Tidak ada deskripsi' }}</td>
         </tr>
@@ -337,6 +332,11 @@
     <!-- Asset Details Section -->
     <h2>Informasi Aset</h2>
     <table class="detail-table">
+        <tr>
+            <th>Merek</th>
+            <td>{{ $asset['brand_name'] ?? $asset['asset_master']['brand']['brand_name'] ?? 'Tidak Tersedia' }}
+            </td>
+        </tr>
         <tr>
             <th>Ruangan</th>
             <td>{{ $asset['room_name'] ?? $asset['room']['room_name'] ?? 'Tidak Tersedia' }}</td>

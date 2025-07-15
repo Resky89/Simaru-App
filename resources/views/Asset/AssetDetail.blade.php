@@ -360,9 +360,13 @@
                     <div>
                         <h2 class="text-lg font-semibold text-[#203268] sticky top-0 bg-white py-2 z-10">Informasi Aset</h2>
                         <div class="grid grid-cols-1 gap-y-3">
-                        <div class="flex flex-wrap items-center">
+                            <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Merk</span>
                                 <span class="text-sm">{{ $asset['brand_name'] ?? '-' }}</span>
+                            </div>
+                            <div class="flex flex-wrap items-center">
+                                <span class="w-[150px] font-semibold text-sm">Model</span>
+                                <span class="text-sm">{{ $asset['model'] ?? '-' }}</span>
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Ruangan</span>
@@ -627,6 +631,58 @@
                                                 placeholder="Masukkan nomor seri">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor seri harus diisi
                                             </div>
+                                        </div>
+
+                                        <!-- Brand Dropdown -->
+                                        <div class="mb-5 space-y-2">
+                                            <label class="block text-base font-semibold text-[#666666] mb-2">Merk <span
+                                                    class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <input type="text" id="edit_brand_search"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Cari merk..." autocomplete="off">
+                                                <input type="hidden" name="brand_id" id="edit_selected_brand_id">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Merk harus
+                                                    dipilih</div>
+                                                <div id="edit_brand_dropdown"
+                                                    class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
+                                                    <div id="edit_brand_loading" class="p-2 text-gray-500 text-center">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat merk...</span>
+                                                    </div>
+                                                    <ul id="edit_brand_list" class="py-1"></ul>
+                                                    <!-- Load more indicator for brand dropdown -->
+                                                    <div id="edit_brand_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <svg class="animate-spin h-5 w-5 mx-auto"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                                stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor"
+                                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                            </path>
+                                                        </svg>
+                                                        <span>Memuat lebih banyak...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Model field -->
+                                        <div class="mb-5 space-y-2">
+                                            <label for="edit_model" class="block text-base font-semibold text-[#666666] mb-2">Model</label>
+                                            <input type="text" name="model" id="edit_model"
+                                                value="{{ $asset['model'] ?? '' }}"
+                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                placeholder="Masukkan model">
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Model harus diisi</div>
                                         </div>
 
                                         <!-- Purchase Information -->
@@ -1415,7 +1471,7 @@
             scrollbar-width: thin;
             scrollbar-color: #c1c1c1 #f1f1f1;
         }
-        
+
         /* Fix dropdown positioning */
         #user_dropdown, #edit_user_dropdown,
         #building_dropdown, #edit_building_dropdown,
@@ -1440,7 +1496,7 @@
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
         }
-        
+
         /* Hide scrollbar for Chrome, Safari and Opera */
         .modal-container::-webkit-scrollbar {
             display: none;
@@ -1455,30 +1511,30 @@
             min-height: auto !important;
             padding: 2rem 0;
         }
-        
+
         /* Add spacing at the bottom for long forms */
         .modal-container > div {
             padding-bottom: 2rem;
         }
-        
+
         /* Reset inner content scrolling */
         #editAssetModalContent, #checkoutAssetModalContent, #checkinAssetModalContent,
         #reportLostModalContent, #foundAssetModalContent, #disposeAssetModalContent {
             overflow-y: visible !important;
             max-height: none !important;
         }
-        
+
         /* Asset Master Dropdown Styling */
         .asset-master-item, .building-item {
             display: flex;
             flex-direction: column;
         }
-        
+
         .asset-master-item .name, .building-item .name {
             font-weight: 500;
             color: #666;
         }
-        
+
         .asset-master-item .code {
             font-size: 0.85em;
             color: #666;
@@ -1489,23 +1545,23 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .user-item .name {
             font-weight: 500;
             color: #666;
         }
-        
+
         .user-item .code {
             font-size: 0.85em;
             color: #666;
         }
-        
+
         /* Room Dropdown Styling */
         .room-item {
             display: flex;
             flex-direction: column;
         }
-        
+
         .room-item .name {
             font-weight: 500;
             color: #666;
@@ -1703,9 +1759,9 @@
                 showToast("{{ session('success') }}", 'success');
             @endif
 
-                                @if(session('error'))
-                                    showToast("{{ session('error') }}", 'error');
-                                @endif
+            @if(session('error'))
+                 showToast("{{ session('error') }}", 'error');
+            @endif
 
             window.usersCache =[];
             window.roomsCache = [];
@@ -1969,32 +2025,40 @@
                     }
                 });
 
-                searchInput.addEventListener('input', debounce(function (e) {
-                    // Reset pagination when searching
-                    list.dataset.page = "1";
-                    list.dataset.hasMoreData = "true";
-                    list.dataset.searchTerm = e.target.value;
-                    onSearch(e.target.value);
-                }, 300));
+                searchInput.addEventListener('input', function (e) {
+                    // Clear any existing timeout
+                    if (this.searchTimeout) {
+                        clearTimeout(this.searchTimeout);
+                    }
+
+                    // Set a new timeout
+                    this.searchTimeout = setTimeout(() => {
+                        // Reset pagination when searching
+                        list.dataset.page = "1";
+                        list.dataset.hasMoreData = "true";
+                        list.dataset.searchTerm = e.target.value;
+                        onSearch(e.target.value);
+                    }, 300);
+                });
 
                 document.addEventListener('click', function (e) {
                     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
                         dropdown.classList.add('hidden');
                     }
                 });
-                
+
                 // Add scroll event listener for lazy loading
                 dropdown.addEventListener('scroll', function() {
                     // Check if we're already loading or if there's no more data
                     if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
-                    
+
                     const { scrollTop, scrollHeight, clientHeight } = dropdown;
                     // When user is near the bottom (20px threshold)
                     if (scrollTop + clientHeight >= scrollHeight - 20) {
                         // Get appropriate load more indicator
                         const loadMoreId = list.id.replace('list', 'load_more');
                         const loadMoreElement = document.getElementById(loadMoreId);
-                        
+
                         if (loadMoreElement) {
                             loadMoreElement.classList.remove('hidden');
                             // Load more data after a small delay for better UX
@@ -2009,6 +2073,7 @@
             }
 
             function initSearchComponents() {
+                // Building search
                 initDropdown(
                     document.getElementById('edit_building_search'),
                     document.getElementById('edit_building_dropdown'),
@@ -2026,6 +2091,24 @@
                     }
                 );
 
+                // Brand search
+                initDropdown(
+                    document.getElementById('edit_brand_search'),
+                    document.getElementById('edit_brand_dropdown'),
+                    document.getElementById('edit_brand_list'),
+                    function (searchTerm) {
+                        loadBrands(
+                            searchTerm,
+                            document.getElementById('edit_brand_list'),
+                            document.getElementById('edit_brand_loading'),
+                            document.getElementById('edit_selected_brand_id'),
+                            document.getElementById('edit_brand_search'),
+                            document.getElementById('edit_brand_dropdown')
+                        );
+                    }
+                );
+
+                // Room search
                 initDropdown(
                     document.getElementById('edit_room_search'),
                     document.getElementById('edit_room_dropdown'),
@@ -2086,14 +2169,92 @@
             }
 
             function initUserSearch(searchInput, dropdown, userList, loadingIndicator, selectedUserId) {
-                initDropdown(searchInput, dropdown, userList, function (searchTerm) {
-                    loadUsers(searchTerm, userList, loadingIndicator, selectedUserId, searchInput, dropdown);
+                if (!searchInput || !dropdown || !userList) return;
+
+                searchInput.addEventListener('focus', function () {
+                    dropdown.classList.remove('hidden');
+                    if (userList.children.length === 0) {
+                        loadUsers('', userList, loadingIndicator, selectedUserId, searchInput, dropdown);
+                    }
+                });
+
+                searchInput.addEventListener('input', function (e) {
+                    // Clear any existing timeout
+                    if (this.searchTimeout) {
+                        clearTimeout(this.searchTimeout);
+                    }
+
+                    // Set a new timeout
+                    this.searchTimeout = setTimeout(() => {
+                        // Reset pagination for new search
+                        userList.dataset.page = "1";
+                        userList.dataset.hasMoreData = "true";
+                        userList.dataset.searchTerm = e.target.value;
+                        loadUsers(e.target.value, userList, loadingIndicator, selectedUserId, searchInput, dropdown);
+                    }, 300);
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Add scroll event listener for lazy loading
+                dropdown.addEventListener('scroll', function() {
+                    // Check if we're already loading or if there's no more data
+                    if (userList.dataset.loading === "true" || userList.dataset.hasMoreData === "false") return;
+
+                    const { scrollTop, scrollHeight, clientHeight } = dropdown;
+                    // When user is near the bottom (20px threshold)
+                    if (scrollTop + clientHeight >= scrollHeight - 20) {
+                        loadUsers(userList.dataset.searchTerm || '', userList, loadingIndicator, selectedUserId, searchInput, dropdown);
+                    }
                 });
             }
 
             function initAssetMasterSearch(searchInput, dropdown, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields) {
-                initDropdown(searchInput, dropdown, assetMasterList, function (searchTerm) {
-                    loadAssetMasters(searchTerm, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown);
+                if (!searchInput || !dropdown || !assetMasterList) return;
+
+                searchInput.addEventListener('focus', function () {
+                    dropdown.classList.remove('hidden');
+                    if (assetMasterList.children.length === 0) {
+                        loadAssetMasters('', assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown);
+                    }
+                });
+
+                searchInput.addEventListener('input', function (e) {
+                    // Clear any existing timeout
+                    if (this.searchTimeout) {
+                        clearTimeout(this.searchTimeout);
+                    }
+
+                    // Set a new timeout
+                    this.searchTimeout = setTimeout(() => {
+                        // Reset pagination for new search
+                        assetMasterList.dataset.page = "1";
+                        assetMasterList.dataset.hasMoreData = "true";
+                        assetMasterList.dataset.searchTerm = e.target.value;
+                        loadAssetMasters(e.target.value, assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown);
+                    }, 300);
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+
+                // Add scroll event listener for lazy loading
+                dropdown.addEventListener('scroll', function() {
+                    // Check if we're already loading or if there's no more data
+                    if (assetMasterList.dataset.loading === "true" || assetMasterList.dataset.hasMoreData === "false") return;
+
+                    const { scrollTop, scrollHeight, clientHeight } = dropdown;
+                    // When user is near the bottom (20px threshold)
+                    if (scrollTop + clientHeight >= scrollHeight - 20) {
+                        loadAssetMasters(assetMasterList.dataset.searchTerm || '', assetMasterList, loadingIndicator, selectedAssetMasterId, selectedIsDepreciable, depreciationFields, searchInput, dropdown);
+                    }
                 });
             }
 
@@ -2156,21 +2317,20 @@
                 let page = userList.dataset.page ? parseInt(userList.dataset.page) : 1;
                 let isLoading = userList.dataset.loading === "true";
                 let hasMoreData = userList.dataset.hasMoreData !== "false";
-                let resetList = !userList.dataset.page || userList.dataset.searchTerm !== searchTerm;
-                
+                let resetList = page === 1 || userList.dataset.searchTerm !== searchTerm;
+
                 // Save current search term
                 userList.dataset.searchTerm = searchTerm;
-                
+
                 if (isLoading) return;
-                
+
                 // Set loading state
                 userList.dataset.loading = "true";
-                
+
                 // Use different loading indicators based on whether we're resetting or loading more
                 if (resetList) {
                     if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                     userList.innerHTML = '';
-                    page = 1;
                 }
 
                 try {
@@ -2185,10 +2345,10 @@
 
                     const result = await response.json();
                     let users = result.users || result.data || [];
-                    
+
                     // Check if we have more data to load
                     hasMoreData = users.length === 20;
-                    
+
                     // Save next page number and has more data state
                     userList.dataset.page = page + 1;
                     userList.dataset.hasMoreData = hasMoreData.toString();
@@ -2199,13 +2359,13 @@
                         users.forEach(user => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            
+
                             const itemContainer = document.createElement('div');
                             itemContainer.className = 'user-item';
-                            
+
                             let displayName = '';
                             let displayId = '';
-                            
+
                             if (user.employee_name) {
                                 displayName = user.employee_name;
                                 if (user.name) {
@@ -2214,21 +2374,22 @@
                             } else {
                                 displayName = user.name || `User ID: ${user.user_id}`;
                             }
-                            
+
                             const nameSpan = document.createElement('div');
-                            nameSpan.className = 'name';
+                            nameSpan.className = 'name text-black font-medium';
+                            nameSpan.style.color = 'black';
                             nameSpan.textContent = displayName;
                             itemContainer.appendChild(nameSpan);
-                            
+
                             if (displayId) {
                                 const idSpan = document.createElement('div');
                                 idSpan.className = 'code';
                                 idSpan.textContent = displayId;
                                 itemContainer.appendChild(idSpan);
                             }
-                            
+
                             li.appendChild(itemContainer);
-                            
+
                             li.setAttribute('data-id', user.user_id);
                             li.setAttribute('data-employee-name', user.employee_name || '');
                             li.setAttribute('data-name', displayName);
@@ -2266,26 +2427,25 @@
                 let page = assetMasterList.dataset.page ? parseInt(assetMasterList.dataset.page) : 1;
                 let isLoading = assetMasterList.dataset.loading === "true";
                 let hasMoreData = assetMasterList.dataset.hasMoreData !== "false";
-                let resetList = !assetMasterList.dataset.page || assetMasterList.dataset.searchTerm !== searchTerm;
-                
+                let resetList = page === 1 || assetMasterList.dataset.searchTerm !== searchTerm;
+
                 // Get loading indicators
                 const initialLoadingIndicator = loadingIndicator;
                 const loadMoreIndicator = document.getElementById('edit_asset_master_load_more');
-                
+
                 // Save current search term
                 assetMasterList.dataset.searchTerm = searchTerm;
-                
+
                 if (isLoading) return;
-                
+
                 // Set loading state
                 assetMasterList.dataset.loading = "true";
-                
+
                 // Show appropriate loading indicator
                 if (resetList) {
                     if (initialLoadingIndicator) initialLoadingIndicator.classList.remove('hidden');
                     assetMasterList.innerHTML = '';
-                    page = 1;
-                    
+
                     if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 } else {
                     // Show bottom loading indicator when loading more items
@@ -2304,10 +2464,10 @@
 
                     const result = await response.json();
                     let assetMasters = result.masterAssets || result.data || [];
-                    
+
                     // Check if we have more data to load
                     hasMoreData = assetMasters.length === 20;
-                    
+
                     // Save next page number and has more data state
                     assetMasterList.dataset.page = page + 1;
                     assetMasterList.dataset.hasMoreData = hasMoreData.toString();
@@ -2318,25 +2478,26 @@
                         assetMasters.forEach(item => {
                             const assetMasterName = item.asset_name || 'Unknown';
                             const assetMasterCode = item.asset_master_code || '';
-                            
+
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            
+
                             // Create more detailed display with code and name
                             if (assetMasterCode) {
                                 const itemContainer = document.createElement('div');
                                 itemContainer.className = 'asset-master-item';
-                                
+
                                 // Create name element
                                 const nameSpan = document.createElement('div');
-                                nameSpan.className = 'name';
+                                nameSpan.className = 'name text-black font-medium';
+                                nameSpan.style.color = 'black';
                                 nameSpan.textContent = assetMasterName;
-                                
+
                                 // Create code element
                                 const codeSpan = document.createElement('div');
-                                codeSpan.className = 'code';
+                                codeSpan.className = 'code text-gray-600';
                                 codeSpan.textContent = assetMasterCode;
-                                
+
                                 // Append name first, then code
                                 itemContainer.appendChild(nameSpan);
                                 itemContainer.appendChild(codeSpan);
@@ -2353,7 +2514,7 @@
 
                             li.addEventListener('click', function () {
                                 selectedAssetMasterId.value = this.getAttribute('data-id');
-                                
+
                                 // Display code and name in search field for better UX
                                 const code = this.getAttribute('data-code');
                                 const name = this.getAttribute('data-name');
@@ -2380,12 +2541,401 @@
                 } finally {
                     // Reset loading state
                     assetMasterList.dataset.loading = "false";
-                    
+
                     // Hide all loading indicators
                     if (initialLoadingIndicator) initialLoadingIndicator.classList.add('hidden');
                     if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
+
+            async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
+                // Setup for lazy loading
+                let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
+                let isLoading = buildingList.dataset.loading === "true";
+                let hasMoreData = buildingList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || buildingList.dataset.searchTerm !== searchTerm;
+
+                // Save current search term
+                buildingList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                buildingList.dataset.loading = "true";
+
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    buildingList.innerHTML = '';
+                }
+
+                try {
+                    const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load buildings');
+                    }
+
+                    const data = await response.json();
+                    const buildings = data.buildings || [];
+
+                    // Check if we have more data to load
+                    hasMoreData = buildings.length === 20;
+
+                    // Save next page number and has more data state
+                    buildingList.dataset.page = page + 1;
+                    buildingList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (buildings.length === 0 && buildingList.children.length === 0) {
+                        buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
+                    } else {
+                        buildings.forEach(building => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            const buildingName = building.building_name || 'Unnamed Building';
+                            const buildingId = building.building_id || '';
+
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'building-item';
+
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name text-black font-medium';
+                            nameSpan.style.color = 'black';
+                            nameSpan.textContent = buildingName;
+
+                            itemContainer.appendChild(nameSpan);
+                            li.appendChild(itemContainer);
+
+                            li.setAttribute('data-id', buildingId);
+                            li.setAttribute('data-name', buildingName);
+
+                            li.addEventListener('click', function () {
+                                selectedBuildingId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+
+                                if (roomSearchInput) {
+                                    roomSearchInput.disabled = false;
+                                    roomSearchInput.placeholder = "Cari ruangan...";
+
+                                    // Clear room selection
+                                    const isEditModal = roomSearchInput.id === 'edit_room_search';
+                                    const roomIdField = isEditModal ? 'edit_selected_room_id' : 'pinjam_selected_room_id';
+                                    document.getElementById(roomIdField).value = '';
+                                    roomSearchInput.value = '';
+
+                                    const roomLoadingId = isEditModal ? 'edit_room_loading' : 'pinjam_room_loading';
+                                    const roomLoadingIndicator = document.getElementById(roomLoadingId);
+                                    if (roomLoadingIndicator) {
+                                        roomLoadingIndicator.classList.remove('hidden');
+                                    }
+
+                                    const roomListId = isEditModal ? 'edit_room_list' : 'pinjam_room_list';
+                                    const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'pinjam_room_dropdown';
+
+                                    loadRoomsForBuilding(
+                                        '',
+                                        this.getAttribute('data-id'),
+                                        document.getElementById(roomListId),
+                                        document.getElementById(roomLoadingId),
+                                        document.getElementById(roomIdField),
+                                        roomSearchInput,
+                                        document.getElementById(roomDropdownId)
+                                    );
+
+                                    document.getElementById(roomDropdownId).classList.remove('hidden');
+                                }
+
+                                dropdown.classList.add('hidden');
+                            });
+
+                            buildingList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading buildings:', error);
+                    if (buildingList.children.length === 0) {
+                        buildingList.appendChild(createDropdownItem('Galat memuat gedung', 'px-4 py-2 text-red-500'));
+                    }
+                } finally {
+                    // Reset loading state
+                    buildingList.dataset.loading = "false";
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            const roomSearchInput = document.getElementById('pinjam_room_search');
+            if (roomSearchInput) {
+                roomSearchInput.disabled = true;
+                roomSearchInput.placeholder = 'Pilih gedung terlebih dahulu';
+
+                initDropdown(
+                    roomSearchInput,
+                    document.getElementById('pinjam_room_dropdown'),
+                    document.getElementById('pinjam_room_list'),
+                    function (searchTerm) {
+                        const buildingId = document.getElementById('pinjam_selected_building_id').value;
+                        if (buildingId) {
+                            loadRoomsForBuilding(
+                                searchTerm,
+                                buildingId,
+                                document.getElementById('pinjam_room_list'),
+                                document.getElementById('pinjam_room_loading'),
+                                document.getElementById('pinjam_selected_room_id'),
+                                roomSearchInput,
+                                document.getElementById('pinjam_room_dropdown')
+                            );
+                        } else {
+                            // If no building selected, show message
+                            const roomList = document.getElementById('pinjam_room_list');
+                            if (roomList) {
+                                roomList.innerHTML = '';
+                                roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
+                            }
+                        }
+                    }
+                );
+            }
+
+            async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
+                if (!buildingId) {
+                    searchInput.value = '';
+                    searchInput.placeholder = 'Pilih gedung terlebih dahulu';
+                    searchInput.disabled = true;
+                    return;
+                }
+
+                searchInput.disabled = false;
+                searchInput.placeholder = "Cari ruangan...";
+
+                // Setup for lazy loading
+                let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
+                let isLoading = roomList.dataset.loading === "true";
+                let resetList = page === 1 || roomList.dataset.searchTerm !== searchTerm;
+
+                // Save current search term
+                roomList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                roomList.dataset.loading = "true";
+
+                // Show/hide appropriate loading indicators
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    roomList.innerHTML = '';
+                }
+
+                // Show dropdown
+                if (dropdown) dropdown.classList.remove('hidden');
+
+                try {
+                    const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`;
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    let rooms = [];
+                    if (Array.isArray(data)) {
+                        rooms = data;
+                    } else if (data.rooms && Array.isArray(data.rooms)) {
+                        rooms = data.rooms;
+                    } else {
+                        console.error('Unexpected API response format:', data);
+                        throw new Error('Invalid response format from server');
+                    }
+
+                    // Check if we have more data to load
+                    let hasMoreData = rooms.length === 20;
+
+                    // Save next page number and has more data state
+                    roomList.dataset.page = page + 1;
+                    roomList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (rooms.length === 0 && (!roomList.children.length || resetList)) {
+                        roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
+                    } else {
+                        rooms.forEach(room => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            const roomName = room.room_name || room.name || '';
+                            const roomId = room.room_id || room.id || '';
+
+                            if (!roomName || !roomId) {
+                                console.warn('Room missing required properties:', room);
+                                return;
+                            }
+
+                            // Create the room item with styling similar to building and user items
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'room-item';
+
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name text-black font-medium';
+                            nameSpan.style.color = 'black';
+                            nameSpan.textContent = roomName;
+
+                            itemContainer.appendChild(nameSpan);
+                            li.appendChild(itemContainer);
+
+                            li.setAttribute('data-id', roomId);
+                            li.setAttribute('data-name', roomName);
+
+                            li.addEventListener('click', function () {
+                                selectedRoomId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+                                dropdown.classList.add('hidden');
+                            });
+
+                            roomList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading rooms:', error);
+                    if (!roomList.children.length || resetList) {
+                        roomList.innerHTML = '';
+                        roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
+                    }
+                } finally {
+                    // Reset loading state
+                    roomList.dataset.loading = "false";
+
+                    // Hide loading indicator
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            async function loadBrands(searchTerm, brandList, loadingIndicator, selectedBrandId, searchInput, dropdown) {
+                // Setup for lazy loading
+                let page = brandList.dataset.page ? parseInt(brandList.dataset.page) : 1;
+                let isLoading = brandList.dataset.loading === "true";
+                let hasMoreData = brandList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || brandList.dataset.searchTerm !== searchTerm;
+
+                // Save current search term
+                brandList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                brandList.dataset.loading = "true";
+
+                // Show loading indicator
+                if (resetList) {
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                    brandList.innerHTML = '';
+                }
+
+                try {
+                    // Construct URL with query parameters
+                    let queryParams = new URLSearchParams();
+                    queryParams.append('json', 'true');
+                    queryParams.append('page', page);
+                    queryParams.append('limit', 20);
+                    if (searchTerm && searchTerm.trim()) {
+                        queryParams.append('search', searchTerm.trim());
+                    }
+
+                    const response = await fetch(`/brands?${queryParams.toString()}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load brands');
+                    }
+
+                    const data = await response.json();
+                    let brands = [];
+                    let pagination = null;
+
+                    // Handle different response formats
+                    if (Array.isArray(data)) {
+                        brands = data;
+                    } else if (data.brands && Array.isArray(data.brands)) {
+                        brands = data.brands;
+                        pagination = data.pagination || null;
+                    } else if (data.data && Array.isArray(data.data)) {
+                        brands = data.data;
+                        pagination = data.pagination || data.meta || null;
+                    }
+
+                    // Check if we have more data to load
+                    if (pagination) {
+                        hasMoreData = pagination.current_page < pagination.last_page;
+                    } else {
+                        hasMoreData = brands.length >= 20;
+                    }
+
+                    // Save next page number and has more data state
+                    brandList.dataset.page = page + 1;
+                    brandList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (brands.length === 0 && brandList.children.length === 0) {
+                        brandList.appendChild(createDropdownItem('Tidak ada merk yang ditemukan', 'px-4 py-2 text-gray-500'));
+                    } else {
+                        brands.forEach(brand => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+
+                            const brandName = brand.brand_name || 'Unnamed Brand';
+                            const brandId = brand.brand_id || '';
+
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'brand-item';
+
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name text-black font-medium';
+                            nameSpan.style.color = 'black';
+                            nameSpan.textContent = brandName;
+
+                            itemContainer.appendChild(nameSpan);
+                            li.appendChild(itemContainer);
+
+                            li.setAttribute('data-id', brandId);
+                            li.setAttribute('data-name', brandName);
+
+                            li.addEventListener('click', function () {
+                                selectedBrandId.value = this.getAttribute('data-id');
+                                searchInput.value = this.getAttribute('data-name');
+                                dropdown.classList.add('hidden');
+                            });
+
+                            brandList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading brands:', error);
+                    if (brandList.children.length === 0) {
+                        brandList.appendChild(createDropdownItem('Galat memuat merk', 'px-4 py-2 text-red-500'));
+                    }
+                } finally {
+                    // Reset loading state
+                    brandList.dataset.loading = "false";
+                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                }
+            }
+
+            // Initialize all search components
+            initSearchComponents();
 
             const flipCard = document.querySelector('.flip-card');
             const flipBtns = document.querySelectorAll('.flip-btn');
@@ -2757,6 +3307,15 @@
                     document.getElementById('edit_user_search').value = userDisplay;
                 }
 
+                // Set model field
+                document.getElementById('edit_model').value = asset.model || '';
+
+                // Set brand data
+                const brandId = asset.brand_id || '';
+                const brandName = asset.brand_name || '';
+                document.getElementById('edit_selected_brand_id').value = brandId;
+                document.getElementById('edit_brand_search').value = brandName;
+
                 if (asset.depreciation || (asset.asset_master && asset.asset_master.is_depreciable)) {
                     const depreciationFields = document.getElementById('edit_depreciation_fields');
 
@@ -2826,354 +3385,6 @@
                     );
                 }
             );
-
-            async function loadBuildings(searchTerm, buildingList, loadingIndicator, selectedBuildingId, searchInput, dropdown, roomSearchInput) {
-                // Setup for lazy loading
-                let page = buildingList.dataset.page ? parseInt(buildingList.dataset.page) : 1;
-                let isLoading = buildingList.dataset.loading === "true";
-                let hasMoreData = buildingList.dataset.hasMoreData !== "false";
-                let resetList = !buildingList.dataset.page || buildingList.dataset.searchTerm !== searchTerm;
-                
-                // Save current search term
-                buildingList.dataset.searchTerm = searchTerm;
-                
-                if (isLoading) return;
-                
-                // Set loading state
-                buildingList.dataset.loading = "true";
-                
-                // Use different loading indicators based on whether we're resetting or loading more
-                if (resetList) {
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    buildingList.innerHTML = '';
-                    page = 1;
-                }
-
-                try {
-                    const response = await fetch(`{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Failed to load buildings');
-                    }
-
-                    const data = await response.json();
-                    const buildings = data.buildings || [];
-                    
-                    // Check if we have more data to load
-                    hasMoreData = buildings.length === 20;
-                    
-                    // Save next page number and has more data state
-                    buildingList.dataset.page = page + 1;
-                    buildingList.dataset.hasMoreData = hasMoreData.toString();
-
-                    if (buildings.length === 0 && buildingList.children.length === 0) {
-                        buildingList.appendChild(createDropdownItem('Tidak ada gedung yang ditemukan', 'px-4 py-2 text-gray-500'));
-                    } else {
-                        buildings.forEach(building => {
-                            const li = document.createElement('li');
-                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                            
-                            const buildingName = building.building_name || 'Unnamed Building';
-                            const buildingId = building.building_id || '';
-                            
-                            const itemContainer = document.createElement('div');
-                            itemContainer.className = 'building-item';
-                            
-                            const nameSpan = document.createElement('div');
-                            nameSpan.className = 'name';
-                            nameSpan.textContent = buildingName;
-                            
-                            itemContainer.appendChild(nameSpan);
-                            li.appendChild(itemContainer);
-                            
-                            li.setAttribute('data-id', buildingId);
-                            li.setAttribute('data-name', buildingName);
-
-                            li.addEventListener('click', function () {
-                                selectedBuildingId.value = this.getAttribute('data-id');
-                                searchInput.value = this.getAttribute('data-name');
-
-                                if (roomSearchInput) {
-                                    roomSearchInput.disabled = false;
-                                    roomSearchInput.placeholder = "Cari ruangan...";
-                                    
-                                    // Clear room selection
-                                    const isEditModal = roomSearchInput.id === 'edit_room_search';
-                                    const roomIdField = isEditModal ? 'edit_selected_room_id' : 'selected_room_id';
-                                    document.getElementById(roomIdField).value = '';
-                                    roomSearchInput.value = '';
-
-                                    const roomLoadingId = isEditModal ? 'edit_room_loading' : 'room_loading';
-                                    const roomLoadingIndicator = document.getElementById(roomLoadingId);
-                                    if (roomLoadingIndicator) {
-                                        roomLoadingIndicator.classList.remove('hidden');
-                                    }
-
-                                    const roomListId = isEditModal ? 'edit_room_list' : 'room_list';
-                                    const roomDropdownId = isEditModal ? 'edit_room_dropdown' : 'room_dropdown';
-                                    
-                                    loadRoomsForBuilding(
-                                        '',
-                                        this.getAttribute('data-id'),
-                                        document.getElementById(roomListId),
-                                        document.getElementById(roomLoadingId),
-                                        document.getElementById(roomIdField),
-                                        roomSearchInput,
-                                        document.getElementById(roomDropdownId)
-                                    );
-
-                                    document.getElementById(roomDropdownId).classList.remove('hidden');
-                                }
-
-                                dropdown.classList.add('hidden');
-                            });
-
-                            buildingList.appendChild(li);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error loading buildings:', error);
-                    if (buildingList.children.length === 0) {
-                        buildingList.appendChild(createDropdownItem('Galat memuat gedung', 'px-4 py-2 text-red-500'));
-                    }
-                } finally {
-                    // Reset loading state
-                    buildingList.dataset.loading = "false";
-                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                }
-            }
-
-            const roomSearchInput = document.getElementById('pinjam_room_search');
-            if (roomSearchInput) {
-                roomSearchInput.disabled = true;
-                roomSearchInput.placeholder = 'Pilih gedung terlebih dahulu';
-
-                initDropdown(
-                    roomSearchInput,
-                    document.getElementById('pinjam_room_dropdown'),
-                    document.getElementById('pinjam_room_list'),
-                    function (searchTerm) {
-                        const buildingId = document.getElementById('pinjam_selected_building_id').value;
-                        if (buildingId) {
-                            loadRoomsForBuilding(
-                                searchTerm,
-                                buildingId,
-                                document.getElementById('pinjam_room_list'),
-                                document.getElementById('pinjam_room_loading'),
-                                document.getElementById('pinjam_selected_room_id'),
-                                roomSearchInput,
-                                document.getElementById('pinjam_room_dropdown')
-                            );
-                        } else {
-                            // If no building selected, show message
-                            const roomList = document.getElementById('pinjam_room_list');
-                            if (roomList) {
-                                roomList.innerHTML = '';
-                                roomList.appendChild(createDropdownItem('Pilih gedung terlebih dahulu', 'px-4 py-2 text-gray-500 italic'));
-                            }
-                        }
-                    }
-                );
-            }
-
-            async function loadRoomsForBuilding(searchTerm, buildingId, roomList, loadingIndicator, selectedRoomId, searchInput, dropdown) {
-                if (!buildingId) {
-                    searchInput.value = '';
-                    searchInput.placeholder = 'Pilih gedung terlebih dahulu';
-                    searchInput.disabled = true;
-                    return;
-                }
-
-                searchInput.disabled = false;
-                searchInput.placeholder = "Cari ruangan...";
-
-                // Setup for lazy loading
-                let page = roomList.dataset.page ? parseInt(roomList.dataset.page) : 1;
-                let isLoading = roomList.dataset.loading === "true";
-                let resetList = !roomList.dataset.page || roomList.dataset.searchTerm !== searchTerm;
-                
-                // Save current search term
-                roomList.dataset.searchTerm = searchTerm;
-                
-                if (isLoading) return;
-                
-                // Set loading state
-                roomList.dataset.loading = "true";
-                
-                // Show/hide appropriate loading indicators
-                if (resetList) {
-                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                    roomList.innerHTML = '';
-                    page = 1;
-                }
-                
-                // Show dropdown
-                if (dropdown) dropdown.classList.remove('hidden');
-
-                try {
-                    const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`;
-                    const response = await fetch(apiUrl, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to load rooms: ${response.status} ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-
-                    let rooms = [];
-                    if (Array.isArray(data)) {
-                        rooms = data;
-                    } else if (data.rooms && Array.isArray(data.rooms)) {
-                        rooms = data.rooms;
-                    } else {
-                        console.error('Unexpected API response format:', data);
-                        throw new Error('Invalid response format from server');
-                    }
-                    
-                    // Check if we have more data to load
-                    let hasMoreData = rooms.length === 20;
-                    
-                    // Save next page number and has more data state
-                    roomList.dataset.page = page + 1;
-                    roomList.dataset.hasMoreData = hasMoreData.toString();
-
-                    if (rooms.length === 0 && (!roomList.children.length || resetList)) {
-                        roomList.appendChild(createDropdownItem('Tidak ada ruangan ditemukan untuk gedung ini', 'px-4 py-2 text-gray-500 italic'));
-                    } else {
-                        rooms.forEach(room => {
-                            const li = document.createElement('li');
-                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                            const roomName = room.room_name || room.name || '';
-                            const roomId = room.room_id || room.id || '';
-
-                            if (!roomName || !roomId) {
-                                console.warn('Room missing required properties:', room);
-                                return;
-                            }
-                            
-                            // Create the room item with styling similar to building and user items
-                            const itemContainer = document.createElement('div');
-                            itemContainer.className = 'room-item';
-                            
-                            const nameSpan = document.createElement('div');
-                            nameSpan.className = 'name';
-                            nameSpan.textContent = roomName;
-                            
-                            itemContainer.appendChild(nameSpan);
-                            li.appendChild(itemContainer);
-
-                            li.setAttribute('data-id', roomId);
-                            li.setAttribute('data-name', roomName);
-
-                            li.addEventListener('click', function () {
-                                selectedRoomId.value = this.getAttribute('data-id');
-                                searchInput.value = this.getAttribute('data-name');
-                                dropdown.classList.add('hidden');
-                            });
-
-                            roomList.appendChild(li);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error loading rooms:', error);
-                    if (!roomList.children.length || resetList) {
-                        roomList.innerHTML = '';
-                        roomList.appendChild(createDropdownItem(`Error: ${error.message}`, 'px-4 py-2 text-red-500'));
-                    }
-                } finally {
-                    // Reset loading state
-                    roomList.dataset.loading = "false";
-                    
-                    // Hide loading indicator
-                    if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                }
-            }
-
-            document.querySelectorAll('.edit-asset-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const assetId = '{{ $asset["asset_id"] ?? "" }}';
-                    const editModal = document.getElementById('editAssetModal');
-                    const editContent = document.getElementById('editAssetModalContent');
-                    const loadingIndicator = document.getElementById('edit-loading');
-                    const formContent = document.getElementById('edit-form-content');
-                    const submitBtn = document.getElementById('edit-submit-btn');
-
-                    if (editModal && editContent) {
-                        document.getElementById('editAssetForm').reset();
-                        document.getElementById('editAssetForm').action = `{{ url('assets') }}/${assetId}`;
-
-                        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                        if (formContent) formContent.classList.add('hidden');
-                        if (submitBtn) submitBtn.disabled = true;
-
-                        openModal(editModal, editContent);
-
-                        fetch(`{{ route('asset.details', ['id' => $asset['asset_id']]) }}`, {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
-                            },
-                            credentials: 'same-origin'
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error(`HTTP error! Status: ${response.status}`);
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                if (!data || !data.data) {
-                                    throw new Error('Invalid response data structure');
-                                }
-
-                                const asset = data.data;
-
-                                setupWithData(asset);
-
-                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
-                                if (formContent) formContent.classList.remove('hidden');
-                                if (submitBtn) submitBtn.disabled = false;
-                            })
-                            .catch(error => {
-                                console.error('Error fetching asset data:', error);
-
-                                if (loadingIndicator) loadingIndicator.classList.add('hidden');
-
-                                if (formContent) {
-                                    formContent.innerHTML = `
-                                                        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-                                                            <p class="font-medium">Failed to load asset data</p>
-                                                            <p>${error.message}</p>
-                                                            <p class="mt-2">Please try again or contact support if the problem persists.</p>
-                                                        </div>
-                                                        <button type="button" class="close-modal w-full h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300">
-                                                            Close
-                                                        </button>
-                                                    `;
-                                    formContent.classList.remove('hidden');
-                                }
-
-                                formContent.querySelectorAll('.close-modal').forEach(btn => {
-                                    btn.addEventListener('click', function () {
-                                        closeModal(editModal, editContent);
-                                    });
-                                });
-                            });
-                    }
-                });
-            });
 
             function setupFormSubmissionHandling(formId, loadingText = 'Processing...') {
                 const form = document.getElementById(formId);
@@ -3290,15 +3501,61 @@
                 const selectedBuildingId = document.getElementById('edit_selected_building_id');
                 const roomSearch = document.getElementById('edit_room_search');
                 const selectedRoomId = document.getElementById('edit_selected_room_id');
+                const brandSearch = document.getElementById('edit_brand_search');
+                const selectedBrandId = document.getElementById('edit_selected_brand_id');
+                const modelInput = document.getElementById('edit_model');
                 const depreciationFields = document.getElementById('edit_depreciation_fields');
-                const isDepreciable = !depreciationFields.classList.contains('hidden');
 
+                // Validate mandatory fields
                 const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
+                if (!isAssetMasterValid) {
+                    const errorElement = assetMasterSearch.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = 'Master aset harus dipilih';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+
                 const isBuildingValid = validateField(buildingSearch, selectedBuildingId.value ? true : false);
+                if (!isBuildingValid) {
+                    const errorElement = buildingSearch.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = 'Gedung harus dipilih';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+
                 const isRoomValid = validateField(roomSearch, selectedRoomId.value ? true : false);
+                if (!isRoomValid) {
+                    const errorElement = roomSearch.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = 'Ruangan harus dipilih';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
 
-                let isValid = isAssetMasterValid && isBuildingValid && isRoomValid;
+                const isBrandValid = validateField(brandSearch, selectedBrandId.value ? true : false);
+                if (!isBrandValid) {
+                    const errorElement = brandSearch.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = 'Merk harus dipilih';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
 
+                const isModelValid = validateField(modelInput);
+                if (!isModelValid) {
+                    const errorElement = modelInput.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = 'Model harus diisi';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+
+                let isValid = isAssetMasterValid && isBuildingValid && isRoomValid && isBrandValid && isModelValid;
+
+                // Check depreciation fields if applicable
+                const isDepreciable = !depreciationFields.classList.contains('hidden');
                 if (isDepreciable) {
                     const depreciation_method = document.getElementById('edit_depreciation_method');
                     const acquisition_cost = document.getElementById('edit_acquisition_cost');
@@ -3307,10 +3564,49 @@
                     const date_acquired = document.getElementById('edit_date_acquired');
 
                     const isDepreciationMethodValid = validateField(depreciation_method);
+                    if (!isDepreciationMethodValid) {
+                        const errorElement = depreciation_method.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = 'Metode penyusutan harus dipilih';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+
                     const isAcquisitionCostValid = validateField(acquisition_cost);
+                    if (!isAcquisitionCostValid) {
+                        const errorElement = acquisition_cost.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = 'Biaya perolehan harus diisi';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+
                     const isSalvageValueValid = validateField(salvage_value);
+                    if (!isSalvageValueValid) {
+                        const errorElement = salvage_value.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = 'Nilai sisa harus diisi';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+
                     const isAssetLifeMonthsValid = validateField(asset_life_months);
+                    if (!isAssetLifeMonthsValid) {
+                        const errorElement = asset_life_months.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = 'Usia aset harus diisi';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+
                     const isDateAcquiredValid = validateField(date_acquired);
+                    if (!isDateAcquiredValid) {
+                        const errorElement = date_acquired.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = 'Tanggal pengadaan harus diisi';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
 
                     isValid = isValid && isDepreciationMethodValid && isAcquisitionCostValid &&
                         isSalvageValueValid && isAssetLifeMonthsValid && isDateAcquiredValid;
@@ -3459,26 +3755,42 @@
             function validateField(field, customCheck = null) {
                 if (!field) return true;
 
-                let isValid = true;
-                if (customCheck !== null) {
-                    isValid = customCheck;
-                } else if (field.tagName.toLowerCase() === 'select') {
-                    isValid = field.value !== '';
-                } else {
-                    isValid = field.value.trim() !== '';
+                let errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                if (!errorElement) {
+                    errorElement = field.closest('.mb-5')?.querySelector('.error-message');
                 }
 
-                const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
-
-                if (!isValid) {
-                    field.classList.add('border-red-500');
-                    if (errorElement) errorElement.classList.remove('hidden');
+                if (field.tagName.toLowerCase() === 'select') {
+                    if (!field.value) {
+                        field.classList.add('border-red-500');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        return false;
+                    } else {
+                        field.classList.remove('border-red-500');
+                        if (errorElement) errorElement.classList.add('hidden');
+                        return true;
+                    }
+                } else if (customCheck !== null) {
+                    if (!customCheck) {
+                        field.classList.add('border-red-500');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        return false;
+                    } else {
+                        field.classList.remove('border-red-500');
+                        if (errorElement) errorElement.classList.add('hidden');
+                        return true;
+                    }
                 } else {
-                    field.classList.remove('border-red-500');
-                    if (errorElement) errorElement.classList.add('hidden');
+                    if (!field.value.trim()) {
+                        field.classList.add('border-red-500');
+                        if (errorElement) errorElement.classList.remove('hidden');
+                        return false;
+                    } else {
+                        field.classList.remove('border-red-500');
+                        if (errorElement) errorElement.classList.add('hidden');
+                        return true;
+                    }
                 }
-
-                return isValid;
             }
 
             function clearErrorOnInput(inputId) {
@@ -3501,6 +3813,8 @@
             clearErrorOnInput('edit_warranty_end_date');
             clearErrorOnInput('edit_condition');
             clearErrorOnInput('edit_user_search');
+            clearErrorOnInput('edit_brand_search');
+            clearErrorOnInput('edit_model');
             clearErrorOnInput('edit_depreciation_method');
             clearErrorOnInput('edit_acquisition_cost');
             clearErrorOnInput('edit_salvage_value');
@@ -3578,6 +3892,7 @@
                         }, 10000);
                     }
 
+                    // Submit the form if validation passes
                     this.submit();
                 }
             });

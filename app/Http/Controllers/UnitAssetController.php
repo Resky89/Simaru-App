@@ -71,6 +71,8 @@ class UnitAssetController extends Controller
                 'current_status' => 'string',
                 'condition' => 'string',
                 'room_id' => 'integer',
+                'brand_id' => 'integer',
+                'model' => 'string',
                 'depreciation_method' => 'string',
                 'acquisition_cost' => 'float',
                 'salvage_value' => 'float',
@@ -166,6 +168,8 @@ class UnitAssetController extends Controller
                 'current_status' => 'string',
                 'condition' => 'string',
                 'room_id' => 'integer',
+                'brand_id' => 'integer',
+                'model' => 'string',
                 'depreciation_method' => 'string',
                 'acquisition_cost' => 'float',
                 'salvage_value' => 'float',
@@ -304,30 +308,30 @@ class UnitAssetController extends Controller
 
             // Ambil data aset dari API
             $apiResult = $this->apiService->request('GET', "/assets/{$id}");
-            
+
             // Cek kesalahan autentikasi
             $authError = $this->handleAuthError($apiResult, request());
             if ($authError) {
                 return $authError;
             }
-            
+
             // Cek kesalahan API lainnya
             if (!isset($apiResult['success']) || $apiResult['success'] !== true) {
                 $errorMessage = isset($apiResult['message']) ? $apiResult['message'] : 'Gagal mengambil data aset';
-                
+
                 if (request()->ajax()) {
                     return response()->json([
                         'success' => false,
                         'message' => $errorMessage
                     ]);
                 }
-                
+
                 return redirect()->back()->with('error', $errorMessage);
             }
-            
+
             // Ambil data aset dari respons API
             $asset = $apiResult['data'] ?? null;
-            
+
             if (!$asset) {
                 if (request()->ajax()) {
                     return response()->json([
@@ -335,10 +339,10 @@ class UnitAssetController extends Controller
                         'message' => 'Data aset tidak ditemukan'
                     ]);
                 }
-                
+
                 return redirect()->back()->with('error', 'Data aset tidak ditemukan');
             }
-            
+
             // Tambahkan data pengguna jika diperlukan
             if (isset($asset['user_id']) && $asset['user_id']) {
                 try {
@@ -350,7 +354,7 @@ class UnitAssetController extends Controller
                     // Lanjutkan meskipun gagal mengambil detail pengguna
                 }
             }
-            
+
             // Untuk permintaan AJAX, kembalikan response JSON
             if (request()->ajax()) {
                 return response()->json([
@@ -358,7 +362,7 @@ class UnitAssetController extends Controller
                     'data' => $asset
                 ]);
             }
-            
+
             // Untuk permintaan non-AJAX, tampilkan view dengan data aset
             return view('Asset.AssetDetail', [
                 'asset' => $asset
@@ -694,16 +698,10 @@ class UnitAssetController extends Controller
                 }
             }
 
-            // Generate PDF
-            $pdf = Pdf::loadView('Asset.qrcode_pdf', [
+            // Generate PDF using the trait method
+            return $this->streamPdf('Asset.qrcode_pdf', [
                 'qrData' => $qrData
-            ]);
-
-            // Set paper size and orientation
-            $pdf->setPaper('a4', 'portrait');
-
-            // Stream the PDF directly to the browser
-            return $pdf->stream('asset_qrcodes.pdf');
+            ], 'asset_qrcodes.pdf', 'portrait', 'a4');
         } catch (\Exception $e) {
             $errorMessage = 'Failed to print QR codes: ' . $e->getMessage();
 
