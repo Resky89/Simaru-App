@@ -3,311 +3,161 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\ApiService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Http\Controllers\Traits\ExportableToPdf;
 
 class ComplainRepairController extends Controller
 {
-    protected $apiService;
-
-    public function __construct(ApiService $apiService)
-    {
-        $this->apiService = $apiService;
-    }
+    use ApiResourceOperations, ExportableToPdf;
 
     /**
-     * Mendapatkan semua keluhan.
+     * Display a listing of complaints.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
-    public function getAllComplaints(Request $request)
+    public function index(Request $request)
     {
         try {
-            // Mendapatkan parameter paginasi
+            // Get pagination parameters
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 10);
             $search = $request->input('search', '');
             $sort_order = $request->input('sort_order', '');
-            $status = $request->input('status', '');
-            $sortBy = $request->input('sort_by', '');
+            $sort_by = $request->input('sort_by', '');
 
-            // Membangun parameter kueri
+            // Build query parameters
             $queryParams = [
                 'page' => $page,
                 'limit' => $limit
             ];
 
-            // Menambahkan parameter pencarian jika disediakan
             if (!empty($search)) {
                 $queryParams['search'] = $search;
             }
 
-            // Menambahkan filter status jika disediakan
-            if (!empty($status)) {
-                $queryParams['status'] = $status;
-            }
-
-            // Menambahkan parameter pengurutan
-            if (!empty($sortBy)) {
-                $queryParams['sort_by'] = $sortBy;
-            }
-
             if (!empty($sort_order)) {
                 $queryParams['sort_order'] = $sort_order;
+
+                // Map sort_order to sort_by if not specified
+                if (empty($sort_by)) {
+                    if (in_array($sort_order, ['asc', 'desc'])) {
+                        $queryParams['sort_by'] = 'created_at';
+                    }
+                }
             }
 
-            // Mengambil keluhan dari API
+            // Add status filter if provided
+            if ($request->filled('status')) {
+                $queryParams['status'] = $request->input('status');
+            }
+
+            // Get data from API
             $result = $this->apiService->request('GET', '/complaints', [
                 'query' => $queryParams
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API
+            // Handle API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data keluhan';
-
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorData
+                        'message' => 'Failed to retrieve complaints',
+                        'errors' => $result['errors'] ?? 'Unknown error'
                     ], 400);
                 }
 
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return view('ComplainRepair.ComplainRepair', [
-                    'complaints' => [],
-                    'pagination' => null,
-                    'search' => $search,
-                    'sort_order' => $sort_order,
-                    'status' => $status,
-
-                    'error' => $errorMessage
-                ]);
+                return redirect()->route('dashboard')
+                    ->with('error', 'Gagal mengambil data keluhan');
             }
 
-            // Mendapatkan data keluhan dan paginasi
+            // Get complaints and pagination data
             $complaints = $result['data'] ?? [];
             $pagination = $result['pagination'] ?? null;
 
-            // Untuk permintaan AJAX atau JSON, kembalikan respons JSON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data keluhan berhasil diambil',
-                    'data' => $complaints,
+                    'complaints' => $complaints,
                     'pagination' => $pagination
                 ]);
             }
 
-            // Untuk permintaan biasa, kembalikan tampilan
-            return view('ComplainRepair.ComplainRepair', [
-                'complaints' => $complaints,
-                'pagination' => $pagination,
-                'search' => $search,
-                'sort_order' => $sort_order,
-                'status' => $status,
-            ]);
-
-        } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil data keluhan: ' . $e->getMessage()
-                ], 500);
+            // Check if we need to set a success message from the with_success parameter
+            if ($request->has('with_success')) {
+                session()->flash('success', $request->input('with_success'));
             }
 
             return view('ComplainRepair.ComplainRepair', [
-                'complaints' => [],
-                'pagination' => null,
+                'complaints' => $complaints,
+                'complaints_pagination' => $pagination,
                 'search' => $search,
                 'sort_order' => $sort_order,
-                'status' => $status,
-                'assets' => [],
-                'error' => 'Gagal mengambil data keluhan: ' . $e->getMessage()
+                'status' => $request->input('status')
             ]);
+
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
         }
     }
 
     /**
-     * Mendapatkan detail keluhan berdasarkan ID.
+     * Display the specified complaint.
      *
      * @param int $id
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\View\View|\Illuminate\Http\Response
      */
-    public function showComplaintDetail($id, Request $request)
+    public function show($id, Request $request)
     {
         try {
-            // Mengambil detail keluhan dari API
-            $result = $this->apiService->request('GET', "/complaints/{$id}");
+            $result = $this->apiService->request('GET', '/complaints/' . $id);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError instanceof \Illuminate\Http\RedirectResponse) {
+                return $authError;
             }
 
-            // Memeriksa apakah keluhan ada
-            if (!isset($result['data'])) {
-                $errorMessage = 'Keluhan tidak ditemukan';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorMessage
-                    ], 404);
-                }
-
-                return redirect()->route('complaint.index')->with('error', $errorMessage);
+            // Check if complaint exists
+            if (!isset($result['data']) || empty($result['data'])) {
+                return redirect()->route('complaint-repair.index')->with('error', 'Keluhan tidak ditemukan');
             }
 
-            // Mendapatkan data keluhan
-            $complaint = $result['data'];
-
-            // Untuk permintaan AJAX atau JSON, kembalikan respons JSON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Data keluhan berhasil diambil',
-                    'complaint' => $complaint
+                    'complaint' => $result['data']
                 ]);
             }
 
-            // Untuk permintaan biasa, kembalikan tampilan
+            // Return view with complaint data
             return view('ComplainRepair.ComplainRepairDetail', [
-                'complaint' => $complaint
+                'complaint' => $result['data']
             ]);
 
         } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal mengambil detail keluhan: ' . $e->getMessage()
-                ], 500);
-            }
-
             return redirect()->route('complaint-repair.index')->with('error', 'Gagal mengambil detail keluhan: ' . $e->getMessage());
         }
     }
 
     /**
-     * Mengekspor data keluhan ke PDF
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
-    public function exportComplaintPDF(Request $request)
-    {
-        try {
-            // Mendapatkan parameter filter
-            $search = $request->input('search', '');
-            $sort_order = $request->input('sort_order', '');
-            $status = $request->input('status', '');
-            $sortBy = $request->input('sort_by', '');
-
-            // Membangun parameter kueri
-            $queryParams = [
-                'page' => 1,'limit' => 1000
-            ];
-
-            // Menambahkan parameter pencarian jika disediakan
-            if (!empty($search)) {
-                $queryParams['search'] = $search;
-            }
-
-            // Menambahkan filter status jika disediakan
-            if (!empty($status)) {
-                $queryParams['status'] = $status;
-            }
-
-            // Menambahkan parameter pengurutan
-            if (!empty($sortBy)) {
-                $queryParams['sort_by'] = $sortBy;
-            }
-
-            if (!empty($sort_order)) {
-                $queryParams['sort_order'] = $sort_order;
-            }
-
-            // Mengambil keluhan dari API
-            $result = $this->apiService->request('GET', '/complaints', [
-                'query' => $queryParams
-            ]);
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Mendapatkan data keluhan
-            $complaints = $result['data'] ?? [];
-
-            // Menghasilkan PDF
-            $pdf = Pdf::loadView('ComplainRepair.ComplainRepairPDF', [
-                'complaints' => $complaints,
-                'search' => $search,
-                'sort_order' => $sort_order,
-                'status' => $status,
-                'date_generated' => now()->format('d M Y H:i:s')
-            ]);
-
-            // Alirkan PDF ke browser
-            return $pdf->stream('laporan_keluhan_' . now()->format('YmdHis') . '.pdf');
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengekspor data keluhan sebagai PDF: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Membuat keluhan baru
+     * Store a newly created complaint.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function createComplaint(Request $request)
+    public function store(Request $request)
     {
         try {
-            // Memeriksa apakah permintaan adalah AJAX
-            $isAjax = $request->ajax() || $request->wantsJson();
-
             $validator = \Validator::make($request->all(), [
                 'asset_id' => 'required|integer',
                 'description' => 'required|string',
@@ -315,7 +165,7 @@ class ComplainRepairController extends Controller
             ]);
 
             if ($validator->fails()) {
-                if ($isAjax) {
+                if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $validator->errors()
@@ -328,7 +178,7 @@ class ComplainRepairController extends Controller
                     ->with('error', 'Silakan periksa formulir untuk kesalahan.');
             }
 
-            // Menyiapkan data permintaan multipart
+            // Prepare multipart data for file upload
             $multipart = [
                 [
                     'name' => 'asset_id',
@@ -340,7 +190,7 @@ class ComplainRepairController extends Controller
                 ]
             ];
 
-            // Menangani file gambar
+            // Handle image file
             if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
                 $multipart[] = [
                     'name' => 'image_file',
@@ -349,199 +199,88 @@ class ComplainRepairController extends Controller
                 ];
             }
 
-            // Mengirim permintaan ke API
+            // Send request to API
             $result = $this->apiService->request('POST', '/complaints', [
                 'multipart' => $multipart
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($isAjax) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')
-                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API
+            // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal membuat keluhan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                // Mengembalikan respons yang sesuai berdasarkan jenis permintaan
-                if ($isAjax) {
-                    // Untuk permintaan AJAX, kembalikan JSON
+                if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $errorData
                     ], 422);
-                } else {
-                    // Untuk permintaan biasa, redirect kembali dengan kesalahan
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', $errorMessage);
                 }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
             }
 
-            // Respons sukses
-            if ($isAjax) {
-                // Untuk permintaan AJAX, kembalikan JSON sukses
+            // Success response
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Keluhan berhasil dibuat',
                     'data' => $result['data'] ?? null
                 ]);
-            } else {
-                // Untuk permintaan biasa, redirect dengan pesan sukses
-                return redirect()->route('complaint.index')
-                    ->with('success', 'Keluhan berhasil dibuat');
             }
+
+            return redirect()->route('complaint-repair.index')
+                ->with('success', 'Keluhan berhasil dibuat');
 
         } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal membuat keluhan: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat keluhan: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
         }
     }
 
     /**
-     * Menghapus keluhan
+     * Remove the specified complaint.
      *
      * @param int $id
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
-    public function destroyComplaint($id, Request $request)
+    public function destroy($id, Request $request)
     {
-        try {
-            // Memeriksa apakah permintaan adalah AJAX
-            $isAjax = $request->ajax() || $request->wantsJson();
-
-            // Mengirim permintaan hapus ke API
-            $result = $this->apiService->request('DELETE', "/complaints/{$id}");
-
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($isAjax) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')
-                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Memeriksa kesalahan API
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus keluhan';
-
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                // Mengembalikan respons yang sesuai berdasarkan jenis permintaan
-                if ($isAjax) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $errorData
-                    ], 400);
-                } else {
-                    return redirect()->back()
-                        ->with('error', $errorMessage);
-                }
-            }
-
-            // Respons sukses
-            if ($isAjax) {
-                // Untuk permintaan AJAX, kembalikan JSON sukses
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Keluhan berhasil dihapus',
-                    'data' => $result['data'] ?? null
-                ]);
-            } else {
-                // Untuk permintaan biasa, redirect dengan pesan sukses
-                return redirect()->route('complaint.index')
-                    ->with('success', 'Keluhan berhasil dihapus');
-            }
-
-        } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal menghapus keluhan: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus keluhan: ' . $e->getMessage());
-        }
+        return $this->deleteResource(
+            $request,
+            "/complaints/{$id}",
+            'Keluhan berhasil dihapus',
+            'complaint-repair.index'
+        );
     }
 
     /**
-     * Membuat catatan perbaikan baru untuk keluhan
+     * Store a newly created repair record.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function createRepair(Request $request)
+    public function storeRepair(Request $request)
     {
         try {
-            // Memeriksa apakah permintaan adalah AJAX
-            $isAjax = $request->ajax() || $request->wantsJson();
-
-            // Memvalidasi permintaan
             $validator = \Validator::make($request->all(), [
                 'complaint_id' => 'required|integer',
                 'repair_description' => 'required|string',
                 'final_result' => 'required|string|in:Good,Slightly Damage,Heavy Damage,Waiting for Part',
                 'repair_cost' => 'required|numeric',
                 'parts_replaced' => 'required|string',
-                'file' => 'required|image', // maks 5MB
+                'file' => 'required|image',
             ]);
 
             if ($validator->fails()) {
-                if ($isAjax) {
+                if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $validator->errors()
@@ -554,7 +293,7 @@ class ComplainRepairController extends Controller
                     ->with('error', 'Silakan periksa formulir untuk kesalahan.');
             }
 
-            // Menyiapkan data permintaan multipart
+            // Prepare multipart data
             $multipart = [
                 [
                     'name' => 'complaint_id',
@@ -578,7 +317,7 @@ class ComplainRepairController extends Controller
                 ]
             ];
 
-            // Menangani file gambar
+            // Handle file upload
             if ($request->hasFile('file') && $request->file('file')->isValid()) {
                 $multipart[] = [
                     'name' => 'file',
@@ -587,116 +326,204 @@ class ComplainRepairController extends Controller
                 ];
             }
 
-            // Mengirim permintaan ke API
+            // Send request to API
             $result = $this->apiService->request('POST', '/repairs', [
                 'multipart' => $multipart
             ]);
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($isAjax) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')
-                    ->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa kesalahan API
+            // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal membuat perbaikan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
-                // Format pesan kesalahan
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                // Mengembalikan respons yang sesuai berdasarkan jenis permintaan
-                if ($isAjax) {
-                    // Untuk permintaan AJAX, kembalikan JSON
+                if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
                         'errors' => $errorData
                     ], 422);
-                } else {
-                    // Untuk permintaan biasa, redirect kembali dengan kesalahan
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', $errorMessage);
                 }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
             }
 
-            // Respons sukses
-            if ($isAjax) {
-                // Untuk permintaan AJAX, kembalikan JSON sukses
+            // Success response
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Perbaikan berhasil dibuat',
                     'data' => $result['data'] ?? null
                 ]);
-            } else {
-                // Untuk permintaan biasa, redirect dengan pesan sukses
-                return redirect()->route('complaint.detail', ['id' => $request->input('complaint_id')])
-                    ->with('success', 'Perbaikan berhasil dibuat');
             }
+
+            return $this->index($request->merge(['with_success' => 'Perbaikan berhasil dibuat']));
 
         } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => 'Gagal membuat perbaikan: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal membuat perbaikan: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
         }
     }
 
     /**
-     * Mengekspor detail keluhan ke PDF
+     * Start repair process for a complaint.
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function startRepair($id, Request $request)
+    {
+        try {
+            // Send PATCH request to API
+            $result = $this->apiService->request('PATCH', "/complaints/{$id}/start");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal memulai proses perbaikan',
+                        'errors' => $result['errors'] ?? 'Unknown error'
+                    ], 400);
+                }
+
+                return redirect()->back()->with('error', 'Gagal memulai proses perbaikan');
+            }
+
+            // Return success response
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Keluhan berhasil dimulai',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Keluhan berhasil dimulai');
+
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepairDetail');
+        }
+    }
+
+    /**
+     * Export complaints list to PDF.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function exportPDF(Request $request)
+    {
+        try {
+            // Get filter parameters
+            $queryParams = [
+                'page' => 1,
+                'limit' => 1000
+            ];
+
+            if ($request->filled('search')) {
+                $queryParams['search'] = $request->input('search');
+            }
+
+            if ($request->filled('status')) {
+                $queryParams['status'] = $request->input('status');
+            }
+
+            if ($request->filled('sort_order')) {
+                $queryParams['sort_order'] = $request->input('sort_order');
+            }
+
+            if ($request->filled('sort_by')) {
+                $queryParams['sort_by'] = $request->input('sort_by');
+            }
+
+            // Get data from API
+            $result = $this->apiService->request('GET', '/complaints', [
+                'query' => $queryParams
+            ]);
+
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Handle API errors
+            $apiError = $this->handleApiError(
+                $result,
+                $request,
+                'ComplainRepair.ComplainRepair',
+                'Gagal mengambil data untuk ekspor'
+            );
+
+            if ($apiError) {
+                return $apiError;
+            }
+
+            $complaints = $result['data'] ?? [];
+
+            // Generate filename
+            $timestamp = date('YmdHis');
+            $filename = "laporan_keluhan_{$timestamp}.pdf";
+
+            // Generate PDF
+            return $this->generatePdf(
+                'ComplainRepair.ComplainRepairPDF',
+                [
+                    'complaints' => $complaints,
+                    'search' => $request->input('search', ''),
+                    'sort_order' => $request->input('sort_order', ''),
+                    'status' => $request->input('status', ''),
+                    'date_generated' => date('d M Y H:i:s')
+                ],
+                $filename
+            );
+
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
+        }
+    }
+
+    /**
+     * Export complaint details to PDF.
      *
      * @param int $id
      * @param Request $request
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function exportComplaintDetailPDF($id, Request $request)
+    public function exportDetailPDF($id, Request $request)
     {
         try {
-            // Mengambil detail keluhan dari API
+            // Get complaint details from API
             $result = $this->apiService->request('GET', "/complaints/{$id}");
 
-            // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            // Handle auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
-            // Memeriksa apakah keluhan ada
+            // Check if complaint exists
             if (!isset($result['data'])) {
-                return redirect()->route('complaint.index')->with('error', 'Keluhan tidak ditemukan');
+                return redirect()->route('complaint-repair.index')
+                    ->with('error', 'Keluhan tidak ditemukan');
             }
 
-            // Mendapatkan data keluhan
             $complaint = $result['data'];
 
-            // Mengkonversi gambar ke base64
+            // Convert complaint image to base64 if exists
             if (!empty($complaint['complaint_picture_path'])) {
                 try {
                     $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
@@ -707,11 +534,10 @@ class ComplainRepairController extends Controller
                     }
                 } catch (\Exception $e) {
                     \Log::warning('Failed to convert complaint image to base64: ' . $e->getMessage());
-                    // Lanjutkan tanpa gambar keluhan jika gagal
                 }
             }
 
-            // Mengkonversi gambar perbaikan ke base64 jika ada
+            // Convert repair image to base64 if exists
             if (!empty($complaint['repair']) && !empty($complaint['repair']['repair_picture_path'])) {
                 try {
                     $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
@@ -722,17 +548,21 @@ class ComplainRepairController extends Controller
                     }
                 } catch (\Exception $e) {
                     \Log::warning('Failed to convert repair image to base64: ' . $e->getMessage());
-                    // Lanjutkan tanpa gambar perbaikan jika gagal
                 }
             }
 
-            // Menghasilkan PDF
-            $pdf = Pdf::loadView('ComplainRepair.ComplainRepairDetailPDF', [
-                'complaint' => $complaint
-            ]);
+            // Generate filename
+            $timestamp = date('YmdHis');
+            $filename = "detail_keluhan_{$id}_{$timestamp}.pdf";
 
-            // Alirkan PDF ke browser
-            return $pdf->stream('detail_keluhan_' . $id . '_' . now()->format('YmdHis') . '.pdf');
+            // Generate PDF
+            return $this->generatePdf(
+                'ComplainRepair.ComplainRepairDetailPDF',
+                [
+                    'complaint' => $complaint
+                ],
+                $filename
+            );
 
         } catch (\Exception $e) {
             \Log::error('PDF export error: ' . $e->getMessage());

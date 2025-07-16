@@ -23,10 +23,15 @@ class UnitAssetController extends Controller
             $extraParams['current_status'] = $request->query('current_status');
         }
 
+        // Exclude status filter
+        if ($request->filled('exclude_status')) {
+            $extraParams['exclude_status'] = $request->query('exclude_status');
+        }
+
         // Asset type filter
         if ($request->filled('asset_type')) {
             $extraParams['asset_type'] = $request->query('asset_type');
-            }
+        }
 
         // Needs calibration filter
         if ($request->has('needs_calibration')) {
@@ -41,7 +46,7 @@ class UnitAssetController extends Controller
             'code_desc' => ['sort' => 'code_desc'],
             'newest' => ['sort_by' => 'created_at', 'sort_order' => 'desc'],
             'oldest' => ['sort_by' => 'created_at', 'sort_order' => 'asc'],
-                ];
+        ];
 
         return $this->getResourceList(
             $request,
@@ -382,8 +387,10 @@ class UnitAssetController extends Controller
             $result = $this->apiService->request('GET', "/assets/barcode/generate/{$id}");
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
                 \Log::warning('Authentication error during barcode generation:', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
@@ -505,8 +512,10 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
                 \Log::warning('Authentication error during QR generation:', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
@@ -619,8 +628,10 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
                 \Log::warning('Authentication error during QR generation:', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
@@ -783,8 +794,10 @@ class UnitAssetController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
                 \Log::warning('Authentication error during QR generation:', [
                     'errors' => $result['errors'] ?? 'Authentication failed'
                 ]);
@@ -948,8 +961,10 @@ class UnitAssetController extends Controller
             }
 
             // Memeriksa kesalahan autentikasi
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
@@ -1175,11 +1190,11 @@ class UnitAssetController extends Controller
             return $this->generatePdf(
                 'Asset.UnitAssetPDF',
                 [
-                'assets' => $assets,
+                    'assets' => $assets,
                     'search' => $request->input('search', ''),
                     'typeFilter' => $request->input('asset_type', ''),
                     'statusFilter' => $request->input('current_status', ''),
-                'sortOrder' => $sortOrder,
+                    'sortOrder' => $sortOrder,
                     'date_generated' => date('d M Y H:i:s')
                 ],
                 $filename,

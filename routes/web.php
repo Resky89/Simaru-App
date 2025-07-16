@@ -469,25 +469,30 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // Complaint & Repair Routes
     Route::prefix('complaint-repair')->name('complaint.')->middleware('permission:complaint:view')->group(function () {
         // Read operations
-        Route::get('/', [ComplainRepairController::class, 'getAllComplaints'])->name('index');
-        Route::get('/detail/{id}', [ComplainRepairController::class, 'showComplaintDetail'])->name('detail');
-        Route::get('/export-pdf', [ComplainRepairController::class, 'exportComplaintPDF'])
+        Route::get('/', [ComplainRepairController::class, 'index'])->name('index');
+        Route::get('/detail/{id}', [ComplainRepairController::class, 'show'])->name('detail');
+        Route::get('/export-pdf', [ComplainRepairController::class, 'exportPDF'])
             ->name('export.pdf')
             ->middleware('permission:complaint:export');
-        Route::get('/detail/{id}/export-pdf', [ComplainRepairController::class, 'exportComplaintDetailPDF'])
+        Route::get('/detail/{id}/export-pdf', [ComplainRepairController::class, 'exportDetailPDF'])
             ->name('detail.export.pdf')
             ->middleware('permission:complaint:export');
 
         // Write operations
-        Route::post('/complaints', [ComplainRepairController::class, 'createComplaint'])
+        Route::post('/complaints', [ComplainRepairController::class, 'store'])
             ->name('create')
             ->middleware('permission:complaint:create');
-        Route::delete('/complaints/{id}', [ComplainRepairController::class, 'destroyComplaint'])
+        Route::delete('/complaints/{id}', [ComplainRepairController::class, 'destroy'])
             ->name('destroy')
             ->middleware('permission:complaint:delete');
-        Route::post('/repairs', [ComplainRepairController::class, 'createRepair'])
+        Route::post('/repairs', [ComplainRepairController::class, 'storeRepair'])
             ->name('repair.create')
-            ->middleware('permission:repair:medical|repair:non-medical');
+            ->middleware(['permission:repair:medical|repair:non-medical']);
+
+        // Start repair process
+        Route::patch('/{id}/start', [ComplainRepairController::class, 'startRepair'])
+            ->name('start')
+            ->middleware(['permission:repair:medical|repair:non-medical']);
     });
 
     //-------------------------------------------------------------------------

@@ -90,7 +90,7 @@
                                 </tr>
                             </thead>
                             <tbody id="complaintsTableBody">
-                                @forelse($complaints ?? [] as $complaint)
+                                @forelse($complaints as $complaint)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex flex-col">
@@ -144,7 +144,7 @@
                                             @endif
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ $complaint['reporter_number'] ?? '-' }}
+                                            {{ $complaint['reporter_name'] ?? '-' }}
                                         </td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex items-center justify-center space-x-2">
@@ -165,7 +165,7 @@
                                                             class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors repair-complaint-btn"
                                                             data-id="{{ $complaint['id'] }}"
                                                             data-asset="{{ $complaint['asset_name'] ?? 'Unknown' }}"
-                                                            title="Lakukan Perbaikan">
+                                                            data-status="{{ $complaint['status'] }}" title="Lakukan Perbaikan">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -201,11 +201,11 @@
                     </div>
 
                     <!-- Pagination -->
-                    @if(isset($pagination) && $pagination)
+                    @if(isset($complaints_pagination) && $complaints_pagination)
                         <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                             <div class="flex items-center space-x-2">
-                                <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
-                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <a href="{{ isset($complaints_pagination['has_prev']) && $complaints_pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $complaints_pagination['current_page'] - 1]) : '#' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($complaints_pagination['has_prev']) || !$complaints_pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -215,8 +215,8 @@
                                 </a>
                                 <div class="flex gap-2">
                                     @php
-                                        $currentPage = $pagination['current_page'] ?? 1;
-                                        $lastPage = isset($pagination['total_pages']) ? $pagination['total_pages'] : (isset($pagination['total_items']) && isset($pagination['limit']) && $pagination['limit'] > 0 ? ceil($pagination['total_items'] / $pagination['limit']) : 1);
+                                        $currentPage = $complaints_pagination['current_page'] ?? 1;
+                                        $lastPage = isset($complaints_pagination['total_pages']) ? $complaints_pagination['total_pages'] : (isset($complaints_pagination['total_items']) && isset($complaints_pagination['limit']) && $complaints_pagination['limit'] > 0 ? ceil($complaints_pagination['total_items'] / $complaints_pagination['limit']) : 1);
                                         $maxPagesShown = 5; // Show max 5 pages at once
                                         $startPage = max(1, $currentPage - 2);
                                         $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -257,8 +257,8 @@
                                         </a>
                                     @endif
                                 </div>
-                                <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
-                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <a href="{{ isset($complaints_pagination['has_next']) && $complaints_pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $complaints_pagination['current_page'] + 1]) : '#' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($complaints_pagination['has_next']) || !$complaints_pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
                                     Selanjutnya
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -271,9 +271,9 @@
                             <div class="flex items-center gap-2 mt-4 md:mt-0">
                                 <span class="text-sm text-gray-600">
                                     @php
-                                        $currentPage = $pagination['current_page'] ?? 1;
-                                        $perPage = $pagination['limit'] ?? 10;
-                                        $total = $pagination['total_items'] ?? 0;
+                                        $currentPage = $complaints_pagination['current_page'] ?? 1;
+                                        $perPage = $complaints_pagination['limit'] ?? 10;
+                                        $total = $complaints_pagination['total_items'] ?? 0;
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -282,9 +282,10 @@
                                 <select id="perPageSelect"
                                     class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                     onchange="changePerPage(this.value)">
-                                    <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
-                                    <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
-                                    <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
+                                    <option value="10" {{ (isset($complaints_pagination['limit']) && $complaints_pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                                    <option value="25" {{ (isset($complaints_pagination['limit']) && $complaints_pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                                    <option value="50" {{ (isset($complaints_pagination['limit']) && $complaints_pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
+                                    <option value="100" {{ (isset($complaints_pagination['limit']) && $complaints_pagination['limit'] == 100) ? 'selected' : '' }}>100 per halaman</option>
                                 </select>
                             </div>
                         </div>
@@ -373,7 +374,8 @@
                                                     Tidak ada aset ditemukan
                                                 </div>
                                                 <div id="assetLoadMore" class="p-2 text-center border-t border-gray-200 hidden">
-                                                    <button type="button" class="text-[#213268] hover:underline text-sm">Muat lebih banyak</button>
+                                                    <button type="button" class="text-[#213268] hover:underline text-sm">Muat
+                                                        lebih banyak</button>
                                                 </div>
                                             </div>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
@@ -523,7 +525,7 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="repairComplaintModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
@@ -545,32 +547,100 @@
                             @csrf
                             <input type="hidden" name="complaint_id" id="repairComplaintId">
                             <div class="p-6">
-                                <div class="space-y-4">
-                                    <!-- Repair Information Section -->
-                                    <h3 class="text-lg font-semibold text-[#213268] border-b pb-2">Informasi Perbaikan</h3>
+                                <!-- Required fields note -->
+                                <div class="text-sm text-gray-600 mb-4">
+                                    Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
+                                </div>
 
-                                    <!-- Asset Name Display -->
-                                    <div class="mb-4 p-3 bg-gray-100 rounded-lg">
-                                        <p class="text-sm text-gray-500">Memperbaiki Aset:</p>
-                                        <p class="text-base font-medium" id="repairAssetName"></p>
+                                <div class="space-y-6">
+                                    <!-- ASSET INFORMATION SECTION -->
+                                    <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                        <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+
+                                        <!-- Asset Image -->
+                                        <div
+                                            class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                            <img id="repair_asset_image" src="{{ asset('images/placeholder.png') }}"
+                                                alt="Asset Image" class="w-full h-full object-contain p-2"
+                                                onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <!-- Left Column -->
+                                            <div class="space-y-4">
+                                                <!-- Asset Code -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
+                                                    <input type="text" id="repairAssetCode"
+                                                        class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                        readonly>
+                                                </div>
+
+                                                <!-- Asset Name -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
+                                                    <input type="text" id="repairAssetName"
+                                                        class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                        readonly>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div class="space-y-4">
+                                                <!-- Serial Number -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
+                                                    <input type="text" id="repairSerialNumber"
+                                                        class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                        readonly>
+                                                </div>
+
+                                                <!-- Model -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700">MODEL</label>
+                                                    <input type="text" id="repairModel"
+                                                        class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <!-- Added: Asset and Complaint Image Section -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <!-- Asset Image -->
-                                        <div class="bg-white rounded-lg border border-gray-200 p-2">
-                                            <h3 class="text-sm font-semibold text-[#213268] mb-2">Gambar Aset</h3>
-                                            <div class="w-full h-40 bg-white rounded-lg overflow-hidden relative flex items-center justify-center">
-                                                <img id="repair_asset_image" src="{{ asset('images/placeholder.png') }}"
-                                                    alt="Asset Image" class="w-full h-full object-contain p-2"
-                                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                    <!-- COMPLAINT INFORMATION SECTION -->
+                                    <div class="bg-yellow-100 rounded-lg p-4 mb-6">
+                                        <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Keluhan</h3>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                                            <!-- Complaint Date -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">TANGGAL KELUHAN</label>
+                                                <input type="text" id="repairComplaintDate"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                            </div>
+
+                                            <!-- Reporter -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">PELAPOR</label>
+                                                <input type="text" id="repairReporterName"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
                                             </div>
                                         </div>
 
+                                        <!-- Complaint Description -->
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700">DESKRIPSI KELUHAN</label>
+                                            <textarea id="repairComplaintDescription" rows="3"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none resize-none"
+                                                readonly></textarea>
+                                        </div>
+
                                         <!-- Complaint Image -->
-                                        <div class="bg-white rounded-lg border border-gray-200 p-2">
-                                            <h3 class="text-sm font-semibold text-[#213268] mb-2">Gambar Keluhan</h3>
-                                            <div class="w-full h-40 bg-white rounded-lg overflow-hidden relative flex items-center justify-center">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">GAMBAR KELUHAN</label>
+                                            <div
+                                                class="w-full h-40 bg-white rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
                                                 <img id="repair_complaint_image" src="{{ asset('images/placeholder.png') }}"
                                                     alt="Complaint Image" class="w-full h-full object-contain p-2"
                                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
@@ -578,110 +648,142 @@
                                         </div>
                                     </div>
 
-                                    <!-- Added: Complaint Description -->
-                                    <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                        <h3 class="text-sm font-semibold text-[#213268] mb-1">Deskripsi Keluhan:</h3>
-                                        <p id="repairComplaintDescription" class="text-sm text-gray-700"></p>
-                                    </div>
+                                    <!-- REPAIR DETAILS SECTION -->
+                                    <div class="bg-green-100 rounded-lg p-4 mb-6">
+                                        <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Perbaikan</h3>
 
-                                    <!-- Repair Description -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Deskripsi Perbaikan<span
-                                                class="text-red-500">*</span></label>
-                                        <textarea id="repairDescription" name="repair_description" rows="3"
-                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 resize-none"
-                                            placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi perbaikan harus
-                                            diisi</div>
-                                    </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <!-- Left Column -->
+                                            <div class="space-y-4">
+                                                <!-- Repair Description -->
+                                                <div>
+                                                    <label for="repairDescription"
+                                                        class="block text-sm font-medium text-gray-700">
+                                                        DESKRIPSI PERBAIKAN<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <textarea id="repairDescription" name="repair_description" rows="3"
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                        placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi
+                                                        perbaikan harus diisi</div>
+                                                </div>
 
-                                    <!-- Final Result -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Hasil Akhir<span
-                                                class="text-red-500">*</span></label>
-                                        <select id="finalResult" name="final_result"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20">
-                                            <option value="" disabled selected>Pilih hasil akhir</option>
-                                            <option value="Good">Baik</option>
-                                            <option value="Slightly Damage">Sedikit Rusak</option>
-                                            <option value="Heavy Damage">Rusak Parah</option>
-                                            <option value="Waiting for Part">Menunggu Spare Part</option>
-                                        </select>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir harus dipilih
-                                        </div>
-                                    </div>
-
-                                    <!-- Repair Cost -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Biaya Perbaikan<span
-                                                class="text-red-500">*</span></label>
-                                        <input type="number" id="repairCost" name="repair_cost"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                            placeholder="Biaya dalam Rupiah">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan harus diisi
-                                        </div>
-                                    </div>
-
-                                    <!-- Parts Replaced -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Komponen yang Diganti<span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" id="partsReplaced" name="parts_replaced"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20"
-                                            placeholder="Daftar komponen yang diganti">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang diganti harus
-                                            diisi</div>
-                                    </div>
-
-                                    <!-- Image Upload -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-semibold text-[#666666]">Gambar Perbaikan<span
-                                                class="text-red-500">*</span></label>
-                                        <div
-                                            class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
-                                            <!-- Image preview -->
-                                            <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
-                                                <div
-                                                    class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                                    <img id="repairPreviewImg" src="#" alt="Pratinjau"
-                                                        class="w-full h-auto max-h-64 object-contain mx-auto rounded">
-                                                    <button type="button" id="removeRepairImage"
-                                                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </button>
+                                                <!-- Final Result -->
+                                                <div>
+                                                    <label for="finalResult" class="block text-sm font-medium text-gray-700">
+                                                        HASIL AKHIR<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <select id="finalResult" name="final_result"
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                        <option value="" disabled selected>Pilih hasil akhir</option>
+                                                        <option value="Good">Baik</option>
+                                                        <option value="Slightly Damage">Sedikit Rusak</option>
+                                                        <option value="Heavy Damage">Rusak Parah</option>
+                                                        <option value="Waiting for Part">Menunggu Spare Part</option>
+                                                    </select>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir
+                                                        harus dipilih</div>
                                                 </div>
                                             </div>
 
-                                            <div class="text-center">
-                                                <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                </svg>
-                                                <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span
-                                                        class="text-[#213268] font-semibold">pilih file</span></p>
-                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
-                                                    (Ukuran maks: 5MB)</p>
-                                                <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk
-                                                    memilih file</p>
+                                            <!-- Right Column -->
+                                            <div class="space-y-4">
+                                                <!-- Repair Cost -->
+                                                <div>
+                                                    <label for="repairCost" class="block text-sm font-medium text-gray-700">
+                                                        BIAYA PERBAIKAN<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <div class="relative mt-1">
+                                                        <div
+                                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                            <span class="text-gray-500 sm:text-sm">Rp</span>
+                                                        </div>
+                                                        <input type="text" id="repairCost" name="repair_cost"
+                                                            class="mt-1 block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                            placeholder="Biaya perbaikan" onkeyup="formatCurrency(this)"
+                                                            onblur="formatCurrency(this, 'blur')">
+                                                    </div>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan
+                                                        harus diisi</div>
+                                                </div>
+
+                                                <!-- Parts Replaced -->
+                                                <div>
+                                                    <label for="partsReplaced" class="block text-sm font-medium text-gray-700">
+                                                        KOMPONEN YANG DIGANTI<span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="text" id="partsReplaced" name="parts_replaced"
+                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                        placeholder="Daftar komponen yang diganti">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang
+                                                        diganti harus diisi</div>
+                                                </div>
                                             </div>
-                                            <input id="repairImageFile" name="file" type="file"
-                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                                accept="image/*" />
                                         </div>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar perbaikan harus
-                                            diunggah</div>
+                                    </div>
+
+                                    <!-- DOCUMENTATION SECTION -->
+                                    <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                        <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+
+                                        <!-- Image Upload -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">GAMBAR PERBAIKAN<span
+                                                    class="text-red-500">*</span></label>
+                                            <div
+                                                class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                                <!-- Image preview -->
+                                                <div id="repairImagePreview" class="mt-2 mb-4 w-full hidden">
+                                                    <div
+                                                        class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                        <img id="repairPreviewImg" src="#" alt="Pratinjau"
+                                                            class="w-full h-auto max-h-64 object-contain mx-auto rounded">
+                                                        <button type="button" id="removeRepairImage"
+                                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-center">
+                                                    <svg class="mx-auto h-12 w-12 text-[#213268]"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                    </svg>
+                                                    <p class="mt-1 text-sm text-gray-600">Tarik gambar atau <span
+                                                            class="text-[#213268] font-semibold">pilih file</span></p>
+                                                    <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png
+                                                        (Ukuran maks: 5MB)</p>
+                                                    <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk
+                                                        memilih file</p>
+                                                </div>
+                                                <input id="repairImageFile" name="file" type="file"
+                                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    accept="image/*" />
+                                            </div>
+                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Gambar perbaikan harus
+                                                diunggah</div>
+                                        </div>
                                     </div>
 
                                     <!-- Submit Button -->
-                                    <button type="submit"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                        Kirim Perbaikan
-                                    </button>
+                                    <div class="pt-4">
+                                        <button type="submit"
+                                            class="w-full py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transition-colors duration-200 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Simpan Perbaikan
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -765,7 +867,53 @@
                     });
                 @endif
 
-                const imageFile = document.getElementById('imageFile');
+            // Currency formatter function
+            window.formatCurrency = function(input, blur) {
+                // Get input value
+                let input_val = input.value;
+
+                // Don't validate empty input
+                if (input_val === "") { return; }
+
+                // Check for decimal
+                if (input_val.indexOf(",") >= 0) {
+                    // Get position of first decimal
+                    var decimal_pos = input_val.indexOf(",");
+
+                    // Split number by decimal point
+                    var left_side = input_val.substring(0, decimal_pos);
+                    var right_side = input_val.substring(decimal_pos);
+
+                    // Remove all non-digits
+                    left_side = left_side.replace(/\D/g, "");
+                    right_side = right_side.replace(/\D/g, "");
+
+                    // Limit decimal to only 2 digits
+                    right_side = right_side.substring(0, 2);
+
+                    // Add dots every 3 digits
+                    left_side = left_side.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                    // Join number with comma for decimal
+                    input_val = left_side + "," + right_side;
+                } else {
+                    // Remove all non-digits
+                    input_val = input_val.replace(/\D/g, "");
+
+                    // Add dots every 3 digits
+                    input_val = input_val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+                    // Final formatting
+                    if (blur === "blur") {
+                        input_val += ",00";
+                    }
+                }
+
+                // Send updated string to input
+                input.value = input_val;
+            };
+
+            const imageFile = document.getElementById('imageFile');
             const previewImg = document.getElementById('previewImg');
             const imagePreview = document.getElementById('imagePreview');
             const removeImage = document.getElementById('removeImage');
@@ -1026,7 +1174,7 @@
                 }
 
                 isLoadingAssets = true;
-                const searchUrl = `/assets?json=true&search=${encodeURIComponent(searchTerm)}&limit=10&page=${page}`;
+                const searchUrl = `/assets?json=true&exclude_dispose&search=${encodeURIComponent(searchTerm)}&limit=10&page=${page}`;
 
                 fetch(searchUrl, {
                     headers: {
@@ -1050,8 +1198,6 @@
                         } else if (data.data && Array.isArray(data.data)) {
                             fetchedAssets = data.data;
                         }
-
-                        // fetchedAssets = fetchedAssets.filter(asset => asset.current_status !== 'dispose');
 
                         // Determine if more results are available
                         hasMoreAssets = fetchedAssets.length >= 10; // Assuming 10 is the page size
@@ -1141,7 +1287,7 @@
                     const newLoadMoreButton = loadMoreButton.cloneNode(true);
                     loadMoreButton.parentNode.replaceChild(newLoadMoreButton, loadMoreButton);
 
-                    newLoadMoreButton.addEventListener('click', function() {
+                    newLoadMoreButton.addEventListener('click', function () {
                         assetPage++;
                         searchAssets(currentAssetSearch, assetPage, true);
                         this.disabled = true;
@@ -1160,7 +1306,7 @@
 
             // Setup infinite scrolling for asset dropdown
             if (assetDropdown) {
-                assetDropdown.addEventListener('scroll', function() {
+                assetDropdown.addEventListener('scroll', function () {
                     if (!hasMoreAssets || isLoadingAssets) return;
 
                     // Check if user scrolled to bottom
@@ -1271,6 +1417,28 @@
                         return false;
                     }
 
+                    // Process repair cost - convert from formatted to numeric value
+                    if (repairCost && repairCost.value) {
+                        // Create a hidden input for the original value to submit with form
+                        let originalCostValue = repairCost.value
+                            .replace(/\./g, '')  // Remove thousand separators
+                            .replace(',', '.');  // Replace comma with dot for decimal
+
+                        // If there's already a hidden input, update it, otherwise create one
+                        let hiddenCostInput = document.getElementById('repair_cost_numeric');
+                        if (!hiddenCostInput) {
+                            hiddenCostInput = document.createElement('input');
+                            hiddenCostInput.type = 'hidden';
+                            hiddenCostInput.id = 'repair_cost_numeric';
+                            hiddenCostInput.name = 'repair_cost';
+                            repairForm.appendChild(hiddenCostInput);
+                        }
+                        hiddenCostInput.value = originalCostValue;
+
+                        // Change the original input's name so it doesn't get submitted
+                        repairCost.name = 'repair_cost_formatted';
+                    }
+
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         const originalText = submitBtn.innerHTML;
@@ -1332,12 +1500,13 @@
                 button.addEventListener('click', () => {
                     const complaintId = button.getAttribute('data-id');
                     const assetName = button.getAttribute('data-asset');
+                    const status = button.getAttribute('data-status');
                     const repairComplaintId = document.getElementById('repairComplaintId');
                     const repairAssetName = document.getElementById('repairAssetName');
 
                     if (repairComplaintId && repairAssetName) {
                         repairComplaintId.value = complaintId;
-                        repairAssetName.textContent = assetName;
+                        repairAssetName.value = assetName; // Use value instead of textContent for input field
                         if (repairForm) {
                             repairForm.reset();
                         }
@@ -1349,19 +1518,70 @@
                             repairImagePreview.classList.add('hidden');
                         }
 
-                        // Fetch complaint details to get images and description
-                        fetchComplaintDetails(complaintId);
+                        // Show loading state on the button
+                        const originalButtonHTML = button.innerHTML;
+                        button.innerHTML = `
+                                            <svg class="animate-spin h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        `;
+                        button.disabled = true;
 
-                        if (repairComplaintModal && repairComplaintModalContent) {
-                            openModal(repairComplaintModal, repairComplaintModalContent);
+                        // Only call start endpoint if status is 'new'
+                        let fetchPromise;
+                        if (status === 'new') {
+                            fetchPromise = fetch(`/complaint-repair/${complaintId}/start`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to start repair process');
+                                    }
+                                    return response.json();
+                                })
+                                .then(startData => {
+                                    if (startData.success) {
+                                        // Find and update status badge if exists
+                                        const statusBadge = button.closest('tr').querySelector('td:nth-child(3) span');
+                                        if (statusBadge) {
+                                            statusBadge.textContent = 'Sedang Diproses';
+                                            statusBadge.className = 'px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 inline-block min-w-[90px] text-center whitespace-nowrap';
+                                        }
+                                    }
+                                    return fetchComplaintDetails(complaintId);
+                                });
+                        } else {
+                            // If status is not 'new', just fetch complaint details
+                            fetchPromise = fetchComplaintDetails(complaintId);
                         }
+
+                        // After operations completed, restore button and open modal
+                        fetchPromise
+                            .catch(error => {
+                                console.error('Error processing repair action:', error);
+                                showToast('Error loading complaint: ' + (error.message || 'Unknown error'), 'error');
+                            })
+                            .finally(() => {
+                                button.innerHTML = originalButtonHTML;
+                                button.disabled = false;
+
+                                if (repairComplaintModal && repairComplaintModalContent) {
+                                    openModal(repairComplaintModal, repairComplaintModalContent);
+                                }
+                            });
                     }
                 });
             });
 
             // Function to fetch complaint details
             function fetchComplaintDetails(complaintId) {
-                if (!complaintId) return;
+                if (!complaintId) return Promise.reject(new Error("Invalid complaint ID"));
 
                 const loadingIndicator = document.createElement('div');
                 loadingIndicator.className = 'text-center py-4';
@@ -1375,53 +1595,79 @@
                 document.getElementById('repair_complaint_image').style.opacity = '0.3';
 
                 // Clear previous description
-                document.getElementById('repairComplaintDescription').textContent = 'Memuat...';
+                document.getElementById('repairComplaintDescription').value = 'Memuat...';
 
-                fetch(`complaint-repair/detail/${complaintId}?json=true`, {
+                return fetch(`/complaint-repair/detail/${complaintId}?json=true`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Server responded with status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success && data.complaint) {
-                        const complaint = data.complaint;
-
-                        // Set complaint description
-                        document.getElementById('repairComplaintDescription').textContent = complaint.description || 'Tidak ada deskripsi';
-
-                        // Set asset image
-                        if (complaint.asset_image_path) {
-                            document.getElementById('repair_asset_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public${complaint.asset_image_path}`;
-                        } else {
-                            document.getElementById('repair_asset_image').src = `{{ asset('images/no-image.png') }}`;
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
                         }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success && data.complaint) {
+                            const complaint = data.complaint;
 
-                        // Set complaint image
-                        if (complaint.complaint_picture_path) {
-                            document.getElementById('repair_complaint_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/${complaint.complaint_picture_path.split('/').pop()}`;
+                            // Set asset information - using value instead of textContent for input fields
+                            document.getElementById('repairAssetName').value = complaint.asset_name || 'Tidak diketahui';
+                            document.getElementById('repairAssetCode').value = complaint.asset_code || 'Tidak diketahui';
+                            document.getElementById('repairSerialNumber').value = complaint.serial_number || 'Tidak diketahui';
+                            document.getElementById('repairModel').value = complaint.model || 'Tidak diketahui';
+
+                            // Set complaint information in textarea
+                            document.getElementById('repairComplaintDescription').value = complaint.description || 'Tidak ada deskripsi';
+
+                            // Format and set complaint date
+                            if (complaint.complaint_date) {
+                                const date = new Date(complaint.complaint_date);
+                                const formattedDate = new Intl.DateTimeFormat('id-ID', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric'
+                                }).format(date);
+                                document.getElementById('repairComplaintDate').value = formattedDate;
+                            } else {
+                                document.getElementById('repairComplaintDate').value = 'Tidak diketahui';
+                            }
+
+                            // Set reporter name
+                            document.getElementById('repairReporterName').value = complaint.reporter_name || 'Tidak diketahui';
+
+                            // Set asset image
+                            if (complaint.asset_image_path) {
+                                document.getElementById('repair_asset_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public${complaint.asset_image_path}`;
+                            } else {
+                                document.getElementById('repair_asset_image').src = `{{ asset('images/no-image.png') }}`;
+                            }
+
+                            // Set complaint image
+                            if (complaint.complaint_picture_path) {
+                                document.getElementById('repair_complaint_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/${complaint.complaint_picture_path.split('/').pop()}`;
+                            } else {
+                                document.getElementById('repair_complaint_image').src = `{{ asset('images/no-image.png') }}`;
+                            }
+
+                            return complaint;
                         } else {
-                            document.getElementById('repair_complaint_image').src = `{{ asset('images/no-image.png') }}`;
+                            document.getElementById('repairComplaintDescription').value = 'Tidak dapat memuat deskripsi keluhan';
+                            throw new Error('Failed to load complaint details');
                         }
-                    } else {
-                        document.getElementById('repairComplaintDescription').textContent = 'Tidak dapat memuat deskripsi keluhan';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching complaint details:', error);
-                    document.getElementById('repairComplaintDescription').textContent = 'Terjadi kesalahan saat memuat data keluhan';
-                })
-                .finally(() => {
-                    // Reset opacity
-                    document.getElementById('repair_asset_image').style.opacity = '1';
-                    document.getElementById('repair_complaint_image').style.opacity = '1';
-                });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching complaint details:', error);
+                        document.getElementById('repairComplaintDescription').value = 'Terjadi kesalahan saat memuat data keluhan';
+                        throw error;
+                    })
+                    .finally(() => {
+                        // Reset opacity
+                        document.getElementById('repair_asset_image').style.opacity = '1';
+                        document.getElementById('repair_complaint_image').style.opacity = '1';
+                    });
             }
 
             const deleteComplaintForm = document.getElementById('deleteComplaintForm');
