@@ -652,73 +652,66 @@
                                     <div class="bg-green-100 rounded-lg p-4 mb-6">
                                         <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Perbaikan</h3>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <!-- Left Column -->
-                                            <div class="space-y-4">
-                                                <!-- Repair Description -->
-                                                <div>
-                                                    <label for="repairDescription"
-                                                        class="block text-sm font-medium text-gray-700">
-                                                        DESKRIPSI PERBAIKAN<span class="text-red-500">*</span>
-                                                    </label>
-                                                    <textarea id="repairDescription" name="repair_description" rows="3"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                        placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi
-                                                        perbaikan harus diisi</div>
-                                                </div>
-
-                                                <!-- Final Result -->
-                                                <div>
-                                                    <label for="finalResult" class="block text-sm font-medium text-gray-700">
-                                                        HASIL AKHIR<span class="text-red-500">*</span>
-                                                    </label>
-                                                    <select id="finalResult" name="final_result"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
-                                                        <option value="" disabled selected>Pilih hasil akhir</option>
-                                                        <option value="Good">Baik</option>
-                                                        <option value="Slightly Damage">Sedikit Rusak</option>
-                                                        <option value="Heavy Damage">Rusak Parah</option>
-                                                        <option value="Waiting for Part">Menunggu Spare Part</option>
-                                                    </select>
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir
-                                                        harus dipilih</div>
-                                                </div>
+                                        <div class="space-y-4">
+                                            <!-- Final Result -->
+                                            <div>
+                                                <label for="finalResult" class="block text-sm font-medium text-gray-700">
+                                                    HASIL AKHIR<span class="text-red-500">*</span>
+                                                </label>
+                                                <select id="finalResult" name="final_result"
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
+                                                    <option value="" disabled selected>Pilih hasil akhir</option>
+                                                    <option value="Good">Baik</option>
+                                                    <option value="Slightly Damage">Sedikit Rusak</option>
+                                                    <option value="Heavy Damage">Rusak Parah</option>
+                                                    <option value="Waiting for Part">Menunggu Spare Part</option>
+                                                </select>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Hasil akhir
+                                                    harus dipilih</div>
                                             </div>
 
-                                            <!-- Right Column -->
-                                            <div class="space-y-4">
-                                                <!-- Repair Cost -->
-                                                <div>
-                                                    <label for="repairCost" class="block text-sm font-medium text-gray-700">
-                                                        BIAYA PERBAIKAN<span class="text-red-500">*</span>
-                                                    </label>
-                                                    <div class="relative mt-1">
-                                                        <div
-                                                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                            <span class="text-gray-500 sm:text-sm">Rp</span>
-                                                        </div>
-                                                        <input type="text" id="repairCost" name="repair_cost"
-                                                            class="mt-1 block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                            placeholder="Biaya perbaikan" onkeyup="formatCurrency(this)"
-                                                            onblur="formatCurrency(this, 'blur')">
+                                            <!-- Repair Cost -->
+                                            <div>
+                                                <label for="repairCost" class="block text-sm font-medium text-gray-700">
+                                                    BIAYA PERBAIKAN<span class="text-red-500">*</span>
+                                                </label>
+                                                <div class="relative mt-1">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <span class="text-gray-500 sm:text-sm">Rp</span>
                                                     </div>
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan
-                                                        harus diisi</div>
+                                                    <input type="text" id="repairCost" name="repair_cost"
+                                                        class="mt-1 block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                        placeholder="Biaya perbaikan" onkeyup="formatCurrency(this)"
+                                                        onblur="formatCurrency(this, 'blur')">
                                                 </div>
-
-                                                <!-- Parts Replaced -->
-                                                <div>
-                                                    <label for="partsReplaced" class="block text-sm font-medium text-gray-700">
-                                                        KOMPONEN YANG DIGANTI<span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" id="partsReplaced" name="parts_replaced"
-                                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                        placeholder="Daftar komponen yang diganti">
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang
-                                                        diganti harus diisi</div>
-                                                </div>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perbaikan
+                                                    harus diisi</div>
                                             </div>
+
+                                            <!-- Parts Replaced -->
+                                            <div>
+                                                <label for="partsReplaced" class="block text-sm font-medium text-gray-700">
+                                                    KOMPONEN YANG DIGANTI<span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" id="partsReplaced" name="parts_replaced"
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                    placeholder="Daftar komponen yang diganti">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Komponen yang
+                                                    diganti harus diisi</div>
+                                            </div>
+                                            <!-- Repair Description -->
+                                            <div>
+                                                <label for="repairDescription" class="block text-sm font-medium text-gray-700">
+                                                    DESKRIPSI PERBAIKAN<span class="text-red-500">*</span>
+                                                </label>
+                                                <textarea id="repairDescription" name="repair_description" rows="3"
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                    placeholder="Jelaskan pekerjaan perbaikan..."></textarea>
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi
+                                                    perbaikan harus diisi</div>
+                                            </div>
+
                                         </div>
                                     </div>
 
@@ -805,19 +798,19 @@
             }
 
             toast.innerHTML = `
-                    <div class="py-1">
-                        <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            ${type === 'success'
+                            <div class="py-1">
+                                <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    ${type === 'success'
                     ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
                     : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                        <p>${message}</p>
-                    </div>
-                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-                `;
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                                <p>${message}</p>
+                            </div>
+                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+                        `;
 
             document.body.appendChild(toast);
 
@@ -1213,10 +1206,10 @@
 
                         if (!append && assetDropdownContent) {
                             assetDropdownContent.innerHTML = `
-                                <div class="p-2 text-center text-red-500">
-                                    Gagal mencari aset. Silakan coba lagi.
-                                </div>
-                            `;
+                                        <div class="p-2 text-center text-red-500">
+                                            Gagal mencari aset. Silakan coba lagi.
+                                        </div>
+                                    `;
                         }
 
                         isLoadingAssets = false;
@@ -1267,9 +1260,9 @@
                     const div = document.createElement('div');
                     div.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded transition-colors';
                     div.innerHTML = `
-                        <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
-                        <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
-                    `;
+                                <div class="font-medium">${asset.asset_master_name || asset.asset_name || 'Aset Tidak Diketahui'}</div>
+                                <div class="text-xs text-gray-500">Kode: ${asset.asset_code || 'N/A'}</div>
+                            `;
 
                     div.addEventListener('click', function () {
                         selectAsset(asset);
@@ -1372,11 +1365,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Memproses...</span>
+                                        </div>
+                                    `;
 
                         setTimeout(() => {
                             if (submitBtn) {
@@ -1445,11 +1438,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Memproses...</span>
+                                        </div>
+                                    `;
 
                         setTimeout(() => {
                             if (submitBtn) {
@@ -1521,11 +1514,11 @@
                         // Show loading state on the button
                         const originalButtonHTML = button.innerHTML;
                         button.innerHTML = `
-                                            <svg class="animate-spin h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        `;
+                                                    <svg class="animate-spin h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                `;
                         button.disabled = true;
 
                         // Only call start endpoint if status is 'new'
@@ -1586,9 +1579,9 @@
                 const loadingIndicator = document.createElement('div');
                 loadingIndicator.className = 'text-center py-4';
                 loadingIndicator.innerHTML = `
-                    <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
-                    <p class="mt-2 text-gray-600">Memuat data keluhan...</p>
-                `;
+                            <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
+                            <p class="mt-2 text-gray-600">Memuat data keluhan...</p>
+                        `;
 
                 // Show loading indicator on images
                 document.getElementById('repair_asset_image').style.opacity = '0.3';
@@ -1688,11 +1681,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Memproses...</span>
+                                        </div>
+                                    `;
                     }
 
                     fetch(`complaint-repair/complaints/${complaintId}`, {

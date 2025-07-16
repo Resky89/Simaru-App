@@ -80,12 +80,12 @@ trait ApiResourceOperations
 
             return view($viewName, [
                 $resourceName => $resources,
-                $resourceName.'_pagination' => $pagination
+                $resourceName . '_pagination' => $pagination
             ]);
         } catch (\Exception $e) {
             return $this->handleException($e, $request, $viewName, [
                 $resourceName => [],
-                $resourceName.'_pagination' => null
+                $resourceName . '_pagination' => null
             ]);
         }
     }
@@ -320,7 +320,7 @@ trait ApiResourceOperations
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal menghapus data';
 
-                $errorMessage = is_array($errorData) ? implode(', ', (array)$errorData) : $errorData;
+                $errorMessage = is_array($errorData) ? implode(', ', (array) $errorData) : $errorData;
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([

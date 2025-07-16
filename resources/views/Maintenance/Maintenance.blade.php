@@ -15,9 +15,12 @@
 
                         <div class="flex gap-4">
                             @if(hasPermission('maintenance:export'))
-                            <button id="exportBtn" class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                <button id="exportBtn"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 bg-[#213268] rounded-lg text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 <span class="text-base">Ekspor PDF</span>
                             </button>
@@ -41,7 +44,8 @@
                     <!-- Search and Filter -->
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
-                            <input type="text" id="searchInput" placeholder="Cari berdasarkan nama aset, interval, atau status..."
+                            <input type="text" id="searchInput"
+                                placeholder="Cari berdasarkan nama aset, interval, atau status..."
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,8 +131,10 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ isset($maintenance['end_date']) ? \Carbon\Carbon::parse($maintenance['end_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['assigned_to_employee_name'] ?? '-' }}</td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $maintenance['vendor_name'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $maintenance['assigned_to_employee_name'] ?? '-' }}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $maintenance['vendor_name'] ?? '-' }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
                                                 $statusClass = '';
@@ -156,20 +162,25 @@
                                                 <a href="{{ route('maintenance.detail', ['id' => $maintenance['id']]) }}"
                                                    class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
                                                    title="Lihat Detail">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                 </a>
 
                                                 @if(!in_array(strtolower($maintenance['status'] ?? ''), ['finished', 'selesai']))
                                                 <!-- Edit Maintenance Icon (Pencil) -->
                                                 @if(hasPermission('maintenance:edit'))
-                                                <button class="edit-maintenance-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
-                                                    data-id="{{ $maintenance['id'] }}"
-                                                    title="Edit Pemeliharaan">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        <button
+                                                            class="edit-maintenance-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
+                                                            data-id="{{ $maintenance['id'] }}" title="Edit Pemeliharaan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
                                                 @endif
@@ -187,25 +198,30 @@
                                                 @endphp
 
                                                 @if($canCreateReport && $hasReportPermission)
-                                                <button class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
+                                                        <button
+                                                            class="create-report-btn p-2 bg-green-100 text-green-500 rounded-md hover:bg-green-200 transition-colors"
                                                     data-id="{{ $maintenance['id'] }}"
                                                     data-asset-name="{{ $maintenance['asset_name'] ?? '' }}"
                                                     data-asset-code="{{ $maintenance['asset_code'] ?? '' }}"
                                                     data-assigned-to="{{ $maintenance['assigned_to'] ?? '' }}"
                                                     title="Buat Laporan">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
                                                 </button>
                                                 @endif
 
                                                 <!-- Delete Maintenance Icon (Trash) -->
                                                 @if(hasPermission('maintenance:delete'))
-                                                <button class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
-                                                    data-id="{{ $maintenance['id'] }}"
-                                                    title="Hapus Pemeliharaan">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        <button
+                                                            class="delete-maintenance-btn p-2 bg-[#F9D2D2] text-[#8E2121] rounded-md hover:bg-red-200 transition-colors"
+                                                            data-id="{{ $maintenance['id'] }}" title="Hapus Pemeliharaan">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
                                                 @endif
@@ -226,7 +242,7 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
+                            <a href="{{ isset($mantenances_pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
                                 class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -237,8 +253,8 @@
                             </a>
                             <div class="flex gap-2">
                                 @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $lastPage = $pagination['total_pages'] ?? 1;
+                                        $currentPage = $mainteances_pagination['current_page'] ?? 1;
+                                        $lastPage = $pagination['total_pages'] ?? 1;
                                     $maxPagesShown = 5; // Show max 5 pages at once
                                     $startPage = max(1, $currentPage - 2);
                                     $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -279,8 +295,8 @@
                                     </a>
                                 @endif
                             </div>
-                            <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -292,11 +308,11 @@
 
                         <div class="flex items-center gap-2 mt-4 md:mt-0">
                             <span class="text-sm text-gray-600">
-                                @if(isset($pagination) && isset($pagination['total_items']))
-                                    @php
-                                        $currentPage = $pagination['current_page'] ?? 1;
-                                        $perPage = $pagination['limit'] ?? 10;
-                                        $total = $pagination['total_items'] ?? 0;
+                                    @if(isset($pagination) && isset($pagination['total_items']))
+                                        @php
+                                            $currentPage = $pagination['current_page'] ?? 1;
+                                            $perPage = $pagination['limit'] ?? 10;
+                                            $total = $pagination['total_items'] ?? 0;
                                         $from = ($currentPage - 1) * $perPage + 1;
                                         $to = min($currentPage * $perPage, $total);
                                     @endphp
@@ -308,9 +324,9 @@
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
                                 onchange="changePerPage(this.value)">
-                                <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
-                                <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
-                                <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
+                                    <option value="10" {{ (isset($pagination['limit']) && $pagination['limit'] == 10) ? 'selected' : '' }}>10 per halaman</option>
+                                    <option value="25" {{ (isset($pagination['limit']) && $pagination['limit'] == 25) ? 'selected' : '' }}>25 per halaman</option>
+                                    <option value="50" {{ (isset($pagination['limit']) && $pagination['limit'] == 50) ? 'selected' : '' }}>50 per halaman</option>
                             </select>
                         </div>
                     </div>
@@ -857,11 +873,11 @@
             <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
             <div class="fixed inset-0 z-50 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                         id="createReportModalContent">
                         <!-- Header -->
                         <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Buat Laporan Pemeliharaan</h2>
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">BUAT LAPORAN PEMELIHARAAN</h2>
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="createReportModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -877,75 +893,164 @@
                                 @csrf
                                 <input type="hidden" id="report_maintenance_id" name="maintenance_id">
 
-                                <!-- Required fields note z-->
-                                <div class="text-sm text-gray-600 mb-6">
-                                    Kolom yang di tandai <span class="text-red-500">*</span> adalah wajib diisi
+                                <!-- Required fields note -->
+                                <div class="text-sm text-gray-600 mb-4">
+                                    Bidang dengan tanda <span class="text-red-500">*</span> wajib diisi
                                 </div>
 
-                                <!-- Asset Info (Display Only) -->
-                                <div class="mb-6 bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <span class="block text-base font-semibold text-gray-700">ASSET</span>
+                                <!-- ASSET INFORMATION SECTION -->
+                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
+
+                                    <!-- Asset Image -->
+                                    <div class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                        <img id="maintenance_asset_image" src="{{ asset('images/placeholder.png') }}"
+                                            alt="Asset Image" class="w-full h-full object-contain p-2"
+                                            onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
                                         </div>
-                                        <div class="flex-1">
-                                            <span id="report_asset_name" class="font-medium text-gray-900"></span>
-                                            <span id="report_asset_code" class="text-sm text-gray-500 block"></span>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Left Column -->
+                                        <div class="space-y-4">
+                                            <!-- Asset Code -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">KODE ASET</label>
+                                                <input type="text" id="report_asset_code_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                        </div>
+
+                                            <!-- Asset Name -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">NAMA ASET</label>
+                                                <input type="text" id="report_asset_name_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                            </div>
+
+                                            <!-- Serial Number -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">NOMOR SERI</label>
+                                                <input type="text" id="report_serial_number_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                    </div>
+                                </div>
+
+                                        <!-- Right Column -->
+                                        <div class="space-y-4">
+                                            <!-- Brand (Merk) -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">MERK</label>
+                                                <input type="text" id="report_brand_name_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                </div>
+
+                                            <!-- Model -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">MODEL</label>
+                                                <input type="text" id="report_model_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                            </div>
+
+                                            <!-- Location -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">LOKASI</label>
+                                                <input type="text" id="report_location_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Asset Image - Add asset image display -->
-                                <div class="w-full h-40 bg-white mb-6 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
-                                    <img id="maintenance_asset_image" src="{{ asset('images/placeholder.png') }}"
-                                        alt="Asset Image" class="w-full h-full object-contain p-2"
-                                        onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
+                                <!-- MAINTENANCE SCHEDULE SECTION -->
+                                <div class="bg-yellow-100 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Jadwal Pemeliharaan</h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <!-- Start Date -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">TANGGAL MULAI</label>
+                                            <input type="text" id="report_start_date_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- End Date -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">TANGGAL SELESAI</label>
+                                            <input type="text" id="report_end_date_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+
+                                        <!-- Interval -->
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">INTERVAL</label>
+                                            <input type="text" id="report_interval_display"
+                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                readonly>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Report Information -->
-                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4 mb-6">
+                                <!-- MAINTENANCE REPORT DETAILS SECTION -->
+                                <div class="bg-green-100 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Detail Pemeliharaan</h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Left Column -->
+                                        <div>
                                     <!-- Maintenance Date -->
-                                    <div class="flex items-center gap-4">
-                                        <div class="min-w-[150px]">
-                                            <label for="maintenance_date" class="block text-base font-semibold text-[#213268]">
+                                            <div>
+                                                <label for="maintenance_date" class="block text-sm font-medium text-gray-700">
                                                 TANGGAL LAPORAN<span class="text-red-500">*</span>
                                             </label>
-                                        </div>
-                                        <div class="flex-1">
                                             <input type="date" id="maintenance_date" name="maintenance_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal laporan diperlukan</div>
                                         </div>
                                     </div>
 
-                                    <!-- Description -->
-                                    <div class="flex items-start gap-4">
-                                        <div class="min-w-[150px] pt-2">
-                                            <label for="description" class="block text-base font-semibold text-[#213268]">
+                                        <!-- Right Column -->
+                                        <div>
+                                            <!-- Vendor -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">VENDOR</label>
+                                                <input type="text" id="report_vendor_display"
+                                                    class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                    readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description - Full Width -->
+                                    <div class="mt-4">
+                                        <label for="description" class="block text-sm font-medium text-gray-700">
                                                 DESKRIPSI<span class="text-red-500">*</span>
                                             </label>
-                                        </div>
-                                        <div class="flex-1">
                                             <textarea id="description" name="description" rows="4"
-                                                class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200 resize-none"
-                                                placeholder="Masukkan detail laporan pemeliharaan..."></textarea>
+                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                            placeholder="Tambahkan detail laporan pemeliharaan..."></textarea>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Deskripsi diperlukan</div>
                                         </div>
                                     </div>
 
-                                    <!-- Image Attachment -->
-                                    <div class="flex items-start gap-4">
-                                        <div class="min-w-[150px] pt-2">
-                                            <label for="attachment" class="block text-base font-semibold text-[#213268]">
-                                                LAMPIRAN
-                                            </label>
-                                        </div>
-                                        <div class="flex-1">
-                                            <div class="border-2 border-dashed border-[#213268] rounded-lg p-4 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
+                                <!-- DOCUMENTATION SECTION -->
+                                <div class="bg-blue-100 rounded-lg p-4 mb-6">
+                                    <h3 class="text-[#213268] font-semibold text-lg mb-4">Dokumentasi</h3>
+
+                                    <!-- Attachment -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">BERKAS TERUNGGAH</label>
+                                        <div class="border-2 border-dashed border-[#213268] rounded-lg p-6 relative flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 transition-colors duration-200">
                                                 <!-- Image preview -->
                                                 <div id="image-preview" class="mt-2 mb-4 w-full hidden">
-                                                    <div class="relative bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
-                                                        <img src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Selected Image">
+                                                <div class="bg-white p-2 rounded border border-gray-300 w-full max-w-md mx-auto">
+                                                    <img src="" class="w-full h-auto max-h-64 object-contain mx-auto rounded" alt="Pratinjau file">
                                                         <button type="button" id="remove-image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -958,20 +1063,22 @@
                                                     <svg class="mx-auto h-12 w-12 text-[#213268]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                     </svg>
-                                                    <p class="mt-1 text-sm text-gray-600">Seret gambar Anda atau <span class="text-[#213268] font-semibold">Cari file</span></p>
-                                                    <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Ukuran maks: 5MB)</p>
+                                                <p class="mt-1 text-sm text-gray-600">Seret gambar Anda atau <span class="text-[#213268] font-semibold">jelajahi berkas</span></p>
+                                                <p class="mt-1 text-xs text-gray-500">Format yang diterima: jpg, jpeg, png (Maks: 5MB)</p>
                                                     <p class="mt-1 text-xs text-[#213268] font-medium">Klik di area ini untuk memilih file</p>
                                                 </div>
                                                 <input type="file" id="attachment" name="file" accept=".jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Button Group -->
-                                <div class="pt-4 flex justify-end gap-4">
+                                <div class="pt-4">
                                     <button type="submit"
-                                        class="w-full px-6 py-2.5 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200">
+                                        class="w-full px-6 py-3 bg-[#213268] text-white rounded-lg hover:bg-[#152349] transform active:scale-[0.98] transition-all duration-200 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
                                         Kirim Laporan
                                     </button>
                                 </div>
@@ -1083,8 +1190,10 @@
                 form.addEventListener('submit', function(e) {
                     const submitBtn = this.querySelector(buttonSelector);
                     if (submitBtn && !submitBtn.disabled) {
-                        const originalText = submitBtn.innerHTML;
+                        // Store original button text
+                        submitBtn.dataset.originalText = submitBtn.innerHTML;
 
+                        // Disable button and show loading state
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
@@ -1094,15 +1203,29 @@
                             </div>
                         `;
 
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
+                        // Set safety timeout to restore button after 10 seconds
+                        // This prevents stuck UI if something unexpected happens
+                        const safetyTimeout = setTimeout(() => {
+                            resetButton(submitBtn);
                         }, 10000);
+
+                        // Store the safety timeout ID on the form for later clearing
+                        form.dataset.safetyTimeoutId = safetyTimeout;
                     }
                 });
+            }
+
+            // Function to reset button to original state
+            function resetButton(button) {
+                if (!button) return;
+
+                // Check if we stored the original text
+                const originalText = button.dataset.originalText || 'Simpan';
+
+                // Reset button state
+                button.disabled = false;
+                button.classList.remove('opacity-70', 'cursor-not-allowed');
+                button.innerHTML = originalText;
             }
 
             preventMultipleSubmits(document.getElementById('addMaintenanceForm'), 'button[type="submit"]');
@@ -2386,6 +2509,18 @@
 
             loadAllVendors();
 
+            // Variables for user lazy loading
+            let userPage = 1;
+            let isLoadingUsers = false;
+            let hasMoreUsers = true;
+            let currentUserSearch = '';
+
+            // Variables for edit user lazy loading
+            let editUserPage = 1;
+            let isLoadingEditUsers = false;
+            let hasMoreEditUsers = true;
+            let currentEditUserSearch = '';
+
             initUserSearch('user_search', 'user_dropdown', 'user_list', 'user_loading', 'selected_user_id');
             initUserSearch('edit_user_search', 'edit_user_dropdown', 'edit_user_list', 'edit_user_loading', 'edit_assigned_to');
 
@@ -2400,9 +2535,19 @@
 
                 searchInput.addEventListener('focus', function() {
                     dropdown.classList.remove('hidden');
-                    if (userList.children.length === 0) {
-                        loadUsers('');
+
+                    // Reset pagination variables when focusing
+                    if (searchInputId === 'user_search') {
+                        userPage = 1;
+                        hasMoreUsers = true;
+                        currentUserSearch = '';
+                    } else {
+                        editUserPage = 1;
+                        hasMoreEditUsers = true;
+                        currentEditUserSearch = '';
                     }
+
+                    loadUsers('', searchInputId === 'user_search' ? 1 : 1, false);
                 });
 
                 document.addEventListener('click', function(e) {
@@ -2412,7 +2557,21 @@
                 });
 
                 const debouncedSearch = debounce(function(e) {
-                    loadUsers(e.target.value);
+                    const searchTerm = e.target.value;
+                    const isEditMode = searchInputId === 'edit_user_search';
+
+                    // Reset pagination when starting a new search
+                    if (isEditMode) {
+                        editUserPage = 1;
+                        hasMoreEditUsers = true;
+                        currentEditUserSearch = searchTerm;
+                    } else {
+                        userPage = 1;
+                        hasMoreUsers = true;
+                        currentUserSearch = searchTerm;
+                    }
+
+                    loadUsers(searchTerm, isEditMode ? editUserPage : userPage, false);
                 }, 300);
 
                 searchInput.addEventListener('input', debouncedSearch);
@@ -2421,27 +2580,75 @@
                 const permissionRadios = document.querySelectorAll(isEditMode ? '.edit-permission-radio' : '.permission-radio');
                 permissionRadios.forEach(radio => {
                     radio.addEventListener('change', function() {
+                        // Reset pagination when changing permission filter
+                        if (isEditMode) {
+                            editUserPage = 1;
+                            hasMoreEditUsers = true;
+                        } else {
+                            userPage = 1;
+                            hasMoreUsers = true;
+                        }
+
                         userList.innerHTML = '';
-                        loadUsers(searchInput.value);
+                        loadUsers(searchInput.value, isEditMode ? editUserPage : userPage, false);
                     });
                 });
 
-            function loadUsers(searchTerm) {
-                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-                userList.innerHTML = '';
+                // Setup infinite scrolling for user results
+                dropdown.addEventListener('scroll', function() {
+                    const isEditMode = searchInputId === 'edit_user_search';
+                    const hasMore = isEditMode ? hasMoreEditUsers : hasMoreUsers;
+                    const isLoading = isEditMode ? isLoadingEditUsers : isLoadingUsers;
 
+                    if (!hasMore || isLoading) return;
+
+                    // Check if user scrolled to bottom
+                    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                        // Load next page
+                        if (isEditMode) {
+                            editUserPage++;
+                            loadUsers(currentEditUserSearch, editUserPage, true);
+                        } else {
+                            userPage++;
+                            loadUsers(currentUserSearch, userPage, true);
+                        }
+                    }
+                });
+
+            function loadUsers(searchTerm, page = 1, append = false) {
+                const isEditMode = searchInputId === 'edit_user_search';
+
+                if (isEditMode) {
+                    if (isLoadingEditUsers) return;
+                    isLoadingEditUsers = true;
+                } else {
+                    if (isLoadingUsers) return;
+                    isLoadingUsers = true;
+                }
+
+                if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+
+                if (!append) {
+                    userList.innerHTML = '';
                 const searchingMsg = document.createElement('li');
                 searchingMsg.className = 'px-4 py-2 text-blue-500 text-center';
                 searchingMsg.textContent = searchTerm ? `Mencari "${searchTerm}"...` : 'Memuat pengguna...';
                 userList.appendChild(searchingMsg);
+                } else {
+                    // Add loading indicator at the bottom when appending
+                    const loadingItem = document.createElement('li');
+                    loadingItem.className = 'px-4 py-2 text-blue-500 text-center user-loading-indicator';
+                    loadingItem.textContent = 'Memuat lebih banyak...';
+                    userList.appendChild(loadingItem);
+                }
 
                 let queryParams = new URLSearchParams();
                 if (searchTerm) {
                     queryParams.append('search', searchTerm);
                 }
-                queryParams.append('limit', 20);
+                queryParams.append('limit', 10);
+                queryParams.append('page', page);
 
-                    const isEditMode = searchInputId === 'edit_user_search';
                     const selectedPermission = document.querySelector(
                         isEditMode ? 'input[name="edit_permission_filter"]:checked' : 'input[name="permission_filter"]:checked'
                     )?.value;
@@ -2453,6 +2660,12 @@
                     noPermission.className = 'px-4 py-2 text-red-500';
                         noPermission.textContent = 'Silakan pilih jenis izin pengguna terlebih dahulu';
                     userList.appendChild(noPermission);
+
+                    if (isEditMode) {
+                        isLoadingEditUsers = false;
+                    } else {
+                        isLoadingUsers = false;
+                    }
                     return;
                 }
 
@@ -2478,17 +2691,32 @@
                             users = data.data;
                         }
 
+                    // Remove loading indicators
+                    if (append) {
+                        const loadingIndicator = userList.querySelector('.user-loading-indicator');
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                    } else {
                     userList.innerHTML = '';
+                    }
 
-                        if (users.length === 0) {
+                    // Track if we have more users to load
+                    if (isEditMode) {
+                        hasMoreEditUsers = users.length === 10; // Assuming 10 is the page size
+                    } else {
+                        hasMoreUsers = users.length === 10;
+                    }
+
+                    if (users.length === 0 && !append) {
                         const noResults = document.createElement('li');
                         noResults.className = 'px-4 py-2 text-gray-500 italic';
                             noResults.textContent = 'Tidak ada pengguna ditemukan dengan izin yang dipilih';
                         userList.appendChild(noResults);
                     } else {
                             users.sort((a, b) => {
-                            if (a.employee_number && b.employee_number) {
-                                return a.employee_number.localeCompare(b.employee_number);
+                            if (a.employee_name && b.employee_name) {
+                                return a.employee_name.localeCompare(b.employee_name);
                             } else if (a.name && b.name) {
                                 return a.name.localeCompare(b.name);
                             }
@@ -2500,8 +2728,8 @@
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
                             let displayText = '';
-                            if (user.employee_number) {
-                                displayText = user.employee_number;
+                            if (user.employee_name) {
+                                displayText = user.employee_name;
                                 if (user.name) {
                                     displayText += ` - ${user.name}`;
                                 }
@@ -2511,7 +2739,7 @@
 
                             li.textContent = displayText;
                             li.setAttribute('data-id', user.user_id);
-                            li.setAttribute('data-employee-number', user.employee_number || '');
+                            li.setAttribute('data-employee-number', user.employee_name || '');
 
                             li.addEventListener('click', function() {
                                 selectedUserId.value = this.getAttribute('data-id');
@@ -2529,17 +2757,31 @@
                             userList.appendChild(li);
                         });
 
+                        // Add "load more" indicator if we have more users
+                        if ((isEditMode && hasMoreEditUsers) || (!isEditMode && hasMoreUsers)) {
                         const countDiv = document.createElement('li');
                         countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
                             let permissionText = selectedPermission === 'maintenance-report:medical' ?
                                 'izin pemeliharaan medis' : 'izin pemeliharaan non-medis';
 
-                            countDiv.textContent = `Menampilkan ${users.length} pengguna dengan ${permissionText}`;
+                            countDiv.textContent = `Scroll untuk memuat lebih banyak pengguna dengan ${permissionText}`;
                         userList.appendChild(countDiv);
+                        }
                                             }
                 })
                 .catch(error => {
                     console.error('Error loading users with permissions:', error);
+
+                    // Remove loading indicators
+                    if (append) {
+                        const loadingIndicator = userList.querySelector('.user-loading-indicator');
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                    } else {
+                        userList.innerHTML = '';
+                    }
+
                     const errorItem = document.createElement('li');
                     errorItem.className = 'px-4 py-2 text-red-500';
 
@@ -2553,6 +2795,11 @@
                 })
                 .finally(() => {
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                    if (isEditMode) {
+                        isLoadingEditUsers = false;
+                    } else {
+                        isLoadingUsers = false;
+                    }
                 });
                 }
             }
@@ -2586,9 +2833,7 @@
 
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = 'Simpan';
+                        resetButton(submitBtn);
                     }
 
                     return;
@@ -2643,6 +2888,11 @@
                     })
                 .then(handleApiResponse)
                 .then(data => {
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
+
                     if (data.success) {
                         showToast(data.message || 'Jadwal pemeliharaan berhasil dibuat', 'success');
                         closeModal(modals.add, modalContents.add);
@@ -2651,19 +2901,32 @@
                             window.location.reload();
                         }, 1500);
                     } else {
-                            if (data.error) {
-                                showToast(data.error, 'error');
-                            } else if (data.message) {
-                                showToast(data.message, 'error');
-                            } else if (data.errors) {
+                        // Reset button state on error
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        resetButton(submitBtn);
+
+                        if (data.error) {
+                            showToast(data.error, 'error');
+                        } else if (data.message) {
+                            showToast(data.message, 'error');
+                        } else if (data.errors) {
                             showToast({ errors: data.errors }, 'error');
-                            } else {
+                        } else {
                             showToast('Gagal membuat jadwal pemeliharaan', 'error');
-                            }
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Error creating maintenance schedule:', error);
+
+                    // Reset button state on error
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    resetButton(submitBtn);
+
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
 
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
@@ -2742,6 +3005,11 @@
                 })
                 .then(handleApiResponse)
                 .then(data => {
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
+
                     closeModal(modals.delete, modalContents.delete);
 
                     if (data.success) {
@@ -2751,11 +3019,25 @@
                             window.location.reload();
                         }, 1000);
                     } else {
+                        // Reset button state
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        resetButton(submitBtn);
+
                         showToast(data.message || 'Gagal menghapus rekaman pemeliharaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Delete request failed:', error);
+
+                    // Reset button state on error
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    resetButton(submitBtn);
+
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
+
                     closeModal(modals.delete, modalContents.delete);
 
                     if (error && error.errors) {
@@ -2836,10 +3118,10 @@
                             if (maintenance.assigned_to && editAssignedTo && editUserSearch) {
                                 editAssignedTo.value = maintenance.assigned_to;
 
-                            if (maintenance.assigned_to_employee_number) {
-                                    editUserSearch.value = maintenance.assigned_to_employee_number;
-                            } else if (maintenance.employee_number) {
-                                    editUserSearch.value = maintenance.employee_number;
+                            if (maintenance.assigned_to_employee_name) {
+                                    editUserSearch.value = maintenance.assigned_to_employee_name;
+                            } else if (maintenance.employee_name) {
+                                    editUserSearch.value = maintenance.employee_name;
                             } else if (maintenance.employee_name) {
                                     editUserSearch.value = maintenance.employee_name;
                             } else {
@@ -2934,6 +3216,11 @@
                 })
                 .then(handleApiResponse)
                 .then(data => {
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
+
                     closeModal(modals.edit, modalContents.edit);
 
                     if (data.success) {
@@ -2943,11 +3230,24 @@
                             window.location.reload();
                         }, 1000);
                     } else {
+                        // Reset button state
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        resetButton(submitBtn);
+
                         showToast(data.message || 'Gagal memperbarui rekaman pemeliharaan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Update request failed:', error);
+
+                    // Reset button state on error
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    resetButton(submitBtn);
+
+                    // Clear the safety timeout
+                    if (this.dataset.safetyTimeoutId) {
+                        clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                    }
 
                     if (error && error.errors) {
                         if (Array.isArray(error.errors)) {
@@ -2981,6 +3281,26 @@
                         return;
                     }
 
+                    // Show loading state
+                    button.setAttribute('data-original-html', button.innerHTML);
+                    button.disabled = true;
+                    button.innerHTML = `<div class="inline-block w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin mr-1"></div>`;
+
+                    // Set timeout to revert button after 10 seconds as a safety
+                    const safetyTimeout = setTimeout(() => {
+                        resetReportButton();
+                    }, 10000);
+
+                    // Function to reset button
+                    const resetReportButton = () => {
+                        const originalHtml = button.getAttribute('data-original-html');
+                        if (originalHtml) {
+                            button.innerHTML = originalHtml;
+                        }
+                        button.disabled = false;
+                        clearTimeout(safetyTimeout);
+                    };
+
                     // Fetch maintenance details to get all info including asset image
                     fetch(`/maintenance/${maintenanceId}`, {
                         headers: {
@@ -2990,58 +3310,143 @@
                     })
                     .then(response => {
                         if (!response.ok) {
+                            resetReportButton();
                             throw new Error('Gagal mengambil detail pemeliharaan');
                         }
                         return response.json();
                     })
                     .then(result => {
+                        resetReportButton();
+
                         if (!result.success) {
                             throw new Error(result.message || 'Gagal mengambil detail pemeliharaan');
                         }
 
                         const maintenance = result.data;
 
-                        if (!assetName || !assetCode) {
-                            assetName = maintenance.asset_name || this.closest('tr').querySelector('td:nth-child(1) .font-medium').textContent;
-                            assetCode = maintenance.asset_code || this.closest('tr').querySelector('td:nth-child(1) .text-gray-500').textContent.replace('Kode: ', '');
-                        }
+                        // Extract asset data from all possible locations
+                        const asset = maintenance.asset || {};
+
+                        // Use data from API or fallback to button attributes or table cells
+                        assetName = maintenance.asset_name || asset.asset_name || asset.name ||
+                                  assetName || this.closest('tr')?.querySelector('td:nth-child(1) .font-medium')?.textContent || '-';
+
+                        assetCode = maintenance.asset_code || asset.asset_code || asset.code ||
+                                  assetCode || this.closest('tr')?.querySelector('td:nth-child(1) .text-gray-500')?.textContent.replace('Kode: ', '') || '-';
+
+                        // Get asset properties
+                        const serialNumber = maintenance.serial_number || asset.serial_number || '-';
+                        const brandName = maintenance.brand_name || asset.brand_name || asset.brand || '-';
+                        const modelName = maintenance.model || asset.model || '-';
+
+                        // Find location data
+                        const locationData = maintenance.location || asset.location || {};
 
                         const reportMaintenanceId = document.getElementById('report_maintenance_id');
-                        const reportAssetName = document.getElementById('report_asset_name');
-                        const reportAssetCode = document.getElementById('report_asset_code');
                         const maintenanceDate = document.getElementById('maintenance_date');
                         const createReportForm = document.getElementById('createReportForm');
                         const imagePreview = document.getElementById('image-preview');
                         const assetImage = document.getElementById('maintenance_asset_image');
 
-                        if (reportMaintenanceId && reportAssetName && reportAssetCode && maintenanceDate && createReportForm && imagePreview) {
+                        if (reportMaintenanceId && maintenanceDate && createReportForm && imagePreview) {
                             reportMaintenanceId.value = maintenanceId;
-                            reportAssetName.textContent = assetName;
-                            reportAssetCode.textContent = assetCode;
 
-                            // Set asset image
-                            if (assetImage && maintenance.asset_image_path) {
-                                assetImage.src = maintenance.asset_image_path.startsWith('http')
-                                    ? maintenance.asset_image_path
-                                    : "{{ config('app.backend_url') }}/public" + maintenance.asset_image_path;
-                            } else if (assetImage) {
-                                assetImage.src = "{{ asset('images/placeholder.png') }}";
-                            }
+                            // Reset form and prevent data from previous submissions
+                            createReportForm.reset();
 
+                            // Set current date for the report
                             const today = new Date().toISOString().split('T')[0];
                             maintenanceDate.value = today;
 
-                            createReportForm.reset();
-                            reportMaintenanceId.value = maintenanceId;
-                            maintenanceDate.value = today;
-
+                            // Clear any previous image preview
                             imagePreview.classList.add('hidden');
 
+                            // Set maintenance ID again after form reset
+                            reportMaintenanceId.value = maintenanceId;
+
+                            // Set asset information
+                            document.getElementById('report_asset_code_display').value = assetCode;
+                            document.getElementById('report_asset_name_display').value = assetName;
+                            document.getElementById('report_serial_number_display').value = serialNumber;
+                            document.getElementById('report_brand_name_display').value = brandName;
+                            document.getElementById('report_model_display').value = modelName;
+
+                            // Format location
+                            let locationText = '-';
+                            if (locationData && typeof locationData === 'object') {
+                                const locationParts = [];
+                                if (locationData.room_name) locationParts.push(locationData.room_name);
+                                if (locationData.floor_number) locationParts.push('Lantai ' + locationData.floor_number);
+                                if (locationData.building_name) locationParts.push(locationData.building_name);
+                                if (locationParts.length > 0) {
+                                    locationText = locationParts.join(' | ');
+                                }
+                            }
+                            document.getElementById('report_location_display').value = locationText;
+
+                            // Set maintenance schedule information
+                            const formatDate = (dateString) => {
+                                if (!dateString) return '-';
+                                const date = new Date(dateString);
+                                return date.toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+                            };
+
+                            document.getElementById('report_start_date_display').value = formatDate(maintenance.start_date);
+                            document.getElementById('report_end_date_display').value = formatDate(maintenance.end_date);
+
+                            // Format interval text
+                            let intervalText = '-';
+                            const interval = maintenance.interval;
+                            if (interval === 'ONCE') intervalText = 'Sekali';
+                            else if (interval === 'DAILY') intervalText = 'Harian';
+                            else if (interval === 'WEEKLY') intervalText = 'Mingguan';
+                            else if (interval === '2 WEEKS') intervalText = '2 Minggu';
+                            else if (interval === 'MONTHLY') intervalText = 'Bulanan';
+                            else if (interval === '2 MONTHS') intervalText = '2 Bulan';
+                            else if (interval === '3 MONTHS') intervalText = '3 Bulan';
+                            else if (interval === '4 MONTHS') intervalText = '4 Bulan';
+                            else if (interval === '6 MONTHS') intervalText = '6 Bulan';
+                            else if (interval === 'YEARLY') intervalText = 'Tahunan';
+
+                            document.getElementById('report_interval_display').value = intervalText;
+
+                            // Set vendor
+                            document.getElementById('report_vendor_display').value = maintenance.vendor_name || '-';
+
+                            // Set asset image - check multiple possible paths
+                            if (assetImage) {
+                                // Try all possible image paths
+                                const imagePath = maintenance.asset_image_path ||
+                                                asset.image_path ||
+                                                asset.asset_image_path ||
+                                                maintenance.image_path || null;
+
+                                if (imagePath) {
+                                    assetImage.src = imagePath.startsWith('http')
+                                        ? imagePath
+                                        : "{{ config('app.backend_url') }}/public" + imagePath;
+
+                                    // Handle image load errors
+                                    assetImage.onerror = function() {
+                                        this.onerror = null;
+                                        this.src = "{{ asset('images/placeholder.png') }}";
+                                    };
+                                } else {
+                                    assetImage.src = "{{ asset('images/placeholder.png') }}";
+                                }
+                            }
+
                             openModal(modals.report, modalContents.report);
+                        } else {
+                            showToast('Beberapa elemen form tidak ditemukan', 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching maintenance details:', error);
+
+                        // Reset button on error
+                        resetReportButton();
+
                         showToast(error.message || 'Gagal mengambil detail pemeliharaan', 'error');
                     });
                 });
@@ -3097,6 +3502,11 @@
                     })
                     .then(handleApiResponse)
                     .then(data => {
+                        // Clear the safety timeout
+                        if (this.dataset.safetyTimeoutId) {
+                            clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                        }
+
                         closeModal(modals.report, modalContents.report);
 
                         if (data.success) {
@@ -3106,11 +3516,24 @@
                                 window.location.reload();
                             }, 1500);
                         } else {
+                            // Reset button state on error
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            resetButton(submitBtn);
+
                             showToast(data.message || 'Gagal membuat laporan pemeliharaan', 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error creating maintenance report:', error);
+
+                        // Reset button state on error
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        resetButton(submitBtn);
+
+                        // Clear the safety timeout
+                        if (this.dataset.safetyTimeoutId) {
+                            clearTimeout(parseInt(this.dataset.safetyTimeoutId));
+                        }
 
                         if (error && error.errors) {
                             if (Array.isArray(error.errors)) {

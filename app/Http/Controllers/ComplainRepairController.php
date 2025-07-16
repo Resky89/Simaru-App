@@ -522,6 +522,19 @@ class ComplainRepairController extends Controller
             }
 
             $complaint = $result['data'];
+             // Convert complaint image to base64 if exists
+             if (!empty($complaint['complaint_picture_path'])) {
+                try {
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $imagePath = $backendUrl . '/public/images/' . basename($complaint['asset_image_path']);
+                    $imageData = file_get_contents($imagePath);
+                    if ($imageData !== false) {
+                        $complaint['asset_image_base64'] = base64_encode($imageData);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to convert complaint image to base64: ' . $e->getMessage());
+                }
+            }
 
             // Convert complaint image to base64 if exists
             if (!empty($complaint['complaint_picture_path'])) {

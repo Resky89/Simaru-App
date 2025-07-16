@@ -145,8 +145,13 @@
                         </div>
 
                         <div class="flex flex-col">
-                            <span class="text-sm text-gray-500">Keluhan Oleh</span>
-                            <span class="font-medium">{{ $complaint['reporter_number'] ?? 'N/A' }}</span>
+                            <span class="text-sm text-gray-500">Nomor Seri</span>
+                            <span class="font-medium">{{ $complaint['serial_number'] ?? 'N/A' }}</span>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Model</span>
+                            <span class="font-medium">{{ $complaint['model'] ?? 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
@@ -160,8 +165,11 @@
                         </svg>
                         Detail Keluhan
                     </h2>
-
                     <div class="space-y-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Keluhan Oleh</span>
+                            <span class="font-medium">{{ $complaint['reporter_name'] ?? 'N/A' }}</span>
+                        </div>
                         <div class="flex flex-col">
                             <span class="text-sm text-gray-500">Deskripsi</span>
                             <span class="font-medium break-words">{{ $complaint['description'] ?? 'N/A' }}</span>
@@ -250,6 +258,7 @@
                                         @php
                                             $finalResult = $complaint['repair']['final_result'] ?? 'N/A';
                                             $translations = [
+                                                'Good' => 'Baik',
                                                 'Slightly Damage' => 'Kerusakan Ringan',
                                                 'Heavy Damage' => 'Kerusakan Berat',
                                                 'Waiting for Part' => 'Menunggu Suku Cadang'
@@ -274,7 +283,7 @@
 
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-500">Teknisi</span>
-                                    <span class="font-medium">{{ $complaint['repair']['technician_number'] ?? 'N/A' }}</span>
+                                    <span class="font-medium">{{ $complaint['repair']['technician_name'] ?? 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -342,6 +351,6 @@
                     }
                 });
             @endif
-                });
+     });
     </script>
 @endsection
