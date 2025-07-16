@@ -274,7 +274,7 @@
                                 </div>
                             </div>
                             @if(hasPermission('calibration:report'))
-                                <button data-id="{{ $calibration['task_code'] }}"
+                                <button data-id="{{ $calibration['calibration_id'] }}"
                                     class="edit-calibration-btn flex items-center px-3 py-1.5 {{ $isUrgent ? 'bg-[#213268]' : 'border border-[#213268]' }} rounded">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                         stroke="{{ $isUrgent ? 'white' : '#213268' }}" stroke-width="1.5">
@@ -289,7 +289,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
                             </svg>
                             <p class="mt-2 text-gray-500">Tidak ada data kalibrasi yang akan datang</p>
                         </div>
@@ -506,10 +506,11 @@
                             <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                                 data-modal="viewCalibrationModal">
                                 <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                         </div>
+                        </div>
                         <!-- Content -->
                         <div class="p-6">
                             <form id="performCalibrationForm" class="space-y-6" data-no-loading enctype="multipart/form-data">
@@ -526,8 +527,9 @@
                                     <h3 class="text-[#213268] font-semibold text-lg mb-4">Informasi Aset</h3>
 
                                     <!-- Asset Image - Added based on Calibration.blade.php -->
-                                    <div class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
-                                          <img id="asset_image_display" src="{{ asset('images/placeholder.png') }}"
+                                    <div
+                                        class="w-full h-40 bg-white mb-4 rounded-lg shadow-sm overflow-hidden relative flex items-center justify-center">
+                                        <img id="asset_image_display" src="{{ asset('images/placeholder.png') }}"
                                             alt="Asset Image" class="w-full h-full object-contain p-2"
                                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
                                     </div>
@@ -570,9 +572,9 @@
                                                     readonly>
                                             </div>
 
-                                            <!-- Type -->
+                                            <!-- Model -->
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">TIPE</label>
+                                                <label class="block text-sm font-medium text-gray-700">Model</label>
                                                 <input type="text" id="model_number_display"
                                                     class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
                                                     readonly>
@@ -600,7 +602,8 @@
                                                 class="block text-sm font-medium text-gray-700">
                                                 TANGGAL RENCANA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="planning_date_display" name="planning_calibration_date" required
+                                            <input type="date" id="planning_date_display" name="planning_calibration_date"
+                                                required
                                                 class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
                                                 readonly>
                                         </div>
@@ -675,8 +678,7 @@
                                                     </div>
                                                     <input type="text" id="calibration_price" name="calibration_price" required
                                                         class="block w-full pl-10 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                        onkeyup="formatCurrency(this)"
-                                                        onblur="formatCurrency(this, 'blur')">
+                                                        onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
                                                 </div>
                                             </div>
 
@@ -1084,7 +1086,7 @@
         let hasLoadedActivities = false;
 
         // Currency formatter function
-        window.formatCurrency = function(input, blur) {
+        window.formatCurrency = function (input, blur) {
             // Get input value
             let input_val = input.value;
 
@@ -1141,11 +1143,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                                                            <div class="flex items-center justify-center">
+                                                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                                                <span>Memproses...</span>
+                                                                            </div>
+                                                                        `;
 
                         setTimeout(() => {
                             if (submitBtn) {
@@ -1243,19 +1245,19 @@
             if (type === 'success') {
                 notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                 notification.innerHTML = `
-                        <div class="flex items-start">
-                            <div class="py-1">
-                                <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="font-bold">Berhasil!</p>
-                                <div>${message}</div>
-                            </div>
-                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                        </div>
-                    `;
+                                                                    <div class="flex items-start">
+                                                                        <div class="py-1">
+                                                                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="font-bold">Berhasil!</p>
+                                                                            <div>${message}</div>
+                                                                        </div>
+                                                                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                                    </div>
+                                                                `;
             } else {
                 notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -1277,10 +1279,10 @@
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'py-1 flex-shrink-0';
                 iconContainer.innerHTML = `
-                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                    `;
+                                                                        <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                </svg>
+                                                                    `;
 
                 const contentContainer = document.createElement('div');
                 contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
@@ -1321,28 +1323,28 @@
         };
 
         document.head.insertAdjacentHTML('beforeend', `
-                <style>
-                    @keyframes slideInRight {
-                        from { transform: translateX(100%); }
-                        to { transform: translateX(0); }
-                    }
-                    .animate-slide-in-right {
-                        animation: slideInRight 0.3s ease-out forwards;
-                    }
-                    .error-message ul {
-                        margin-top: 0.5rem;
-                        padding-left: 1.5rem;
-                        list-style-type: disc;
-                    }
-                    .error-message li {
-                        margin-bottom: 0.25rem;
-                    }
-                    .error-message strong {
-                        color: #b91c1c;
-                        font-weight: 600;
-                    }
-                </style>
-            `);
+                                                            <style>
+                                                                @keyframes slideInRight {
+                                                                    from { transform: translateX(100%); }
+                                                                    to { transform: translateX(0); }
+                                                                }
+                                                                .animate-slide-in-right {
+                                                                    animation: slideInRight 0.3s ease-out forwards;
+                                                                }
+                                                                .error-message ul {
+                                                                    margin-top: 0.5rem;
+                                                                    padding-left: 1.5rem;
+                                                                    list-style-type: disc;
+                                                                }
+                                                                .error-message li {
+                                                                    margin-bottom: 0.25rem;
+                                                                }
+                                                                .error-message strong {
+                                                                    color: #b91c1c;
+                                                                    font-weight: 600;
+                                                                }
+                                                            </style>
+                                                        `);
 
         function showAllEvents(dateStr) {
             const displayDate = new Date(dateStr);
@@ -1352,13 +1354,13 @@
 
             if (!calendarEvents[dateStr] || calendarEvents[dateStr].length === 0) {
                 eventListHTML = `
-                            <div class="text-center py-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                                <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
-                            </div>
-                        `;
+                                                                        <div class="text-center py-4">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                                            </svg>
+                                                                            <p class="mt-2 text-gray-500">Tidak ada jadwal untuk tanggal ini</p>
+                                                                        </div>
+                                                                    `;
             } else {
                 calendarEvents[dateStr].forEach(event => {
                     const bgColor = event.type === 'info' ? 'bg-[#FFF8E5]' : // Kalibrasi - yellow
@@ -1370,57 +1372,57 @@
                             'Garansi';
 
                     eventListHTML += `
-                                <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
-                                    <div class="flex justify-between items-start">
-                                        <div class="font-medium text-lg mb-2">${event.title}</div>
-                                        <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-yellow-100 text-yellow-800' : // Kalibrasi - yellow
+                                                                            <div class="mb-3 p-4 ${bgColor} rounded-lg shadow-sm">
+                                                                                <div class="flex justify-between items-start">
+                                                                                    <div class="font-medium text-lg mb-2">${event.title}</div>
+                                                                                    <span class="text-xs font-medium px-2 py-1 rounded-full ${event.type === 'info' ? 'bg-yellow-100 text-yellow-800' : // Kalibrasi - yellow
                             event.type === 'urgent' ? 'bg-blue-100 text-blue-800' : // Perawatan - blue
                                 'bg-green-100 text-green-800' // Garansi - green
                         }">${typeLabel}</span>
-                                    </div>
-                                    ${event.assetCode ? `<div class="text-sm mb-1"><span class="font-medium">Kode Aset:</span> ${event.assetCode}</div>` : ''}
-                                    ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
-                                    ${event.url ? `
-                                        <div class="mt-3 pt-2 border-t border-gray-200">
-                                            <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
-                                                <span>Lihat detail</span>
-                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                                </svg>
-                                            </a>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            `;
+                                                                                </div>
+                                                                                ${event.assetCode ? `<div class="text-sm mb-1"><span class="font-medium">Kode Aset:</span> ${event.assetCode}</div>` : ''}
+                                                                                ${event.location ? `<div class="text-sm mb-1"><span class="font-medium">Lokasi:</span> ${event.location}</div>` : ''}
+                                                                                ${event.url ? `
+                                                                                    <div class="mt-3 pt-2 border-t border-gray-200">
+                                                                                        <a href="${event.url}" class="inline-flex items-center text-[#213268] hover:text-[#152349] text-sm">
+                                                                                            <span>Lihat detail</span>
+                                                                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                                                                            </svg>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                ` : ''}
+                                                                            </div>
+                                                                        `;
                 });
             }
 
             const modalHTML = `
-                        <div id="eventModal" class="fixed inset-0 z-50">
-                            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                            <div class="fixed inset-0 z-50 overflow-y-auto">
-                                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px]"
-                                        id="eventModalContent">
-                                        <!-- Header -->
-                                        <div class="flex justify-between items-center p-6 pb-0">
-                                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Jadwal: ${formattedDate}</h2>
-                                            <button onclick="document.getElementById('eventModal').remove()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                                                    <div id="eventModal" class="fixed inset-0 z-50">
+                                                                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+                                                                        <div class="fixed inset-0 z-50 overflow-y-auto">
+                                                                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                                                                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px]"
+                                                                                    id="eventModalContent">
+                                                                                    <!-- Header -->
+                                                                                    <div class="flex justify-between items-center p-6 pb-0">
+                                                                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Jadwal: ${formattedDate}</h2>
+                                                                                        <button onclick="document.getElementById('eventModal').remove()" class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                                                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </div>
 
-                                        <!-- Content -->
-                                        <div class="p-6">
-                                    ${eventListHTML}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                                                                    <!-- Content -->
+                                                                                    <div class="p-6">
+                                                                                ${eventListHTML}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
 
             document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
@@ -1456,12 +1458,13 @@
                     labels: ['Tersedia', 'Perawatan', 'Pinjam', 'Dihapuskan', 'Hilang'],
                     datasets: [{
                         data: [
-                                    {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
-                                    {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
-                                    {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
-                                    {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
-                                {{ $dashboardData['assets_by_status']['lost'] ?? 0 }}
-                            ],
+                                        {{ $dashboardData['assets_by_status']['available'] ?? 0 }},
+                                        {{ $dashboardData['assets_by_status']['under repair'] ?? 0 }},
+                                        {{ $dashboardData['assets_by_status']['checked out'] ?? 0 }},
+                                        {{ $dashboardData['assets_by_status']['dispose'] ?? 0 }},
+                                        {{ $dashboardData['assets_by_status']['lost'] ?? 0 }},
+                                        {{ $dashboardData['assets_by_status']['maintenance'] ?? 0 }}
+                                    ],
                 backgroundColor: [
                 '#7CB60C',  // Available - Green (500)
                 '#25B1FF',  // Maintenance - Blue (500)
@@ -1470,8 +1473,8 @@
                 '#FF4A2B'   // Lost - Red (500)
             ],
                 borderWidth: 0
-                        }]
-                    },
+                                                                    }]
+                                                                },
             options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -1487,7 +1490,7 @@
                 }
             }
         }
-                });
+                    });
 
         const displayToggle = document.getElementById('displayToggle');
         const numberValues = document.querySelectorAll('.number-value');
@@ -1579,11 +1582,11 @@
                 document.getElementById('yearSelector').value = year;
 
                 document.getElementById('calendarDays').innerHTML = `
-                            <div class="col-span-7 text-center py-8">
-                                <span class="loading loading-spinner loading-md text-[#213268]"></span>
-                                <p class="text-gray-500 mt-2">Memuat data kalender...</p>
-                            </div>
-                        `;
+                                                                        <div class="col-span-7 text-center py-8">
+                                                                            <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                                                                            <p class="text-gray-500 mt-2">Memuat data kalender...</p>
+                                                                        </div>
+                                                                    `;
 
                 const response = await fetch(`/dashboard/calendar?year=${year}&month=${month + 1}`);
                 const data = await response.json();
@@ -1593,24 +1596,24 @@
                     processCalendarEvents(eventsData);
                 } else {
                     document.getElementById('calendarDays').innerHTML = `
-                                <div class="col-span-7 text-center py-8">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                    <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
-                                    <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
-                                </div>
-                            `;
+                                                                            <div class="col-span-7 text-center py-8">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                                </svg>
+                                                                                <p class="text-gray-500 mt-2">Gagal memuat data kalender</p>
+                                                                                <p class="text-xs text-gray-500 mt-1">${JSON.stringify(data.errors)}</p>
+                                                                            </div>
+                                                                        `;
                 }
             } catch (error) {
                 document.getElementById('calendarDays').innerHTML = `
-                            <div class="col-span-7 text-center py-8">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
-                                <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
-                            </div>
-                        `;
+                                                                        <div class="col-span-7 text-center py-8">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                                            </svg>
+                                                                            <p class="mt-2 text-gray-500">Kesalahan jaringan, coba lagi nanti</p>
+                                                                        </div>
+                                                                    `;
             }
         }
 
@@ -1703,10 +1706,10 @@
             for (let i = startingDay - 1; i >= 0; i--) {
                 const day = prevMonthLastDay - i;
                 calendarDays.innerHTML += `
-                            <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                                <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                            </div>
-                        `;
+                                                                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                                                                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                                                                        </div>
+                                                                    `;
             }
 
             for (let day = 1; day <= totalDays; day++) {
@@ -1743,10 +1746,10 @@
                     if (calendarEvents[dateStr].length > 3) {
                         const moreCount = calendarEvents[dateStr].length - 3;
                         dayEvents += `
-                                        <div class="text-right">
-                                            <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
-                                        </div>
-                                    `;
+                                                                                    <div class="text-right">
+                                                                                        <span class="text-[#213268] text-xs cursor-pointer font-medium hover:underline" onclick="showAllEvents('${dateStr}')">+${moreCount} lainnya</span>
+                                                                                    </div>
+                                                                                `;
                     }
                 }
 
@@ -1764,25 +1767,25 @@
                 ].join(' ');
 
                 calendarDays.innerHTML += `
-                                <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
-                                        ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
-                                    </div>
-                                    <div class="flex flex-col gap-1">
-                                        ${dayEvents}
-                                    </div>
-                                </div>
-                            `;
+                                                                            <div class="${dayClasses}" onclick="showAllEvents('${dateStr}')">
+                                                                                <div class="flex justify-between items-center mb-2">
+                                                                                    <div class="text-sm font-['Poppins'] ${isToday ? 'font-bold' : ''}">${day}</div>
+                                                                                    ${hasEvents ? `<div class="w-2.5 h-2.5 rounded-full bg-[#213268] animate-pulse"></div>` : ''}
+                                                                                </div>
+                                                                                <div class="flex flex-col gap-1">
+                                                                                    ${dayEvents}
+                                                                                </div>
+                                                                            </div>
+                                                                        `;
             }
 
             const remainingDays = 42 - (startingDay + totalDays);
             for (let day = 1; day <= remainingDays; day++) {
                 calendarDays.innerHTML += `
-                            <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
-                                <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
-                            </div>
-                        `;
+                                                                        <div class="p-2 min-h-[104px] bg-white border border-[#213268]/5">
+                                                                            <div class="text-xs font-['Poppins'] text-center text-[#213268] opacity-30">${day}</div>
+                                                                        </div>
+                                                                    `;
             }
         }
 
@@ -1843,75 +1846,75 @@
             let content = '';
             if (activity.action_type === 'ASSET_STATUS_CHANGE') {
                 content = `
-                            <p class="text-lg font-normal font-['Poppins'] text-black">
-                                ${userName} mengubah status dari
-                                ${createStatusBadge(activity.old_status)} ke
-                                ${createStatusBadge(activity.new_status)}
-                            </p>
-                        `;
+                                                                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                                                                            ${userName} mengubah status dari
+                                                                            ${createStatusBadge(activity.old_status)} ke
+                                                                            ${createStatusBadge(activity.new_status)}
+                                                                        </p>
+                                                                    `;
             } else if (activity.action_type === 'ASSET_LOCATION_CHANGE') {
                 content = `
-                            <p class="text-lg font-normal font-['Poppins'] text-black">
-                                ${userName} memindahkan dari
-                                <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
-                                <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
-                            </p>
-                        `;
+                                                                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                                                                            ${userName} memindahkan dari
+                                                                            <span class="font-medium text-[#213268]">${activity.old_location || 'Unknown'}</span> ke
+                                                                            <span class="font-medium text-[#213268]">${activity.new_location || 'Unknown'}</span>
+                                                                        </p>
+                                                                    `;
             } else {
                 content = `
-                            <p class="text-lg font-normal font-['Poppins'] text-black">
-                                ${userName} ${activity.message || 'melakukan update'}
-                            </p>
-                        `;
+                                                                        <p class="text-lg font-normal font-['Poppins'] text-black">
+                                                                            ${userName} ${activity.message || 'melakukan update'}
+                                                                        </p>
+                                                                    `;
             }
 
             return `
-                        <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
-                            <!-- Blue Line -->
-                            <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
+                                                                    <div class="relative w-full bg-white shadow-sm border border-[#ECECEC] rounded-lg p-4 mb-3 hover:shadow-md transition-shadow duration-200">
+                                                                        <!-- Blue Line -->
+                                                                        <div class="absolute left-0 top-0 w-1.5 h-full bg-[#25B1FF] rounded-l-lg"></div>
 
-                            <div class="flex flex-col md:flex-row pl-4">
-                                <!-- Date & Time -->
-                                <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
-                                    <p class="text-lg font-medium font-['Poppins'] text-[#213268]">${dateFormatted}</p>
-                                    <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
-                                </div>
+                                                                        <div class="flex flex-col md:flex-row pl-4">
+                                                                            <!-- Date & Time -->
+                                                                            <div class="flex items-center md:flex-col md:items-start gap-2 md:gap-1 mb-3 md:mb-0 md:min-w-[120px] md:mr-6">
+                                                                                <p class="text-lg font-medium font-['Poppins'] text-[#213268]">${dateFormatted}</p>
+                                                                                <p class="text-base font-medium font-['Poppins'] text-[#757575]">${timeFormatted}</p>
+                                                                            </div>
 
-                                <!-- Content -->
-                                <div class="flex-1">
-                                    <!-- Asset Information -->
-                                    <div class="flex flex-wrap gap-2 mb-3">
-                                        <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                            <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
-                                        </div>
-                                        ${assetName ? `
-                                        <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
-                                            <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
-                                        </div>
-                                        ` : ''}
-                                    </div>
+                                                                            <!-- Content -->
+                                                                            <div class="flex-1">
+                                                                                <!-- Asset Information -->
+                                                                                <div class="flex flex-wrap gap-2 mb-3">
+                                                                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                                                                        <span class="text-sm font-medium text-[#213268]">Kode Aset: ${assetCode}</span>
+                                                                                    </div>
+                                                                                    ${assetName ? `
+                                                                                    <div class="inline-flex items-center px-3 py-1 bg-[#F3F6FF] rounded-md">
+                                                                                        <span class="text-sm font-medium text-[#213268]">Aset: ${assetName}</span>
+                                                                                    </div>
+                                                                                    ` : ''}
+                                                                                </div>
 
-                                    <!-- Status Change -->
-                                    <div class="text-base font-['Poppins'] text-[#213268]">
-                                        ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                                                                <!-- Status Change -->
+                                                                                <div class="text-base font-['Poppins'] text-[#213268]">
+                                                                                    ${userName} mengubah status dari ${createStatusBadge(activity.old_status)} ke ${createStatusBadge(activity.new_status)}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                `;
         }
 
         async function loadAssetActivities(page = 1, append = false) {
             if (!append) {
                 const activitiesContainer = document.getElementById('asset-activities');
                 activitiesContainer.innerHTML = `
-                            <div class="text-center py-12">
-                                <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
-                                    <span class="loading loading-spinner loading-md text-[#213268]"></span>
-                                </div>
-                                <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
-                            </div>
-                        `;
+                                                                        <div class="text-center py-12">
+                                                                            <div class="inline-block p-4 bg-[#213268]/5 rounded-full">
+                                                                                <span class="loading loading-spinner loading-md text-[#213268]"></span>
+                                                                            </div>
+                                                                            <p class="mt-3 text-gray-600 font-medium">Memuat aktivitas terakhir...</p>
+                                                                        </div>
+                                                                    `;
             }
 
             const activitiesContainer = document.getElementById('asset-activities');
@@ -1936,16 +1939,16 @@
 
                     if (activities.length === 0 && !append) {
                         activitiesContainer.innerHTML = `
-                                    <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
-                                        <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                        </div>
-                                        <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
-                                        <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
-                                    </div>
-                                `;
+                                                                                <div class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
+                                                                                    <div class="inline-block p-3 bg-gray-100 rounded-full mb-3">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                                        </svg>
+                                                                                    </div>
+                                                                                    <h3 class="text-lg font-medium text-gray-700 mb-1">Tidak Ada Aktivitas</h3>
+                                                                                    <p class="text-gray-500">Belum ada aktivitas aset yang tercatat</p>
+                                                                                </div>
+                                                                            `;
                     } else {
                         const activitiesHTML = activities.map(activity => createActivityItemHTML(activity)).join('');
 
@@ -1968,19 +1971,19 @@
                 } else {
                     if (!append) {
                         activitiesContainer.innerHTML = `
-                                    <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
-                                        <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                            </svg>
-                                        </div>
-                                        <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
-                                        <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
-                                        <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
-                                            Coba Lagi
-                                        </button>
-                                    </div>
-                                `;
+                                                                                <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+                                                                                    <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
+                                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                                        </svg>
+                                                                                    </div>
+                                                                                    <h3 class="text-lg font-medium text-red-700 mb-1">Gagal Memuat Data</h3>
+                                                                                    <p class="text-red-500">${data.errors?.general || 'Terjadi kesalahan saat memuat aktivitas'}</p>
+                                                                                    <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
+                                                                                        Coba Lagi
+                                                                                    </button>
+                                                                                </div>
+                                                                            `;
                     }
                 }
             } catch (error) {
@@ -1988,20 +1991,20 @@
 
                 if (!append) {
                     activitiesContainer.innerHTML = `
-                                <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
-                                    <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
-                                    <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
-                                    <p class="text-xs text-red-400 mt-1">${error.message}</p>
-                                    <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
-                                        Coba Lagi
-                                    </button>
-                                </div>
-                            `;
+                                                                            <div class="text-center py-12 bg-red-50 rounded-lg border border-red-100">
+                                                                                <div class="inline-block p-3 bg-red-100 rounded-full mb-3">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <h3 class="text-lg font-medium text-red-700 mb-1">Kesalahan Jaringan</h3>
+                                                                                <p class="text-red-500">Gagal terhubung ke server, mohon periksa koneksi Anda</p>
+                                                                                <p class="text-xs text-red-400 mt-1">${error.message}</p>
+                                                                                <button onclick="loadAssetActivities()" class="mt-4 px-4 py-2 bg-[#213268] text-white text-sm rounded-md hover:bg-[#152349] transition-colors duration-200">
+                                                                                    Coba Lagi
+                                                                                </button>
+                                                                            </div>
+                                                                        `;
                 }
             } finally {
                 isLoadingActivities = false;
@@ -2218,7 +2221,8 @@
 
                 document.getElementById('calibration_id').value = calibrationId;
 
-                fetch(`/calibrations?search=${encodeURIComponent(calibrationId)}`, {
+                // First fetch calibration details to check status
+                fetch(`/calibrations/${encodeURIComponent(calibrationId)}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -2234,14 +2238,65 @@
                     })
                     .then(data => {
                         if (data.success) {
+                            const calibration = data.data;
+                            const status = calibration.status_calibration || '';
+
+                            // Only call start endpoint if status is 'scheduled'
+                            if (status === 'scheduled') {
+                                return fetch(`/calibrations/${calibrationId}/start`, {
+                                    method: 'PATCH',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            return response.json().then(data => {
+                                                throw data;
+                                            });
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(() => {
+                                        return fetch(`/calibrations/${encodeURIComponent(calibrationId)}`, {
+                                            headers: {
+                                                'Accept': 'application/json',
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        });
+                                    });
+                            }
+
+                            // If not scheduled, continue with the current data
+                            return Promise.resolve({ json: () => data });
+                        } else {
+                            throw new Error(data.message || 'Failed to fetch calibration details');
+                        }
+                    })
+                    .then(response => {
+                        if (response.json) {
+                            return response.json();
+                        }
+                        return response;
+                    })
+                    .then(data => {
+                        if (data.success) {
                             let calibration;
 
-                            if (data.calibrations && Array.isArray(data.calibrations) && data.calibrations.length > 0) {
+                            if (data.data && typeof data.data === 'object' && data.data !== null) {
+                                // Direct object response (new controller format)
+                                calibration = data.data;
+                            } else if (data.calibration && typeof data.calibration === 'object') {
+                                // Single calibration object
+                                calibration = data.calibration;
+                            } else if (data.calibrations && Array.isArray(data.calibrations) && data.calibrations.length > 0) {
+                                // Array of calibrations (old format)
                                 calibration = data.calibrations[0];
                             } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                                // Array in data field
                                 calibration = data.data[0];
-                            } else if (typeof data.data === 'object' && data.data !== null) {
-                                calibration = data.data;
                             }
 
                             if (!calibration) {
@@ -2263,24 +2318,24 @@
                             document.getElementById('asset_code_display').value = calibration.asset_code || '-';
                             document.getElementById('asset_name_display').value = calibration.asset_name || '-';
                             document.getElementById('brand_name_display').value = calibration.brand_name || '-';
-                            document.getElementById('model_number_display').value = calibration.model_number || '-';
+                            document.getElementById('model_number_display').value = calibration.model || '-';
                             document.getElementById('serial_number_display').value = calibration.serial_number || '-';
 
                             // Set asset image
                             const assetImageDisplay = document.getElementById('asset_image_display');
-                                if (assetImageDisplay) {
-                                    if (calibration.asset_image_path) {
-                                        assetImageDisplay.src = "{{ config('app.backend_url') }}/public" + calibration.asset_image_path;
-                                    } else {
-                                        assetImageDisplay.src = "{{ asset('images/placeholder.png') }}";
-                                    }
+                            if (assetImageDisplay) {
+                                if (calibration.asset_image_path) {
+                                    assetImageDisplay.src = "{{ config('app.backend_url') }}/public" + calibration.asset_image_path;
+                                } else {
+                                    assetImageDisplay.src = "{{ asset('images/placeholder.png') }}";
+                                }
                             }
 
                             let locationText = '-';
                             if (calibration.location) {
                                 const locationParts = [];
                                 if (calibration.location.room_name) locationParts.push(calibration.location.room_name);
-                                if (calibration.location.floor_number) locationParts.push(calibration.location.floor_number);
+                                if (calibration.location.floor_number) locationParts.push(`Lantai ${calibration.location.floor_number}`);
                                 if (calibration.location.building_name) locationParts.push(calibration.location.building_name);
                                 if (locationParts.length > 0) {
                                     locationText = locationParts.join(' | ');
@@ -2313,7 +2368,7 @@
                         }
                     })
                     .catch(error => {
-                        showToast('Error loading calibration details: ' + (error.message || 'Unknown error'), 'error');
+                        showToast('Error: ' + (error.message || error.errors || 'Unknown error'), 'error');
                     });
             });
         });
@@ -2366,8 +2421,18 @@
 
             const calibrationId = document.getElementById('calibration_id').value;
 
-            const formData = new FormData();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                                                                            <div class="flex items-center justify-center">
+                                                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                                                <span>Memproses...</span>
+                                                                            </div>
+                                                                        `;
 
+            // Submit the calibration report directly without hitting start endpoint
+            const formData = new FormData();
             const formElements = this.elements;
 
             for (let i = 0; i < formElements.length; i++) {
@@ -2390,31 +2455,16 @@
                 }
                 else if (element.value.trim() !== '') {
                     formData.append(element.name, element.value.trim());
-
-                    console.log(`Adding field: ${element.name} = ${element.value.trim()}`);
-                } else {
-                    console.log(`Skipping empty field: ${element.name}`);
                 }
             }
 
             formData.append('_method', 'PUT');
 
-            console.log('Form data to be sent:');
-            for (const pair of formData.entries()) {
-                console.log(`${pair[0]}: ${pair[1]}`);
-            }
-
-            this.querySelectorAll('.border-red-500').forEach(el => {
-                el.classList.remove('border-red-500');
-            });
-
-            // Process calibration price - convert from formatted to numeric value
             const calibrationPriceInput = document.getElementById('calibration_price');
             if (calibrationPriceInput && calibrationPriceInput.value) {
                 // Remove the original value from formData
                 formData.delete('calibration_price');
 
-                // Convert from formatted string (1.234,56) to numeric value (1234.56)
                 let numericValue = calibrationPriceInput.value
                     .replace(/\./g, '')  // Remove thousand separators
                     .replace(',', '.');  // Replace comma with dot for decimal
@@ -2422,16 +2472,6 @@
                 // Add the numeric value to formData
                 formData.append('calibration_price', numericValue);
             }
-
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                        <div class="flex items-center justify-center">
-                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            <span>Memproses...</span>
-                        </div>
-                    `;
 
             fetch(`/calibrations/report/${calibrationId}`, {
                 method: 'POST',
@@ -2442,31 +2482,21 @@
                 body: formData
             })
                 .then(response => {
-                    console.log('Response status:', response.status);
                     return response.json().then(data => {
                         if (!response.ok) {
-                            console.log('Error response data:', data);
                             return Promise.reject(data);
                         }
                         return data;
                     });
                 })
                 .then(data => {
-                    console.log('Success response:', data);
                     if (data.success) {
                         closeModal(modals.view, modalContents.view);
-
                         showToast(data.message || 'Kalibrasi berhasil disimpan', 'success');
 
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        console.warn('Received success:false in a 2xx response', data);
-                        showToast(data, 'error');
 
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
+                    } else {
+                        showToast(data, 'error');
                     }
                 })
                 .catch(error => {
@@ -2489,8 +2519,6 @@
                         if (error && typeof error === 'object') {
                             if (error.success === false && typeof error.errors === 'string') {
                                 showToast(error.errors, 'error');
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnText;
                                 return;
                             }
                         }
@@ -2523,25 +2551,13 @@
                     } catch (e) {
                         showToast('Terjadi kesalahan saat memproses kalibrasi', 'error');
                     }
-
+                })
+                .finally(() => {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                 });
         });
-            });
-
-        const animateCircles = () => {
-            document.querySelectorAll('.animate-loading-circle').forEach(circle => {
-                const targetRotation = circle.getAttribute('data-rotation');
-                const percentage = parseInt(circle.getAttribute('data-percentage') || '0');
-
-                if (percentage === 0) {
-                    circle.style.display = 'none';
-                } else {
-                    circle.style.transform = `rotate(${percentage * 1.8}deg)`;
-                }
-            });
-        };
+                    });
 
         const animateBars = () => {
             document.querySelectorAll('.animate-loading-bar').forEach(bar => {
@@ -2588,7 +2604,6 @@
 
         setTimeout(() => {
             applyFadeInStagger();
-            animateCircles();
             animateBars();
             animateCounters();
         }, 300);
@@ -2677,7 +2692,7 @@
 
                     if (callback) {
                         callback(vendors, append);
-                        }
+                    }
 
                     // Check if we have more pages to load
                     hasMoreVendors = vendors.length === 20; // Assuming 20 is the page size
@@ -2688,7 +2703,7 @@
                     console.error('Error fetching vendors:', error);
 
                     if (vendorResults && vendorResults.style.display === 'block' && !append) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                        vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
                     }
 
                     if (callback) {
@@ -2701,7 +2716,7 @@
 
         function displayVendorResults(vendors, append = false) {
             if (!append) {
-            vendorResults.innerHTML = '';
+                vendorResults.innerHTML = '';
             } else {
                 // Remove loading indicator if it exists
                 const loadingIndicator = vendorResults.querySelector('.vendor-loading-indicator');
@@ -2727,7 +2742,7 @@
                 div.setAttribute('data-id', vendor.vendor_id);
 
                 if (!append) {
-                div.style.animationDelay = `${index * 30}ms`;
+                    div.style.animationDelay = `${index * 30}ms`;
                 }
 
                 div.classList.add('fade-in');
@@ -2751,7 +2766,7 @@
 
         // Setup infinite scrolling for vendor results
         if (vendorResults) {
-            vendorResults.addEventListener('scroll', function() {
+            vendorResults.addEventListener('scroll', function () {
                 if (!hasMoreVendors || isLoadingVendors) return;
 
                 // Check if user scrolled to bottom
@@ -2759,7 +2774,7 @@
                     // Load next page
                     vendorPage++;
                     fetchVendors(currentVendorSearch, displayVendorResults, vendorPage, true);
-            }
+                }
             });
         }
 
