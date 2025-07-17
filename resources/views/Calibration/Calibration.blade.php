@@ -1247,11 +1247,11 @@
                                 submitBtn.disabled = true;
                                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                                 submitBtn.innerHTML = `
-                                                                                                                                            <div class="flex items-center justify-center">
-                                                                                                                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                                                                                                                <span>Memproses...</span>
-                                                                                                                                            </div>
-                                                                                                                                        `;
+                                                        <div class="flex items-center justify-center">
+                                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                            <span>Memproses...</span>
+                                                        </div>
+                                                    `;
 
                                 setTimeout(() => {
                                     if (submitBtn) {
@@ -1381,19 +1381,19 @@
                     if (type === 'success') {
                         notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                         notification.innerHTML = `
-                                                                                                                                <div class="flex items-start">
-                                                                                                                                    <div class="py-1">
-                                                                                                                                        <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                                                                        </svg>
-                                                                                                                                    </div>
-                                                                                                                                    <div>
-                                                                                                                                        <p class="font-bold">Berhasil!</p>
-                                                                                                                                        <div>${message}</div>
-                                                                                                                                    </div>
-                                                                                                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                                                                                                                </div>
-                                                                                                                            `;
+                                                    <div class="flex items-start">
+                                                        <div class="py-1">
+                                                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="font-bold">Berhasil!</p>
+                                                            <div>${message}</div>
+                                                        </div>
+                                                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                                    </div>
+                                                 `;
                     } else {
                         notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -1415,10 +1415,10 @@
                         const iconContainer = document.createElement('div');
                         iconContainer.className = 'py-1 flex-shrink-0';
                         iconContainer.innerHTML = `
-                                                                                                                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                                                                                        </svg>
-                                                                                                                            `;
+                                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                  `;
 
                         const contentContainer = document.createElement('div');
                         contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
@@ -1456,58 +1456,58 @@
                 };
 
                 document.head.insertAdjacentHTML('beforeend', `
-                                                                                                                        <style>
-                                                                                                                            @keyframes slideInRight {
-                                                                                                                                from { transform: translateX(100%); }
-                                                                                                                                to { transform: translateX(0); }
-                                                                                                                            }
-                                                                                                                            .animate-slide-in-right {
-                                                                                                                                animation: slideInRight 0.3s ease-out forwards;
-                                                                                                                            }
+                        <style>
+                            @keyframes slideInRight {
+                                from { transform: translateX(100%); }
+                                to { transform: translateX(0); }
+                            }
+                            .animate-slide-in-right {
+                                animation: slideInRight 0.3s ease-out forwards;
+                            }
 
-                                                                                                                            .error-message ul {
-                                                                                                                                margin-top: 0.5rem;
-                                                                                                                                padding-left: 1.5rem;
-                                                                                                                                list-style-type: disc;
-                                                                                                                            }
-                                                                                                                            .error-message ul li {
-                                                                                                                                margin-bottom: 0.5rem;
-                                                                                                                                line-height: 1.4;
-                                                                                                                            }
-                                                                                                                            .error-message ul li:last-child {
-                                                                                                                                margin-bottom: 0;
-                                                                                                                            }
-                                                                                                                            .error-message ul li strong {
-                                                                                                                                font-weight: 600;
-                                                                                                                                color: #991b1b;
-                                                                                                                                display: inline-block;
-                                                                                                                                min-width: 100px;
-                                                                                                                            }
-                                                                                                                            .error-message ul li::marker {
-                                                                                                                                color: #991b1b;
-                                                                                                                            }
-                                                                                                                            .opacity-0 {
-                                                                                                                                opacity: 0;
-                                                                                                                            }
-                                                                                                                            .transition-opacity {
-                                                                                                                                transition-property: opacity;
-                                                                                                                                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-                                                                                                                            }
-                                                                                                                            .duration-500 {
-                                                                                                                                transition-duration: 500ms;
-                                                                                                                            }
-                                                                                                                        </style>
-                                                                                                                    `);
+                            .error-message ul {
+                                margin-top: 0.5rem;
+                                padding-left: 1.5rem;
+                                list-style-type: disc;
+                            }
+                            .error-message ul li {
+                                margin-bottom: 0.5rem;
+                                line-height: 1.4;
+                            }
+                            .error-message ul li:last-child {
+                                margin-bottom: 0;
+                            }
+                            .error-message ul li strong {
+                                font-weight: 600;
+                                color: #991b1b;
+                                display: inline-block;
+                                min-width: 100px;
+                            }
+                            .error-message ul li::marker {
+                                color: #991b1b;
+                            }
+                            .opacity-0 {
+                                opacity: 0;
+                            }
+                            .transition-opacity {
+                                transition-property: opacity;
+                                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                            }
+                            .duration-500 {
+                                transition-duration: 500ms;
+                            }
+                        </style>
+                    `);
 
                 @if(session('success'))
                     showToast("{{ session('success') }}", 'success');
                 @endif
 
-                                                                                                    @if(session('error'))
-                                                                                                        showToast("{{ session('error') }}", 'error');
-                                                                                                    @endif
+                @if(session('error'))
+                    showToast("{{ session('error') }}", 'error');
+                @endif
 
-                                                                                                    const selectAllCalibrations = document.getElementById('selectAllCalibrations');
+                const selectAllCalibrations = document.getElementById('selectAllCalibrations');
                 if (selectAllCalibrations) {
                     selectAllCalibrations.addEventListener('change', function () {
                         const isChecked = this.checked;
@@ -1882,11 +1882,11 @@
                         // Show loading state on the button
                         const originalButtonHTML = clickedButton.innerHTML;
                         clickedButton.innerHTML = `
-                                                                                                                                        <svg class="animate-spin h-5 w-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                                                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                                                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                                                                                        </svg>
-                                                                                                                                    `;
+                                                                                                                                                <svg class="animate-spin h-5 w-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                                                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                                                                                </svg>
+                                                                                                                                            `;
                         clickedButton.disabled = true;
 
                         // First fetch the calibration details to check status
@@ -2128,19 +2128,19 @@
                                     infoMessage.id = 'completed-info-message';
                                     infoMessage.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 mb-4';
                                     infoMessage.innerHTML = `
-                                                                                                                                                                <div class="flex items-center">
-                                                                                                                                                                    <div class="flex-shrink-0 text-blue-500">
-                                                                                                                                                                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                                                                                                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                                                                                                                                                        </svg>
-                                                                                                                                                                    </div>
-                                                                                                                                                                    <div class="ml-3">
-                                                                                                                                                                        <p class="text-sm text-blue-700">
-                                                                                                                                                                            Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
-                                                                                                                                                                        </p>
-                                                                                                                                                                    </div>
-                                                                                                                                                                </div>
-                                                                                                                                                            `;
+                                                                                                                                                                        <div class="flex items-center">
+                                                                                                                                                                            <div class="flex-shrink-0 text-blue-500">
+                                                                                                                                                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                                                                                                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                                                                                                                                                </svg>
+                                                                                                                                                                            </div>
+                                                                                                                                                                            <div class="ml-3">
+                                                                                                                                                                                <p class="text-sm text-blue-700">
+                                                                                                                                                                                    Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
+                                                                                                                                                                                </p>
+                                                                                                                                                                            </div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                    `;
                                     infoMessageContainer.insertAdjacentElement('afterbegin', infoMessage);
                                 }
 
@@ -2441,10 +2441,10 @@
                     const limit = document.getElementById('assetPerPageSelect').value;
 
                     document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                <tr>
-                                                                                                                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
-                                                                                                                                </tr>
-                                                                                                                            `;
+                                                                                                                                        <tr>
+                                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
+                                                                                                                                        </tr>
+                                                                                                                                    `;
 
                     fetch(`/calibrations/assets?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
@@ -2467,13 +2467,13 @@
 
                             if (assets.length === 0) {
                                 document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                            <tr>
-                                                                                                                                                <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                                    Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
-                                                                                                                                                    tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
-                                                                                                                                                </td>
-                                                                                                                                            </tr>
-                                                                                                                                        `;
+                                                                                                                                                    <tr>
+                                                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                                                            Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
+                                                                                                                                                            tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
+                                                                                                                                                        </td>
+                                                                                                                                                    </tr>
+                                                                                                                                                `;
 
                                 const zeroPagination = {
                                     current_page: 1,
@@ -2488,12 +2488,12 @@
                         })
                         .catch(error => {
                             document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                      <tr>
-                                                                                                                                          <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                                                                                                                              Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
-                                                                                                                                          </td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr>
+                                                                                                                                                  <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                                                                                                                                      Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
+                                                                                                                                                  </td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
 
                             showToast('Gagal memuat aset: ' + error.message, 'error');
                         });
@@ -2506,12 +2506,12 @@
                 function renderAssets(assets, data) {
                     if (!assets || assets.length === 0) {
                         document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                      <tr>
-                                                                                                                                          <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                              Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
-                                                                                                                                          </td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr>
+                                                                                                                                                  <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                                                      Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
+                                                                                                                                                  </td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
                         return;
                     }
 
@@ -2537,28 +2537,28 @@
                             asset.asset_master.description : '-';
 
                         html += `
-                                                                                                                                      <tr>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                              <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
-                                                                                                                                                  data-id="${asset.asset_id}"
-                                                                                                                                                  data-code="${assetCode}"
-                                                                                                                                                  data-name="${assetName}"
-                                                                                                                                                  data-description="${description}"
-                                                                                                                                                  data-type="${assetType}"
-                                                                                                                                                  data-category="${categoryName}"
-                                                                                                                                                  ${isSelected ? 'checked' : ''}>
-                                                                                                                                          </td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetCode}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                                              <div class="flex flex-col">
-                                                                                                                                                  <span class="font-medium">${assetName}</span>
-                                                                                                                                              </div>
-                                                                                                                                          </td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                    <tr>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                            <input type="checkbox" class="asset-checkbox" value="${asset.asset_id}"
+                                                data-id="${asset.asset_id}"
+                                                data-code="${assetCode}"
+                                                data-name="${assetName}"
+                                                data-description="${description}"
+                                                data-type="${assetType}"
+                                                data-category="${categoryName}"
+                                                ${isSelected ? 'checked' : ''}>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetCode}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            <div class="flex flex-col">
+                                                <span class="font-medium">${assetName}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${description}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${assetType}</td>
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                    </tr>
+                                `;
                     });
 
                     document.getElementById('assetSelectionList').innerHTML = html;
@@ -2653,14 +2653,14 @@
                     let controlsHtml = '';
 
                     controlsHtml += `
-                                                                                                                                  <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                                                                     ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
-                                                                                                                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                                                                                                                      </svg>
-                                                                                                                                      Sebelumnya
-                                                                                                                                  </a>
-                                                                                                                              `;
+                                        <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                            ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            Sebelumnya
+                                        </a>
+                                    `;
 
                     if (totalItems > 0) {
                         controlsHtml += '<div class="flex gap-2">';
@@ -2675,9 +2675,9 @@
 
                         if (startPage > 1) {
                             controlsHtml += `
-                                                                                                                                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                                                              data-page="1">1</a>
-                                                                                                                                      `;
+                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                    data-page="1">1</a>
+                                            `;
 
                             if (startPage > 2) {
                                 controlsHtml += '<span class="flex items-center justify-center">...</span>';
@@ -2686,9 +2686,9 @@
 
                         for (let i = startPage; i <= endPage; i++) {
                             controlsHtml += `
-                                                                                                                                          <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
-                                                                                                                                             data-page="${i}">${i}</a>
-                                                                                                                                      `;
+                                                <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                                    data-page="${i}">${i}</a>
+                                            `;
                         }
 
                         if (endPage < totalPages) {
@@ -2697,23 +2697,23 @@
                             }
 
                             controlsHtml += `
-                                                                                                                                          <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                                                              data-page="${totalPages}">${totalPages}</a>
-                                                                                                                                      `;
+                                                <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                    data-page="${totalPages}">${totalPages}</a>
+                                            `;
                         }
 
                         controlsHtml += '</div>';
                     }
 
                     controlsHtml += `
-                                                                                                                                  <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                                                                     ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                                                                                                                                      Selanjutnya
-                                                                                                                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                                                                                                                      </svg>
-                                                                                                                                  </a>
-                                                                                                                              `;
+                                        <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                                            ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
+                                            Selanjutnya
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </a>
+                                    `;
 
                     if (paginationControls) {
                         paginationControls.innerHTML = controlsHtml;
@@ -2752,10 +2752,10 @@
                 function updateSelectedAssetsTable() {
                     if (selectedAssets.length === 0) {
                         document.getElementById('selectedAssetsList').innerHTML = `
-                                                                                                                                      <tr>
-                                                                                                                                          <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr>
+                                                                                                                                                  <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
                         return;
                     }
 
@@ -2769,26 +2769,26 @@
                             '-';
 
                         html += `
-                                                                                                                                      <tr>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                                              <div class="flex flex-col">
-                                                                                                                                                  <span class="font-medium">${assetName}</span>
-                                                                                                                                              </div>
-                                                                                                                                          </td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                              <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                                                                                                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                                                                  </svg>
-                                                                                                                                              </button>
-                                                                                                                                          </td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                                                                      <div class="flex flex-col">
+                                                                                                                                                          <span class="font-medium">${assetName}</span>
+                                                                                                                                                      </div>
+                                                                                                                                                  </td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                                                      <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
+                                                                                                                                                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                                                                          </svg>
+                                                                                                                                                      </button>
+                                                                                                                                                  </td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
                     });
 
                     document.getElementById('selectedAssetsList').innerHTML = html;
@@ -3057,11 +3057,11 @@
                     const originalBtnText = submitBtn.innerHTML;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
-                                                                                                                                  <div class="flex items-center justify-center">
-                                                                                                                                      <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
-                                                                                                                                      <span>Memproses...</span>
-                                                                                                                                  </div>
-                                                                                                                              `;
+                                                                                                                                          <div class="flex items-center justify-center">
+                                                                                                                                              <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent mr-2"></div>
+                                                                                                                                              <span>Memproses...</span>
+                                                                                                                                          </div>
+                                                                                                                                      `;
 
                     fetch(`/calibrations/schedule/${calibrationId}`, {
                         method: 'PUT',
@@ -3204,10 +3204,10 @@
 
                     if (selectedAssets.length === 0) {
                         document.getElementById('selectedAssetsList').innerHTML = `
-                                                                                                                                      <tr>
-                                                                                                                                          <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr>
+                                                                                                                                                  <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
                         const paginationContainer = document.getElementById('selectedAssetsPagination');
                         if (paginationContainer) {
                             paginationContainer.innerHTML = '';
@@ -3231,26 +3231,26 @@
                     for (let i = startIndex; i < endIndex; i++) {
                         const asset = selectedAssets[i];
                         html += `
-                                                                                                                                      <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${i + 1}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                                              <div class="flex flex-col">
-                                                                                                                                                  <span class="font-medium">${asset.asset_name || '-'}</span>
-                                                                                                                                              </div>
-                                                                                                                                          </td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.category_name || '-'}</td>
-                                                                                                                                          <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                              <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                                                                                                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                                                                  </svg>
-                                                                                                                                              </button>
-                                                                                                                                          </td>
-                                                                                                                                      </tr>
-                                                                                                                                  `;
+                                                                                                                                              <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${i + 1}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                                                                                                                                      <div class="flex flex-col">
+                                                                                                                                                          <span class="font-medium">${asset.asset_name || '-'}</span>
+                                                                                                                                                      </div>
+                                                                                                                                                  </td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.category_name || '-'}</td>
+                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                                                                                                                                      <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
+                                                                                                                                                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                                                                                          </svg>
+                                                                                                                                                      </button>
+                                                                                                                                                  </td>
+                                                                                                                                              </tr>
+                                                                                                                                          `;
                     }
                     selectedAssetsList.setAttribute('data-current-page', currentPage);
                     selectedAssetsList.innerHTML = html;
@@ -3277,14 +3277,14 @@
                     }
 
                     html += `
-                                                                                                                                  <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                                                                     ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
-                                                                                                                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                                                                                                                      </svg>
-                                                                                                                                      Sebelumnya
-                                                                                                                                  </a>
-                                                                                                                              `;
+                                                                                                                                          <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                                                                             ${currentPage > 1 ? 'data-page="' + (currentPage - 1) + '"' : ''}>
+                                                                                                                                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                                                                                                                              </svg>
+                                                                                                                                              Sebelumnya
+                                                                                                                                          </a>
+                                                                                                                                      `;
 
                     html += '<div class="flex gap-2">';
 
@@ -3298,9 +3298,9 @@
 
                     if (startPage > 1) {
                         html += `
-                                                                                                                                      <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                                                         data-page="1">1</a>
-                                                                                                                                  `;
+                                                                                                                                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                                                                 data-page="1">1</a>
+                                                                                                                                          `;
 
                         if (startPage > 2) {
                             html += '<span class="flex items-center justify-center">...</span>';
@@ -3309,9 +3309,9 @@
 
                     for (let i = startPage; i <= endPage; i++) {
                         html += `
-                                                                                                                                      <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
-                                                                                                                                         data-page="${i}">${i}</a>
-                                                                                                                                  `;
+                                                                                                                                              <a href="#" class="h-8 w-8 flex items-center justify-center border ${i === currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]'} rounded"
+                                                                                                                                                 data-page="${i}">${i}</a>
+                                                                                                                                          `;
                     }
 
                     if (endPage < totalPages) {
@@ -3320,22 +3320,22 @@
                         }
 
                         html += `
-                                                                                                                                      <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
-                                                                                                                                          data-page="${totalPages}">${totalPages}</a>
-                                                                                                                                  `;
+                                                                                                                                              <a href="#" class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded"
+                                                                                                                                                  data-page="${totalPages}">${totalPages}</a>
+                                                                                                                                          `;
                     }
 
                     html += '</div>';
 
                     html += `
-                                                                                                                                  <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                                                                                                     ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
-                                                                                                                                      Selanjutnya
-                                                                                                                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                                                                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                                                                                                                      </svg>
-                                                                                                                                  </a>
-                                                                                                                              `;
+                                                                                                                                          <a href="#" class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm ${currentPage >= totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                                                                                                             ${currentPage < totalPages ? 'data-page="' + (currentPage + 1) + '"' : ''}>
+                                                                                                                                              Selanjutnya
+                                                                                                                                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                                                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                                                                                                              </svg>
+                                                                                                                                          </a>
+                                                                                                                                      `;
 
                     paginationContainer.innerHTML = html;
 

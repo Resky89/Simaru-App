@@ -798,23 +798,22 @@
             }
 
             toast.innerHTML = `
-                            <div class="py-1">
-                                <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    ${type === 'success'
+                        <div class="py-1">
+                             <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                ${type === 'success'
                     ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
                     : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
-                                </svg>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
+                            <p>${message}</p>
                             </div>
-                            <div>
-                                <p class="font-bold">${type === 'success' ? 'Berhasil!' : 'Gagal!'}</p>
-                                <p>${message}</p>
-                            </div>
-                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-                        `;
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
+                    `;
 
             document.body.appendChild(toast);
 
-            // Auto-remove the toast after 5 seconds
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => {
@@ -860,49 +859,35 @@
                     });
                 @endif
 
-            // Currency formatter function
             window.formatCurrency = function(input, blur) {
-                // Get input value
                 let input_val = input.value;
 
-                // Don't validate empty input
                 if (input_val === "") { return; }
 
-                // Check for decimal
                 if (input_val.indexOf(",") >= 0) {
-                    // Get position of first decimal
                     var decimal_pos = input_val.indexOf(",");
 
-                    // Split number by decimal point
                     var left_side = input_val.substring(0, decimal_pos);
                     var right_side = input_val.substring(decimal_pos);
 
-                    // Remove all non-digits
                     left_side = left_side.replace(/\D/g, "");
                     right_side = right_side.replace(/\D/g, "");
 
-                    // Limit decimal to only 2 digits
                     right_side = right_side.substring(0, 2);
 
-                    // Add dots every 3 digits
                     left_side = left_side.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-                    // Join number with comma for decimal
                     input_val = left_side + "," + right_side;
                 } else {
-                    // Remove all non-digits
                     input_val = input_val.replace(/\D/g, "");
 
-                    // Add dots every 3 digits
                     input_val = input_val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-                    // Final formatting
                     if (blur === "blur") {
                         input_val += ",00";
                     }
                 }
 
-                // Send updated string to input
                 input.value = input_val;
             };
 
@@ -940,6 +925,69 @@
             const repairComplaintId = document.getElementById('repairComplaintId');
             const repairAssetName = document.getElementById('repairAssetName');
             const repairImagePreview = document.getElementById('repairImagePreview');
+
+            function resetComplaintForm() {
+                // Reset the form if it exists
+                if (complaintForm) {
+                    complaintForm.reset();
+                }
+
+                // Clear error messages
+                if (errorMsgDiv) {
+                    errorMsgDiv.innerHTML = '';
+                }
+
+                // Clear asset selection
+                if (assetId) {
+                    assetId.value = '';
+                }
+                if (assetSearch) {
+                    assetSearch.value = '';
+                }
+                if (selectedAssetInfo) {
+                    selectedAssetInfo.classList.add('hidden');
+                }
+
+                // Clear image preview
+                if (imagePreview) {
+                    imagePreview.classList.add('hidden');
+                }
+                if (imageFile) {
+                    imageFile.value = '';
+                }
+
+                // Remove any error styling
+                const errorFields = complaintForm?.querySelectorAll('.border-red-500');
+                errorFields?.forEach(field => field.classList.remove('border-red-500'));
+                const errorMessages = complaintForm?.querySelectorAll('.error-message');
+                errorMessages?.forEach(msg => msg.classList.add('hidden'));
+            }
+
+            function clearRepairForm() {
+                // Reset the form if it exists
+                if (repairForm) {
+                    repairForm.reset();
+                }
+
+                // Clear error messages
+                if (repairErrorMsgDiv) {
+                    repairErrorMsgDiv.innerHTML = '';
+                }
+
+                // Clear image preview
+                if (repairImagePreview) {
+                    repairImagePreview.classList.add('hidden');
+                }
+                if (document.getElementById('repairImageFile')) {
+                    document.getElementById('repairImageFile').value = '';
+                }
+
+                // Remove any error styling
+                const errorFields = repairForm?.querySelectorAll('.border-red-500');
+                errorFields?.forEach(field => field.classList.remove('border-red-500'));
+                const errorMessages = repairForm?.querySelectorAll('.error-message');
+                errorMessages?.forEach(msg => msg.classList.add('hidden'));
+            }
 
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
@@ -1043,18 +1091,8 @@
 
             if (createComplaintBtn && createComplaintModal && createComplaintModalContent) {
                 createComplaintBtn.addEventListener('click', function () {
+                    resetComplaintForm();
                     openModal(createComplaintModal, createComplaintModalContent);
-
-                    if (complaintForm) {
-                        complaintForm.reset();
-                    }
-                    if (errorMsgDiv) {
-                        errorMsgDiv.innerHTML = '';
-                    }
-
-                    if (imagePreview) {
-                        imagePreview.classList.add('hidden');
-                    }
                 });
             }
 
@@ -1065,6 +1103,11 @@
                         const content = modal?.querySelector('[id$="ModalContent"]');
                         if (modal && content) {
                             closeModal(modal, content);
+                            if (modal.id === 'createComplaintModal') {
+                                resetComplaintForm();
+                            } else if (modal.id === 'repairComplaintModal') {
+                                clearRepairForm();
+                            }
                         }
                     });
                 });
@@ -1074,6 +1117,7 @@
                 createComplaintModal.addEventListener('click', function (event) {
                     if (event.target === this && createComplaintModalContent) {
                         closeModal(createComplaintModal, createComplaintModalContent);
+                        resetComplaintForm();
                     }
                 });
             }
@@ -1119,7 +1163,6 @@
             if (assetSearch && assetDropdown && assetId && assetLoadingIndicator && assetNoResults && assetDropdownContent) {
                 assetSearch.addEventListener('focus', function () {
                     if (!assetId.value) {
-                        // Reset pagination when focusing on search
                         assetPage = 1;
                         hasMoreAssets = true;
                         currentAssetSearch = '';
@@ -1134,7 +1177,6 @@
                 assetSearch.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase().trim();
 
-                    // Reset pagination when search term changes
                     assetPage = 1;
                     hasMoreAssets = true;
                     currentAssetSearch = searchTerm;
@@ -1147,7 +1189,6 @@
                 });
             }
 
-            // Variables for asset lazy loading
             let assetPage = 1;
             let isLoadingAssets = false;
             let hasMoreAssets = true;
@@ -1167,7 +1208,7 @@
                 }
 
                 isLoadingAssets = true;
-                const searchUrl = `/assets?json=true&exclude_dispose&search=${encodeURIComponent(searchTerm)}&limit=10&page=${page}`;
+                const searchUrl = `/assets?json=true&exclude_status=dispose&search=${encodeURIComponent(searchTerm)}&limit=10&page=${page}`;
 
                 fetch(searchUrl, {
                     headers: {
@@ -1192,8 +1233,7 @@
                             fetchedAssets = data.data;
                         }
 
-                        // Determine if more results are available
-                        hasMoreAssets = fetchedAssets.length >= 10; // Assuming 10 is the page size
+                        hasMoreAssets = fetchedAssets.length >= 10;
 
                         displayFilteredAssets(fetchedAssets, searchTerm, append);
                     })
@@ -1214,7 +1254,6 @@
 
                         isLoadingAssets = false;
 
-                        // Fall back to local filtering if API fails
                         if (assets && assets.length > 0) {
                             let filteredAssets = assets;
                             if (searchTerm) {
@@ -1271,12 +1310,10 @@
                     assetDropdownContent.appendChild(div);
                 });
 
-                // Handle "Load More" button
                 if (hasMoreAssets) {
                     loadMoreBtn.classList.remove('hidden');
                     const loadMoreButton = loadMoreBtn.querySelector('button');
 
-                    // Replace the click event listener
                     const newLoadMoreButton = loadMoreButton.cloneNode(true);
                     loadMoreButton.parentNode.replaceChild(newLoadMoreButton, loadMoreButton);
 
@@ -1297,14 +1334,11 @@
                 isLoadingAssets = false;
             }
 
-            // Setup infinite scrolling for asset dropdown
             if (assetDropdown) {
                 assetDropdown.addEventListener('scroll', function () {
                     if (!hasMoreAssets || isLoadingAssets) return;
 
-                    // Check if user scrolled to bottom
                     if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
-                        // Load next page
                         assetPage++;
                         searchAssets(currentAssetSearch, assetPage, true);
                     }
@@ -1365,11 +1399,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span>Memproses...</span>
-                                        </div>
-                                    `;
+                                    <div class="flex items-center justify-center">
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        <span>Memproses...</span>
+                                    </div>
+                                `;
 
                         setTimeout(() => {
                             if (submitBtn) {
@@ -1410,14 +1444,11 @@
                         return false;
                     }
 
-                    // Process repair cost - convert from formatted to numeric value
                     if (repairCost && repairCost.value) {
-                        // Create a hidden input for the original value to submit with form
                         let originalCostValue = repairCost.value
-                            .replace(/\./g, '')  // Remove thousand separators
-                            .replace(',', '.');  // Replace comma with dot for decimal
+                            .replace(/\./g, '')
+                            .replace(',', '.');
 
-                        // If there's already a hidden input, update it, otherwise create one
                         let hiddenCostInput = document.getElementById('repair_cost_numeric');
                         if (!hiddenCostInput) {
                             hiddenCostInput = document.createElement('input');
@@ -1428,7 +1459,6 @@
                         }
                         hiddenCostInput.value = originalCostValue;
 
-                        // Change the original input's name so it doesn't get submitted
                         repairCost.name = 'repair_cost_formatted';
                     }
 
@@ -1478,14 +1508,18 @@
             });
 
             deleteComplaintModal?.addEventListener('click', function (event) {
-                if (event.target === this) {
+                if (event.target === this && deleteComplaintModalContent) {
                     closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                    if (document.getElementById('deleteComplaintForm')) {
+                        document.getElementById('deleteComplaintForm').reset();
+                    }
                 }
             });
 
             repairComplaintModal?.addEventListener('click', function (event) {
-                if (event.target === this) {
+                if (event.target === this && repairComplaintModalContent) {
                     closeModal(repairComplaintModal, repairComplaintModalContent);
+                    clearRepairForm();
                 }
             });
 
@@ -1499,7 +1533,7 @@
 
                     if (repairComplaintId && repairAssetName) {
                         repairComplaintId.value = complaintId;
-                        repairAssetName.value = assetName; // Use value instead of textContent for input field
+                        repairAssetName.value = assetName;
                         if (repairForm) {
                             repairForm.reset();
                         }
@@ -1511,17 +1545,15 @@
                             repairImagePreview.classList.add('hidden');
                         }
 
-                        // Show loading state on the button
                         const originalButtonHTML = button.innerHTML;
                         button.innerHTML = `
-                                                    <svg class="animate-spin h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                    </svg>
-                                                `;
+                                    <svg class="animate-spin h-4 w-4 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                `;
                         button.disabled = true;
 
-                        // Only call start endpoint if status is 'new'
                         let fetchPromise;
                         if (status === 'new') {
                             fetchPromise = fetch(`/complaint-repair/${complaintId}/start`, {
@@ -1540,7 +1572,6 @@
                                 })
                                 .then(startData => {
                                     if (startData.success) {
-                                        // Find and update status badge if exists
                                         const statusBadge = button.closest('tr').querySelector('td:nth-child(3) span');
                                         if (statusBadge) {
                                             statusBadge.textContent = 'Sedang Diproses';
@@ -1550,11 +1581,9 @@
                                     return fetchComplaintDetails(complaintId);
                                 });
                         } else {
-                            // If status is not 'new', just fetch complaint details
                             fetchPromise = fetchComplaintDetails(complaintId);
                         }
 
-                        // After operations completed, restore button and open modal
                         fetchPromise
                             .catch(error => {
                                 console.error('Error processing repair action:', error);
@@ -1572,7 +1601,6 @@
                 });
             });
 
-            // Function to fetch complaint details
             function fetchComplaintDetails(complaintId) {
                 if (!complaintId) return Promise.reject(new Error("Invalid complaint ID"));
 
@@ -1580,14 +1608,12 @@
                 loadingIndicator.className = 'text-center py-4';
                 loadingIndicator.innerHTML = `
                             <div class="inline-block w-8 h-8 border-4 border-[#213268] border-t-transparent rounded-full animate-spin"></div>
-                            <p class="mt-2 text-gray-600">Memuat data keluhan...</p>
+                                <p class="mt-2 text-gray-600">Memuat data keluhan...</p>
                         `;
 
-                // Show loading indicator on images
                 document.getElementById('repair_asset_image').style.opacity = '0.3';
                 document.getElementById('repair_complaint_image').style.opacity = '0.3';
 
-                // Clear previous description
                 document.getElementById('repairComplaintDescription').value = 'Memuat...';
 
                 return fetch(`/complaint-repair/detail/${complaintId}?json=true`, {
@@ -1606,16 +1632,12 @@
                         if (data.success && data.complaint) {
                             const complaint = data.complaint;
 
-                            // Set asset information - using value instead of textContent for input fields
                             document.getElementById('repairAssetName').value = complaint.asset_name || 'Tidak diketahui';
                             document.getElementById('repairAssetCode').value = complaint.asset_code || 'Tidak diketahui';
                             document.getElementById('repairSerialNumber').value = complaint.serial_number || 'Tidak diketahui';
                             document.getElementById('repairModel').value = complaint.model || 'Tidak diketahui';
-
-                            // Set complaint information in textarea
                             document.getElementById('repairComplaintDescription').value = complaint.description || 'Tidak ada deskripsi';
 
-                            // Format and set complaint date
                             if (complaint.complaint_date) {
                                 const date = new Date(complaint.complaint_date);
                                 const formattedDate = new Intl.DateTimeFormat('id-ID', {
@@ -1628,17 +1650,14 @@
                                 document.getElementById('repairComplaintDate').value = 'Tidak diketahui';
                             }
 
-                            // Set reporter name
                             document.getElementById('repairReporterName').value = complaint.reporter_name || 'Tidak diketahui';
 
-                            // Set asset image
                             if (complaint.asset_image_path) {
                                 document.getElementById('repair_asset_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public${complaint.asset_image_path}`;
                             } else {
                                 document.getElementById('repair_asset_image').src = `{{ asset('images/no-image.png') }}`;
                             }
 
-                            // Set complaint image
                             if (complaint.complaint_picture_path) {
                                 document.getElementById('repair_complaint_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/${complaint.complaint_picture_path.split('/').pop()}`;
                             } else {
@@ -1657,7 +1676,6 @@
                         throw error;
                     })
                     .finally(() => {
-                        // Reset opacity
                         document.getElementById('repair_asset_image').style.opacity = '1';
                         document.getElementById('repair_complaint_image').style.opacity = '1';
                     });
@@ -1681,11 +1699,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <div class="flex items-center justify-center">
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                                             <span>Memproses...</span>
-                                        </div>
-                                    `;
+                                    </div>
+                                `;
                     }
 
                     fetch(`complaint-repair/complaints/${complaintId}`, {

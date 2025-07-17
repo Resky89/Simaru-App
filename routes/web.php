@@ -436,6 +436,9 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/reports', [MaintenanceController::class, 'createMaintenanceReport'])
             ->name('maintenance.reports.create')
             ->middleware('permission:maintenance-report:medical|maintenance-report:non-medical');
+        Route::patch('/{id}/start', [MaintenanceController::class, 'startMaintenance'])
+            ->name('maintenance.start')
+            ->middleware('permission:maintenance-report:medical|maintenance-report:non-medical');
     });
 
     // Calibration routes

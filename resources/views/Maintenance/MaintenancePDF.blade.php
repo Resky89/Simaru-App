@@ -232,7 +232,7 @@
                     </td>
                     <td>{{ isset($maintenance['start_date']) ? translateMonth($maintenance['start_date']) : '-' }}</td>
                     <td>{{ isset($maintenance['end_date']) ? translateMonth($maintenance['end_date']) : '-' }}</td>
-                    <td>{{ $maintenance['assigned_to_employee_number'] ?? $maintenance['assigned_to'] ?? '-' }}</td>
+                    <td>{{ $maintenance['assigned_to_employee_name'] ?? $maintenance['assigned_to'] ?? '-' }}</td>
                     <td>{{ $maintenance['vendor_name'] ?? '-' }}</td>
                     <td style="text-align: center;">
                         @php

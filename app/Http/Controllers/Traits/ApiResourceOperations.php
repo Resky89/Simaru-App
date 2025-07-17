@@ -16,7 +16,7 @@ trait ApiResourceOperations
      * @param string $sortField Default sort field
      * @param array $extraParams Extra query parameters
      * @param array $sortMappings Custom sort mappings
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     protected function getResourceList(Request $request, $endpoint, $resourceName, $viewName, $sortField = 'created_at', $extraParams = [], $sortMappings = [])
     {
@@ -97,7 +97,7 @@ trait ApiResourceOperations
      * @param string $endpoint API endpoint
      * @param string $resourceName Name of resource for response
      * @param string $viewName View to render
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     protected function getResource(Request $request, $endpoint, $resourceName, $viewName)
     {
@@ -145,7 +145,7 @@ trait ApiResourceOperations
      * @param array $data Request data
      * @param string $successMessage Success message
      * @param string $redirectRoute Route to redirect on success
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     protected function storeResource(Request $request, $endpoint, $data, $successMessage, $redirectRoute = null)
     {
@@ -224,7 +224,7 @@ trait ApiResourceOperations
      * @param array $data Request data
      * @param string $successMessage Success message
      * @param string $redirectRoute Route to redirect on success
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     protected function updateResource(Request $request, $endpoint, $data, $successMessage, $redirectRoute = null)
     {
@@ -302,7 +302,7 @@ trait ApiResourceOperations
      * @param string $endpoint API endpoint
      * @param string $successMessage Success message
      * @param string $redirectRoute Route to redirect on success
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     protected function deleteResource(Request $request, $endpoint, $successMessage, $redirectRoute = null)
     {

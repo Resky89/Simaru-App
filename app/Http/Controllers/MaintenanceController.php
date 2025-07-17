@@ -362,7 +362,7 @@ class MaintenanceController extends Controller
                 'interval' => 'nullable|string|in:ONCE,DAILY,WEEKLY,2 WEEKS,MONTHLY,2 MONTHS,3 MONTHS,4 MONTHS,6 MONTHS,YEARLY',
                 'assigned_to' => 'nullable|integer',
                 'vendor_id' => 'nullable|integer',
-                'status' => 'nullable|string|in:new,in_progress,finished',
+                'status' => 'nullable|string|in:new,in progress,finished',
                 'notes' => 'nullable|string',
                 'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png'
             ];
@@ -463,8 +463,7 @@ class MaintenanceController extends Controller
      * Delete a maintenance record by ID.
      *
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response 
-     */
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Contracts\View\View
     public function destroy($id)
     {
         return $this->deleteResource(
@@ -473,6 +472,54 @@ class MaintenanceController extends Controller
             'Jadwal pemeliharaan berhasil dihapus',
             'maintenance'
         );
+    }
+
+    /**
+     * Start maintenance process.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function startMaintenance($id)
+    {
+        try {
+            // Prepare the request data - changing status to in_progress
+            $requestData = [
+                'status' => 'in progress'
+            ];
+
+            // Send request to API
+            $result = $this->apiService->request('PATCH', '/maintenance/' . $id . '/start', [
+                'json' => $requestData
+            ]);
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, request());
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $result['errors'] ?? 'Gagal memulai proses pemeliharaan'
+                ], 400);
+            }
+
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Maintenance berhasil dimulai',
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => 'Gagal memulai proses pemeliharaan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

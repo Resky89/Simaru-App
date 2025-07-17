@@ -394,11 +394,11 @@
             <table class="detail-table">
                 <tr>
                     <th>Ditugaskan Kepada</th>
-                    <td>{{ $maintenance['assigned_to_employee_number'] ?? $maintenance['assigned_to'] ?? 'N/A' }}</td>
+                    <td>{{ $maintenance['assigned_to_employee_name'] ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Dijadwalkan Oleh</th>
-                    <td>{{ $maintenance['scheduled_by_employee_number'] ?? $maintenance['scheduled_by'] ?? 'N/A' }}</td>
+                    <td>{{ $maintenance['scheduled_by_employee_name'] ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Vendor</th>
@@ -457,7 +457,7 @@
             </tr>
             <tr>
                 <th>Dilaporkan Oleh</th>
-                <td>{{ $maintenance['maintenance_report']['reported_by_employee_number'] ?? $maintenance['maintenance_report']['reported_by'] ?? 'N/A' }}</td>
+                <td>{{ $maintenance['maintenance_report']['reported_by_employee_name'] ?? $maintenance['maintenance_report']['reported_by'] ?? 'N/A' }}</td>
             </tr>
             <tr>
                 <th>Laporan Dibuat Pada</th>
