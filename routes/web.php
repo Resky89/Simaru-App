@@ -415,7 +415,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::prefix('maintenance')->middleware('permission:maintenance:view|maintenance-report:medical|maintenance-report:non-medical')->group(function () {
         // Read operations
         Route::get('/', [MaintenanceController::class, 'index'])->name('maintenance');
-        Route::get('/{id}', [MaintenanceController::class, 'getMaintenance']);
         Route::get('/detail/{id}', [MaintenanceController::class, 'showMaintenanceDetail'])->name('maintenance.detail');
         Route::get('/export/pdf', [MaintenanceController::class, 'exportMaintenancePDF'])
             ->name('maintenance.export.pdf')
@@ -423,6 +422,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/export/pdf/{id}', [MaintenanceController::class, 'exportMaintenanceDetailPDF'])
             ->name('maintenance.export.detail.pdf')
             ->middleware('permission:maintenance:export');
+        Route::get('/{id}', [MaintenanceController::class, 'getMaintenance']);
 
         // Write operations
         Route::post('/', [MaintenanceController::class, 'createMaintenance'])
@@ -440,6 +440,14 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->name('maintenance.start')
             ->middleware('permission:maintenance-report:medical|maintenance-report:non-medical');
     });
+
+    // Maintenance task reminders route (no permission required, only authentication)
+    Route::get('/maintenance/task-reminders', [MaintenanceController::class, 'getTaskReminders'])
+        ->name('maintenance.task-reminders');
+
+    // Calibration task reminders route (no permission required, only authentication)
+    Route::get('/calibrations/task-reminders', [CalibrationController::class, 'getTaskReminders'])
+        ->name('calibrations.task-reminders');
 
     // Calibration routes
     Route::prefix('calibrations')->middleware('permission:calibration:view')->group(function () {

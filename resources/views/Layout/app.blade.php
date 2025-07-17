@@ -85,24 +85,24 @@
 <body class="bg-[#ECECEC]">
     <!-- Welcome Message SweetAlert (Session Flash Data) -->
     @if(session('welcome_message'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Selamat Datang!',
-                text: "{{ session('welcome_message') }}",
-                icon: 'success',
-                timer: 3000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                background: '#ffffff',
-                iconColor: '#213268',
-                customClass: {
-                    title: 'text-[#213268] font-bold',
-                    popup: 'rounded-xl shadow-xl border border-gray-100'
-                }
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    title: 'Selamat Datang!',
+                    text: "{{ session('employee_name') ? 'Selamat datang, ' . session('employee_name') : session('welcome_message') }}",
+                    icon: 'success',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    background: '#ffffff',
+                    iconColor: '#213268',
+                    customClass: {
+                        title: 'text-[#213268] font-bold',
+                        popup: 'rounded-xl shadow-xl border border-gray-100'
+                    }
+                });
             });
-        });
-    </script>
+        </script>
     @endif
 
     <div class="flex min-h-screen">
@@ -141,6 +141,10 @@
             </main>
         </div>
     </div>
+
+    <!-- Include Reminders Popup -->
+    @include('Layout.reminders-popup')
+
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <!-- CSRF Token Auto-Refresh -->
@@ -488,6 +492,18 @@
         });
     </script>
     @stack('scripts')
+
+    <script>
+        AOS.init();
+    </script>
+
+    <!-- Initialize App Manager -->
+    <script>
+        window.AppManager.init();
+    </script>
+
+    <!-- Include Reminders Popup JavaScript -->
+    <script src="{{ asset('js/reminders-popup.js') }}"></script>
 </body>
 
 </html>

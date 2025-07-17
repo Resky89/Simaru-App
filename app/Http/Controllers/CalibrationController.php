@@ -772,4 +772,56 @@ class CalibrationController extends Controller
             'has_prev' => false
         ];
     }
+
+    /**
+     * Get calibration task reminders.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTaskReminders(Request $request)
+    {
+        try {
+            // Get the asset_type parameter if provided
+            $assetType = $request->input('asset_type', '');
+
+            // Build query parameters
+            $queryParams = [];
+
+            // Add asset_type filter if provided
+            if (!empty($assetType)) {
+                $queryParams['asset_type'] = $assetType;
+            }
+
+            // Fetch calibration task reminders from API
+            $result = $this->apiService->request('GET', '/calibrations/task-reminders', [
+                'query' => $queryParams
+            ]);
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal mengambil pengingat tugas kalibrasi';
+                return response()->json([
+                    'success' => false,
+                    'errors' => $errorData
+                ], 400);
+            }
+
+            // Return the response as is from the API
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar pengingat tugas kalibrasi berhasil diambil',
+                'data' => $result['data'] ?? []
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'Calibration.Calibration');
+        }
+    }
 }

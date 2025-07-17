@@ -48,6 +48,21 @@
             </div>
         </div>
 
+        <!-- Task Reminders Button -->
+        <div class="relative">
+            <div id="reminders-button" class="cursor-pointer">
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="reminders-badge"
+                        class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                </div>
+            </div>
+        </div>
+
         <!-- User Profile - Now clickable -->
         <a href="{{ route('profile') }}"
             class="flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-90 transition-opacity">
@@ -68,13 +83,13 @@
 
                     // Handle roles from profile data or fall back to token payload
                     if (isset($profileData['roles']) && is_array($profileData['roles']) && !empty($profileData['roles'])) {
-                        $roleNames = array_map(function($role) {
+                        $roleNames = array_map(function ($role) {
                             return $role['role_name'] ?? '';
                         }, $profileData['roles']);
                         $roleText = implode(', ', array_filter($roleNames));
                     } else {
-                    $roles = $accessTokenPayload['role_names'] ?? [];
-                    $roleText = !empty($roles) ? (is_array($roles) ? implode(', ', $roles) : $roles) : 'No Role';
+                        $roles = $accessTokenPayload['role_names'] ?? [];
+                        $roleText = !empty($roles) ? (is_array($roles) ? implode(', ', $roles) : $roles) : 'No Role';
                     }
                 @endphp
                 <div class="flex items-center gap-1">
@@ -232,9 +247,9 @@
                     loadingMore.id = 'loading-more';
                     loadingMore.className = 'p-3 text-center text-gray-500';
                     loadingMore.innerHTML = `
-                        <div class="animate-spin mx-auto h-5 w-5 border-3 border-t-transparent border-[#213268] rounded-full mb-2"></div>
-                        <p class="text-sm">Memuat lebih banyak...</p>
-                    `;
+                            <div class="animate-spin mx-auto h-5 w-5 border-3 border-t-transparent border-[#213268] rounded-full mb-2"></div>
+                            <p class="text-sm">Memuat lebih banyak...</p>
+                        `;
                     notificationList.appendChild(loadingMore);
                 }
                 isLoading = true;
@@ -313,20 +328,20 @@
                                     'Tidak ada notifikasi yang sudah dibaca';
 
                                 notificationList.innerHTML = `
-                                <div class="p-6 text-center text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                    </svg>
-                                    <p>${emptyMessage}</p>
-                                </div>
-                            `;
+                                    <div class="p-6 text-center text-gray-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                        <p>${emptyMessage}</p>
+                                    </div>
+                                `;
                             }
                         } else {
                             notificationList.innerHTML = `
-                            <div class="p-6 text-center text-red-500">
-                                <p>Gagal memuat notifikasi</p>
-                            </div>
-                        `;
+                                <div class="p-6 text-center text-red-500">
+                                    <p>Gagal memuat notifikasi</p>
+                                </div>
+                            `;
                         }
                     })
                     .catch(error => {
@@ -335,11 +350,11 @@
 
                         if (!isLazyLoad) {
                             notificationList.innerHTML = `
-                            <div class="p-6 text-center text-red-500">
-                                <p>Terjadi kesalahan saat memuat notifikasi</p>
-                                <button id="retry-btn" class="mt-2 px-3 py-1 bg-[#213268] text-white text-sm rounded-md hover:bg-[#182451]">Coba lagi</button>
-                            </div>
-                        `;
+                                <div class="p-6 text-center text-red-500">
+                                    <p>Terjadi kesalahan saat memuat notifikasi</p>
+                                    <button id="retry-btn" class="mt-2 px-3 py-1 bg-[#213268] text-white text-sm rounded-md hover:bg-[#182451]">Coba lagi</button>
+                                </div>
+                            `;
 
                             document.getElementById('retry-btn')?.addEventListener('click', function () {
                                 page[currentTab] = 1;
@@ -360,13 +375,13 @@
                         'Tidak ada notifikasi yang sudah dibaca';
 
                     notificationList.innerHTML = `
-                        <div class="p-6 text-center text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                            </svg>
-                            <p>${emptyMessage}</p>
-                        </div>
-                    `;
+                            <div class="p-6 text-center text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <p>${emptyMessage}</p>
+                            </div>
+                        `;
                     return;
                 }
 
@@ -405,30 +420,30 @@
 
                     const notificationItem = document.createElement('div');
                     notificationItem.className = `p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 break-words cursor-pointer
-                        ${notification.is_read ? 'bg-gray-50' : isNew ? 'bg-[rgba(33,50,104,0.05)]' : 'bg-white'}`;
+                            ${notification.is_read ? 'bg-gray-50' : isNew ? 'bg-[rgba(33,50,104,0.05)]' : 'bg-white'}`;
                     notificationItem.setAttribute('data-id', notification.id);
 
                     notificationItem.innerHTML = `
-                        <div class="flex flex-col w-full">
-                            <div class="notification-header flex items-start justify-between cursor-pointer group">
-                            <div class="flex-1 min-w-0 pr-1">
-                                    <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5 break-words">${notification.title}</h4>
-                                        ${isNew && !notification.is_read ?
+                            <div class="flex flex-col w-full">
+                                <div class="notification-header flex items-start justify-between cursor-pointer group">
+                                <div class="flex-1 min-w-0 pr-1">
+                                        <h4 class="text-sm font-semibold ${notification.is_read ? 'text-gray-500' : 'text-[#232D42]'} mb-0.5 break-words">${notification.title}</h4>
+                                            ${isNew && !notification.is_read ?
                             '<span class="text-xs bg-[#213268] text-white px-1.5 py-0.5 rounded-full inline-flex items-center justify-center min-w-[36px] mb-1">Baru</span>' :
                             ''}
+                                        </div>
+                                    <div class="flex items-center gap-2 shrink-0 ml-1">
+                                            <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 ${notification.is_read ? 'text-gray-400 rotate-180' : 'text-[#213268] group-hover:text-[#182451]'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                <div class="flex items-center gap-2 shrink-0 ml-1">
-                                        <span class="text-xs text-gray-400 whitespace-nowrap" title="${formattedDate}">${timeAgo}</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform duration-200 ${notification.is_read ? 'text-gray-400 rotate-180' : 'text-[#213268] group-hover:text-[#182451]'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
+                                    <div class="notification-detail ${notification.is_read ? '' : 'hidden'} mt-2">
+                                    <p class="text-xs text-gray-600 break-words">${notification.detail}</p>
                                 </div>
-                                <div class="notification-detail ${notification.is_read ? '' : 'hidden'} mt-2">
-                                <p class="text-xs text-gray-600 break-words">${notification.detail}</p>
                             </div>
-                        </div>
-                    `;
+                        `;
 
                     notificationItem.querySelector('.notification-header').addEventListener('click', function (e) {
                         e.stopPropagation();
@@ -462,8 +477,8 @@
                     endMessage.id = 'end-of-notifications';
                     endMessage.className = 'p-3 text-center text-gray-500 border-t border-gray-100';
                     endMessage.innerHTML = `
-                        <p class="text-xs">Tidak ada notifikasi lainnya</p>
-                    `;
+                            <p class="text-xs">Tidak ada notifikasi lainnya</p>
+                        `;
                     notificationList.appendChild(endMessage);
                 } else {
                     // Add invisible scroll trigger for lazy loading
@@ -625,7 +640,7 @@
                 });
 
             // Listen for scroll events to implement infinite scroll
-            notificationList.addEventListener('scroll', function() {
+            notificationList.addEventListener('scroll', function () {
                 if (isLoading || !hasMorePages[currentTab]) return;
 
                 const { scrollTop, scrollHeight, clientHeight } = notificationList;

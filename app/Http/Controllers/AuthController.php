@@ -103,8 +103,8 @@ class AuthController extends Controller
                         \Log::info('Auto-login successful via refresh token');
 
                         // Set welcome message for auto-login
-                        $employeeNumber = $request->session()->get('employee_number');
-                        $request->session()->flash('welcome_message', 'Selamat datang kembali, ' . $employeeNumber);
+                        $employeeName = $request->session()->get('employee_name') ?? $request->session()->get('employee_number');
+                        $request->session()->flash('welcome_message', 'Selamat datang kembali, ' . $employeeName);
 
                         // Check if user has dashboard permission
                         if (hasPermission('dashboard:view')) {
@@ -189,35 +189,32 @@ class AuthController extends Controller
             \Log::info('Sending login request to API');
 
             try {
-            $response = $client->post(config('services.api.base_url') . '/auth/login', [
-                'json' => [
-                    'employee_number' => $request->employee_number,
-                    'password' => $request->password,
+                $response = $client->post(config('services.api.base_url') . '/auth/login', [
+                    'json' => [
+                        'employee_number' => $request->employee_number,
+                        'password' => $request->password,
                     ],
                     'http_errors' => false
-            ]);
+                ]);
 
                 $statusCode = $response->getStatusCode();
-            $result = json_decode($response->getBody()->getContents(), true);
+                $result = json_decode($response->getBody()->getContents(), true);
 
-            \Log::info('Login API response', [
+                \Log::info('Login API response', [
                     'status_code' => $statusCode,
                     'success' => $result['success'] ?? false,
-                'errors' => $result['errors'] ?? null
-            ]);
+                    'errors' => $result['errors'] ?? null
+                ]);
 
                 if (isset($result['success']) && $result['success']) {
-                // Store tokens in both session and cookies
+                    // Store tokens in both session and cookies
                     $accessToken = $result['data']['accessToken'];
                     $refreshToken = $result['data']['refreshToken'];
 
                     $request->session()->put('access_token', $accessToken);
                     $request->session()->put('refresh_token', $refreshToken);
-                $request->session()->put('employee_number', $request->employee_number);
-                $request->session()->put('token_validated_at', now()->timestamp);
-
-                    // Set welcome message flash for regular login
-                    $request->session()->flash('welcome_message', 'Selamat datang, ' . $request->employee_number);
+                    $request->session()->put('employee_number', $request->employee_number);
+                    $request->session()->put('token_validated_at', now()->timestamp);
 
                     // Extract and store JWT payload data from access token
                     $accessTokenPayload = $this->extractJwtPayload($accessToken);
@@ -228,6 +225,13 @@ class AuthController extends Controller
                         $request->session()->put('user_id', $accessTokenPayload['user_id'] ?? null);
                         $request->session()->put('is_active', $accessTokenPayload['is_active'] ?? false);
                         $request->session()->put('user_roles', $accessTokenPayload['roles'] ?? []);
+
+                        // Get employee name from JWT payload and store it
+                        $employeeName = $accessTokenPayload['employee_name'] ?? $accessTokenPayload['name'] ?? $request->employee_number;
+                        $request->session()->put('employee_name', $employeeName);
+
+                        // Set welcome message with employee name
+                        $request->session()->flash('welcome_message', 'Selamat datang, ' . $employeeName);
 
                         // Store token permissions in a format compatible with the sidebar
                         $permissions = $accessTokenPayload['permissions'] ?? [];
@@ -316,14 +320,14 @@ class AuthController extends Controller
                     }
 
                     // Store tokens in cookies with expiration based on JWT payload expiry times
-                cookie()->queue(
-                    'access_token',
+                    cookie()->queue(
+                        'access_token',
                         $accessToken,
                         $accessTokenCookieMinutes
-                );
+                    );
 
-                cookie()->queue(
-                    'refresh_token',
+                    cookie()->queue(
+                        'refresh_token',
                         $refreshToken,
                         $refreshTokenCookieMinutes
                     );
@@ -348,57 +352,57 @@ class AuthController extends Controller
                     // Get user permissions
                     $this->getPermissionsByRole($request);
 
-                // Regenerate session and redirect to dashboard
-                $request->session()->regenerate();
+                    // Regenerate session and redirect to dashboard
+                    $request->session()->regenerate();
 
-                // Check if user has dashboard permission
-                if (hasPermission('dashboard:view')) {
-                    return redirect()->route('dashboard');
-                } else {
-                    \Log::info('User does not have dashboard permission, looking for first accessible menu');
+                    // Check if user has dashboard permission
+                    if (hasPermission('dashboard:view')) {
+                        return redirect()->route('dashboard');
+                    } else {
+                        \Log::info('User does not have dashboard permission, looking for first accessible menu');
 
-                    // Define menu routes based on permissions
-                    $menuRoutes = [
-                        'asset-subcategory:view' => 'categories',
-                        'brand:view' => 'brands',
-                        'building:view' => 'buildings',
-                        'room:view' => 'rooms',
-                        'vendor:view' => 'vendor',
-                        'asset:view' => 'assets',
-                        'asset-master:view' => 'asset-master',
-                        'document:view' => 'asset-documents',
-                        'calibration:view' => 'calibration',
-                        'maintenance:view' => 'maintenance',
-                        'complaint:view' => 'complaint.index',
-                        'procurement:view' => 'procurement.request',
-                        'price-comparison:view' => 'procurement.price-comparison',
-                        'purchase-order:view' => 'procurement.purchase-order',
-                        'receipt:view' => 'procurement.receipt',
-                        'report:finance' => 'report.finance',
-                        'report:opname' => 'report.opname',
-                        'report:depreciation' => 'report.depreciation',
-                        'user:view' => 'user',
-                        'role:view' => 'roles'
-                    ];
+                        // Define menu routes based on permissions
+                        $menuRoutes = [
+                            'asset-subcategory:view' => 'categories',
+                            'brand:view' => 'brands',
+                            'building:view' => 'buildings',
+                            'room:view' => 'rooms',
+                            'vendor:view' => 'vendor',
+                            'asset:view' => 'assets',
+                            'asset-master:view' => 'asset-master',
+                            'document:view' => 'asset-documents',
+                            'calibration:view' => 'calibration',
+                            'maintenance:view' => 'maintenance',
+                            'complaint:view' => 'complaint.index',
+                            'procurement:view' => 'procurement.request',
+                            'price-comparison:view' => 'procurement.price-comparison',
+                            'purchase-order:view' => 'procurement.purchase-order',
+                            'receipt:view' => 'procurement.receipt',
+                            'report:finance' => 'report.finance',
+                            'report:opname' => 'report.opname',
+                            'report:depreciation' => 'report.depreciation',
+                            'user:view' => 'user',
+                            'role:view' => 'roles'
+                        ];
 
-                    // Loop through menu routes to find first accessible
-                    foreach ($menuRoutes as $permission => $route) {
-                        if (hasPermission($permission)) {
-                            \Log::info("Redirecting user to first accessible menu: {$route}");
-                            return redirect()->route($route);
+                        // Loop through menu routes to find first accessible
+                        foreach ($menuRoutes as $permission => $route) {
+                            if (hasPermission($permission)) {
+                                \Log::info("Redirecting user to first accessible menu: {$route}");
+                                return redirect()->route($route);
+                            }
                         }
-                    }
 
-                    // If no accessible menus found
-                    \Log::warning('User has no accessible menus, logging out');
-                    $this->clearAuthSession($request);
-                    return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke menu apapun.');
+                        // If no accessible menus found
+                        \Log::warning('User has no accessible menus, logging out');
+                        $this->clearAuthSession($request);
+                        return redirect()->route('login')->with('error', 'Anda tidak memiliki akses ke menu apapun.');
+                    }
                 }
-            }
 
                 // If we reached here, login was unsuccessful
                 \Log::warning('Login failed - API response indicates failure', [
-                'employee_number' => $request->employee_number,
+                    'employee_number' => $request->employee_number,
                     'errors' => $result['errors'] ?? null,
                     'message' => $result['message'] ?? null,
                     'status_code' => $statusCode
@@ -416,7 +420,7 @@ class AuthController extends Controller
 
                 // Check if there are specific error messages from the API (when errors is an array or object)
                 if (isset($result['errors']) && is_array($result['errors'])) {
-                $errors = [];
+                    $errors = [];
 
                     // Process each error field
                     foreach ($result['errors'] as $field => $messages) {
@@ -487,14 +491,14 @@ class AuthController extends Controller
                     ->withInput($request->except('password'));
 
             } catch (ConnectException $e) {
-            \Log::error('Login API connection error', [
-                'employee_number' => $request->employee_number,
-                'error' => $e->getMessage()
-            ]);
-            return redirect()
-                ->back()
+                \Log::error('Login API connection error', [
+                    'employee_number' => $request->employee_number,
+                    'error' => $e->getMessage()
+                ]);
+                return redirect()
+                    ->back()
                     ->with('error', 'Gagal terhubung ke server. Periksa koneksi Anda dan coba lagi.')
-                ->withInput($request->except('password'));
+                    ->withInput($request->except('password'));
             }
 
         } catch (\Exception $e) {
@@ -770,12 +774,24 @@ class AuthController extends Controller
     {
         // Update to also forget token payload data
         $request->session()->forget([
-            'access_token', 'refresh_token', 'employee_number',
-            'token_validated_at', 'user_id', 'remember_user',
-            'user_permissions', 'user_permission_names',
-            'access_token_payload', 'refresh_token_payload', 'is_active', 'user_roles',
-            'token_permissions', 'access_token_expiry', 'refresh_token_expiry',
-            'access_token_expires_in', 'refresh_token_expires_in'
+            'access_token',
+            'refresh_token',
+            'employee_number',
+            'employee_name',
+            'token_validated_at',
+            'user_id',
+            'remember_user',
+            'user_permissions',
+            'user_permission_names',
+            'access_token_payload',
+            'refresh_token_payload',
+            'is_active',
+            'user_roles',
+            'token_permissions',
+            'access_token_expiry',
+            'refresh_token_expiry',
+            'access_token_expires_in',
+            'refresh_token_expires_in'
         ]);
         $request->session()->invalidate();
         $request->session()->regenerateToken();

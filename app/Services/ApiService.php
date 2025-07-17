@@ -317,12 +317,12 @@ class ApiService
             if (isset($result['success']) && $result['success']) {
                 // Handle different API response formats - try both camelCase and snake_case
                 $accessToken = $result['data']['accessToken'] ??
-                               $result['data']['access_token'] ??
-                               null;
+                    $result['data']['access_token'] ??
+                    null;
 
                 $newRefreshToken = $result['data']['refreshToken'] ??
-                                   $result['data']['refresh_token'] ??
-                                   $refreshToken; // Use existing if not provided
+                    $result['data']['refresh_token'] ??
+                    $refreshToken; // Use existing if not provided
 
                 if (!$accessToken) {
                     Log::warning('Missing access token in refresh response', ['response' => $result]);
@@ -363,6 +363,7 @@ class ApiService
                         'user_id' => $accessTokenPayload['user_id'] ?? null,
                         'is_active' => $accessTokenPayload['is_active'] ?? false,
                         'user_roles' => $accessTokenPayload['roles'] ?? [],
+                        'employee_name' => $accessTokenPayload['employee_name'] ?? $accessTokenPayload['name'] ?? null,
                         'access_token_expiry' => $accessTokenExpiry,
                         'access_token_expires_in' => $expiresIn
                     ]);
@@ -610,7 +611,7 @@ class ApiService
         } else {
             // Fallback only if JWT payload doesn't contain expiration
             $refreshTokenLifetime = $rememberUser
-                ? config('auth.remembered_refresh_token_cookie_lifetime', 43200*7)
+                ? config('auth.remembered_refresh_token_cookie_lifetime', 43200 * 7)
                 : config('auth.refresh_token_cookie_lifetime', 43200);
             Log::warning('Falling back to config for refresh token cookie lifetime', [
                 'minutes' => $refreshTokenLifetime,
@@ -686,11 +687,22 @@ class ApiService
     {
         // Clear session data
         session()->forget([
-            'access_token', 'refresh_token', 'token_validated_at',
-            'token_refreshed_at', 'user_permissions', 'user_permission_names',
-            'access_token_payload', 'refresh_token_payload', 'user_id', 'is_active', 'user_roles',
-            'token_permissions', 'access_token_expiry', 'refresh_token_expiry',
-            'access_token_expires_in', 'refresh_token_expires_in'
+            'access_token',
+            'refresh_token',
+            'token_validated_at',
+            'token_refreshed_at',
+            'user_permissions',
+            'user_permission_names',
+            'access_token_payload',
+            'refresh_token_payload',
+            'user_id',
+            'is_active',
+            'user_roles',
+            'token_permissions',
+            'access_token_expiry',
+            'refresh_token_expiry',
+            'access_token_expires_in',
+            'refresh_token_expires_in'
         ]);
 
         // Clear cookies
