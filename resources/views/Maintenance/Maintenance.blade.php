@@ -245,15 +245,16 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $maintenances_pagination['prev_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($maintenances_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <button onclick="window.location.href='{{ $maintenances_pagination['prev_page_url'] ?? '#' }}'"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($maintenances_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ ($maintenances_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
                                 Sebelumnya
-                            </a>
+                            </button>
                             <div class="flex gap-2">
                                 @php
                                         $currentPage = $maintenances_pagination['current_page'] ?? 1;
@@ -268,10 +269,10 @@
                                     @endphp
 
                                     @if($startPage > 1)
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                             1
-                                        </a>
+                                        </button>
                                         @if($startPage > 2)
                                             <span class="flex items-center justify-center">
                                                 ...
@@ -280,10 +281,10 @@
                                     @endif
 
                                     @for ($i = $startPage; $i <= $endPage; $i++)
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                             {{ $i }}
-                                        </a>
+                                        </button>
                                     @endfor
 
                                     @if($endPage < $lastPage)
@@ -292,21 +293,22 @@
                                                 ...
                                             </span>
                                         @endif
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                             {{ $lastPage }}
-                                        </a>
+                                        </button>
                                     @endif
                                 </div>
-                                    <a href="{{ $maintenances_pagination['next_page_url'] ?? '#' }}"
-                                        class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($maintenances_pagination['current_page'] ?? 1) >= ($maintenances_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <button onclick="window.location.href='{{ $maintenances_pagination['next_page_url'] ?? '#' }}'"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($maintenances_pagination['current_page'] ?? 1) >= ($maintenances_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ ($maintenances_pagination['current_page'] ?? 1) >= ($maintenances_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                                     Selanjutnya
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
 
                             <div class="flex items-center gap-2 mt-4 md:mt-0">
@@ -625,6 +627,7 @@
                                                 <option value="10">10 per halaman</option>
                                                 <option value="25">25 per halaman</option>
                                                 <option value="50">50 per halaman</option>
+                                                <option value="100">100 per halaman</option>
                                             </select>
                                         </div>
                                     </div>

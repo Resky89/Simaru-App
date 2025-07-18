@@ -541,6 +541,11 @@ Route::middleware([AuthMiddleware::class])->group(function () {
             ->name('reject')
             ->middleware('permission:procurement:reject');
 
+        // Start procurement process
+        Route::patch('/request/{id}/start', [ProcurementRequestController::class, 'startProcurement'])
+            ->name('start')
+            ->middleware('permission:procurement:approve:manager|procurement:approve:director');
+
         // Price Comparison read operations
         Route::get('/price-comparison', [ProcurementPriceComparisonController::class, 'index'])
             ->name('price-comparison')

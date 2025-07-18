@@ -87,16 +87,22 @@
                                                 @endphp
 
                                                 @if($sortIcon === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 15l7-7 7 7" />
                                                     </svg>
                                                 @elseif($sortIcon === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                     </svg>
                                                 @endif
                                             </span>
@@ -117,16 +123,22 @@
                                                 @endphp
 
                                                 @if($addressSortIcon === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 15l7-7 7 7" />
                                                     </svg>
                                                 @elseif($addressSortIcon === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 9l-7 7-7-7" />
                                                     </svg>
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50"
+                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                     </svg>
                                                 @endif
                                             </span>
@@ -148,8 +160,7 @@
                                                         class="edit-building-btn p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         data-id="{{ $building['building_id'] }}"
                                                         data-name="{{ $building['building_name'] }}"
-                                                        data-address="{{ $building['address'] }}"
-                                                        title="Edit Gedung">
+                                                        data-address="{{ $building['address'] }}" title="Edit Gedung">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -160,8 +171,7 @@
                                                 @if(hasPermission('building:delete'))
                                                     <button
                                                         class="delete-building-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-id="{{ $building['building_id'] }}"
-                                                        title="Hapus Gedung">
+                                                        data-id="{{ $building['building_id'] }}" title="Hapus Gedung">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -185,15 +195,16 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? '#' : request()->fullUrlWithQuery(['page' => ($buildings_pagination['current_page'] ?? 1) - 1]) }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <button onclick="window.location.href='{{ $buildings_pagination['prev_page_url'] ?? '#' }}'"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ ($buildings_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
                                 </svg>
                                 Sebelumnya
-                            </a>
+                            </button>
                             <div class="flex gap-2">
                                 @php
                                     $currentPage = $buildings_pagination['current_page'] ?? 1;
@@ -208,10 +219,10 @@
                                 @endphp
 
                                 @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1
-                                    </a>
+                                    </button>
                                     @if($startPage > 2)
                                         <span class="flex items-center justify-center">
                                             ...
@@ -220,10 +231,10 @@
                                 @endif
 
                                 @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
-                                    </a>
+                                    </button>
                                 @endfor
 
                                 @if($endPage < $lastPage)
@@ -232,21 +243,24 @@
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                    <button
+                                        onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         {{ $lastPage }}
-                                    </a>
+                                    </button>
                                 @endif
                             </div>
-                            <a href="{{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['page' => ($buildings_pagination['current_page'] ?? 1) + 1]) }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
+                            <button
+                                onclick="window.location.href='{{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? '#' : request()->fullUrlWithQuery(['page' => ($buildings_pagination['current_page'] ?? 1) + 1]) }}'"
+                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ ($buildings_pagination['current_page'] ?? 1) >= ($buildings_pagination['last_page'] ?? 1) ? 'disabled' : '' }}>
                                 Selanjutnya
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5l7 7-7 7" />
                                 </svg>
-                            </a>
+                            </button>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -973,19 +987,19 @@
                     if (type === 'success') {
                         notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                         notification.innerHTML = `
-                                    <div class="flex items-start">
-                                    <div class="py-1">
-                                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    </div>
-                                    <div>
-                                            <p class="font-bold">Berhasil!</p>
-                                            <div>${message}</div>
-                                    </div>
-                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                </div>
-                            `;
+                                            <div class="flex items-start">
+                                            <div class="py-1">
+                                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            </div>
+                                            <div>
+                                                    <p class="font-bold">Berhasil!</p>
+                                                    <div>${message}</div>
+                                            </div>
+                                            <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                                        </div>
+                                    `;
                     } else {
                         notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -995,10 +1009,10 @@
                         const iconContainer = document.createElement('div');
                         iconContainer.className = 'py-1 flex-shrink-0';
                         iconContainer.innerHTML = `
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                `;
+                                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        `;
 
                         const contentContainer = document.createElement('div');
                         contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
@@ -1058,11 +1072,11 @@
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span>Memproses...</span>
-                                        </div>
-                                    `;
+                                                <div class="flex items-center justify-center">
+                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    <span>Memproses...</span>
+                                                </div>
+                                            `;
 
                             setTimeout(() => {
                                 if (submitBtn) {
@@ -1093,11 +1107,11 @@
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span>Memproses...</span>
-                                        </div>
-                                    `;
+                                                <div class="flex items-center justify-center">
+                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    <span>Memproses...</span>
+                                                </div>
+                                            `;
 
                             setTimeout(() => {
                                 if (submitBtn) {
@@ -1120,11 +1134,11 @@
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span>Menghapus...</span>
-                                        </div>
-                                    `;
+                                                <div class="flex items-center justify-center">
+                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    <span>Menghapus...</span>
+                                                </div>
+                                            `;
 
                             setTimeout(() => {
                                 if (submitBtn) {
@@ -1452,11 +1466,11 @@
                     const originalBtnText = importBtn.innerHTML;
                     importBtn.disabled = true;
                     importBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Memproses...</span>
+                                        </div>
+                                    `;
 
                     fetch('{{ route('buildings.import') }}', {
                         method: 'POST',
@@ -1540,32 +1554,32 @@
                 });
 
                 document.head.insertAdjacentHTML('beforeend', `
-                            <style>
-                                @keyframes slideInRight {
-                                    from { transform: translateX(100%); }
-                                    to { transform: translateX(0); }
-                                }
-                                .animate-slide-in-right {
-                                    animation: slideInRight 0.3s ease-out forwards;
-                                }
+                                    <style>
+                                        @keyframes slideInRight {
+                                            from { transform: translateX(100%); }
+                                            to { transform: translateX(0); }
+                                        }
+                                        .animate-slide-in-right {
+                                            animation: slideInRight 0.3s ease-out forwards;
+                                        }
 
-                                .error-message ul {
-                                    margin-top: 0.5rem;
-                                    padding-left: 1.5rem;
-                                }
-                                .error-message ul li {
-                                    margin-bottom: 0.25rem;
-                                }
-                                .error-message ul li:last-child {
-                                    margin-bottom: 0;
-                                }
-                            </style>
-                        `);
+                                        .error-message ul {
+                                            margin-top: 0.5rem;
+                                            padding-left: 1.5rem;
+                                        }
+                                        .error-message ul li {
+                                            margin-bottom: 0.25rem;
+                                        }
+                                        .error-message ul li:last-child {
+                                            margin-bottom: 0;
+                                        }
+                                    </style>
+                                `);
 
                 // Column header sorting
                 const sortByNameHeader = document.getElementById('sortByName');
                 if (sortByNameHeader) {
-                    sortByNameHeader.addEventListener('click', function() {
+                    sortByNameHeader.addEventListener('click', function () {
                         const currentSort = '{{ request()->query("sort") }}';
                         let newSort;
 
@@ -1584,7 +1598,7 @@
 
                 const sortByAddressHeader = document.getElementById('sortByAddress');
                 if (sortByAddressHeader) {
-                    sortByAddressHeader.addEventListener('click', function() {
+                    sortByAddressHeader.addEventListener('click', function () {
                         const currentSort = '{{ request()->query("sort") }}';
                         let newSort;
 

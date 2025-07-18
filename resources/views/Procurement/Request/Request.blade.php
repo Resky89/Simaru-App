@@ -84,7 +84,7 @@
                                     {{ count($procurement['details'] ?? []) }}
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                    {{ $procurement['requester']['employee_number'] ?? '' }}
+                                    {{ $procurement['requester']['employee_name'] ?? '' }}
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     @if(isset($procurement['request_date']))
@@ -127,7 +127,13 @@
                                 <td class="p-3 border-t border-[#EEF1F4]">
                                     <div class="flex justify-center gap-2">
                                         @if(hasPermission('procurement:view'))
-                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}" class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors" title="Lihat Detail Permintaan">
+                                        <a href="{{ route('procurement.detail-request', ['id' => $procurement['procurement_id']]) }}"
+                                           class="p-2 bg-[#D5E1F7] text-[#213268] rounded-md hover:bg-blue-200 transition-colors detail-request-btn"
+                                           data-id="{{ $procurement['procurement_id'] }}"
+                                           data-title="{{ $procurement['title'] }}"
+                                           data-status="{{ $procurement['status'] }}"
+                                           data-can-start="{{ (hasPermission('procurement:approve:manager') || hasPermission('procurement:approve:director')) ? 'true' : 'false' }}"
+                                           title="Lihat Detail Permintaan">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -168,9 +174,9 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                     <div class="flex items-center space-x-2">
-                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
-                               {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($procurements_pagination['prev_page_url'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($procurements_pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($procurements_pagination['prev_page_url'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -180,8 +186,8 @@
                         </button>
                         <div class="flex gap-2">
                             @php
-                                $currentPage = $pagination['current_page'] ?? 1;
-                                $lastPage = $pagination['total_pages'] ?? 1;
+                                $currentPage = $procurements_pagination['current_page'] ?? 1;
+                                $lastPage = $procurements_pagination['last_page'] ?? 1;
                                 $maxPagesShown = 5; // Show max 5 pages at once
                                 $startPage = max(1, $currentPage - 2);
                                 $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -222,9 +228,9 @@
                                 </button>
                             @endif
                         </div>
-                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
-                               {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($procurements_pagination['next_page_url'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($procurements_pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($procurements_pagination['next_page_url'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -236,23 +242,18 @@
 
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-gray-600">
-                            @if(isset($pagination) && is_array($pagination))
-                                @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $perPage = $pagination['limit'] ?? 10;
-                                    $total = $pagination['total_items'] ?? count($procurements);
-                                    $from = ($currentPage - 1) * $perPage + 1;
-                                    $to = min($currentPage * $perPage, $total);
-                                @endphp
-                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
+                            @if(isset($procurements_pagination) && is_array($procurements_pagination))
+                                Menampilkan {{ $procurements_pagination['from'] ?? 0 }} sampai {{ $procurements_pagination['to'] ?? 0 }} dari
+                                {{ $procurements_pagination['total'] ?? 0 }} data
                             @else
-                                Menampilkan 1 sampai {{ count($procurements) }} dari {{ count($procurements) }} data
+                                Menampilkan 0 sampai 0 dari 0 data
                             @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeRequestPerPage(this.value)">
-                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="10" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="100" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                         </select>
                     </div>
                 </div>
@@ -603,6 +604,58 @@
         @if(session('error'))
             showToast('{{ session('error') }}', 'error');
         @endif
+
+                // Handle detail request button clicks
+        document.querySelectorAll('.detail-request-btn').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                const procurementId = this.getAttribute('data-id');
+                const procurementTitle = this.getAttribute('data-title');
+                const status = this.getAttribute('data-status');
+                const canStart = this.getAttribute('data-can-start') === 'true';
+                const detailUrl = this.getAttribute('href');
+
+                                // Only process start procurement if status is Submitted and user has permission
+                if (status === 'Submitted' && canStart) {
+                    e.preventDefault(); // Prevent default navigation
+
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<div class="inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>';
+
+                    fetch('{{ route("procurement.start", ["id" => ":id"]) }}'.replace(':id', procurementId), {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect to detail page after successful start without showing toast
+                            window.location.href = detailUrl;
+                        } else {
+                            this.innerHTML = originalHTML;
+                            showToast(data.errors?.exception?.[0] || 'Gagal memulai proses pengadaan', 'error');
+                            // Navigate to detail page even if start fails
+                            setTimeout(() => {
+                                window.location.href = detailUrl;
+                            }, 2000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.innerHTML = originalHTML;
+                        showToast('Terjadi kesalahan saat memulai proses pengadaan', 'error');
+                        // Navigate to detail page even if start fails
+                        setTimeout(() => {
+                            window.location.href = detailUrl;
+                        }, 2000);
+                    });
+                }
+                // Otherwise, let the default navigation happen
+            });
+        });
     });
 </script>
 @endpush

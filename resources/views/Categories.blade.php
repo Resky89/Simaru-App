@@ -175,15 +175,16 @@
                     <!-- Pagination -->
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
                         <div class="flex items-center space-x-2">
-                            <a href="{{ $subcategories_pagination['prev_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 19l-7-7 7-7" />
-                                </svg>
-                                Sebelumnya
-                            </a>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($subcategories_pagination['prev_page_url'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($subcategories_pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($subcategories_pagination['prev_page_url'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Sebelumnya
+                        </button>
                             <div class="flex gap-2">
                                 @php
                                     $currentPage = $subcategories_pagination['current_page'] ?? 1;
@@ -197,46 +198,47 @@
                                     }
                                 @endphp
 
-                                @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
-                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                        1
-                                    </a>
-                                    @if($startPage > 2)
-                                        <span class="flex items-center justify-center">
-                                            ...
-                                        </span>
-                                    @endif
+                            @if($startPage > 1)
+                                <button onclick="changePage(1)"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    1
+                                </button>
+                                @if($startPage > 2)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
                                 @endif
+                            @endif
 
-                                @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
-                                        class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
-                                        {{ $i }}
-                                    </a>
-                                @endfor
+                            @for ($i = $startPage; $i <= $endPage; $i++)
+                                <button onclick="changePage({{ $i }})"
+                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                    {{ $i }}
+                                </button>
+                            @endfor
 
-                                @if($endPage < $lastPage)
-                                    @if($endPage < $lastPage - 1)
-                                        <span class="flex items-center justify-center">
-                                            ...
-                                        </span>
-                                    @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
-                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                        {{ $lastPage }}
-                                    </a>
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="flex items-center justify-center">
+                                        ...
+                                    </span>
                                 @endif
+                                <button onclick="changePage({{ $lastPage }})"
+                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                    {{ $lastPage }}
+                                </button>
+                            @endif
                             </div>
-                            <a href="{{ $subcategories_pagination['next_page_url'] ?? '#' }}"
-                                class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($subcategories_pagination['current_page'] ?? 1) >= ($subcategories_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Selanjutnya
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($subcategories_pagination['next_page_url'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($subcategories_pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($subcategories_pagination['next_page_url'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                            Selanjutnya
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
                         </div>
 
                         <div class="flex items-center gap-2">

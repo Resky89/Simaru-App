@@ -213,36 +213,37 @@
                                 }
                             @endphp
 
-                            @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    1
-                                </a>
-                                @if($startPage > 2)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
+@if($startPage > 1)
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        1
+                                    </button>
+                                    @if($startPage > 2)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
                                 @endif
-                            @endif
 
-                            @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
-                                    {{ $i }}
-                                </a>
-                            @endfor
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
 
-                            @if($endPage < $lastPage)
-                                @if($endPage < $lastPage - 1)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                    <button
+                                        onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        {{ $lastPage }}
+                                    </button>
                                 @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    {{ $lastPage }}
-                                </a>
-                            @endif
                         </div>
 
                         <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($documents_pagination['current_page'] ?? 1) >= ($documents_pagination['last_page'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"

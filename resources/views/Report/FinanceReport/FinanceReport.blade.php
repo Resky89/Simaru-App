@@ -145,15 +145,16 @@
                     @if(isset($pagination) && $pagination)
                         <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                             <div class="flex items-center space-x-2">
-                                <a href="{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}"
-                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <button onclick="window.location.href='{{ isset($pagination['has_prev']) && $pagination['has_prev'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] - 1]) : '#' }}'"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ !isset($pagination['has_prev']) || !$pagination['has_prev'] ? 'disabled' : '' }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 19l-7-7 7-7" />
                                     </svg>
                                     Sebelumnya
-                                </a>
+                                </button>
                                 <div class="flex gap-2">
                                     @php
                                         $currentPage = $pagination['current_page'] ?? 1;
@@ -168,10 +169,10 @@
                                     @endphp
 
                                     @if($startPage > 1)
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                             1
-                                        </a>
+                                        </button>
                                         @if($startPage > 2)
                                             <span class="flex items-center justify-center">
                                                 ...
@@ -180,10 +181,10 @@
                                     @endif
 
                                     @for ($i = $startPage; $i <= $endPage; $i++)
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                             {{ $i }}
-                                        </a>
+                                        </button>
                                     @endfor
 
                                     @if($endPage < $totalPages)
@@ -192,21 +193,22 @@
                                                 ...
                                             </span>
                                         @endif
-                                        <a href="{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}"
+                                        <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $totalPages]) }}'"
                                             class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                             {{ $totalPages }}
-                                        </a>
+                                        </button>
                                     @endif
                                 </div>
-                                <a href="{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}"
-                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                <button onclick="window.location.href='{{ isset($pagination['has_next']) && $pagination['has_next'] ? request()->fullUrlWithQuery(['page' => $pagination['current_page'] + 1]) : '#' }}'"
+                                    class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ !isset($pagination['has_next']) || !$pagination['has_next'] ? 'disabled' : '' }}>
                                     Selanjutnya
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 5l7 7-7 7" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
 
                             <div class="flex items-center gap-2 mt-4 md:mt-0">

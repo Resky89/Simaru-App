@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
 
 class ProcurementRequestController extends Controller
 {
+    use ApiResourceOperations;
+
     protected $apiService;
 
     public function __construct(ApiService $apiService)
@@ -33,145 +37,34 @@ class ProcurementRequestController extends Controller
             $sort = $request->input('sort');
 
             // Build query parameters
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-            ];
-
-            // Add search parameter if provided
-            if ($search) {
-                $queryParams['search'] = $search;
-            }
+            $extraParams = [];
 
             // Add status filter if provided
             if ($status) {
-                $queryParams['status'] = $status;
+                $extraParams['status'] = $status;
             }
 
-            // Set sort parameters based on selection
-            if ($sort) {
-                switch ($sort) {
-                    case 'newest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'oldest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_asc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_desc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    default:
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                }
-            } else {
-                // Default sorting if not specified
-                $queryParams['sort_by'] = 'created_at';
-                $queryParams['sort_order'] = 'desc';
-            }
+            // Set sort mappings based on selection
+            $sortMappings = [
+                'newest' => ['sort_by' => 'created_at', 'sort_order' => 'desc'],
+                'oldest' => ['sort_by' => 'created_at', 'sort_order' => 'asc'],
+                'title_asc' => ['sort_by' => 'title', 'sort_order' => 'asc'],
+                'title_desc' => ['sort_by' => 'title', 'sort_order' => 'desc'],
+            ];
 
-            $result = $this->apiService->request('GET', '/procurements', [
-                'query' => $queryParams
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil daftar pengadaan';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    // Format error message for better display in toast notifications
-                    $formattedErrors = [];
-                    if (is_array($errorData)) {
-                        foreach ($errorData as $field => $messages) {
-                            if (is_array($messages)) {
-                                $formattedErrors[$field] = $messages;
-                            } else {
-                                $formattedErrors[$field] = [$messages];
-                            }
-                        }
-                    } else {
-                        $formattedErrors['general'] = [$errorData];
-                    }
-
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $formattedErrors,
-                    ], 400);
-                }
-
-                // Format error message for view
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                // Return view with empty procurements data and error message
-                return view('Procurement.Request.Request', [
-                    'procurements' => [],
-                    'pagination' => null,
-                    'error' => $errorMessage
-                ]);
-            }
-
-            // Make sure procurements is always defined
-            $procurements = $result['data'] ?? [];
-            $pagination = $result['pagination'] ?? null;
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Daftar pengadaan berhasil diambil',
-                    'data' => $procurements,
-                    'pagination' => $pagination
-                ]);
-            }
-
-            return view('Procurement.Request.Request', [
-                'procurements' => $procurements,
-                'pagination' => $pagination
-            ]);
+            return $this->getResourceList(
+                $request,
+                '/procurements',
+                'procurements',
+                'Procurement.Request.Request',
+                'created_at',
+                $extraParams,
+                $sortMappings
+            );
         } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => ['Gagal mengambil daftar pengadaan: ' . $e->getMessage()]],
-                ], 500);
-            }
-
-            // Always pass an empty array for procurements in case of error
-            return view('Procurement.Request.Request', [
+            return $this->handleException($e, $request, 'Procurement.Request.Request', [
                 'procurements' => [],
-                'pagination' => null,
-                'error' => 'Gagal mengambil data pengadaan: ' . $e->getMessage()
+                'pagination' => null
             ]);
         }
     }
@@ -209,12 +102,12 @@ class ProcurementRequestController extends Controller
                     }
 
                     if (isset($detail['asset_master_id'])) {
-                        $processedDetail['asset_master_id'] = (int)$detail['asset_master_id'];
+                        $processedDetail['asset_master_id'] = (int) $detail['asset_master_id'];
                     }
 
                     // Process required fields
-                    $processedDetail['quantity'] = (int)$detail['quantity'];
-                    $processedDetail['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+                    $processedDetail['quantity'] = (int) $detail['quantity'];
+                    $processedDetail['estimated_unit_price'] = (float) $detail['estimated_unit_price'];
 
                     // Process optional fields
                     if (isset($detail['specifications'])) {
@@ -230,57 +123,13 @@ class ProcurementRequestController extends Controller
                 }
             }
 
-            // Call the API to create the procurement
-            $result = $this->apiService->request('POST', '/procurements', [
-                'json' => $validated
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check if we got an error response
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal membuat pengadaan';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Pengadaan berhasil dibuat',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.request')
-            ], 201);
+            return $this->storeResource(
+                $request,
+                '/procurements',
+                $validated,
+                'Pengadaan berhasil dibuat',
+                'procurement.request'
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -348,12 +197,12 @@ class ProcurementRequestController extends Controller
                     }
 
                     if (isset($detail['asset_master_id'])) {
-                        $processedDetail['asset_master_id'] = (int)$detail['asset_master_id'];
+                        $processedDetail['asset_master_id'] = (int) $detail['asset_master_id'];
                     }
 
                     // Process required fields
-                    $processedDetail['quantity'] = (int)$detail['quantity'];
-                    $processedDetail['estimated_unit_price'] = (float)$detail['estimated_unit_price'];
+                    $processedDetail['quantity'] = (int) $detail['quantity'];
+                    $processedDetail['estimated_unit_price'] = (float) $detail['estimated_unit_price'];
 
                     // Process optional fields
                     if (isset($detail['specifications'])) {
@@ -369,56 +218,13 @@ class ProcurementRequestController extends Controller
                 }
             }
 
-            // Call the API to update the procurement
-            $result = $this->apiService->request('PUT', "/procurements/{$id}", [
-                'json' => $validated
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check if we got an error response
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal memperbarui pengadaan';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Pengadaan berhasil diperbarui',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.request')
-            ]);
+            return $this->updateResource(
+                $request,
+                "/procurements/{$id}",
+                $validated,
+                'Pengadaan berhasil diperbarui',
+                'procurement.request'
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -438,23 +244,15 @@ class ProcurementRequestController extends Controller
      * @param int $id Procurement ID
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function getOne( Request $request, $id)
+    public function getOne(Request $request, $id)
     {
         try {
             $result = $this->apiService->request('GET', "/procurements/{$id}");
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Check if we got an error response
@@ -462,18 +260,7 @@ class ProcurementRequestController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal mengambil detail pengadaan';
 
                 // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -507,19 +294,7 @@ class ProcurementRequestController extends Controller
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
                 // Format error message for toast notifications
                 $errorData = $procurementData['errors'] ?? 'Gagal mengambil detail pengadaan';
-                $formattedErrors = [];
-
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -536,50 +311,12 @@ class ProcurementRequestController extends Controller
                 ], 403);
             }
 
-            $result = $this->apiService->request('DELETE', "/procurements/{$id}");
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check if we got an error response
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal menghapus pengadaan';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Pengadaan berhasil dihapus'
-            ]);
+            return $this->deleteResource(
+                $request,
+                "/procurements/{$id}",
+                'Pengadaan berhasil dihapus',
+                'procurement.request'
+            );
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -597,91 +334,12 @@ class ProcurementRequestController extends Controller
      */
     public function show(Request $request, $id)
     {
-        try {
-            $result = $this->apiService->request('GET', "/procurements/{$id}");
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil detail pengadaan';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    // Format error message for better display in toast notifications
-                    $formattedErrors = [];
-                    if (is_array($errorData)) {
-                        foreach ($errorData as $field => $messages) {
-                            if (is_array($messages)) {
-                                $formattedErrors[$field] = $messages;
-                            } else {
-                                $formattedErrors[$field] = [$messages];
-                            }
-                        }
-                    } else {
-                        $formattedErrors['general'] = [$errorData];
-                    }
-
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $formattedErrors,
-                    ], 400);
-                }
-
-                return redirect()->route('procurement.request')
-                    ->with('error', is_string($errorData) ? $errorData : 'Gagal mengambil detail pengadaan');
-            }
-
-            // Make sure procurement data exists
-            if (!isset($result['data'])) {
-                $errorMessage = 'Procurement data not found';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['general' => [$errorMessage]],
-                    ], 404);
-                }
-
-                return redirect()->route('procurement.request')
-                    ->with('error', $errorMessage);
-            }
-
-            // Load view with procurement data
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Pengadaan berhasil ditemukan',
-                    'data' => $result['data']
-                ]);
-            }
-
-            return view('Procurement.Request.DetailRequest', [
-                'procurement' => $result['data']
-            ]);
-        } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => ['Gagal mengambil detail pengadaan: ' . $e->getMessage()]],
-                ], 500);
-            }
-
-            return redirect()->route('procurement.request')
-                ->with('error', 'Gagal mengambil detail pengadaan: ' . $e->getMessage());
-        }
+        return $this->getResource(
+            $request,
+            "/procurements/{$id}",
+            'procurement',
+            'Procurement.Request.DetailRequest'
+        );
     }
 
     /**
@@ -699,19 +357,7 @@ class ProcurementRequestController extends Controller
             if (!isset($procurementData['success']) || $procurementData['success'] !== true) {
                 // Format error message for toast notifications
                 $errorData = $procurementData['errors'] ?? 'Gagal mengambil detail pengadaan';
-                $formattedErrors = [];
-
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -723,17 +369,9 @@ class ProcurementRequestController extends Controller
             $result = $this->apiService->request('POST', "/procurements/{$id}/manager-approval");
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Check if we got an error response
@@ -741,18 +379,7 @@ class ProcurementRequestController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal menyetujui pengadaan';
 
                 // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -814,17 +441,9 @@ class ProcurementRequestController extends Controller
             $result = $this->apiService->request('POST', "/procurements/{$id}/director-approval");
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Check if we got an error response
@@ -832,18 +451,7 @@ class ProcurementRequestController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal menyetujui pengadaan';
 
                 // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -885,17 +493,9 @@ class ProcurementRequestController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Check if we got an error response
@@ -903,18 +503,7 @@ class ProcurementRequestController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal menolak pengadaan';
 
                 // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -936,6 +525,52 @@ class ProcurementRequestController extends Controller
             return response()->json([
                 'success' => false,
                 'errors' => ['exception' => ['Gagal menolak pengadaan: ' . $e->getMessage()]],
+            ], 500);
+        }
+    }
+
+    /**
+     * Start procurement process.
+     *
+     * @param Request $request
+     * @param int $id Procurement ID
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function startProcurement(Request $request, $id)
+    {
+        try {
+            // Send request to API
+            $result = $this->apiService->request('PATCH', "/procurements/{$id}/start");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal memulai proses pengadaan';
+
+                // Format error message for better display in toast notifications
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => $formattedErrors,
+                ], 400);
+            }
+
+            // Return successful response
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'] ?? 'Pengadaan berhasil dimulai',
+                'data' => $result['data'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['exception' => ['Gagal memulai proses pengadaan: ' . $e->getMessage()]],
             ], 500);
         }
     }
@@ -969,18 +604,9 @@ class ProcurementRequestController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
             }
 
             // Check for API errors or unsuccessful responses
@@ -988,18 +614,7 @@ class ProcurementRequestController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal mencari pengadaan';
 
                 // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
@@ -1014,7 +629,6 @@ class ProcurementRequestController extends Controller
                 'data' => $result['data'] ?? []
             ]);
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'errors' => ['exception' => ['Gagal mencari pengadaan: ' . $e->getMessage()]],

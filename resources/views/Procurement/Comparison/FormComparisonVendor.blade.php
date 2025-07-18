@@ -92,6 +92,7 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jml</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan
                                     </th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Additional Info</th>
                                 </tr>
                             </thead>
                             <tbody id="items_container">
@@ -210,41 +211,41 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                                    .swal2-popup {
-                                        border-radius: 15px;
-                                        padding: 1.5rem;
-                                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                                    }
-                                    .swal-custom-title {
-                                        font-weight: 600;
-                                        font-size: 1.5rem;
-                                        color: #333;
-                                    }
-                                    .swal-custom-content {
-                                        font-size: 1rem;
-                                        color: #555;
-                                        margin-top: 0.5rem;
-                                    }
-                                    .swal-custom-content ul {
-                                        text-align: left;
-                                        margin-top: 1rem;
-                                        margin-bottom: 1rem;
-                                    }
-                                    .swal-custom-confirm {
-                                        padding: 0.5rem 1.5rem;
-                                        font-weight: 500;
-                                    }
-                                    .swal-custom-cancel {
-                                        padding: 0.5rem 1.5rem;
-                                        font-weight: 500;
-                                    }
-                                    .swal2-timer-progress-bar {
-                                        background: rgba(33, 50, 104, 0.5);
-                                    }
-                                    .swal2-icon {
-                                        margin: 1rem auto;
-                                    }
-                                `;
+                                        .swal2-popup {
+                                            border-radius: 15px;
+                                            padding: 1.5rem;
+                                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                        }
+                                        .swal-custom-title {
+                                            font-weight: 600;
+                                            font-size: 1.5rem;
+                                            color: #333;
+                                        }
+                                        .swal-custom-content {
+                                            font-size: 1rem;
+                                            color: #555;
+                                            margin-top: 0.5rem;
+                                        }
+                                        .swal-custom-content ul {
+                                            text-align: left;
+                                            margin-top: 1rem;
+                                            margin-bottom: 1rem;
+                                        }
+                                        .swal-custom-confirm {
+                                            padding: 0.5rem 1.5rem;
+                                            font-weight: 500;
+                                        }
+                                        .swal-custom-cancel {
+                                            padding: 0.5rem 1.5rem;
+                                            font-weight: 500;
+                                        }
+                                        .swal2-timer-progress-bar {
+                                            background: rgba(33, 50, 104, 0.5);
+                                        }
+                                        .swal2-icon {
+                                            margin: 1rem auto;
+                                        }
+                                    `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -390,15 +391,178 @@
                 };
             }
 
-            let allVendors = [];
+            // Add variables for lazy loading
+            let vendorPage = 1;
+            let isLoadingVendors = false;
+            let hasMoreVendors = true;
+            let currentVendorSearch = '';
+            let allVendors = []; // Keep for no-search case
+
             const vendorSearchInput = document.getElementById('vendor_search');
             const vendorIdInput = document.getElementById('selected_vendor_id');
             const vendorResults = document.getElementById('vendor_results');
 
-            loadAllVendors();
-            loadComparisonData();
 
-            vendorSearchInput?.addEventListener('focus', function () {
+
+
+
+            // Modify fetchVendors to support pagination and search
+            function fetchVendors(searchTerm = '', callback = null, page = 1, append = false) {
+                const params = new URLSearchParams({
+                    json: 'true',
+                    limit: '20',
+                    page: page.toString()
+                });
+
+                if (searchTerm) {
+                    params.append('search', searchTerm);
+                }
+
+                if (!append && vendorResults.style.display === 'block') {
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Loading vendors...</div>';
+                }
+
+                isLoadingVendors = true;
+
+                fetch(`/vendors?${params.toString()}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let vendors = [];
+
+                        if (Array.isArray(data)) {
+                            vendors = data;
+                        } else if (data.vendors && Array.isArray(data.vendors)) {
+                            vendors = data.vendors;
+                        } else if (data.data && Array.isArray(data.data)) {
+                            vendors = data.data;
+                        }
+
+                        if (!searchTerm && page === 1) {
+                            allVendors = vendors;
+                            try {
+                                localStorage.setItem('allVendors', JSON.stringify(allVendors));
+                            } catch (e) {
+                                console.error('Error caching vendors:', e);
+                            }
+                        }
+
+                        if (callback) {
+                            callback(vendors, append);
+                        }
+
+                        hasMoreVendors = vendors.length === 20;
+
+                        isLoadingVendors = false;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching vendors:', error);
+
+                        if (vendorResults.style.display === 'block' && !append) {
+                            vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
+                        }
+
+                        showSweetAlert('Gagal memuat vendor: ' + error.message, 'error');
+
+                        if (callback) {
+                            callback([], append);
+                        }
+
+                        isLoadingVendors = false;
+                    });
+            }
+
+            // Modify filterAndDisplayVendors
+            function filterAndDisplayVendors(searchTerm) {
+                vendorResults.style.display = 'block';
+
+                vendorPage = 1;
+                hasMoreVendors = true;
+                currentVendorSearch = searchTerm;
+
+                if (searchTerm && searchTerm.length > 0) {
+                    fetchVendors(searchTerm, displayVendorResults, vendorPage, false);
+                } else {
+                    const cachedVendors = localStorage.getItem('allVendors');
+                    if (cachedVendors) {
+                        try {
+                            allVendors = JSON.parse(cachedVendors);
+                            displayVendorResults(allVendors.slice(0, 20), false);
+                            return;
+                        } catch (e) {
+                            console.error('Error parsing cached vendors:', e);
+                        }
+                    }
+                    fetchVendors('', (vendors, append) => displayVendorResults(vendors, append), vendorPage, false);
+                }
+            }
+
+            // Add displayVendorResults
+            function displayVendorResults(vendors, append = false) {
+                if (!append) {
+                    vendorResults.innerHTML = '';
+                } else {
+                    const loadingIndicator = vendorResults.querySelector('.vendor-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+                }
+
+                if (vendors.length === 0 && !append) {
+                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
+                    return;
+                }
+
+                vendors.forEach((vendor, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
+                    div.textContent = vendor.vendor_name;
+                    div.setAttribute('data-id', vendor.vendor_id);
+                    if (!append) {
+                        div.style.animationDelay = `${index * 30}ms`;
+                    }
+
+                    div.addEventListener('click', function () {
+                        vendorIdInput.value = this.getAttribute('data-id');
+                        vendorSearchInput.value = this.textContent;
+                        vendorResults.style.display = 'none';
+                        if (isEditMode) {
+                            loadComparisonData();
+                        }
+                    });
+
+                    vendorResults.appendChild(div);
+                });
+
+                if (hasMoreVendors) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'p-2 text-xs text-gray-500 text-center border-t vendor-loading-indicator';
+                    loadingDiv.textContent = 'Memuat lebih lanjut...';
+                    vendorResults.appendChild(loadingDiv);
+                }
+            }
+
+            // Add scroll listener for infinite scroll
+            vendorResults.addEventListener('scroll', function () {
+                if (!hasMoreVendors || isLoadingVendors) return;
+
+                if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                    vendorPage++;
+                    fetchVendors(currentVendorSearch, displayVendorResults, vendorPage, true);
+                }
+            });
+
+            // Update event listeners
+            vendorSearchInput.addEventListener('focus', function () {
                 filterAndDisplayVendors(this.value.trim());
                 vendorResults.style.display = 'block';
             });
@@ -409,10 +573,393 @@
                 }
             });
 
-            vendorSearchInput?.addEventListener('input', debounce(function () {
+            vendorSearchInput.addEventListener('input', debounce(function () {
                 const searchTerm = this.value.trim();
                 filterAndDisplayVendors(searchTerm);
             }, 300));
+
+            // Keep the debounce function
+            function debounce(func, wait, immediate) {
+                let timeout;
+                return function () {
+                    const context = this, args = arguments;
+                    const later = function () {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    const callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            }
+
+            if (form) {
+                let isSubmitting = false;
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    const allFields = form.querySelectorAll('input, select, textarea');
+                    allFields.forEach(field => {
+                        field.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                    });
+                    document.querySelectorAll('[id$="error"]').forEach(el => {
+                        el.textContent = '';
+                        el.classList.add('hidden');
+                    });
+
+                    const vendorId = document.getElementById('selected_vendor_id').value;
+                    if (!vendorId) {
+                        document.getElementById('vendor_search').classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                        document.getElementById('vendor_error').textContent = 'Silakan pilih vendor';
+                        document.getElementById('vendor_error').classList.remove('hidden');
+                        showSweetAlert('Silakan pilih vendor sebelum mengirim.', 'error');
+                        return;
+                    }
+
+                    const paymentTerms = document.getElementById('payment_terms').value.trim();
+                    const deliveryTerms = document.getElementById('delivery_terms').value.trim();
+                    const itemPrices = [];
+                    const priceInputs = document.querySelectorAll('table tbody tr input[placeholder="Harga Satuan"]');
+                    let hasErroredItem = false;
+                    const agreementId = document.getElementById('agreement_id')?.value;
+                    const isUpdate = !!agreementId;
+
+                    // Validate that at least one item has a price
+                    let hasAnyPrice = false;
+                    priceInputs.forEach(input => {
+                        if (input.value.trim()) {
+                            hasAnyPrice = true;
+                        }
+                    });
+
+                    if (!hasAnyPrice) {
+                        showSweetAlert('Setidaknya satu item harus memiliki harga.', 'error');
+                        document.getElementById('items_error').textContent = 'Setidaknya satu item harus memiliki harga.';
+                        document.getElementById('items_error').classList.remove('hidden');
+                        return;
+                    }
+
+                    priceInputs.forEach((input, index) => {
+                        const value = input.value.trim().replace(/[^\d]/g, '');
+                        const priceComparisonItemId = input.getAttribute('data-price-comparison-item-id');
+                        if (!priceComparisonItemId) {
+                            hasErroredItem = true;
+                            return;
+                        }
+
+                        // Create item data regardless of whether there's a price value
+                        // This ensures all items are included in the submission
+                        const itemData = {
+                            price_comparison_item_id: parseInt(priceComparisonItemId, 10),
+                            unit_price: value ? parseInt(value, 10) : 0
+                        };
+
+                        const vendorOfferId = input.getAttribute('data-vendor-offer-id');
+                        if (vendorOfferId) {
+                            itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
+                        } else if (isUpdate) {
+                            console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
+                            input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                            hasErroredItem = true;
+                        }
+
+                        // Find the additional info input - using proper parent > next > child traversal
+                        const tr = input.closest('tr');
+                        if (tr) {
+                            const infoCells = tr.querySelectorAll('td');
+                            if (infoCells.length >= 4) { // We know it's the 4th cell (index 3)
+                                const infoInput = infoCells[3].querySelector('input[placeholder="Additional Info"]');
+                                if (infoInput) {
+                                    // Always include additional_info field
+                                    itemData.additional_info = infoInput.value.trim();
+                                }
+                            }
+                        }
+
+                        // Add to itemPrices array
+                        itemPrices.push(itemData);
+                    });
+
+                    if (hasErroredItem) {
+                        if (isUpdate) {
+                            showSweetAlert('Beberapa item tidak memiliki vendor_offer_id. Hal ini diperlukan untuk operasi update. Silakan refresh dan coba lagi.', 'error');
+                        } else {
+                            showSweetAlert('Beberapa item tidak memiliki data yang diperlukan. Silakan coba lagi.', 'error');
+                        }
+                        return;
+                    }
+
+                    const comparisonId = document.getElementById('comparison_id').value;
+
+                    if (!comparisonId) {
+                        showSweetAlert('ID perbandingan tidak ditemukan. Silakan coba lagi atau hubungi dukungan.', 'error');
+                        return;
+                    }
+
+                    const requestData = {
+                        comparison_id: parseInt(comparisonId, 10),
+                        vendor_id: parseInt(vendorId, 10)
+                    };
+
+                    if (paymentTerms) {
+                        requestData.payment_terms = paymentTerms;
+                    }
+
+                    if (deliveryTerms) {
+                        requestData.delivery_terms = deliveryTerms;
+                    }
+
+                    const notes = document.getElementById('notes')?.value.trim();
+                    if (notes) {
+                        requestData.notes = notes;
+                    }
+
+                    if (itemPrices.length > 0) {
+                        requestData.items = itemPrices;
+                    } else {
+                        requestData.items = [];
+                    }
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    isSubmitting = true;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.textContent;
+                    submitBtn.innerHTML = `
+                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        MENYIMPAN...
+                                    `;
+                    submitBtn.disabled = true;
+
+                    let endpoint = '/procurement/price-comparison/vendor-offer';
+                    let method = 'POST';
+
+                    if (agreementId) {
+                        endpoint = `/procurement/price-comparison/vendor-offer/${agreementId}`;
+                        method = 'PUT';
+                    }
+
+
+                    fetch(endpoint, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => {
+
+                            if (!response.ok) {
+                                return response.json().then(data => {
+                                    throw { status: response.status, data: data };
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showSweetAlert(data.message || 'Penawaran vendor berhasil disimpan!', 'success', {
+                                    timer: 1500,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        isNavigatingAway = true;
+                                    },
+                                    willClose: () => {
+                                        window.location.href = data.redirect_url ||
+                                            `{{ route('procurement.detail-comparison', ['id' => '_ID_']) }}`.replace('_ID_', comparisonId);
+                                    }
+                                });
+                            } else {
+                                isSubmitting = false;
+                                submitBtn.innerHTML = originalBtnText;
+                                submitBtn.disabled = false;
+
+                                // Create detailed error message
+                                let detailedErrorMessage = '<div class="text-left"><p class="font-semibold mb-2">Detail error:</p>';
+
+                                if (data.errors) {
+                                    let errorMessage = '';
+
+                                    if (Array.isArray(data.errors)) {
+                                        errorMessage = '<ul class="list-disc pl-5 space-y-1">';
+
+                                        data.errors.forEach(err => {
+                                            const fieldPath = err.path || '';
+                                            const message = err.message || 'Unknown error';
+                                            errorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
+                                            const fieldElement = document.getElementById(fieldPath);
+                                            if (fieldElement) {
+                                                fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                            }
+                                            const errorElement = document.getElementById(`${fieldPath}_error`);
+                                            if (errorElement) {
+                                                errorElement.textContent = message;
+                                                errorElement.classList.remove('hidden');
+                                            }
+                                        });
+
+                                        errorMessage += '</ul>';
+
+                                    } else if (typeof data.errors === 'object') {
+                                        errorMessage = '<ul class="list-disc pl-5 space-y-1">';
+
+                                        Object.entries(data.errors).forEach(([field, messages]) => {
+                                            const messageText = Array.isArray(messages) ? messages.join(', ') : String(messages);
+                                            errorMessage += `<li><strong>${field}</strong>: ${messageText}</li>`;
+
+                                            const fieldElement = document.getElementById(field);
+                                            if (fieldElement) {
+                                                fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                            }
+
+                                            const errorElement = document.getElementById(`${field}_error`);
+                                            if (errorElement) {
+                                                errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
+                                                errorElement.classList.remove('hidden');
+                                            }
+                                        });
+
+                                        errorMessage += '</ul>';
+                                    } else if (typeof data.errors === 'string') {
+                                        errorMessage = `<p>${data.errors}</p>`;
+                                    } else {
+                                        errorMessage = '<p>Unknown error format</p>';
+                                    }
+
+                                    detailedErrorMessage += errorMessage;
+                                } else if (data.message) {
+                                    detailedErrorMessage += `<p>${data.message}</p>`;
+                                } else {
+                                    detailedErrorMessage += '<p>Tidak ada detail error yang tersedia</p>';
+                                }
+
+                                detailedErrorMessage += '<p class="mt-2 text-xs text-gray-500">Lihat console browser untuk informasi lebih lanjut.</p></div>';
+
+                                showSweetAlert(detailedErrorMessage, 'error', {
+                                    title: 'Gagal Menyimpan Penawaran Vendor',
+                                    customClass: {
+                                        htmlContainer: 'swal-custom-error-content'
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error in catch block:', error);
+
+                            isSubmitting = false;
+                            submitBtn.innerHTML = originalBtnText;
+                            submitBtn.disabled = false;
+
+                            // Create detailed error message
+                            let detailedErrorMessage = '<div class="text-left"><p class="font-semibold mb-2">Detail error:</p>';
+
+                            if (error.data && error.data.errors) {
+                                const errorData = error.data.errors;
+                                if (Array.isArray(errorData)) {
+                                    detailedErrorMessage += '<ul class="list-disc pl-5 space-y-1">';
+
+                                    errorData.forEach(err => {
+                                        const fieldPath = err.path || '';
+                                        const message = err.message || 'Unknown error';
+
+                                        detailedErrorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
+
+                                        const fieldElement = document.getElementById(fieldPath);
+                                        if (fieldElement) {
+                                            fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                        }
+
+                                        const errorElement = document.getElementById(`${fieldPath}_error`);
+                                        if (errorElement) {
+                                            errorElement.textContent = message;
+                                            errorElement.classList.remove('hidden');
+                                        }
+                                    });
+
+                                    detailedErrorMessage += '</ul>';
+                                } else if (typeof errorData === 'object') {
+                                    detailedErrorMessage += '<ul class="list-disc pl-5 space-y-1">';
+
+                                    Object.entries(errorData).forEach(([field, messages]) => {
+                                        const message = Array.isArray(messages) ? messages.join(', ') : String(messages);
+                                        detailedErrorMessage += `<li><strong>${field}</strong>: ${message}</li>`;
+
+                                        const fieldElement = document.getElementById(field);
+                                        if (fieldElement) {
+                                            fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                                        }
+
+                                        const errorElement = document.getElementById(`${field}_error`);
+                                        if (errorElement) {
+                                            errorElement.textContent = message;
+                                            errorElement.classList.remove('hidden');
+                                        }
+                                    });
+                                    detailedErrorMessage += '</ul>';
+                                } else {
+                                    detailedErrorMessage += `<p>${String(errorData)}</p>`;
+                                }
+                            } else if (error.message) {
+                                detailedErrorMessage += `<p>${error.message}</p>`;
+                            } else {
+                                detailedErrorMessage += '<p>Terjadi kesalahan yang tidak terduga</p>';
+                            }
+
+                            // Add JSON representation of error object
+                            try {
+                                const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
+                                detailedErrorMessage += `<details class="mt-2">
+                                        <summary class="text-xs text-gray-500 cursor-pointer">Tampilkan data error lengkap</summary>
+                                        <pre class="text-xs bg-gray-100 p-2 mt-1 overflow-auto max-h-40 rounded">${errorString}</pre>
+                                    </details>`;
+                            } catch (e) {
+                                console.error('Error stringifying error object:', e);
+                            }
+
+                            detailedErrorMessage += '<p class="mt-2 text-xs text-gray-500">Lihat console browser untuk informasi lebih lanjut.</p></div>';
+
+                            showSweetAlert(detailedErrorMessage, 'error', {
+                                title: 'Gagal Menyimpan Penawaran Vendor',
+                                customClass: {
+                                    htmlContainer: 'swal-custom-error-content'
+                                }
+                            });
+                        });
+                });
+            }
+
+            document.head.insertAdjacentHTML('beforeend', `
+                                    <style>
+                                        @keyframes slideInRight {
+                                            from { transform: translateX(100%); }
+                                            to { transform: translateX(0); }
+                                        }
+                                        .animate-slide-in-right {
+                                            animation: slideInRight 0.3s ease-out forwards;
+                                        }
+
+                                        .error-message ul {
+                                            margin-top: 0.5rem;
+                                            padding-left: 1.5rem;
+                                        }
+                                        .error-message ul li {
+                                            margin-bottom: 0.25rem;
+                                        }
+                                        .error-message ul li:last-child {
+                                            margin-bottom: 0;
+                                        }
+                                    </style>
+                                `);
 
             function loadComparisonData(itemPrices = new Map(), vendorOfferData = null, agreementId = null) {
                 const itemsContainer = document.getElementById('items_container');
@@ -482,6 +1029,12 @@
                                     const voId = itemPrices.get(itemId);
                                     priceInput.setAttribute('data-vendor-offer-id', voId);
                                 }
+
+                                // Set additional info if it exists
+                                const infoInput = priceCell.nextElementSibling?.querySelector('input[placeholder="Additional Info"]');
+                                if (infoInput && priceData.additional_info) {
+                                    infoInput.value = priceData.additional_info;
+                                }
                             }
                             else if (item.vendor_offers && item.vendor_offers.length > 0 && selectedVendorId) {
                                 const vendorOffer = item.vendor_offers.find(
@@ -512,15 +1065,39 @@
 
                             priceCell.appendChild(priceInput);
 
+                            const infoCell = document.createElement('td');
+                            infoCell.className = 'p-3';
+
+                            const infoInput = document.createElement('input');
+                            infoInput.type = 'text';
+                            infoInput.className = 'w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200';
+                            infoInput.placeholder = 'Additional Info';
+                            infoInput.setAttribute('data-price-comparison-item-id', itemId); // Same id for reference
+
+                            // If edit, set value
+                            if (priceData && priceData.additional_info) {
+                                infoInput.value = priceData.additional_info;
+                            } else if (item.vendor_offers && item.vendor_offers.length > 0 && selectedVendorId) {
+                                const vendorOffer = item.vendor_offers.find(
+                                    offer => offer.vendor && parseInt(offer.vendor.vendor_id) === parseInt(selectedVendorId)
+                                );
+                                if (vendorOffer && vendorOffer.additional_info) {
+                                    infoInput.value = vendorOffer.additional_info;
+                                }
+                            }
+
+                            infoCell.appendChild(infoInput);
+
                             tr.appendChild(nameCell);
                             tr.appendChild(qtyCell);
                             tr.appendChild(priceCell);
+                            tr.appendChild(infoCell);
 
                             itemsContainer.appendChild(tr);
                         });
 
                         if (isEditMode) {
-                            const inputs = document.querySelectorAll('input[data-price-comparison-item-id]');
+                            const inputs = document.querySelectorAll('input[placeholder="Harga Satuan"]');
                             const missingIds = [];
 
                             inputs.forEach(input => {
@@ -543,461 +1120,6 @@
                         showSweetAlert('Gagal memuat data perbandingan: ' + error.message, 'error');
                     });
             }
-
-            function loadAllVendors() {
-                vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                vendorResults.style.display = 'block';
-
-                const cachedVendors = localStorage.getItem('allVendors');
-                if (cachedVendors) {
-                    try {
-                        allVendors = JSON.parse(cachedVendors);
-
-                        fetchAllVendors();
-
-                        return;
-                    } catch (e) {
-                        console.error('Error parsing cached vendors:', e);
-                    }
-                }
-
-                fetchAllVendors();
-            }
-
-            function fetchAllVendors() {
-                let page = 1;
-                allVendors = [];
-
-                function fetchPage(page) {
-                    if (page === 1) {
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                    } else {
-                        vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor (halaman ' + page + ')...</div>';
-                    }
-
-                    fetch(`/vendors?json=true&page=${page}&limit=100`, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Server responded with status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            let vendors = [];
-                            let pagination = null;
-
-                            if (Array.isArray(data)) {
-                                vendors = data;
-                            } else if (data.vendors && Array.isArray(data.vendors)) {
-                                vendors = data.vendors;
-                                pagination = data.pagination;
-                            } else if (data.data && Array.isArray(data.data)) {
-                                vendors = data.data;
-                                pagination = data.pagination;
-                            }
-
-                            allVendors = [...allVendors, ...vendors];
-
-                            const hasNextPage = pagination && pagination.has_next;
-
-                            if (hasNextPage) {
-                                fetchPage(page + 1);
-                            } else {
-                                try {
-                                    localStorage.setItem('allVendors', JSON.stringify(allVendors));
-                                } catch (e) {
-                                    console.error('Error caching vendors:', e);
-                                }
-
-                                if (vendorSearchInput && vendorSearchInput.value.trim()) {
-                                    filterAndDisplayVendors(vendorSearchInput.value.trim());
-                                } else {
-                                    vendorResults.style.display = 'none';
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error(`Error fetching vendors page ${page}:`, error);
-                            vendorResults.innerHTML = '<div class="p-2 text-sm text-red-500">Gagal memuat vendor</div>';
-
-                            if (allVendors.length > 0) {
-                                filterAndDisplayVendors(vendorSearchInput?.value.trim() || '');
-                            }
-                        });
-                }
-
-                fetchPage(page);
-            }
-
-            function filterAndDisplayVendors(searchTerm) {
-                vendorResults.style.display = 'block';
-
-                if (searchTerm && searchTerm.length > 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Mencari vendor...</div>';
-                }
-
-                if (allVendors.length === 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Memuat vendor...</div>';
-                    return;
-                }
-
-                let filteredVendors = allVendors;
-                if (searchTerm) {
-                    const term = searchTerm.toLowerCase();
-                    filteredVendors = allVendors.filter(vendor =>
-                        vendor.vendor_name?.toLowerCase().includes(term)
-                    );
-                }
-
-                if (searchTerm) {
-                    filteredVendors.sort((a, b) => {
-                        if (a.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return -1;
-                        if (b.vendor_name.toLowerCase() === searchTerm.toLowerCase()) return 1;
-
-                        const aStarts = a.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                        const bStarts = b.vendor_name.toLowerCase().startsWith(searchTerm.toLowerCase());
-                        if (aStarts && !bStarts) return -1;
-                        if (bStarts && !aStarts) return 1;
-
-                        return a.vendor_name.localeCompare(b.vendor_name);
-                    });
-                }
-
-                const displayVendors = filteredVendors.slice(0, 20);
-
-                vendorResults.innerHTML = '';
-
-                if (displayVendors.length === 0) {
-                    vendorResults.innerHTML = '<div class="p-2 text-sm text-gray-500">Tidak ada vendor yang ditemukan</div>';
-                    return;
-                }
-
-                displayVendors.forEach((vendor, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'p-2 text-sm hover:bg-gray-100 cursor-pointer vendor-item';
-                    div.textContent = vendor.vendor_name;
-                    div.setAttribute('data-id', vendor.vendor_id);
-                    div.style.animationDelay = `${index * 30}ms`;
-
-                    div.addEventListener('click', function () {
-                        vendorIdInput.value = this.getAttribute('data-id');
-                        vendorSearchInput.value = this.textContent;
-                        vendorResults.style.display = 'none';
-
-                        if (isEditMode) {
-                            loadComparisonData();
-                        }
-                    });
-
-                    vendorResults.appendChild(div);
-                });
-
-                if (filteredVendors.length > 20) {
-                    const countDiv = document.createElement('div');
-                    countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t fade-in';
-                    countDiv.textContent = `Menampilkan 20 dari ${filteredVendors.length} vendor`;
-                    vendorResults.appendChild(countDiv);
-                }
-            }
-
-            if (form) {
-                let isSubmitting = false;
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    if (isSubmitting) {
-                        return;
-                    }
-
-                    const allFields = form.querySelectorAll('input, select, textarea');
-                    allFields.forEach(field => {
-                        field.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
-                    });
-                    document.querySelectorAll('[id$="_error"]').forEach(el => {
-                        el.textContent = '';
-                        el.classList.add('hidden');
-                    });
-
-                    const vendorId = document.getElementById('selected_vendor_id').value;
-                    if (!vendorId) {
-                        document.getElementById('vendor_search').classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                        document.getElementById('vendor_error').textContent = 'Silakan pilih vendor';
-                        document.getElementById('vendor_error').classList.remove('hidden');
-                        showSweetAlert('Silakan pilih vendor sebelum mengirim.', 'error');
-                        return;
-                    }
-
-                    const paymentTerms = document.getElementById('payment_terms').value.trim();
-                    const deliveryTerms = document.getElementById('delivery_terms').value.trim();
-                    const itemPrices = [];
-                    const priceInputs = document.querySelectorAll('table tbody tr input');
-                    let hasErroredItem = false;
-                    const agreementId = document.getElementById('agreement_id')?.value;
-                    const isUpdate = !!agreementId;
-
-                    priceInputs.forEach((input, index) => {
-                        const value = input.value.trim().replace(/[^\d]/g, '');
-                        const priceComparisonItemId = input.getAttribute('data-price-comparison-item-id');
-                        if (!priceComparisonItemId) {
-                            hasErroredItem = true;
-                            return;
-                        }
-
-                        if (value) {
-                            const unitPrice = parseInt(value.replace(/[^\d]/g, ''), 10);
-
-                            const itemData = {
-                                price_comparison_item_id: parseInt(priceComparisonItemId, 10),
-                                unit_price: unitPrice
-                            };
-
-                            const vendorOfferId = input.getAttribute('data-vendor-offer-id');
-                            if (vendorOfferId) {
-                                itemData.vendor_offer_id = parseInt(vendorOfferId, 10);
-                            } else if (isUpdate) {
-                                console.error(`Missing vendor_offer_id for item ${priceComparisonItemId} during update`);
-                                input.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                hasErroredItem = true;
-                            }
-
-                            itemPrices.push(itemData);
-                        }
-                    });
-
-                    if (hasErroredItem) {
-                        if (isUpdate) {
-                            showSweetAlert('Beberapa item tidak memiliki vendor_offer_id. Hal ini diperlukan untuk operasi update. Silakan refresh dan coba lagi.', 'error');
-                        } else {
-                            showSweetAlert('Beberapa item tidak memiliki data yang diperlukan. Silakan coba lagi.', 'error');
-                        }
-                        return;
-                    }
-
-                    const comparisonId = document.getElementById('comparison_id').value;
-
-                    if (!comparisonId) {
-                        showSweetAlert('ID perbandingan tidak ditemukan. Silakan coba lagi atau hubungi dukungan.', 'error');
-                        return;
-                    }
-
-                    const requestData = {
-                        comparison_id: parseInt(comparisonId, 10),
-                        vendor_id: parseInt(vendorId, 10)
-                    };
-
-                    if (paymentTerms) {
-                        requestData.payment_terms = paymentTerms;
-                    }
-
-                    if (deliveryTerms) {
-                        requestData.delivery_terms = deliveryTerms;
-                    }
-
-                    const notes = document.getElementById('notes')?.value.trim();
-                    if (notes) {
-                        requestData.notes = notes;
-                    }
-
-                    if (itemPrices.length > 0) {
-                        requestData.items = itemPrices;
-                    } else {
-                        requestData.items = [];
-                    }
-
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-                    isSubmitting = true;
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    const originalBtnText = submitBtn.textContent;
-                    submitBtn.innerHTML = `
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    MENYIMPAN...
-                                `;
-                    submitBtn.disabled = true;
-
-                    let endpoint = '/procurement/price-comparison/vendor-offer';
-                    let method = 'POST';
-
-                    if (agreementId) {
-                        endpoint = `/procurement/price-comparison/vendor-offer/${agreementId}`;
-                        method = 'PUT';
-                    }
-
-                    fetch(endpoint, {
-                        method: method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(data => {
-                                    throw { status: response.status, data: data };
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                showSweetAlert(data.message || 'Penawaran vendor berhasil disimpan!', 'success', {
-                                    timer: 1500,
-                                    timerProgressBar: true,
-                                    showConfirmButton: false,
-                                    didOpen: () => {
-                                        isNavigatingAway = true;
-                                    },
-                                    willClose: () => {
-                                        window.location.href = data.redirect_url ||
-                                            `{{ route('procurement.detail-comparison', ['id' => '_ID_']) }}`.replace('_ID_', comparisonId);
-                                    }
-                                });
-                            } else {
-                                isSubmitting = false;
-                                submitBtn.innerHTML = originalBtnText;
-                                submitBtn.disabled = false;
-
-                                if (data.errors) {
-                                    let errorMessage = '';
-
-                                    if (Array.isArray(data.errors)) {
-                                        errorMessage = '<ul>';
-
-                                        data.errors.forEach(err => {
-                                            const fieldPath = err.path || '';
-                                            const message = err.message || 'Unknown error';
-                                            errorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
-                                            const fieldElement = document.getElementById(fieldPath);
-                                            if (fieldElement) {
-                                                fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                            }
-                                            const errorElement = document.getElementById(`${fieldPath}_error`);
-                                            if (errorElement) {
-                                                errorElement.textContent = message;
-                                                errorElement.classList.remove('hidden');
-                                            }
-                                        });
-
-                                        errorMessage += '</ul>';
-
-                                        showSweetAlert(errorMessage, 'error');
-                                    } else if (typeof data.errors === 'object') {
-                                        Object.entries(data.errors).forEach(([field, messages]) => {
-                                            const fieldElement = document.getElementById(field);
-                                            if (fieldElement) {
-                                                fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                            }
-
-                                            const errorElement = document.getElementById(`${field}_error`);
-                                            if (errorElement) {
-                                                errorElement.textContent = Array.isArray(messages) ? messages[0] : messages;
-                                                errorElement.classList.remove('hidden');
-                                            }
-                                        });
-
-                                        showSweetAlert(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
-                                    } else {
-                                        showSweetAlert(data.errors?.general || data.message || 'Gagal menyimpan penawaran vendor.', 'error');
-                                    }
-                                } else {
-                                    showSweetAlert(data.message || 'Gagal menyimpan penawaran vendor.', 'error');
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            isSubmitting = false;
-                            submitBtn.innerHTML = originalBtnText;
-                            submitBtn.disabled = false;
-
-                            if (error.data && error.data.errors) {
-                                const errorData = error.data.errors;
-                                let errorMessage = '';
-
-                                if (Array.isArray(errorData)) {
-                                    errorMessage = '<ul>';
-
-                                    errorData.forEach(err => {
-                                        const fieldPath = err.path || '';
-                                        const message = err.message || 'Unknown error';
-
-                                        errorMessage += `<li><strong>${fieldPath}</strong>: ${message}</li>`;
-
-                                        const fieldElement = document.getElementById(fieldPath);
-                                        if (fieldElement) {
-                                            fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                        }
-
-                                        const errorElement = document.getElementById(`${fieldPath}_error`);
-                                        if (errorElement) {
-                                            errorElement.textContent = message;
-                                            errorElement.classList.remove('hidden');
-                                        }
-                                    });
-
-                                    errorMessage += '</ul>';
-                                } else if (typeof errorData === 'object') {
-                                    errorMessage += '<ul>';
-                                    Object.entries(errorData).forEach(([field, messages]) => {
-                                        const message = Array.isArray(messages) ? messages.join(', ') : messages;
-                                        errorMessage += `<li><strong>${field}</strong>: ${message}</li>`;
-
-                                        const fieldElement = document.getElementById(field);
-                                        if (fieldElement) {
-                                            fieldElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                                        }
-
-                                        const errorElement = document.getElementById(`${field}_error`);
-                                        if (errorElement) {
-                                            errorElement.textContent = message;
-                                            errorElement.classList.remove('hidden');
-                                        }
-                                    });
-                                    errorMessage += '</ul>';
-                                } else {
-                                    errorMessage = typeof errorData === 'string' ? errorData : 'Terjadi kesalahan saat menyimpan penawaran vendor.';
-                                }
-
-                                showSweetAlert(errorMessage, 'error');
-                            } else if (error.message) {
-                                showSweetAlert(`Terjadi kesalahan: ${error.message}`, 'error');
-                            } else {
-                                showSweetAlert('Terjadi kesalahan saat menyimpan penawaran vendor. Silakan coba lagi.', 'error');
-                            }
-                        });
-                });
-            }
-
-            document.head.insertAdjacentHTML('beforeend', `
-                            <style>
-                                @keyframes slideInRight {
-                                    from { transform: translateX(100%); }
-                                    to { transform: translateX(0); }
-                                }
-                                .animate-slide-in-right {
-                                    animation: slideInRight 0.3s ease-out forwards;
-                                }
-
-                                .error-message ul {
-                                    margin-top: 0.5rem;
-                                    padding-left: 1.5rem;
-                                }
-                                .error-message ul li {
-                                    margin-bottom: 0.25rem;
-                                }
-                                .error-message ul li:last-child {
-                                    margin-bottom: 0;
-                                }
-                            </style>
-                        `);
 
             function loadVendorOfferData(agreementId, vendorOfferIdsMap) {
                 fetch(`/procurement/price-comparison/vendor-offer/${agreementId}?use_agreement_id=true&detailed=true`, {
@@ -1038,14 +1160,18 @@
                                         ? vendorOfferIdsMap.get(itemId)
                                         : (item.vendor_offer_id || null);
 
-                                    itemPrices.set(
-                                        itemId,
-                                        {
-                                            price: item.unit_price,
-                                            price_comparison_item_id: item.price_comparison_item_id,
-                                            vendor_offer_id: vendorOfferId
-                                        }
-                                    );
+                                    const itemData = {
+                                        price: item.unit_price,
+                                        price_comparison_item_id: item.price_comparison_item_id,
+                                        vendor_offer_id: vendorOfferId
+                                    };
+
+                                    // Add additional_info if available
+                                    if (item.additional_info) {
+                                        itemData.additional_info = item.additional_info;
+                                    }
+
+                                    itemPrices.set(itemId, itemData);
                                 }
                             });
                         }

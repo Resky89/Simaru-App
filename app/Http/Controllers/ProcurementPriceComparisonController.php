@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Helpers\DataFormatter;
 
 class ProcurementPriceComparisonController extends Controller
 {
+    use ApiResourceOperations;
+
     protected $apiService;
 
     public function __construct(ApiService $apiService)
@@ -22,147 +26,20 @@ class ProcurementPriceComparisonController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            // Get pagination parameters with defaults
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 10);
-
-            // Get search and filter parameters
-            $search = $request->input('search');
-            $status = $request->input('status');
-            $sort = $request->input('sort');
-
-            // Build query parameters
-            $queryParams = [
-                'page' => $page,
-                'limit' => $limit,
-            ];
-
-            // Add search parameter if provided
-            if ($search) {
-                $queryParams['search'] = $search;
-            }
-
-            // Add status filter if provided
-            if ($status) {
-                $queryParams['status'] = $status;
-            }
-
-            // Set sort parameters based on selection
-            if ($sort) {
-                switch ($sort) {
-                    case 'newest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    case 'oldest':
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_asc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'asc';
-                        break;
-                    case 'title_desc':
-                        $queryParams['sort_by'] = 'title';
-                        $queryParams['sort_order'] = 'desc';
-                        break;
-                    default:
-                        $queryParams['sort_by'] = 'created_at';
-                        $queryParams['sort_order'] = 'desc';
-                }
-            } else {
-                // Default sorting if not specified
-                $queryParams['sort_by'] = 'created_at';
-                $queryParams['sort_order'] = 'desc';
-            }
-
-            $result = $this->apiService->request('GET', '/price-comparison', [
-                'query' => $queryParams
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                if ($request->expectsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data perbandingan harga';
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], 400);
-                }
-
-                // Format error message for view
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                // Return view with empty comparisons data and error message
-                return view('Procurement.Comparison.PriceComparison', [
-                    'comparisons' => [],
-                    'pagination' => null,
-                    'error' => $errorMessage
-                ]);
-            }
-
-            // Prepare data for the view
-            $comparisons = $result['data'] ?? [];
-            $pagination = $result['pagination'] ?? null;
-            $message = $result['message'] ?? 'Daftar perbandingan harga berhasil diambil';
-
-            // Check if request is AJAX (wants JSON)
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'data' => $comparisons,
-                    'pagination' => $pagination
-                ]);
-            }
-
-            // If not AJAX request, return view with data
-            return view('Procurement.Comparison.PriceComparison', [
-                'comparisons' => $comparisons,
-                'pagination' => $pagination,
-                'message' => $message,
-            ]);
-        } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => 'Gagal mengambil data perbandingan harga: ' . $e->getMessage()]
-                ], status: 500);
-            }
-
-            // Always pass an empty array for comparisons in case of error
-            return view('Procurement.Comparison.PriceComparison', [
-                'comparisons' => [],
-                'pagination' => null,
-                'error' => 'Gagal mengambil data perbandingan harga: ' . $e->getMessage()
-            ]);
-        }
+        return $this->getResourceList(
+            $request,
+            '/price-comparison',
+            'comparisons',
+            'Procurement.Comparison.PriceComparison',
+            'created_at',
+            [],
+            [
+                'newest' => ['sort_by' => 'created_at', 'sort_order' => 'desc'],
+                'oldest' => ['sort_by' => 'created_at', 'sort_order' => 'asc'],
+                'title_asc' => ['sort_by' => 'title', 'sort_order' => 'asc'],
+                'title_desc' => ['sort_by' => 'title', 'sort_order' => 'desc']
+            ]
+        );
     }
 
     /**
@@ -176,7 +53,7 @@ class ProcurementPriceComparisonController extends Controller
         try {
             // Ensure procurement_id is converted to integer
             $request->merge([
-                'procurement_id' => (int)$request->input('procurement_id')
+                'procurement_id' => (int) $request->input('procurement_id')
             ]);
 
             // Check if comparison_title is provided instead of title
@@ -190,59 +67,13 @@ class ProcurementPriceComparisonController extends Controller
                 'title' => 'required|string',
             ]);
 
-            // Send request to API service
-            $result = $this->apiService->request('POST', '/price-comparison', [
-                'json' => [
-                    'procurement_id' => (int)$validated['procurement_id'],
-                    'title' => $validated['title']
-                ]
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal membuat perbandingan harga';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Perbandingan harga berhasil dibuat',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.price-comparison')
-            ]);
+            return $this->storeResource(
+                $request,
+                '/price-comparison',
+                $validated,
+                'Perbandingan harga berhasil dibuat',
+                'procurement.price-comparison'
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -256,7 +87,7 @@ class ProcurementPriceComparisonController extends Controller
         }
     }
 
-     /**
+    /**
      * Create a new price comparison from the procurement detail page
      *
      * @param Request $request
@@ -271,41 +102,20 @@ class ProcurementPriceComparisonController extends Controller
                 'title' => 'required|string',
             ]);
 
-            // Send request to API service
-            $result = $this->apiService->request('POST', '/price-comparison', [
-                'json' => $validated
-            ]);
+            $response = $this->storeResource(
+                $request,
+                '/price-comparison',
+                $validated,
+                'Perbandingan harga berhasil dibuat'
+            );
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            if ($response instanceof \Illuminate\Http\JsonResponse && $response->getStatusCode() === 200) {
+                $data = json_decode($response->getContent(), true);
+                $data['redirect_url'] = route('procurement.detail-comparison', ['id' => $data['data']['comparison_id'] ?? 0]);
+                return response()->json($data);
             }
 
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal membuat perbandingan harga';
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], 400);
-            }
-
-            // Return successful response with redirect URL
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Perbandingan harga berhasil dibuat',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.detail-comparison', ['id' => $result['data']['comparison_id'] ?? 0])
-            ]);
+            return $response;
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -330,85 +140,29 @@ class ProcurementPriceComparisonController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            // Send request to API service
             $result = $this->apiService->request('GET', "/price-comparison/{$id}");
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError)
+                return $authError;
 
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-                   }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data perbandingan harga';
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    // Format error message for better display
-                    $formattedErrors = [];
-                    if (is_array($errorData)) {
-                        foreach ($errorData as $field => $messages) {
-                            if (is_array($messages)) {
-                                $formattedErrors[$field] = $messages;
-                            } else {
-                                $formattedErrors[$field] = [$messages];
-                            }
-                        }
-                    } else {
-                        $formattedErrors['general'] = [$errorData];
-                    }
-
-                    return response()->json([
-                        'success' => false,
-                        'errors' => $formattedErrors,
-                    ], 404);
-                }
-
-                // For web requests, return with error message
-                return redirect()->route('procurement.price-comparison')
-                    ->with('error', is_string($errorData) ? $errorData : 'Tidak dapat menemukan data perbandingan harga.');
+            $apiError = $this->handleApiError($result, $request, 'Procurement.Comparison.DetailComparison', "Gagal mengambil data comparison");
+            if ($apiError) {
+                return $apiError->with('id', $id);
             }
 
-            // Get the comparison data
             $comparison = $result['data'] ?? [];
 
-            // Make sure comparison is an array even if API returns null
-            if (!is_array($comparison)) {
-                $comparison = [];
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'data' => $comparison]);
             }
 
-            // For AJAX requests, return JSON
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Perbandingan harga berhasil ditemukan',
-                    'data' => $comparison
-                ]);
-            }
-
-            // For web requests, return the view with data
             return view('Procurement.Comparison.DetailComparison', [
                 'comparison' => $comparison,
                 'id' => $id
             ]);
         } catch (\Exception $e) {
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['exception' => ['Gagal mengambil data perbandingan harga: ' . $e->getMessage()]],
-                ], 500);
-            }
-
-            // For web requests, redirect with error
-            return redirect()->route('procurement.price-comparison')
-                ->with('error', 'Terjadi kesalahan saat memuat data perbandingan harga: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Procurement.Comparison.DetailComparison', ['id' => $id]);
         }
     }
 
@@ -431,6 +185,7 @@ class ProcurementPriceComparisonController extends Controller
                 'items' => 'required|array|min:1',
                 'items.*.price_comparison_item_id' => 'required|integer',
                 'items.*.unit_price' => 'required|numeric',
+                'items.*.additional_info' => 'nullable|string',
             ]);
 
             // Ensure numeric values are properly formatted
@@ -439,55 +194,13 @@ class ProcurementPriceComparisonController extends Controller
                 $validated['items'][$key]['price_comparison_item_id'] = (int) $item['price_comparison_item_id'];
             }
 
-            // Send request to API service
-            $result = $this->apiService->request('POST', '/price-comparison/vendor-offer', [
-                'json' => $validated
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal membuat penawaran vendor';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Penawaran vendor berhasil ditambahkan',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.detail-comparison', ['id' => $validated['comparison_id']])
-            ]);
+            return $this->storeResource(
+                $request,
+                '/price-comparison/vendor-offer',
+                $validated,
+                'Penawaran vendor berhasil ditambahkan',
+                null // We'll handle redirect in the response
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -522,6 +235,7 @@ class ProcurementPriceComparisonController extends Controller
                 'items.*.price_comparison_item_id' => 'required|integer',
                 'items.*.unit_price' => 'required|numeric',
                 'items.*.vendor_offer_id' => 'required|integer',
+                'items.*.additional_info' => 'nullable|string',
             ]);
 
             // Ensure numeric values are properly formatted
@@ -531,55 +245,13 @@ class ProcurementPriceComparisonController extends Controller
                 $validated['items'][$key]['vendor_offer_id'] = (int) $item['vendor_offer_id'];
             }
 
-            // Send request to API service
-            $result = $this->apiService->request('PUT', "/price-comparison/vendor-offer/{$id}", [
-                'json' => $validated
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal memperbarui penawaran vendor';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Penawaran vendor berhasil diperbarui',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.detail-comparison', ['id' => $validated['comparison_id']])
-            ]);
+            return $this->updateResource(
+                $request,
+                "/price-comparison/vendor-offer/{$id}",
+                $validated,
+                'Penawaran vendor berhasil diperbarui',
+                null // We'll handle redirect in the response
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -614,16 +286,18 @@ class ProcurementPriceComparisonController extends Controller
             ]);
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
 
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
@@ -674,97 +348,65 @@ class ProcurementPriceComparisonController extends Controller
      * Get a vendor offer by ID
      * @param Request $request
      * @param int $id
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function getVendorOffer(Request $request, $id)
     {
         try {
-            // Send request to API service
-            $result = $this->apiService->request('GET', "/price-comparison/vendor-offer/{$id}");
+            // Support for querying by agreement_id
+            $endpoint = "/price-comparison/vendor-offer/{$id}";
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                if (request()->ajax() || request()->wantsJson()) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-                }
-
-                return redirect()->route('login')->with('error', 'Sesi Anda telah berakhir. Silakan login kembali.');
+            if ($request->has('use_agreement_id') && $request->input('use_agreement_id') === 'true') {
+                $endpoint .= "?use_agreement_id=true";
             }
 
-            // Check for API errors or unsuccessful responses
+            if ($request->has('detailed') && $request->input('detailed') === 'true') {
+                $endpoint .= (strpos($endpoint, '?') !== false ? '&' : '?') . "detailed=true";
+            }
+
+            $result = $this->apiService->request('GET', $endpoint);
+
+            // Handle authentication errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Handle API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal mengambil data penawaran vendor';
+                $errorData = $result['errors'] ?? 'Gagal mendapatkan data penawaran vendor';
 
-                // Format error message for better display
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                if (request()->ajax() || request()->wantsJson()) {
+                if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
-                    ], 404);
+                        'errors' => $errorData
+                    ], 400);
                 }
 
-                // For web requests, redirect with error message
-                return redirect()->route('procurement.price-comparison')
-                    ->with('error', is_string($errorData) ? $errorData : 'Tidak dapat menemukan data penawaran vendor.');
+                return redirect()->back()->with('error', is_string($errorData) ? $errorData : 'Gagal mendapatkan data penawaran vendor');
             }
 
-            // Get the vendor offer data
-            $vendorOffer = $result['data'] ?? [];
-
-            // Make sure vendor offer is an array even if API returns null
-            if (!is_array($vendorOffer)) {
-                $vendorOffer = [];
-            }
-
-            // For AJAX requests, return JSON
-            if (request()->ajax() || request()->wantsJson()) {
+            // Return successful response
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'] ?? 'Penawaran vendor berhasil ditemukan',
-                    'data' => $vendorOffer
+                    'data' => $result['data'] ?? null
                 ]);
             }
 
-            // For web requests, redirect to the comparison detail page with the comparison ID
-            $comparisonId = $vendorOffer['comparison_id'] ?? null;
-            if ($comparisonId) {
-                return redirect()->route('procurement.detail-comparison', ['id' => $comparisonId]);
-            } else {
-                return redirect()->route('procurement.price-comparison')
-                    ->with('error', 'Tidak dapat menentukan perbandingan harga untuk penawaran vendor ini.');
-            }
+            return view('Procurement.Comparison.FormComparisonVendor', [
+                'vendorOffer' => $result['data'],
+                'comparison_id' => $result['data']['comparison_id'] ?? null
+            ]);
         } catch (\Exception $e) {
-            if (request()->ajax() || request()->wantsJson()) {
+            if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Gagal mengambil data penawaran vendor: ' . $e->getMessage()]],
+                    'errors' => ['exception' => $e->getMessage()]
                 ], 500);
             }
 
-            // For web requests, redirect with error
-            return redirect()->route('procurement.price-comparison')
-                ->with('error', 'Terjadi kesalahan saat memuat data penawaran vendor: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -782,39 +424,30 @@ class ProcurementPriceComparisonController extends Controller
             $result = $this->apiService->request('POST', "/price-comparison/{$id}/complete");
 
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
+            if (
+                isset($result['errors']) && is_string($result['errors']) &&
+                in_array($result['errors'], ['auth_failed', 'session_expired'])
+            ) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $result['errors'] ?? 'Autentikasi gagal'
+                    ], 401);
+                }
 
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
             }
 
             // Check for API errors or unsuccessful responses
             if (!isset($result['success']) || $result['success'] !== true) {
                 $errorData = $result['errors'] ?? 'Gagal menyelesaikan perbandingan harga';
 
-                // Format error message for better display
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
+                // Format error using DataFormatter
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors,
+                    'errors' => $errorMessage,
                 ], 400);
             }
 
@@ -848,55 +481,13 @@ class ProcurementPriceComparisonController extends Controller
                 'title' => 'required|string',
             ]);
 
-            // Send request to API service
-            $result = $this->apiService->request('PUT', "/price-comparison/{$id}", [
-                'json' => $validated
-            ]);
-
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
-            }
-
-            // Check for API errors or unsuccessful responses
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal memperbarui perbandingan harga';
-
-                // Format error message for better display in toast notifications
-                $formattedErrors = [];
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $formattedErrors[$field] = $messages;
-                        } else {
-                            $formattedErrors[$field] = [$messages];
-                        }
-                    }
-                } else {
-                    $formattedErrors['general'] = [$errorData];
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => $formattedErrors,
-                ], 400);
-            }
-
-            // Return successful response
-            return response()->json([
-                'success' => true,
-                'message' => $result['message'] ?? 'Perbandingan harga berhasil diperbarui',
-                'data' => $result['data'] ?? null,
-                'redirect_url' => route('procurement.price-comparison')
-            ]);
+            return $this->updateResource(
+                $request,
+                "/price-comparison/{$id}",
+                $validated,
+                'Perbandingan harga berhasil diperbarui',
+                'procurement.price-comparison'
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -925,36 +516,20 @@ class ProcurementPriceComparisonController extends Controller
                     ->with('error', 'Anda tidak memiliki izin untuk mengedit perbandingan harga');
             }
 
-            // Get the price comparison data
-            $result = $this->apiService->request('GET', "/price-comparison/{$id}");
+            // Get the price comparison data using trait
+            $response = $this->getResource(
+                $request,
+                "/price-comparison/{$id}",
+                'comparison',
+                'Procurement.Comparison.FormComparison'
+            );
 
-            // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                    if ($request->expectsJson() || $request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'errors' => $result['errors'] ?? 'Autentikasi gagal'
-                        ], 401);
-                    }
-
-                    return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Autentikasi gagal');
+            if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                return $response;
             }
 
-            // Check if data is found
-            if (!isset($result['success']) || $result['success'] !== true || !isset($result['data'])) {
-                return redirect()->route('procurement.price-comparison')
-                    ->with('error', 'Data perbandingan harga tidak ditemukan');
-            }
-
-            // Get the comparison data
-            $comparison = $result['data'];
-
-            // Return the form view with edit mode enabled
-            return view('Procurement.Comparison.FormComparison', [
-                'editMode' => true,
-                'comparison' => $comparison
-            ]);
+            // Since getResource returns view, we need to adjust
+            return $response->with('editMode', true);
         } catch (\Exception $e) {
             return redirect()->route('procurement.price-comparison')
                 ->with('error', 'Terjadi kesalahan saat memuat form edit: ' . $e->getMessage());

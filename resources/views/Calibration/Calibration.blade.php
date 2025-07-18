@@ -370,11 +370,11 @@
                                     }
                                 @endphp
 
-                                @if($startPage > 1)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+@if($startPage > 1)
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1
-                                    </a>
+                                    </button>
                                     @if($startPage > 2)
                                         <span class="flex items-center justify-center">
                                             ...
@@ -383,10 +383,10 @@
                                 @endif
 
                                 @for ($i = $startPage; $i <= $endPage; $i++)
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                         {{ $i }}
-                                    </a>
+                                    </button>
                                 @endfor
 
                                 @if($endPage < $lastPage)
@@ -395,10 +395,11 @@
                                             ...
                                         </span>
                                     @endif
-                                    <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                    <button
+                                        onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         {{ $lastPage }}
-                                    </a>
+                                    </button>
                                 @endif
                             </div>
                             <a href="{{ $calibrations_pagination['next_page_url'] ?? '#' }}"
@@ -1874,22 +1875,19 @@
                         const calibrationId = this.getAttribute('data-id');
                         document.getElementById('calibration_id').value = calibrationId;
 
-                        // Get the current button and row for updating later
                         const clickedButton = this;
                         const currentRow = clickedButton.closest('tr');
                         const statusBadge = currentRow.querySelector('td:nth-child(11) span');
 
-                        // Show loading state on the button
                         const originalButtonHTML = clickedButton.innerHTML;
                         clickedButton.innerHTML = `
-                                                                                                                                                <svg class="animate-spin h-5 w-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                                                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                                                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                                                                                                </svg>
-                                                                                                                                            `;
+                            <svg class="animate-spin h-5 w-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                         `;
                         clickedButton.disabled = true;
 
-                        // First fetch the calibration details to check status
                         fetch(`/calibrations/${calibrationId}`, {
                             headers: {
                                 'Accept': 'application/json',
@@ -1909,9 +1907,7 @@
                                     const calibration = data.data;
                                     const status = (calibration.status_calibration || '').toLowerCase();
 
-                                    // Only call start endpoint if status is 'scheduled'
                                     if (status === 'scheduled') {
-                                        // Call the start calibration endpoint
                                         return fetch(`/calibrations/${calibrationId}/start`, {
                                             method: 'PATCH',
                                             headers: {
@@ -2128,19 +2124,19 @@
                                     infoMessage.id = 'completed-info-message';
                                     infoMessage.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 mb-4';
                                     infoMessage.innerHTML = `
-                                                                                                                                                                        <div class="flex items-center">
-                                                                                                                                                                            <div class="flex-shrink-0 text-blue-500">
-                                                                                                                                                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                                                                                                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                                                                                                                                                                </svg>
-                                                                                                                                                                            </div>
-                                                                                                                                                                            <div class="ml-3">
-                                                                                                                                                                                <p class="text-sm text-blue-700">
-                                                                                                                                                                                    Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
-                                                                                                                                                                                </p>
-                                                                                                                                                                            </div>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    `;
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 text-blue-500">
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-blue-700">
+                                                    Kalibrasi ini ditandai sebagai ${status === 'completed' ? 'SELESAI' : 'DISETUJUI'}. Formulir dalam mode hanya-baca.
+                                                </p>
+                                            </div>
+                                        </div>
+                                `   ;
                                     infoMessageContainer.insertAdjacentElement('afterbegin', infoMessage);
                                 }
 
@@ -2441,10 +2437,10 @@
                     const limit = document.getElementById('assetPerPageSelect').value;
 
                     document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                        <tr>
-                                                                                                                                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
-                                                                                                                                        </tr>
-                                                                                                                                    `;
+                        <tr>
+                            <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Memuat aset...</td>
+                        </tr>
+                    `;
 
                     fetch(`/calibrations/assets?page=${page}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`, {
                         headers: {
@@ -2467,13 +2463,13 @@
 
                             if (assets.length === 0) {
                                 document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                                    <tr>
-                                                                                                                                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                                            Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
-                                                                                                                                                            tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
-                                                                                                                                                        </td>
-                                                                                                                                                    </tr>
-                                                                                                                                                `;
+                                    <tr>
+                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                            Tidak ditemukan aset yang memerlukan kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diatur sebagai benar dan
+                                            tanpa jadwal kalibrasi aktif yang akan muncul dalam daftar ini.
+                                        </td>
+                                    </tr>
+                                `;
 
                                 const zeroPagination = {
                                     current_page: 1,
@@ -2488,12 +2484,12 @@
                         })
                         .catch(error => {
                             document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                              <tr>
-                                                                                                                                                  <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
-                                                                                                                                                      Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
-                                                                                                                                                  </td>
-                                                                                                                                              </tr>
-                                                                                                                                          `;
+                                <tr>
+                                    <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center text-red-500">
+                                        Gagal memuat aset yang memerlukan kalibrasi. Silakan coba lagi atau hubungi dukungan jika masalah tetap berlanjut.
+                                    </td>
+                                </tr>
+                            `;
 
                             showToast('Gagal memuat aset: ' + error.message, 'error');
                         });
@@ -2506,12 +2502,12 @@
                 function renderAssets(assets, data) {
                     if (!assets || assets.length === 0) {
                         document.getElementById('assetSelectionList').innerHTML = `
-                                                                                                                                              <tr>
-                                                                                                                                                  <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                                      Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
-                                                                                                                                                  </td>
-                                                                                                                                              </tr>
-                                                                                                                                          `;
+                                    <tr>
+                                        <td colspan="6" class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                            Tidak ditemukan aset yang perlu kalibrasi. Hanya aset dengan "Perlu Kalibrasi" diaktifkan yang akan muncul dalam daftar ini.
+                                        </td>
+                                    </tr>
+                                 `;
                         return;
                     }
 
@@ -2752,10 +2748,10 @@
                 function updateSelectedAssetsTable() {
                     if (selectedAssets.length === 0) {
                         document.getElementById('selectedAssetsList').innerHTML = `
-                                                                                                                                              <tr>
-                                                                                                                                                  <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
-                                                                                                                                              </tr>
-                                                                                                                                          `;
+                                <tr>
+                                    <td colspan="7" class="p-3 text-xs border-t border-[#EEF1F4] text-center">Tidak ada data yang tersedia</td>
+                                </tr>
+                            `;
                         return;
                     }
 
@@ -2769,26 +2765,26 @@
                             '-';
 
                         html += `
-                                                                                                                                              <tr>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                                                                                                                      <div class="flex flex-col">
-                                                                                                                                                          <span class="font-medium">${assetName}</span>
-                                                                                                                                                      </div>
-                                                                                                                                                  </td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
-                                                                                                                                                  <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                                                                                                                                      <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
-                                                                                                                                                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                                                                                                                          </svg>
-                                                                                                                                                      </button>
-                                                                                                                                                  </td>
-                                                                                                                                              </tr>
-                                                                                                                                          `;
+                            <tr>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">${index + 1}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_code || '-'}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">${assetName}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.description || '-'}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${asset.asset_type || '-'}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${categoryName}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
+                                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removeSelectedAsset(${asset.id})">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
                     });
 
                     document.getElementById('selectedAssetsList').innerHTML = html;

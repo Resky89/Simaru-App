@@ -91,7 +91,7 @@
                                         <!-- User Input -->
                                         <tr>
                                             <td class="py-1 align-top w-48 font-medium text-[#666666]">Pemohon</td>
-                                            <td class="py-1 align-top text-[#666666]">: <span id="userInput">{{ $procurement['requester']['employee_number'] }}</span></td>
+                                            <td class="py-1 align-top text-[#666666]">: <span id="userInput">{{ $procurement['requester']['employee_name'] }}</span></td>
                                         </tr>
 
                                         <!-- Status -->
@@ -121,7 +121,7 @@
                                             <tr>
                                                 <td class="py-1 align-top font-medium text-[#666666]">Disetujui Manajer</td>
                                                 <td class="py-1 align-top text-[#666666]">:
-                                                    <span>{{ $procurement['approved_by_manager']['employee_number'] }}</span>
+                                                    <span>{{ $procurement['approved_by_manager']['employee_name'] }}</span>
                                                     @if(isset($procurement['manager_approval_date']))
                                                         <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['manager_approval_date'])->locale('id')->translatedFormat('d F Y') }})</span>
                                                     @endif
@@ -134,7 +134,7 @@
                                             <tr>
                                                 <td class="py-1 align-top font-medium text-[#666666]">Disetujui Direktur</td>
                                                 <td class="py-1 align-top text-[#666666]">:
-                                                    <span>{{ $procurement['approved_by_director']['employee_number'] }}</span>
+                                                    <span>{{ $procurement['approved_by_director']['employee_name'] }}</span>
                                                     @if(isset($procurement['director_approval_date']))
                                                         <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['director_approval_date'])->locale('id')->translatedFormat('d F Y') }})</span>
                                                     @endif
@@ -147,7 +147,7 @@
                                             <tr>
                                                 <td class="py-1 align-top font-medium text-[#666666]">Ditolak Oleh</td>
                                                 <td class="py-1 align-top text-[#666666]">:
-                                                    <span>{{ $procurement['rejected_by']['employee_number'] }}</span>
+                                                    <span>{{ $procurement['rejected_by']['employee_name'] }}</span>
                                                     @if(isset($procurement['rejected_date']))
                                                         <span class="text-xs text-gray-500 ml-2">({{ \Carbon\Carbon::parse($procurement['rejected_date'])->locale('id')->translatedFormat('d F Y') }})</span>
                                                     @endif
@@ -174,22 +174,39 @@
 
                                 <!-- Action Buttons - Repositioned -->
                                 <div class="flex flex-wrap gap-3">
-                                    @if($procurement['status'] == 'Submitted' && hasPermission('procurement:approve:manager'))
+                                    @if(
+                                        $procurement['status'] == 'Under Review' &&
+                                        !isset($procurement['approved_by_manager']) &&
+                                        hasPermission('procurement:approve:manager')
+                                    )
                                         <button id="managerApprovalBtn" type="button"
                                             class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                             SETUJU
                                         </button>
                                     @endif
 
-                                    @if($procurement['status'] == 'Under Review' && $procurement['estimated_grand_total'] > 50000000 && hasPermission('procurement:approve:director'))
+                                    @if(
+                                            $procurement['status'] == 'Under Review' &&
+                                            isset($procurement['approved_by_manager']) &&
+                                            !empty($procurement['approved_by_manager']) &&
+                                            $procurement['estimated_grand_total'] > 50000000 &&
+                                            !isset($procurement['approved_by_director']) &&
+                                            hasPermission('procurement:approve:director')
+                                        )
                                         <button id="directorApprovalBtn" type="button"
                                             class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                             SETUJU
                                         </button>
                                     @endif
 
-                                    @if(($procurement['status'] == 'Submitted' && (hasPermission('procurement:reject') || hasPermission('procurement:approve:manager') || hasPermission('procurement:approve:director'))) ||
-                                        ($procurement['status'] == 'Under Review' && hasPermission('procurement:approve:director')))
+                                    @if(
+                                            $procurement['status'] == 'Under Review' &&
+                                            (
+                                                hasPermission('procurement:reject') ||
+                                                hasPermission('procurement:approve:manager') ||
+                                                hasPermission('procurement:approve:director')
+                                            )
+                                        )
                                         <button id="rejectBtn" type="button"
                                             class="px-6 py-2 border border-red-600 text-red-600 rounded-lg text-base hover:bg-red-50 transform active:scale-[0.98] transition-all duration-200">
                                             TOLAK
@@ -252,16 +269,19 @@
                         </div>
                         @if($procurement['status'] == 'Approved')
                             @php
-                                $hasIncompleteComparison = false;
+                                $hasWaiting = false;
+                                $hasInProgress = false;
                                 foreach ($procurement['details'] as $detail) {
-                                    if ($detail['status_price_comparison'] != 'Done') {
-                                        $hasIncompleteComparison = true;
-                                        break;
+                                    if ($detail['status_price_comparison'] == 'Waiting') {
+                                        $hasWaiting = true;
+                                    }
+                                    if ($detail['status_price_comparison'] == 'In Progress') {
+                                        $hasInProgress = true;
                                     }
                                 }
                             @endphp
 
-                            @if($hasIncompleteComparison && hasPermission('price-comparison:create'))
+                            @if($hasWaiting && !$hasInProgress && hasPermission('price-comparison:create'))
                                 <!-- Comparison Title -->
                                 <div class="space-y-2">
                                     <label class="block text-base font-semibold text-[#666666]">Buat Perbandingan Harga</label>
@@ -381,10 +401,24 @@
                     color: #555;
                     margin-top: 0.5rem;
                 }
-                .swal-custom-content ul {
+                .swal-custom-error-content {
+                    font-size: 1rem;
+                    color: #555;
+                    margin-top: 0.5rem;
                     text-align: left;
-                    margin-top: 1rem;
-                    margin-bottom: 1rem;
+                    max-width: 100%;
+                    word-wrap: break-word;
+                }
+                .swal-custom-error-content ul {
+                    list-style-type: disc;
+                    padding-left: 20px;
+                    text-align: left;
+                    max-width: 100%;
+                    word-wrap: break-word;
+                }
+                .swal-custom-error-content li {
+                    margin-bottom: 0.25rem;
+                    word-break: break-word;
                 }
                 .swal-custom-confirm {
                     padding: 0.5rem 1.5rem;
@@ -455,17 +489,25 @@
             }
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            @if(!hasPermission('procurement:approve:manager'))
+            @php
+                $procurementStatus = $procurement['status'] ?? '';
+            @endphp
+
+            @if(
+                !hasPermission('procurement:approve:manager') ||
+                $procurementStatus !== 'Under Review' ||
+                isset($procurement['approved_by_manager'])
+            )
                 const managerApprovalBtnElement = document.getElementById('managerApprovalBtn');
                 if (managerApprovalBtnElement) managerApprovalBtnElement.style.display = 'none';
             @endif
 
-                @if(!hasPermission('procurement:approve:director'))
+            @if(!hasPermission('procurement:approve:director') || $procurementStatus !== 'Under Review')
                     const directorApprovalBtn = document.getElementById('directorApprovalBtn');
                     if (directorApprovalBtn) directorApprovalBtn.style.display = 'none';
                 @endif
 
-            @if(!hasPermission('procurement:reject') && !hasPermission('procurement:approve:manager') && !hasPermission('procurement:approve:director'))
+            @if(!hasPermission('procurement:reject') && !hasPermission('procurement:approve:manager') && !hasPermission('procurement:approve:director') || $procurementStatus !== 'Under Review')
                 const rejectBtnElement = document.getElementById('rejectBtn');
                 if (rejectBtnElement) rejectBtnElement.style.display = 'none';
                 @endif
@@ -519,8 +561,50 @@
                                             }
                                         });
                                     } else {
-                                        const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
-                                        showSweetAlert(errorMsg, 'error');
+                                        // Helper function to safely extract error messages
+                                        const extractErrorMessages = (errors) => {
+                                            if (Array.isArray(errors)) {
+                                                return errors.map(error =>
+                                                    typeof error === 'string'
+                                                        ? error
+                                                        : (error.message || JSON.stringify(error))
+                                                );
+                                            } else if (typeof errors === 'object') {
+                                                return Object.values(errors).flat().map(error =>
+                                                    typeof error === 'string'
+                                                        ? error
+                                                        : (error.message || JSON.stringify(error))
+                                                );
+                                            } else if (typeof errors === 'string') {
+                                                return [errors];
+                                            }
+                                            return [];
+                                        };
+
+                                        let errorMessage = 'Terjadi kesalahan saat menyetujui pengadaan:';
+                                        let errorList = extractErrorMessages(data.errors);
+
+                                        // If no specific errors, use a generic message
+                                        if (errorList.length === 0) {
+                                            errorList.push('Gagal menyetujui pengadaan. Silakan coba lagi.');
+                                        }
+
+                                        // Format error message
+                                        if (errorList.length > 0) {
+                                            errorMessage += '<ul class="mt-2 list-disc list-inside text-left">';
+                                            errorList.forEach(err => {
+                                                errorMessage += `<li>${err}</li>`;
+                                            });
+                                            errorMessage += '</ul>';
+                                        }
+
+                                        // Display error message
+                                        showSweetAlert(errorMessage, 'error', {
+                                            title: 'Gagal Menyetujui Pengadaan',
+                                            customClass: {
+                                                htmlContainer: 'swal-custom-error-content'
+                                            }
+                                        });
                                     }
                                 })
                                 .catch(error => {
@@ -570,8 +654,50 @@
                                             }
                                         });
                                     } else {
-                                        const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal menyetujui pengadaan';
-                                        showSweetAlert(errorMsg, 'error');
+                                        // Helper function to safely extract error messages
+                                        const extractErrorMessages = (errors) => {
+                                            if (Array.isArray(errors)) {
+                                                return errors.map(error =>
+                                                    typeof error === 'string'
+                                                        ? error
+                                                        : (error.message || JSON.stringify(error))
+                                                );
+                                            } else if (typeof errors === 'object') {
+                                                return Object.values(errors).flat().map(error =>
+                                                    typeof error === 'string'
+                                                        ? error
+                                                        : (error.message || JSON.stringify(error))
+                                                );
+                                            } else if (typeof errors === 'string') {
+                                                return [errors];
+                                            }
+                                            return [];
+                                        };
+
+                                        let errorMessage = 'Terjadi kesalahan saat menyetujui pengadaan:';
+                                        let errorList = extractErrorMessages(data.errors);
+
+                                        // If no specific errors, use a generic message
+                                        if (errorList.length === 0) {
+                                            errorList.push('Gagal menyetujui pengadaan. Silakan coba lagi.');
+                                        }
+
+                                        // Format error message
+                                        if (errorList.length > 0) {
+                                            errorMessage += '<ul class="mt-2 list-disc list-inside text-left">';
+                                            errorList.forEach(err => {
+                                                errorMessage += `<li>${err}</li>`;
+                                            });
+                                            errorMessage += '</ul>';
+                                        }
+
+                                        // Display error message
+                                        showSweetAlert(errorMessage, 'error', {
+                                            title: 'Gagal Menyetujui Pengadaan',
+                                            customClass: {
+                                                htmlContainer: 'swal-custom-error-content'
+                                            }
+                                        });
                                     }
                                 })
                                 .catch(error => {
@@ -670,29 +796,65 @@
                                 }
                             });
                         } else {
-                            let errorMsg = 'Gagal menolak pengadaan';
+                            // Helper function to safely extract error messages
+                            const extractErrorMessages = (errors) => {
+                                if (Array.isArray(errors)) {
+                                    return errors.map(error =>
+                                        typeof error === 'string'
+                                            ? error
+                                            : (error.message || JSON.stringify(error))
+                                    );
+                                } else if (typeof errors === 'object') {
+                                    return Object.values(errors).flat().map(error =>
+                                        typeof error === 'string'
+                                            ? error
+                                            : (error.message || JSON.stringify(error))
+                                    );
+                                } else if (typeof errors === 'string') {
+                                    return [errors];
+                                }
+                                return [];
+                            };
 
-                            if (data.errors) {
-                                if (Array.isArray(data.errors)) {
-                                    errorMsg = data.errors.map(err => err.message).join('<br>');
+                            let errorMessage = 'Terjadi kesalahan saat menolak pengadaan:';
+                            let errorList = extractErrorMessages(data.errors);
 
-                                    const reasonError = data.errors.find(err => err.path === 'rejected_reason');
-                                    if (reasonError) {
+                            // Check for specific rejected_reason errors
+                            const reasonErrors = Array.isArray(data.errors)
+                                ? data.errors.filter(err => err.path === 'rejected_reason')
+                                : [];
+
+                            // Highlight rejected_reason field if there are specific errors
+                            if (reasonErrors.length > 0) {
                                         rejectionReasonField.classList.add('border-red-500');
                                         const errorElement = rejectForm.querySelector('.invalid-feedback');
                                         if (errorElement) {
-                                            errorElement.textContent = reasonError.message;
+                                    errorElement.textContent = reasonErrors[0].message;
                                             errorElement.classList.remove('hidden');
                                         }
                                     }
-                                } else if (typeof data.errors === 'object') {
-                                    errorMsg = Object.values(data.errors).flat().join('<br>');
-                                } else if (typeof data.errors === 'string') {
-                                    errorMsg = data.errors;
-                                }
+
+                            // If no specific errors, use a generic message
+                            if (errorList.length === 0) {
+                                errorList.push('Gagal menolak pengadaan. Silakan coba lagi.');
                             }
 
-                            showSweetAlert(errorMsg, 'error');
+                            // Format error message
+                            if (errorList.length > 0) {
+                                errorMessage += '<ul class="mt-2 list-disc list-inside text-left">';
+                                errorList.forEach(err => {
+                                    errorMessage += `<li>${err}</li>`;
+                                });
+                                errorMessage += '</ul>';
+                            }
+
+                            // Display error message
+                            showSweetAlert(errorMessage, 'error', {
+                                title: 'Gagal Menolak Pengadaan',
+                                customClass: {
+                                    htmlContainer: 'swal-custom-error-content'
+                                }
+                            });
                         }
                     })
                     .catch(error => {
@@ -770,8 +932,49 @@
                                     }
                                 });
                             } else {
-                                const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : 'Gagal membuat perbandingan harga';
-                                showSweetAlert(errorMsg, 'error');
+                                // Helper function to safely extract error messages
+                                const extractErrorMessages = (errors) => {
+                                    if (Array.isArray(errors)) {
+                                        return errors.map(error =>
+                                            typeof error === 'string'
+                                                ? error
+                                                : (error.message || JSON.stringify(error))
+                                        );
+                                    } else if (typeof errors === 'object') {
+                                        return Object.values(errors).flat().map(error =>
+                                            typeof error === 'string'
+                                                ? error
+                                                : (error.message || JSON.stringify(error))
+                                        );
+                                    } else if (typeof errors === 'string') {
+                                        return [errors];
+                                    }
+                                    return [];
+                                };
+
+                                let errorMessage = 'Gagal membuat perbandingan harga:';
+                                let errorList = extractErrorMessages(data.errors);
+
+                                // If no specific errors, use a generic message
+                                if (errorList.length === 0) {
+                                    errorList.push('Gagal membuat perbandingan harga. Silakan coba lagi.');
+                                }
+
+                                // Format error message
+                                if (errorList.length > 0) {
+                                    errorMessage += '<ul class="mt-2 list-disc list-inside text-left">';
+                                    errorList.forEach(err => {
+                                        errorMessage += `<li>${err}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                }
+
+                                showSweetAlert(errorMessage, 'error', {
+                                    title: 'Gagal Membuat Perbandingan Harga',
+                                    customClass: {
+                                        htmlContainer: 'swal-custom-error-content'
+                                    }
+                                });
                             }
                         })
                         .catch(error => {
@@ -793,8 +996,33 @@
             @endif
 
             @if(session('error'))
-                showSweetAlert("{{ session('error') }}", 'error');
+                let errorMessage = 'Terjadi kesalahan:';
+                let errorList = [];
+
+                @if(is_array(session('error')))
+                    @foreach(session('error') as $error)
+                        errorList.push('{{ $error }}');
+                    @endforeach
+                @else
+                    errorList.push('{{ session('error') }}');
+                @endif
+
+                if (errorList.length > 0) {
+                    errorMessage += '<ul class="mt-2 list-disc list-inside text-left">';
+                    errorList.forEach(err => {
+                        errorMessage += `<li>${err}</li>`;
+                    });
+                    errorMessage += '</ul>';
+                }
+
+                showSweetAlert(errorMessage, 'error', {
+                    title: 'Gagal Memproses Permintaan',
+                    customClass: {
+                        htmlContainer: 'swal-custom-error-content'
+                    }
+                });
             @endif
         });
     </script>
 @endpush
+

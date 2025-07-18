@@ -132,10 +132,10 @@
                             @endphp
 
                             @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                                <button onclick="changePage(1)"
                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     1
-                                </a>
+                                </button>
                                 @if($startPage > 2)
                                     <span class="flex items-center justify-center">
                                         ...
@@ -144,10 +144,10 @@
                             @endif
 
                             @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                                <button onclick="changePage({{ $i }})"
                                    class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
                                     {{ $i }}
-                                </a>
+                                </button>
                             @endfor
 
                             @if($endPage < $lastPage)
@@ -156,10 +156,10 @@
                                         ...
                                     </span>
                                 @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
+                                <button onclick="changePage({{ $lastPage }})"
                                    class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                     {{ $lastPage }}
-                                </a>
+                                </button>
                             @endif
                         </div>
                         <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"

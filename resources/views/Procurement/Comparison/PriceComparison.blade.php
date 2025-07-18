@@ -75,7 +75,7 @@
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['comparison_code'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['procurement_code'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['title'] ?? 'N/A' }}</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['creator']['employee_number'] ?? ($comparison['created_by']['name'] ?? 'N/A') }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $comparison['creator']['employee_name'] ?? 'N/A' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     @if(isset($comparison['created_at']))
                                         @php
@@ -143,9 +143,9 @@
                 <!-- Pagination -->
                 <div class="flex flex-col md:flex-row justify-between items-center mt-4">
                     <div class="flex items-center space-x-2">
-                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="changePage({{ ($pagination['current_page'] ?? 1) - 1 }})"
-                               {{ ($pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($comparisons_pagination['prev_page_url'] ?? 1) <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($comparisons_pagination['current_page'] ?? 1) - 1 }})"
+                               {{ ($comparisons_pagination['current_page'] ?? 1) <= 1 ? 'disabled' : '' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -155,8 +155,8 @@
                         </button>
                         <div class="flex gap-2">
                             @php
-                                $currentPage = $pagination['current_page'] ?? 1;
-                                $lastPage = $pagination['total_pages'] ?? 1;
+                                $currentPage = $comparisons_pagination['current_page'] ?? 1;
+                                $lastPage = $comparisons_pagination['last_page'] ?? 1;
                                 $maxPagesShown = 5; // Show max 5 pages at once
                                 $startPage = max(1, $currentPage - 2);
                                 $endPage = min($lastPage, $startPage + $maxPagesShown - 1);
@@ -166,40 +166,41 @@
                                 }
                             @endphp
 
-                            @if($startPage > 1)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    1
-                                </a>
-                                @if($startPage > 2)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
+                                @if($startPage > 1)
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        1
+                                    </button>
+                                    @if($startPage > 2)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
                                 @endif
-                            @endif
 
-                            @for ($i = $startPage; $i <= $endPage; $i++)
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
-                                    {{ $i }}
-                                </a>
-                            @endfor
+                                @for ($i = $startPage; $i <= $endPage; $i++)
+                                    <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $i]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border {{ $i == $currentPage ? 'border-[#213268] bg-[#213268] text-white' : 'border-[#D8DAE5] text-[#213268]' }} rounded">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
 
-                            @if($endPage < $lastPage)
-                                @if($endPage < $lastPage - 1)
-                                    <span class="flex items-center justify-center">
-                                        ...
-                                    </span>
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
+                                        <span class="flex items-center justify-center">
+                                            ...
+                                        </span>
+                                    @endif
+                                    <button
+                                        onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}'"
+                                        class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
+                                        {{ $lastPage }}
+                                    </button>
                                 @endif
-                                <a href="{{ request()->fullUrlWithQuery(['page' => $lastPage]) }}"
-                                   class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
-                                    {{ $lastPage }}
-                                </a>
-                            @endif
                         </div>
-                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
-                               onclick="changePage({{ ($pagination['current_page'] ?? 1) + 1 }})"
-                               {{ ($pagination['current_page'] ?? 1) >= ($pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
+                        <button class="flex items-center gap-2 px-3 py-1 border border-[#D8DAE5] rounded-md text-[#213268] text-sm {{ ($comparisons_pagination['next_page_url'] ?? 1) >= ($comparisons_pagination['total_pages'] ?? 1) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                               onclick="changePage({{ ($comparisons_pagination['current_page'] ?? 1) + 1 }})"
+                               {{ ($comparisons_pagination['next_page_url'] ?? 1) >= ($comparisons_pagination['total_pages'] ?? 1) ? 'disabled' : '' }}>
                             Selanjutnya
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -210,24 +211,19 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-600">
-                            @if(isset($pagination) && is_array($pagination))
-                                @php
-                                    $currentPage = $pagination['current_page'] ?? 1;
-                                    $perPage = $pagination['limit'] ?? 10;
-                                    $total = $pagination['total_items'] ?? count($comparisons);
-                                    $from = ($currentPage - 1) * $perPage + 1;
-                                    $to = min($currentPage * $perPage, $total);
-                                @endphp
-                                Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
+                    <span class="text-sm text-gray-600">
+                            @if(isset($comparisons_pagination) && is_array($comparisons_pagination))
+                                Menampilkan {{ $comparisons_pagination['from'] ?? 0 }} sampai {{ $comparisons_pagination['to'] ?? 0 }} dari
+                                {{ $comparisons_pagination['total'] ?? 0 }} data
                             @else
-                                Menampilkan 1 sampai {{ count($comparisons) }} dari {{ count($comparisons) }} data
+                                Menampilkan 0 sampai 0 dari 0 data
                             @endif
                         </span>
                         <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeComparisonPerPage(this.value)">
-                            <option value="10" {{ isset($pagination['limit']) && $pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
-                            <option value="25" {{ isset($pagination['limit']) && $pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
-                            <option value="50" {{ isset($pagination['limit']) && $pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="10" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
+                            <option value="25" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
+                            <option value="50" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>
+                            <option value="100" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 100 ? 'selected' : '' }}>100 per halaman</option>
                         </select>
                     </div>
                 </div>
