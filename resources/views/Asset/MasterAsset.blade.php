@@ -162,7 +162,7 @@
                             </thead>
                             <tbody>
                                 @if(isset($masterAssets) && count($masterAssets) > 0)
-                                    @foreach($masterAssets as $asset)
+                                    @foreach($masterAssets ?? [] as $asset)
                                         <tr data-asset-id="{{ $asset['asset_master_id'] ?? '' }}">
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                                 {{ $asset['asset_master_code'] ?? 'N/A' }}</td>
@@ -278,7 +278,7 @@
                                         }
                                     @endphp
 
-@if($startPage > 1)
+                                @if($startPage > 1)
                                     <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1

@@ -120,8 +120,7 @@
                                                 @if(hasPermission('user:delete'))
                                                     <button
                                                         class="delete-user-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-user-id="{{ $user['user_id'] }}"
-                                                        title="Hapus Pengguna">
+                                                        data-user-id="{{ $user['user_id'] }}" title="Hapus Pengguna">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                             viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -244,7 +243,7 @@
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                 <div class="fixed inset-0 z-50 overflow-y-auto">
                     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        <div class="relative transform rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                             id="addUserModalContent">
                             <!-- Header -->
                             <div class="flex justify-between items-center p-6 pb-0">
@@ -352,7 +351,7 @@
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                 <div class="fixed inset-0 z-50 overflow-y-auto">
                     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        <div class="relative transform rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                             id="editUserModalContent">
                             <!-- Header -->
                             <div class="flex justify-between items-center p-6 pb-0">
@@ -448,7 +447,7 @@
                 <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
                 <div class="fixed inset-0 z-50 overflow-y-auto">
                     <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                        <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        <div class="relative transform rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
                             id="deleteUserModalContent">
                             <!-- Header -->
                             <div class="flex justify-between items-center p-6 pb-0">
@@ -527,7 +526,7 @@
                     });
                 @endif
 
-                const searchInput = document.getElementById('searchInput');
+                        const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const sortOrder = document.getElementById('sortOrder');
 
@@ -588,10 +587,15 @@
 
             let cachedRoles = new Map();
 
-            function fetchRoles(searchTerm = '', roleIds = [], callback) {
+            function fetchRoles(searchTerm = '', roleIds = [], callback, page = 1, append = false) {
                 let queryParams = new URLSearchParams();
                 queryParams.append('json', 'true');
-                queryParams.append('limit', '100');
+                if (roleIds.length > 0) {
+                    queryParams.append('limit', '100');
+                } else {
+                    queryParams.append('limit', '20');
+                    queryParams.append('page', page);
+                }
 
                 if (searchTerm) {
                     queryParams.append('search', searchTerm);
@@ -630,11 +634,12 @@
                             cachedRoles.set(role.role_id.toString(), role);
                         });
 
-                        callback(roles);
+                        const hasMore = (roleIds.length === 0) && (roles.length === 20);
+                        callback(roles, append, hasMore);
                     })
                     .catch(error => {
                         console.error('Error fetching roles:', error);
-                        callback([]);
+                        callback([], append, false);
                     });
             }
 
@@ -653,11 +658,11 @@
                 const loadingIndicator = document.createElement('div');
                 loadingIndicator.className = 'flex justify-center py-2';
                 loadingIndicator.innerHTML = `
-                        <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    `;
+                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            `;
                 loadingIndicator.id = `${inputId}-loading`;
                 loadingIndicator.style.display = 'none';
                 dropdown.appendChild(loadingIndicator);
@@ -748,61 +753,54 @@
                     }
                 });
 
+                let rolePage = 1;
+                let isLoadingRoles = false;
+                let hasMoreRoles = true;
+                let currentRoleSearch = '';
+
+                rolesListContainer.addEventListener('scroll', function () {
+                    if (isLoadingRoles || !hasMoreRoles) return;
+                    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
+                        isLoadingRoles = true;
+                        rolePage++;
+                        fetchRoles(currentRoleSearch, [], renderRoleDropdown, rolePage, true);
+                    }
+                });
+
                 function filterAndDisplayRoles(searchTerm) {
+                    rolePage = 1;
+                    isLoadingRoles = false;
+                    hasMoreRoles = true;
+                    currentRoleSearch = searchTerm;
                     loadingIndicator.style.display = 'flex';
                     rolesListContainer.innerHTML = '';
-
-                    const selectedRoleIds = Array.from(selectedRoles.keys());
-
-                    let cachedResults = [];
-
-                    if (!searchTerm) {
-                        cachedResults = Array.from(cachedRoles.values())
-                            .filter(role => !selectedRoleIds.includes(role.role_id.toString()));
-                    } else {
-                        cachedResults = Array.from(cachedRoles.values())
-                            .filter(role =>
-                                !selectedRoleIds.includes(role.role_id.toString()) &&
-                                role.role_name.toLowerCase().includes(searchTerm.toLowerCase())
-                            );
-                    }
-
-                    if (cachedResults.length >= 5 && !searchTerm) {
-                        renderRoleDropdown(cachedResults);
-                        return;
-                    }
-
-                    fetchRoles(searchTerm, [], function (roles) {
-                        const filteredRoles = roles.filter(role =>
-                            !selectedRoleIds.includes(role.role_id.toString())
-                        );
-
-                        renderRoleDropdown(filteredRoles);
-                    });
+                    fetchRoles(searchTerm, [], renderRoleDropdown, rolePage, false);
                 }
 
-                function renderRoleDropdown(filteredRoles) {
-                    rolesListContainer.innerHTML = '';
-
+                function renderRoleDropdown(roles, append = false, hasMore = false) {
                     loadingIndicator.style.display = 'none';
-
-                    if (filteredRoles.length === 0) {
+                    const selectedRoleIds = Array.from(selectedRoles.keys());
+                    const filteredRoles = roles.filter(role => !selectedRoleIds.includes(role.role_id.toString()));
+                    if (!append) {
+                        rolesListContainer.innerHTML = '';
+                    } else {
+                        const loadingDiv = rolesListContainer.querySelector('.loading-indicator');
+                        if (loadingDiv) loadingDiv.remove();
+                    }
+                    if (filteredRoles.length === 0 && !append) {
                         const noResults = document.createElement('div');
                         noResults.className = 'p-2 text-center text-gray-500 italic';
                         noResults.textContent = 'Tidak ada peran ditemukan';
                         rolesListContainer.appendChild(noResults);
                         return;
                     }
-
                     filteredRoles.forEach(role => {
                         const option = document.createElement('div');
                         option.className = 'p-2 hover:bg-gray-50 role-option cursor-pointer';
                         option.setAttribute('data-role-id', role.role_id);
                         option.setAttribute('data-role-name', role.role_name);
                         option.setAttribute('data-target', inputId.split('-')[0]);
-
                         option.innerHTML = `<span class="text-sm text-gray-700">${role.role_name}</span>`;
-
                         option.addEventListener('click', function () {
                             const roleId = this.getAttribute('data-role-id');
                             const roleName = this.getAttribute('data-role-name');
@@ -820,16 +818,16 @@
 
                             filterAndDisplayRoles('');
                         });
-
                         rolesListContainer.appendChild(option);
                     });
-
-                    if (filteredRoles.length > 20) {
-                        const countMsg = document.createElement('div');
-                        countMsg.className = 'p-2 text-center text-gray-500 text-xs';
-                        countMsg.textContent = `Menampilkan ${filteredRoles.length} peran yang cocok`;
-                        rolesListContainer.appendChild(countMsg);
+                    hasMoreRoles = hasMore;
+                    if (hasMoreRoles) {
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'p-2 text-center text-gray-500 text-xs loading-indicator';
+                        loadingDiv.textContent = 'Memuat lebih banyak...';
+                        rolesListContainer.appendChild(loadingDiv);
                     }
+                    isLoadingRoles = false;
                 }
 
                 function renderSelectedRoles() {
@@ -849,9 +847,9 @@
                         const badge = document.createElement('div');
                         badge.className = 'inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-md text-xs my-1';
                         badge.innerHTML = `
-                                <span>${roleName}</span>
-                                <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
-                            `;
+                                    <span>${roleName}</span>
+                                    <span class="cursor-pointer hover:text-red-500 font-medium" data-role-id="${roleId}">×</span>
+                                `;
 
                         badge.querySelector('span:last-child').addEventListener('click', function (e) {
                             e.stopPropagation();
@@ -1191,22 +1189,22 @@
                     borderColor = 'border-green-500';
                     textColor = 'text-green-700';
                     icon = `<svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>`;
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>`;
                 } else if (type === 'error') {
                     bgColor = 'bg-red-100';
                     borderColor = 'border-red-500';
                     textColor = 'text-red-700';
                     icon = `<svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>`;
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>`;
                 } else {
                     bgColor = 'bg-blue-100';
                     borderColor = 'border-blue-500';
                     textColor = 'text-blue-700';
                     icon = `<svg class="h-6 w-6 text-blue-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>`;
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>`;
                 }
 
                 let hasHTML = false;
@@ -1312,35 +1310,35 @@
             }
 
             document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes slideInRight {
-                            from { transform: translateX(100%); }
-                            to { transform: translateX(0); }
-                        }
-                        .animate-slide-in-right {
-                            animation: slideInRight 0.3s ease-out forwards;
-                        }
+                            <style>
+                                @keyframes slideInRight {
+                                    from { transform: translateX(100%); }
+                                    to { transform: translateX(0); }
+                                }
+                                .animate-slide-in-right {
+                                    animation: slideInRight 0.3s ease-out forwards;
+                                }
 
-                        .error-message ul {
-                            margin-top: 0.5rem;
-                            padding-left: 1.5rem;
-                        }
-                        .error-message ul li {
-                            margin-bottom: 0.25rem;
-                        }
-                        .error-message ul li:last-child {
-                            margin-bottom: 0;
-                        }
-                    </style>
-                `);
+                                .error-message ul {
+                                    margin-top: 0.5rem;
+                                    padding-left: 1.5rem;
+                                }
+                                .error-message ul li {
+                                    margin-bottom: 0.25rem;
+                                }
+                                .error-message ul li:last-child {
+                                    margin-bottom: 0;
+                                }
+                            </style>
+                        `);
 
             @if(session('success'))
                 showToast("{{ session('success') }}", 'success');
             @endif
 
-                @if(session('error'))
-                    showToast("{{ session('error') }}", 'error');
-                @endif
+                        @if(session('error'))
+                            showToast("{{ session('error') }}", 'error');
+                        @endif
 
             function preventMultipleSubmits(form, buttonSelector) {
                 if (!form) return;
@@ -1411,11 +1409,11 @@
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                <div class="flex items-center justify-center">
-                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    <span>Memproses...</span>
-                                </div>
-                            `;
+                                        <div class="flex items-center justify-center">
+                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                            <span>Memproses...</span>
+                                        </div>
+                                    `;
 
                         setTimeout(() => {
                             if (submitBtn) {
@@ -1436,7 +1434,7 @@
             // Add form submission handlers with fetch API
             const addUserFormElement = document.getElementById('addUserForm');
             if (addUserFormElement) {
-                addUserFormElement.addEventListener('submit', function(e) {
+                addUserFormElement.addEventListener('submit', function (e) {
                     e.preventDefault();
 
                     // Client-side validation
@@ -1478,11 +1476,11 @@
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                    <div class="flex items-center justify-center">
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        <span>Memproses...</span>
+                                    </div>
+                                `;
                     }
 
                     const formData = new FormData(form);
@@ -1495,53 +1493,53 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         }
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast(data.message || 'User berhasil dibuat', 'success');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            throw data.errors || 'Gagal membuat user';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        if (error.errors) {
-                            showToast(error.errors, 'error');
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(data => {
+                                    throw data;
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showToast(data.message || 'User berhasil dibuat', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                throw data.errors || 'Gagal membuat user';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (error.errors) {
+                                showToast(error.errors, 'error');
 
-                            // Highlight fields with errors
-                            Object.keys(error.errors).forEach(field => {
-                                const input = form.querySelector(`[name="${field}"]`);
-                                if (input) {
-                                    input.classList.add('border-red-500');
-                                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                                    if (errorElement) {
-                                        errorElement.textContent = Array.isArray(error.errors[field])
-                                            ? error.errors[field][0]
-                                            : error.errors[field];
-                                        errorElement.classList.remove('hidden');
+                                // Highlight fields with errors
+                                Object.keys(error.errors).forEach(field => {
+                                    const input = form.querySelector(`[name="${field}"]`);
+                                    if (input) {
+                                        input.classList.add('border-red-500');
+                                        const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                        if (errorElement) {
+                                            errorElement.textContent = Array.isArray(error.errors[field])
+                                                ? error.errors[field][0]
+                                                : error.errors[field];
+                                            errorElement.classList.remove('hidden');
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-                            showToast(error.message || 'Terjadi kesalahan saat membuat user', 'error');
-                        }
-                    })
-                    .finally(() => {
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalBtnText;
-                        }
-                    });
+                                });
+                            } else {
+                                showToast(error.message || 'Terjadi kesalahan saat membuat user', 'error');
+                            }
+                        })
+                        .finally(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnText;
+                            }
+                        });
                 });
 
                 addUserFormElement.querySelectorAll('input').forEach(input => {
@@ -1555,7 +1553,7 @@
 
             const editUserFormElement = document.getElementById('editUserForm');
             if (editUserFormElement) {
-                editUserFormElement.addEventListener('submit', function(e) {
+                editUserFormElement.addEventListener('submit', function (e) {
                     e.preventDefault();
 
                     // Client-side validation
@@ -1595,11 +1593,11 @@
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                                    <div class="flex items-center justify-center">
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        <span>Memproses...</span>
+                                    </div>
+                                `;
                     }
 
                     const formData = new FormData(form);
@@ -1613,53 +1611,53 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         }
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast(data.message || 'User berhasil diperbarui', 'success');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            throw data.errors || 'Gagal memperbarui user';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        if (error.errors) {
-                            showToast(error.errors, 'error');
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(data => {
+                                    throw data;
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showToast(data.message || 'User berhasil diperbarui', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                throw data.errors || 'Gagal memperbarui user';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (error.errors) {
+                                showToast(error.errors, 'error');
 
-                            // Highlight fields with errors
-                            Object.keys(error.errors).forEach(field => {
-                                const input = form.querySelector(`[name="${field}"]`);
-                                if (input) {
-                                    input.classList.add('border-red-500');
-                                    const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                                    if (errorElement) {
-                                        errorElement.textContent = Array.isArray(error.errors[field])
-                                            ? error.errors[field][0]
-                                            : error.errors[field];
-                                        errorElement.classList.remove('hidden');
+                                // Highlight fields with errors
+                                Object.keys(error.errors).forEach(field => {
+                                    const input = form.querySelector(`[name="${field}"]`);
+                                    if (input) {
+                                        input.classList.add('border-red-500');
+                                        const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                        if (errorElement) {
+                                            errorElement.textContent = Array.isArray(error.errors[field])
+                                                ? error.errors[field][0]
+                                                : error.errors[field];
+                                            errorElement.classList.remove('hidden');
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-                            showToast(error.message || 'Terjadi kesalahan saat memperbarui user', 'error');
-                        }
-                    })
-                    .finally(() => {
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalBtnText;
-                        }
-                    });
+                                });
+                            } else {
+                                showToast(error.message || 'Terjadi kesalahan saat memperbarui user', 'error');
+                            }
+                        })
+                        .finally(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnText;
+                            }
+                        });
                 });
 
                 editUserFormElement.querySelectorAll('input').forEach(input => {

@@ -125,7 +125,7 @@
                         </thead>
                         <tbody>
                             @if(isset($documents) && count($documents) > 0)
-                                @foreach($documents as $document)
+                                @foreach($documents ?? [] as $document)
                                 <tr data-document-id="{{ $document['document_id'] ?? '' }}">
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">{{ $document['document_title'] ?? '-' }}</td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
@@ -213,7 +213,7 @@
                                 }
                             @endphp
 
-@if($startPage > 1)
+                                @if($startPage > 1)
                                     <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1

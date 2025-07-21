@@ -249,7 +249,7 @@
                             </thead>
                             <tbody>
                                 @if(isset($assets) && count($assets) > 0)
-                                    @foreach($assets as $asset)
+                                    @foreach($assets ?? [] as $asset)
                                         <tr data-asset-id="{{ $asset['asset_id'] ?? '' }}">
                                             <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
                                                 <input type="checkbox" class="asset-checkbox checkbox checkbox-sm"
@@ -437,7 +437,7 @@
                                         }
                                     @endphp
 
-@if($startPage > 1)
+                                @if($startPage > 1)
                                     <button onclick="window.location.href='{{ request()->fullUrlWithQuery(['page' => 1]) }}'"
                                         class="h-8 w-8 flex items-center justify-center border border-[#D8DAE5] text-[#213268] rounded">
                                         1

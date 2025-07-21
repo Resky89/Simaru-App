@@ -3,8 +3,7 @@
 @section('title', 'Laporan Penyusutan')
 
 @section('content')
-    @include('Layout.loading')
-    <div class="h-full space-y-4 md:space-y-6">
+    @include('Layout.loading')<div class="h-full space-y-4 md:space-y-6">
         <!-- Generate Depreciation Report Section -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body p-4 md:p-7">
@@ -94,7 +93,7 @@
                                     <!-- Subcategory Dropdown -->
                                     <div id="subcategory_dropdown"
                                         class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
-                                        <ul id="subcategory_list" class="max-h-56 overflow-y-auto"></ul>
+                                        <ul id="subcategory_list"></ul>
                                     </div>
                                 </div>
                             </div>
@@ -102,9 +101,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Berdasarkan Tanggal</label>
                                 <div class="relative">
-                                    <input type="month" name="as_of_date"
-                                        class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268]"
-                                        value="{{ $as_of_date ?? '' }}" placeholder="YYYY-MM">
+                                    <input type="text" name="as_of_date" id="month_picker"
+                                        class="w-full border border-[#D8DAE5] rounded-md py-2 px-3 text-[#213268] focus:outline-none focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
+                                        placeholder="Pilih Bulan/Tahun" autocomplete="off">
                                 </div>
                             </div>
 
@@ -126,7 +125,7 @@
                                             </div>
                                             <span class="ml-2 text-gray-600">Mencari Master Aset...</span>
                                         </div>
-                                        <ul id="asset_master_list" class="max-h-56 overflow-y-auto"></ul>
+                                        <ul id="asset_master_list"></ul>
                                     </div>
                                 </div>
                             </div>
@@ -374,7 +373,6 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 `;
-
                         const contentContainer = document.createElement('div');
                         contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
                         const title = document.createElement('p');
@@ -428,6 +426,81 @@
                                 }
                             </style>
                         `);
+
+                // Initialize the month picker with Flatpickr
+                const monthPicker = document.getElementById('month_picker');
+
+                // Dynamically load Flatpickr if not already available
+                function loadFlatpickr() {
+                    if (typeof flatpickr === 'undefined') {
+                        // Create link for CSS
+                        const cssLink = document.createElement('link');
+                        cssLink.rel = 'stylesheet';
+                        cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+                        document.head.appendChild(cssLink);
+
+                        // Create link for monthSelect plugin CSS
+                        const pluginCss = document.createElement('link');
+                        pluginCss.rel = 'stylesheet';
+                        pluginCss.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css';
+                        document.head.appendChild(pluginCss);
+
+                        // Create script for Flatpickr core
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+                        script.onload = function () {
+                            // Create script for monthSelect plugin
+                            const pluginScript = document.createElement('script');
+                            pluginScript.src = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js';
+                            pluginScript.onload = initializeFlatpickr;
+                            document.head.appendChild(pluginScript);
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        initializeFlatpickr();
+                    }
+                }
+
+                // Initialize Flatpickr
+                function initializeFlatpickr() {
+                    if (monthPicker) {
+                        // Get URL parameter if exists
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const asOfDateParam = urlParams.get('as_of_date');
+
+                        const fpInstance = flatpickr(monthPicker, {
+                            locale: {
+                                months: {
+                                    longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                                    shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des']
+                                },
+                                weekdays: {
+                                    longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                                    shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+                                },
+                                firstDayOfWeek: 1
+                            },
+                            plugins: [new monthSelectPlugin({
+                                shorthand: false,
+                                dateFormat: "Y-m",
+                                altFormat: "F Y",
+                                theme: "light"
+                            })],
+                            static: true,
+                            disableMobile: true,
+                            allowInput: false,
+                            altInput: true
+                        });
+
+                        // Set initial value if provided in URL
+                        if (asOfDateParam) {
+                            fpInstance.setDate(asOfDateParam);
+                        }
+                    }
+                }
+
+                // Load and initialize Flatpickr
+                loadFlatpickr();
 
                 const percentageToggle = document.getElementById('percentageToggle');
                 if (percentageToggle) {
@@ -537,7 +610,7 @@
                             subcategorySearch.value = '';
                             selectedSubcategory.value = '';
 
-                            loadSubcategories('', this.value);
+                            fetchCategories(this.value, '', 'selected_subcategory');
 
                             const toast = document.createElement('div');
                             toast.className = 'fixed bottom-4 right-4 bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-md z-50';
@@ -562,171 +635,244 @@
                             return;
                         }
 
-                        subcategoryDropdown.classList.remove('hidden');
-                        if (subcategoryList.children.length === 0) {
-                            loadSubcategories('', assetTypeSelect.value);
-                        }
+                        fetchCategories(assetTypeSelect.value, ' ', 'selected_subcategory');
                     });
 
-                    document.addEventListener('click', function (e) {
-                        if (!subcategorySearch.contains(e.target) && !subcategoryDropdown.contains(e.target)) {
-                            subcategoryDropdown.classList.add('hidden');
-                        }
-                    });
-
-                    const debouncedSearch = debounce(function (e) {
+                    subcategorySearch.addEventListener('input', debounce(function (e) {
                         if (assetTypeSelect.value) {
-                            loadSubcategories(e.target.value, assetTypeSelect.value);
+                            fetchCategories(assetTypeSelect.value, e.target.value, 'selected_subcategory');
                         }
-                    }, 300);
-
-                    subcategorySearch.addEventListener('input', debouncedSearch);
+                    }, 300));
 
                     if (assetTypeSelect.value) {
                         setTimeout(() => {
-                            loadSubcategories('', assetTypeSelect.value);
+                            fetchCategories(assetTypeSelect.value, '', 'selected_subcategory');
                         }, 500);
                     }
+                }
 
-                    async function loadSubcategories(searchTerm, assetType) {
-                        if (!assetType) {
+                function fetchCategories(assetType, searchTerm = '', targetId = '') {
+                    if (!assetType || !targetId) return;
+
+                    const hiddenInput = document.getElementById(targetId);
+                    if (!hiddenInput) return;
+
+                    const container = hiddenInput.closest('.relative');
+                    const optionsContainer = document.getElementById('subcategory_dropdown');
+                    const searchInput = document.getElementById('subcategory_search');
+                    const list = document.getElementById('subcategory_list');
+                    const isShowAll = searchTerm === " ";
+
+                    if (!searchTerm.trim() && !isShowAll) {
+                        optionsContainer.classList.add('hidden');
+                        return;
+                    }
+
+                    list.innerHTML = '<div class="p-2 text-center text-gray-500">Memuat kategori...</div>';
+                    optionsContainer.classList.remove('hidden');
+
+                    // Variables for lazy loading
+                    let page = 1;
+                    const perPage = 15;
+                    let isLoading = false;
+                    let hasMoreData = true;
+                    let allCategories = [];
+
+                    // Function to load categories with pagination
+                    function loadCategories(page, searchValue) {
+                        if (isLoading || !hasMoreData) return;
+
+                        isLoading = true;
+
+                        let queryParams = new URLSearchParams();
+                        queryParams.append('json', 'true');
+                        queryParams.append('asset_type', assetType);
+                        queryParams.append('page', page);
+                        queryParams.append('limit', perPage);
+
+                        if (searchValue.trim() && !isShowAll) {
+                            queryParams.append('search', searchValue.trim());
+                        }
+
+                        fetch(`{{ route('categories') }}?${queryParams.toString()}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Server responded with status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                let categories = [];
+                                let pagination = null;
+
+                                if (Array.isArray(data)) {
+                                    categories = data;
+                                } else if (data.subcategories && Array.isArray(data.subcategories)) {
+                                    categories = data.subcategories;
+                                    pagination = data.pagination || null;
+                                } else if (data.data && Array.isArray(data.data)) {
+                                    categories = data.data;
+                                    pagination = data.pagination || data.meta || null;
+                                }
+
+                                allCategories = [...allCategories, ...categories];
+
+                                // Check if we have more data to load
+                                if (pagination) {
+                                    hasMoreData = pagination.current_page < pagination.last_page;
+                                } else {
+                                    hasMoreData = categories.length >= perPage;
+                                }
+
+                                displayCategoryResults(allCategories, list, hiddenInput, searchInput, assetType, true);
+
+                                isLoading = false;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching categories:', error);
+                                if (page === 1) {
+                                    list.innerHTML = `
+                                        <div class="p-3 text-sm text-red-500 text-center">
+                                            <p>Gagal memuat kategori</p>
+                                            <p class="text-xs mt-1 text-red-400">${error.message}</p>
+                                            <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="document.getElementById('subcategory_dropdown').classList.add('hidden')">Tutup</button>
+                                            <button class="mt-2 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="document.getElementById('subcategory_dropdown').classList.add('hidden')">Tutup</button>
+                                        </div>
+                                    `;
+                                }
+                                isLoading = false;
+                            });
+                    }
+
+                    // Initial load
+                    loadCategories(page, searchTerm);
+
+                    // Remove any existing scroll event listeners
+                    optionsContainer.removeEventListener('scroll', categoryScrollHandler);
+
+                    // Scroll event handler for lazy loading
+                    function categoryScrollHandler() {
+                        const { scrollTop, scrollHeight, clientHeight } = optionsContainer;
+
+                        // Load more data when user scrolls to 80% of the container
+                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                            page++;
+                            loadCategories(page, searchTerm);
+                        }
+                    }
+
+                    // Add scroll event listener
+                    optionsContainer.addEventListener('scroll', categoryScrollHandler);
+                }
+
+                function displayCategoryResults(categories, resultsElem, idInputElem, searchInputElem, assetType, isLazyLoad = false) {
+                    // Always clear the initial loading message
+                    const initialLoadingMessage = resultsElem.querySelector('div:not(.option):not(.loading-indicator):not(.dropdown-header)');
+                    if (initialLoadingMessage && initialLoadingMessage.textContent.includes('Memuat kategori')) {
+                        initialLoadingMessage.remove();
+                    }
+
+                    if (!isLazyLoad) {
+                        resultsElem.innerHTML = '';
+                    } else {
+                        // Remove loading indicator if it exists
+                        const loadingIndicator = resultsElem.querySelector('.loading-indicator');
+                        if (loadingIndicator) {
+                            loadingIndicator.remove();
+                        }
+                    }
+
+                    if (categories.length === 0 && !isLazyLoad) {
+                        resultsElem.innerHTML = `
+                            <div class="p-4 text-center">
+                                <p class="text-gray-500 mb-2">Tidak ada kategori yang ditemukan</p>
+                                <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 text-xs" onclick="document.getElementById('subcategory_dropdown').classList.add('hidden')">Tutup</button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Only add the header if it doesn't exist yet
+                    const existingHeader = resultsElem.querySelector('.dropdown-header');
+                    if (!existingHeader && categories.length > 0) {
+                        const typeTitle = document.createElement('div');
+                        typeTitle.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                        typeTitle.textContent = `Kategori ${assetType === 'medical' ? 'Medis' : 'Non-Medis'}`;
+                        resultsElem.insertBefore(typeTitle, resultsElem.firstChild);
+                    }
+
+                    if (searchInputElem && searchInputElem.value.trim() && !isLazyLoad) {
+                        const searchTerm = searchInputElem.value.trim().toLowerCase();
+                        categories.sort((a, b) => {
+                            const aName = a.subcategory_name?.toLowerCase() || '';
+                            const bName = b.subcategory_name?.toLowerCase() || '';
+
+                            if (aName === searchTerm) return -1;
+                            if (bName === searchTerm) return 1;
+
+                            const aStarts = aName.startsWith(searchTerm);
+                            const bStarts = bName.startsWith(searchTerm);
+                            if (aStarts && !bStarts) return -1;
+                            if (bStarts && !aStarts) return 1;
+
+                            return aName.localeCompare(bName);
+                        });
+                    }
+
+                    const existingOptions = new Set();
+                    const existingOptionElements = resultsElem.querySelectorAll('.option');
+
+                    existingOptionElements.forEach(element => {
+                        existingOptions.add(element.getAttribute('data-value'));
+                    });
+
+                    categories.forEach((category) => {
+                        // Skip duplicates that might occur during lazy loading
+                        if (existingOptions.has(category.subcategory_id?.toString())) {
                             return;
                         }
 
-                        subcategoryList.innerHTML = '';
-
-                        const loadingItem = document.createElement('li');
-                        loadingItem.className = 'flex justify-center py-2 items-center';
-                        loadingItem.innerHTML = `
-                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
-                                        <span class="ml-2 text-gray-600">Memuat kategori...</span>
-                                    `;
-                        subcategoryList.appendChild(loadingItem);
-
-                        try {
-                            const controller = new AbortController();
-                            const timeoutId = setTimeout(() => controller.abort(), 10000);
-                            const apiUrl = `{{ route('categories') }}?asset_type=${encodeURIComponent(assetType)}&search=${encodeURIComponent(searchTerm || '')}&json=true&pagination=false`;
-                            const response = await fetch(apiUrl, {
-                                method: 'GET',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Cache-Control': 'no-cache'
-                                },
-                                credentials: 'same-origin',
-                                signal: controller.signal
-                            }).finally(() => clearTimeout(timeoutId));
-
-                            if (!response.ok) {
-                                throw new Error(`Failed to fetch categories: ${response.status}`);
-                            }
-
-                            const contentType = response.headers.get('content-type');
-                            if (!contentType || !contentType.includes('application/json')) {
-                                throw new Error('Server returned non-JSON response');
-                            }
-
-                            let result;
-                            try {
-                                result = await response.json();
-                            } catch (jsonError) {
-                                console.error('JSON parse error:', jsonError);
-                                throw new Error('Server returned invalid JSON');
-                            }
-
-                            let subcategories = [];
-                            if (Array.isArray(result)) {
-                                subcategories = result;
-                            } else if (result.subcategories && Array.isArray(result.subcategories)) {
-                                subcategories = result.subcategories;
-                            } else if (result.data && Array.isArray(result.data)) {
-                                subcategories = result.data;
-                            }
-
-                            subcategoryList.innerHTML = '';
-
-                            if (subcategories.length === 0) {
-                                const noResults = document.createElement('li');
-                                noResults.className = 'px-4 py-2 text-gray-500 italic';
-                                noResults.textContent = 'Tidak ada kategori ditemukan';
-                                subcategoryList.appendChild(noResults);
-                            } else {
-                                const searchHelpMsg = document.createElement('li');
-                                searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
-                                searchHelpMsg.textContent = 'Ketik untuk mencari...';
-                                subcategoryList.appendChild(searchHelpMsg);
-
-                                let hasExactMatches = false;
-                                if (searchTerm) {
-                                    subcategories.forEach(item => {
-                                        const subcategoryName = item.subcategory_name || 'Tidak Diketahui';
-                                        if (subcategoryName.toLowerCase().startsWith(searchTerm.toLowerCase())) {
-                                            addSubcategoryOption(item, subcategoryName);
-                                            hasExactMatches = true;
-                                        }
-                                    });
-                                }
-
-                                if (!hasExactMatches) {
-                                    subcategories.forEach(item => {
-                                        const subcategoryName = item.subcategory_name || 'Tidak Diketahui';
-                                        if (!searchTerm || subcategoryName.toLowerCase().includes(searchTerm.toLowerCase())) {
-                                            addSubcategoryOption(item, subcategoryName);
-                                        }
-                                    });
-                                }
-
-                                if (subcategories.length > 10) {
-                                    const countItem = document.createElement('li');
-                                    countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
-                                    countItem.textContent = `Menampilkan ${Math.min(subcategories.length, 50)} dari ${subcategories.length} kategori`;
-                                    subcategoryList.appendChild(countItem);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Error loading subcategories:', error);
-
-                            subcategoryList.innerHTML = '';
-
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-
-                            if (error.name === 'AbortError') {
-                                errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
-                            } else {
-                                errorItem.textContent = `Gagal memuat kategori: ${error.message}`;
-                            }
-                            subcategoryList.appendChild(errorItem);
-
-                            const retryOption = document.createElement('li');
-                            retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
-                            retryOption.textContent = '🔄 Coba lagi';
-                            retryOption.addEventListener('click', function () {
-                                loadSubcategories(searchTerm, assetType);
-                            });
-                            subcategoryList.appendChild(retryOption);
-                            subcategorySearch.placeholder = "Gagal memuat kategori";
-                        }
-                    }
-
-                    function addSubcategoryOption(item, displayName) {
                         const li = document.createElement('li');
-                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                        li.textContent = displayName;
-                        li.setAttribute('data-id', item.subcategory_id);
-                        li.setAttribute('data-name', displayName);
+                        li.className = 'option px-4 py-2 hover:bg-gray-100 cursor-pointer text-[#666666]';
+                        li.textContent = category.subcategory_name || 'Unknown Category';
+                        li.setAttribute('data-value', category.subcategory_id || '');
+                        li.setAttribute('data-name', category.subcategory_name || '');
+                        li.setAttribute('data-type', category.asset_type || assetType);
+
                         li.addEventListener('click', function () {
-                            const displayText = this.getAttribute('data-name');
-                            const subcategoryId = this.getAttribute('data-id');
-                            selectedSubcategory.value = subcategoryId;
-                            subcategorySearch.value = displayText;
-                            subcategoryDropdown.classList.add('hidden');
+                            idInputElem.value = this.getAttribute('data-value');
+                            searchInputElem.value = this.getAttribute('data-name');
+                            document.getElementById('subcategory_dropdown').classList.add('hidden');
                         });
 
-                        subcategoryList.appendChild(li);
+                        resultsElem.appendChild(li);
+                        existingOptions.add(category.subcategory_id?.toString());
+                    });
+
+                    // Add loading indicator at the bottom for lazy loading
+                    if (isLazyLoad) {
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'loading-indicator p-2 text-xs text-gray-500 text-center';
+                        loadingDiv.textContent = 'Memuat kategori lainnya...';
+                        resultsElem.appendChild(loadingDiv);
+                    }
+
+                    // Add scrollable class if not already set
+                    if (!resultsElem.classList.contains('scrollable-dropdown')) {
+                        resultsElem.classList.add('scrollable-dropdown');
                     }
                 }
+
+                document.addEventListener('click', function (e) {
+                    if (!subcategorySearch.contains(e.target) && !subcategoryDropdown.contains(e.target)) {
+                        subcategoryDropdown.classList.add('hidden');
+                    }
+                });
 
                 function debounce(func, wait, immediate) {
                     let timeout;
@@ -759,14 +905,30 @@
                         selectedBuildingId.value = buildingValue;
                     }
 
-                    const showError = (message) => {
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = message || 'Gagal memuat gedung';
-                        buildingList.innerHTML = '';
-                        buildingList.appendChild(errorItem);
-                        searchInput.placeholder = "Gagal memuat gedung";
-                    };
+                    // Variables for lazy loading
+                    let page = 1;
+                    const perPage = 15;
+                    let isLoading = false;
+                    let hasMoreData = true;
+                    let allBuildings = [];
+                    let currentSearchTerm = '';
+
+                    // Remove any existing scroll event listeners
+                    dropdown.removeEventListener('scroll', buildingScrollHandler);
+
+                    // Scroll event handler for lazy loading
+                    function buildingScrollHandler() {
+                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                        // Load more data when user scrolls to 80% of the container
+                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                            page++;
+                            loadBuildingsPage(currentSearchTerm, page);
+                        }
+                    }
+
+                    // Add scroll event listener
+                    dropdown.addEventListener('scroll', buildingScrollHandler);
 
                     searchInput.addEventListener('focus', function () {
                         dropdown.classList.remove('hidden');
@@ -788,19 +950,58 @@
                     searchInput.addEventListener('input', debouncedSearch);
 
                     async function loadBuildings(searchTerm) {
+                        // Reset pagination variables
+                        page = 1;
+                        hasMoreData = true;
+                        allBuildings = [];
+                        currentSearchTerm = searchTerm;
+
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         buildingList.innerHTML = '';
+                        dropdown.classList.remove('hidden');
+
+                        await loadBuildingsPage(searchTerm, page);
+                    }
+
+                    async function loadBuildingsPage(searchTerm, pageNum) {
+                        if (isLoading) return;
+                        isLoading = true;
+
+                        // Show appropriate loading animation
+                        if (pageNum === 1) {
+                            if (loadingIndicator) {
+                                loadingIndicator.classList.remove('hidden');
+                            }
+                        } else {
+                            // Add a loading indicator at the bottom for subsequent pages
+                            const existingLoadingIndicator = buildingList.querySelector('.loading-indicator');
+                            if (!existingLoadingIndicator) {
+                                const bottomLoader = document.createElement('li');
+                                bottomLoader.className = 'loading-indicator flex justify-center py-2';
+                                bottomLoader.innerHTML = `
+                                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                    <span class="ml-2 text-gray-600">Memuat gedung lainnya...</span>
+                                `;
+                                buildingList.appendChild(bottomLoader);
+                            }
+                        }
 
                         try {
-                            const response = await fetch(`{{ route('buildings') }}${searchTerm ? '?search=' + encodeURIComponent(searchTerm) : ''}`, {
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 10000);
+                            const apiUrl = `{{ route('buildings') }}?search=${encodeURIComponent(searchTerm || '')}&page=${pageNum}&per_page=${perPage}&limit=${perPage}`;
+
+                            const response = await fetch(apiUrl, {
                                 headers: {
                                     'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            });
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Cache-Control': 'no-cache'
+                                },
+                                signal: controller.signal
+                            }).finally(() => clearTimeout(timeoutId));
 
                             if (!response.ok) {
-                                throw new Error('Failed to fetch buildings');
+                                throw new Error(`Failed to fetch buildings: ${response.status}`);
                             }
 
                             const contentType = response.headers.get('content-type');
@@ -808,20 +1009,80 @@
                                 throw new Error('Server returned HTML instead of JSON');
                             }
 
-                            const result = await response.json();
-                            let buildings = result.data || [];
+                            let result;
+                            try {
+                                result = await response.json();
+                            } catch (jsonError) {
+                                console.error('JSON parse error:', jsonError);
+                                throw new Error('Server returned invalid JSON');
+                            }
 
-                            buildingList.innerHTML = '';
+                            let buildings = [];
+                            let pagination = null;
 
-                            if (buildings.length === 0) {
+                            // Handle different API response formats
+                            if (result.buildings && Array.isArray(result.buildings)) {
+                                buildings = result.buildings;
+                                pagination = result.pagination || null;
+                            } else if (result.data && Array.isArray(result.data)) {
+                                buildings = result.data;
+                                pagination = result.pagination || result.meta || null;
+                            } else if (Array.isArray(result)) {
+                                buildings = result;
+                            }
+
+                            // Update all buildings array with new data
+                            allBuildings = [...allBuildings, ...buildings];
+
+                            // Check if we have more data to load
+                            if (pagination) {
+                                hasMoreData = pagination.current_page < pagination.last_page;
+                            } else {
+                                // If the API doesn't provide pagination info, we assume there's more data if we got a full page
+                                hasMoreData = buildings.length >= perPage;
+                            }
+
+                            // Clear the list on first page load
+                            if (pageNum === 1) {
+                                buildingList.innerHTML = '';
+                            } else {
+                                // Remove loading indicator from previous loads
+                                const loadingIndicator = buildingList.querySelector('.loading-indicator');
+                                if (loadingIndicator) {
+                                    loadingIndicator.remove();
+                                }
+                            }
+
+                            if (allBuildings.length === 0 && pageNum === 1) {
                                 const noResults = document.createElement('li');
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Tidak ada gedung ditemukan';
                                 buildingList.appendChild(noResults);
                             } else {
+                                // On first page, add search help message if needed
+                                if (pageNum === 1 && allBuildings.length > 5) {
+                                    const searchHelpMsg = document.createElement('li');
+                                    searchHelpMsg.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                                    searchHelpMsg.textContent = 'Ketik untuk mencari gedung...';
+                                    buildingList.appendChild(searchHelpMsg);
+                                }
+
+                                // Store existing options to avoid duplicates
+                                const existingOptions = new Set();
+                                const existingOptionElements = buildingList.querySelectorAll('.building-option');
+                                existingOptionElements.forEach(element => {
+                                    existingOptions.add(element.getAttribute('data-id'));
+                                });
+
+                                // Add new buildings to the list
                                 buildings.forEach(item => {
+                                    // Skip duplicates
+                                    if (existingOptions.has(item.building_id?.toString())) {
+                                        return;
+                                    }
+
                                     const li = document.createElement('li');
-                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer building-option';
 
                                     const buildingName = item.building_name || 'Tidak Diketahui';
 
@@ -874,13 +1135,74 @@
                                     });
 
                                     buildingList.appendChild(li);
+                                    existingOptions.add(item.building_id?.toString());
                                 });
+
+                                // Add loading indicator at the bottom for lazy loading
+                                if (hasMoreData) {
+                                    const loadingDiv = document.createElement('li');
+                                    loadingDiv.className = 'loading-indicator flex justify-center items-center py-2';
+                                    loadingDiv.innerHTML = `
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                        <span class="ml-2 text-gray-600">Memuat gedung lainnya...</span>
+                                    `;
+                                    buildingList.appendChild(loadingDiv);
+
+                                    // Force a scroll event check after adding new items to handle small results
+                                    setTimeout(() => {
+                                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                                        // If we're already near the bottom, load more
+                                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                                            page++;
+                                            loadBuildingsPage(currentSearchTerm, page);
+                                        }
+                                    }, 100);
+                                } else if (allBuildings.length > perPage) {
+                                    // Add "end of results" indicator
+                                    const endDiv = document.createElement('li');
+                                    endDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                                    endDiv.textContent = `Menampilkan semua ${allBuildings.length} gedung`;
+                                    buildingList.appendChild(endDiv);
+                                }
                             }
                         } catch (error) {
                             console.error('Error loading buildings:', error);
-                            showError(error.message);
+
+                            if (pageNum === 1) {
+                                buildingList.innerHTML = '';
+                                const errorItem = document.createElement('li');
+                                errorItem.className = 'px-4 py-2 text-red-500';
+                                if (error.name === 'AbortError') {
+                                    errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+                                } else {
+                                    errorItem.textContent = `Gagal memuat gedung: ${error.message}`;
+                                }
+                                buildingList.appendChild(errorItem);
+
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                                retryOption.textContent = '🔄 Coba lagi';
+                                retryOption.addEventListener('click', function () {
+                                    loadBuildings(searchTerm);
+                                });
+                                buildingList.appendChild(retryOption);
+                                searchInput.placeholder = "Gagal memuat gedung";
+                            } else {
+                                // For errors on subsequent pages, just add a retry button
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center text-red-700';
+                                retryOption.innerHTML = `Gagal memuat lebih banyak gedung. <span class="text-blue-600 cursor-pointer hover:underline">Coba lagi</span>`;
+                                retryOption.addEventListener('click', function () {
+                                    loadBuildingsPage(searchTerm, pageNum);
+                                });
+                                buildingList.appendChild(retryOption);
+                            }
                         } finally {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            isLoading = false;
+                            if (loadingIndicator && pageNum === 1) {
+                                loadingIndicator.classList.add('hidden');
+                            }
                         }
                     }
                 }
@@ -901,17 +1223,34 @@
                         searchInput.value = roomValue;
                         selectedRoomId.value = roomValue;
                         searchInput.disabled = false;
-                        searchInput.placeholder = 'Search rooms';
+                        searchInput.placeholder = 'Cari ruangan';
                     }
 
-                    const showError = (message) => {
-                        const errorItem = document.createElement('li');
-                        errorItem.className = 'px-4 py-2 text-red-500';
-                        errorItem.textContent = message || 'Gagal memuat ruangan';
-                        roomList.innerHTML = '';
-                        roomList.appendChild(errorItem);
-                        searchInput.placeholder = "Gagal memuat ruangan";
-                    };
+                    // Variables for lazy loading
+                    let page = 1;
+                    const perPage = 15;
+                    let isLoading = false;
+                    let hasMoreData = true;
+                    let allRooms = [];
+                    let currentSearchTerm = '';
+                    let currentBuildingId = '';
+
+                    // Remove any existing scroll event listeners
+                    dropdown.removeEventListener('scroll', roomScrollHandler);
+
+                    // Scroll event handler for lazy loading
+                    function roomScrollHandler() {
+                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                        // Load more data when user scrolls to 80% of the container
+                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                            page++;
+                            loadRoomsPage(currentSearchTerm, currentBuildingId, page);
+                        }
+                    }
+
+                    // Add scroll event listener
+                    dropdown.addEventListener('scroll', roomScrollHandler);
 
                     searchInput.addEventListener('focus', function () {
                         if (!selectedBuildingId.value) {
@@ -938,13 +1277,20 @@
 
                     searchInput.addEventListener('input', debouncedSearch);
 
-                    async function loadRooms(searchTerm, buildingId) {
+                    function loadRooms(searchTerm, buildingId) {
                         if (!buildingId) {
                             searchInput.value = '';
                             searchInput.placeholder = 'Pilih gedung terlebih dahulu';
                             searchInput.disabled = true;
                             return;
                         }
+
+                        // Reset pagination variables
+                        page = 1;
+                        hasMoreData = true;
+                        allRooms = [];
+                        currentSearchTerm = searchTerm;
+                        currentBuildingId = buildingId;
 
                         searchInput.disabled = false;
                         searchInput.placeholder = "Cari ruangan...";
@@ -954,8 +1300,36 @@
 
                         if (dropdown) dropdown.classList.remove('hidden');
 
+                        loadRoomsPage(searchTerm, buildingId, page);
+                    }
+
+                    async function loadRoomsPage(searchTerm, buildingId, pageNum) {
+                        if (isLoading || !buildingId) return;
+                        isLoading = true;
+
+                        // Show appropriate loading animation
+                        if (pageNum === 1) {
+                            if (loadingIndicator) {
+                                loadingIndicator.classList.remove('hidden');
+                            }
+                        } else {
+                            // Add a loading indicator at the bottom for subsequent pages
+                            const existingLoadingIndicator = roomList.querySelector('.loading-indicator');
+                            if (!existingLoadingIndicator) {
+                                const bottomLoader = document.createElement('li');
+                                bottomLoader.className = 'loading-indicator flex justify-center py-2';
+                                bottomLoader.innerHTML = `
+                                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                    <span class="ml-2 text-gray-600">Memuat ruangan lainnya...</span>
+                                `;
+                                roomList.appendChild(bottomLoader);
+                            }
+                        }
+
                         try {
-                            const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}`;
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 10000);
+                            const apiUrl = `{{ route('rooms') }}?building_id=${encodeURIComponent(buildingId)}&search=${encodeURIComponent(searchTerm || '')}&page=${pageNum}&per_page=${perPage}&limit=${perPage}`;
 
                             const response = await fetch(apiUrl, {
                                 headers: {
@@ -963,8 +1337,9 @@
                                     'X-Requested-With': 'XMLHttpRequest',
                                     'Cache-Control': 'no-cache'
                                 },
+                                signal: controller.signal,
                                 credentials: 'same-origin'
-                            });
+                            }).finally(() => clearTimeout(timeoutId));
 
                             if (!response.ok) {
                                 throw new Error(`Failed to fetch rooms: ${response.status} ${response.statusText}`);
@@ -975,105 +1350,169 @@
                                 throw new Error('Server returned non-JSON response');
                             }
 
-                            const result = await response.json();
+                            let result;
+                            try {
+                                result = await response.json();
+                            } catch (jsonError) {
+                                console.error('JSON parse error:', jsonError);
+                                throw new Error('Server returned invalid JSON');
+                            }
 
                             let rooms = [];
+                            let pagination = null;
+
+                            // Handle different API response formats
                             if (Array.isArray(result)) {
                                 rooms = result;
                             } else if (result.data && Array.isArray(result.data)) {
                                 rooms = result.data;
+                                pagination = result.pagination || result.meta || null;
                             } else if (result.rooms && Array.isArray(result.rooms)) {
                                 rooms = result.rooms;
+                                pagination = result.pagination || null;
                             } else {
                                 console.error('Unexpected API response format:', result);
                             }
 
-                            roomList.innerHTML = '';
+                            // Update all rooms array with new data
+                            allRooms = [...allRooms, ...rooms];
 
-                            if (rooms.length === 0) {
+                            // Check if we have more data to load
+                            if (pagination) {
+                                hasMoreData = pagination.current_page < pagination.last_page;
+                            } else {
+                                // If the API doesn't provide pagination info, we assume there's more data if we got a full page
+                                hasMoreData = rooms.length >= perPage;
+                            }
+
+                            // Clear the list on first page load
+                            if (pageNum === 1) {
+                                roomList.innerHTML = '';
+                            } else {
+                                // Remove loading indicator from previous loads
+                                const loadingIndicator = roomList.querySelector('.loading-indicator');
+                                if (loadingIndicator) {
+                                    loadingIndicator.remove();
+                                }
+                            }
+
+                            if (allRooms.length === 0 && pageNum === 1) {
                                 const noResults = document.createElement('li');
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Tidak ada ruangan ditemukan untuk gedung ini';
                                 roomList.appendChild(noResults);
                             } else {
-                                if (rooms.length > 5) {
+                                // On first page, add search help message if needed
+                                if (pageNum === 1 && allRooms.length > 5) {
                                     const searchHelpMsg = document.createElement('li');
-                                    searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
-                                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                                    searchHelpMsg.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                                    searchHelpMsg.textContent = 'Ketik untuk mencari ruangan...';
                                     roomList.appendChild(searchHelpMsg);
                                 }
 
-                                let exactMatches = 0;
-                                if (searchTerm) {
-                                    rooms.forEach(item => {
-                                        const roomName = item.room_name || item.name || 'Tidak Diketahui';
-                                        if (roomName.toLowerCase().startsWith(searchTerm.toLowerCase())) {
-                                            addRoomOption(item, roomName);
-                                            exactMatches++;
-                                        }
-                                    });
-                                }
-
-                                rooms.forEach(item => {
-                                    const roomName = item.room_name || item.name || 'Tidak Diketahui';
-                                    if (!searchTerm ||
-                                        (!roomName.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
-                                            roomName.toLowerCase().includes(searchTerm.toLowerCase()))) {
-                                        addRoomOption(item, roomName);
-                                    }
+                                // Store existing options to avoid duplicates
+                                const existingOptions = new Set();
+                                const existingOptionElements = roomList.querySelectorAll('.room-option');
+                                existingOptionElements.forEach(element => {
+                                    existingOptions.add(element.getAttribute('data-id'));
                                 });
 
-                                if (rooms.length > 10) {
-                                    const countItem = document.createElement('li');
-                                    countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
-                                    countItem.textContent = `Menampilkan ${Math.min(rooms.length, 50)} dari ${rooms.length} ruangan`;
-                                    roomList.appendChild(countItem);
+                                // Add new rooms to the list
+                                rooms.forEach(item => {
+                                    const roomId = item.room_id || item.id || '';
+                                    const roomName = item.room_name || item.name || 'Tidak Diketahui';
+
+                                    if (!roomId) {
+                                        console.warn('Room missing required properties:', item);
+                                        return;
+                                    }
+
+                                    // Skip duplicates
+                                    if (existingOptions.has(roomId.toString())) {
+                                        return;
+                                    }
+
+                                    const li = document.createElement('li');
+                                    li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer room-option';
+                                    li.textContent = roomName;
+                                    li.setAttribute('data-id', roomId);
+                                    li.setAttribute('data-name', roomName);
+
+                                    li.addEventListener('click', function () {
+                                        selectedRoomId.value = this.getAttribute('data-id');
+                                        searchInput.value = this.getAttribute('data-name');
+                                        dropdown.classList.add('hidden');
+                                    });
+
+                                    roomList.appendChild(li);
+                                    existingOptions.add(roomId.toString());
+                                });
+
+                                // Add loading indicator at the bottom for lazy loading
+                                if (hasMoreData) {
+                                    const loadingDiv = document.createElement('li');
+                                    loadingDiv.className = 'loading-indicator flex justify-center items-center py-2';
+                                    loadingDiv.innerHTML = `
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                        <span class="ml-2 text-gray-600">Memuat ruangan lainnya...</span>
+                                    `;
+                                    roomList.appendChild(loadingDiv);
+
+                                    // Force a scroll event check after adding new items to handle small results
+                                    setTimeout(() => {
+                                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                                        // If we're already near the bottom, load more
+                                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                                            page++;
+                                            loadRoomsPage(currentSearchTerm, currentBuildingId, page);
+                                        }
+                                    }, 100);
+                                } else if (allRooms.length > perPage) {
+                                    // Add "end of results" indicator
+                                    const endDiv = document.createElement('li');
+                                    endDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                                    endDiv.textContent = `Menampilkan semua ${allRooms.length} ruangan`;
+                                    roomList.appendChild(endDiv);
                                 }
                             }
                         } catch (error) {
                             console.error('Error loading rooms:', error);
-                            roomList.innerHTML = '';
 
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-                            errorItem.textContent = `Error: ${error.message}`;
-                            roomList.appendChild(errorItem);
+                            if (pageNum === 1) {
+                                roomList.innerHTML = '';
+                                const errorItem = document.createElement('li');
+                                errorItem.className = 'px-4 py-2 text-red-500';
+                                if (error.name === 'AbortError') {
+                                    errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+                                } else {
+                                    errorItem.textContent = `Error: ${error.message}`;
+                                }
+                                roomList.appendChild(errorItem);
 
-                            const retryOption = document.createElement('li');
-                            retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
-                            retryOption.textContent = '🔄 Coba lagi';
-                            retryOption.addEventListener('click', function () {
-                                loadRooms(searchTerm, buildingId);
-                            });
-                            roomList.appendChild(retryOption);
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                                retryOption.textContent = '🔄 Coba lagi';
+                                retryOption.addEventListener('click', function () {
+                                    loadRooms(currentSearchTerm, currentBuildingId);
+                                });
+                                roomList.appendChild(retryOption);
+                            } else {
+                                // For errors on subsequent pages, just add a retry button
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center text-red-700';
+                                retryOption.innerHTML = `Gagal memuat lebih banyak ruangan. <span class="text-blue-600 cursor-pointer hover:underline">Coba lagi</span>`;
+                                retryOption.addEventListener('click', function () {
+                                    loadRoomsPage(currentSearchTerm, currentBuildingId, pageNum);
+                                });
+                                roomList.appendChild(retryOption);
+                            }
                         } finally {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            isLoading = false;
+                            if (loadingIndicator && pageNum === 1) {
+                                loadingIndicator.classList.add('hidden');
+                            }
                         }
-                    }
-
-                    function addRoomOption(item, displayName) {
-                        const li = document.createElement('li');
-                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-
-                        const roomId = item.room_id || item.id || '';
-
-                        if (!roomId) {
-                            console.warn('Room missing required properties:', item);
-                            return;
-                        }
-
-                        li.textContent = displayName;
-                        li.setAttribute('data-id', roomId);
-                        li.setAttribute('data-name', displayName);
-
-                        li.addEventListener('click', function () {
-                            selectedRoomId.value = this.getAttribute('data-id');
-                            searchInput.value = this.getAttribute('data-name');
-
-                            dropdown.classList.add('hidden');
-                        });
-
-                        roomList.appendChild(li);
                     }
                 }
 
@@ -1112,14 +1551,72 @@
 
                     searchInput.addEventListener('input', debouncedSearch);
 
+                    // Variables for lazy loading
+                    let page = 1;
+                    const perPage = 15;
+                    let isLoading = false;
+                    let hasMoreData = true;
+                    let allAssets = [];
+                    let currentSearchTerm = '';
+
+                    // Remove any existing scroll event listeners
+                    dropdown.removeEventListener('scroll', assetMasterScrollHandler);
+
+                    // Scroll event handler for lazy loading
+                    function assetMasterScrollHandler() {
+                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                        // Load more data when user scrolls to 80% of the container
+                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                            page++;
+                            loadAssetMastersPage(currentSearchTerm, page);
+                        }
+                    }
+
+                    // Add scroll event listener
+                    dropdown.addEventListener('scroll', assetMasterScrollHandler);
+
                     async function loadAssetMasters(searchTerm) {
+                        // Reset pagination variables
+                        page = 1;
+                        hasMoreData = true;
+                        allAssets = [];
+                        currentSearchTerm = searchTerm;
+
                         if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                         assetList.innerHTML = '';
+                        dropdown.classList.remove('hidden');
+
+                        await loadAssetMastersPage(searchTerm, page);
+                    }
+
+                    async function loadAssetMastersPage(searchTerm, pageNum) {
+                        if (isLoading) return;
+                        isLoading = true;
+
+                        // Show appropriate loading animation
+                        if (pageNum === 1) {
+                            if (loadingIndicator) {
+                                loadingIndicator.classList.remove('hidden');
+                            }
+                        } else {
+                            // Add a loading indicator at the bottom for subsequent pages
+                            const existingLoadingIndicator = assetList.querySelector('.loading-indicator');
+                            if (!existingLoadingIndicator) {
+                                const bottomLoader = document.createElement('li');
+                                bottomLoader.className = 'loading-indicator flex justify-center py-2';
+                                bottomLoader.innerHTML = `
+                                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                    <span class="ml-2 text-gray-600">Memuat aset lainnya...</span>
+                                `;
+                                assetList.appendChild(bottomLoader);
+                            }
+                        }
 
                         try {
                             const controller = new AbortController();
                             const timeoutId = setTimeout(() => controller.abort(), 10000);
-                            const apiUrl = `{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}&is_depreciable=true`;
+                            const apiUrl = `{{ route('asset-master') }}?search=${encodeURIComponent(searchTerm || '')}&is_depreciable=true&page=${pageNum}&per_page=${perPage}&limit=${perPage}`;
 
                             const response = await fetch(apiUrl, {
                                 headers: {
@@ -1142,76 +1639,144 @@
                                 throw new Error('Server returned invalid JSON');
                             }
 
-                            let assetMasters = result.masterAssets || [];
+                            let assetMasters = [];
+                            let pagination = null;
 
-                            assetList.innerHTML = '';
+                            // Handle different API response formats
+                            if (result.masterAssets && Array.isArray(result.masterAssets)) {
+                                assetMasters = result.masterAssets;
+                                pagination = result.pagination || null;
+                            } else if (result.data && Array.isArray(result.data)) {
+                                assetMasters = result.data;
+                                pagination = result.pagination || result.meta || null;
+                            } else if (Array.isArray(result)) {
+                                assetMasters = result;
+                            }
 
-                            if (assetMasters.length === 0) {
+                            // Update all assets array with new data
+                            allAssets = [...allAssets, ...assetMasters];
+
+                            // Check if we have more data to load
+                            if (pagination) {
+                                hasMoreData = pagination.current_page < pagination.last_page;
+                            } else {
+                                // If the API doesn't provide pagination info, we assume there's more data if we got a full page
+                                hasMoreData = assetMasters.length >= perPage;
+                            }
+
+                            // Clear the list on first page load
+                            if (pageNum === 1) {
+                                assetList.innerHTML = '';
+                            } else {
+                                // Remove loading indicator from previous loads
+                                const loadingIndicator = assetList.querySelector('.loading-indicator');
+                                if (loadingIndicator) {
+                                    loadingIndicator.remove();
+                                }
+                            }
+
+                            if (allAssets.length === 0 && pageNum === 1) {
                                 const noResults = document.createElement('li');
                                 noResults.className = 'px-4 py-2 text-gray-500 italic';
                                 noResults.textContent = 'Tidak ada aset yang dapat disusutkan ditemukan';
                                 assetList.appendChild(noResults);
                             } else {
-                                if (assetMasters.length > 5) {
+                                // On first page, add search help message if needed
+                                if (pageNum === 1 && allAssets.length > 5) {
                                     const searchHelpMsg = document.createElement('li');
-                                    searchHelpMsg.className = 'px-4 py-2 text-gray-500 italic text-center';
-                                    searchHelpMsg.textContent = 'Ketik untuk mencari...';
+                                    searchHelpMsg.className = 'dropdown-header p-2 text-sm font-medium text-gray-600 border-b sticky top-0 bg-white z-10';
+                                    searchHelpMsg.textContent = 'Ketik untuk mencari aset...';
                                     assetList.appendChild(searchHelpMsg);
                                 }
 
-                                let exactMatches = 0;
-                                if (searchTerm) {
-                                    assetMasters.forEach(item => {
-                                        const assetMasterName = item.asset_name || 'Unknown';
-                                        if (assetMasterName.toLowerCase().startsWith(searchTerm.toLowerCase())) {
-                                            addAssetMasterOption(item);
-                                            exactMatches++;
-                                        }
-                                    });
-                                }
-                                assetMasters.forEach(item => {
-                                    const assetMasterName = item.asset_name || 'Unknown';
-                                    if (!searchTerm ||
-                                        (!assetMasterName.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
-                                            assetMasterName.toLowerCase().includes(searchTerm.toLowerCase()))) {
-                                        addAssetMasterOption(item);
-                                    }
+                                // Store existing options to avoid duplicates
+                                const existingOptions = new Set();
+                                const existingOptionElements = assetList.querySelectorAll('.asset-option');
+                                existingOptionElements.forEach(element => {
+                                    existingOptions.add(element.getAttribute('data-id'));
                                 });
 
-                                if (assetMasters.length > 10) {
-                                    const countItem = document.createElement('li');
-                                    countItem.className = 'px-4 py-2 text-xs text-center text-gray-500 border-t';
-                                    countItem.textContent = `Menampilkan ${Math.min(assetMasters.length, 50)} dari ${assetMasters.length} aset`;
-                                    assetList.appendChild(countItem);
+                                // Add new assets to the list
+                                assetMasters.forEach(item => {
+                                    // Skip duplicates
+                                    if (existingOptions.has(item.asset_master_id?.toString())) {
+                                        return;
+                                    }
+                                    addAssetMasterOption(item);
+                                    existingOptions.add(item.asset_master_id?.toString());
+                                });
+
+                                // Add loading indicator at the bottom for lazy loading
+                                if (hasMoreData) {
+                                    const loadingDiv = document.createElement('li');
+                                    loadingDiv.className = 'loading-indicator flex justify-center items-center py-2';
+                                    loadingDiv.innerHTML = `
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#213268]"></div>
+                                        <span class="ml-2 text-gray-600">Memuat aset lainnya...</span>
+                                    `;
+                                    assetList.appendChild(loadingDiv);
+
+                                    // Force a scroll event check after adding new items to handle small results
+                                    setTimeout(() => {
+                                        const { scrollTop, scrollHeight, clientHeight } = dropdown;
+
+                                        // If we're already near the bottom, load more
+                                        if (scrollTop + clientHeight >= scrollHeight * 0.8 && hasMoreData && !isLoading) {
+                                            page++;
+                                            loadAssetMastersPage(currentSearchTerm, page);
+                                        }
+                                    }, 100);
+                                } else if (allAssets.length > perPage) {
+                                    // Add "end of results" indicator
+                                    const endDiv = document.createElement('li');
+                                    endDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
+                                    endDiv.textContent = `Menampilkan semua ${allAssets.length} aset`;
+                                    assetList.appendChild(endDiv);
                                 }
                             }
                         } catch (error) {
                             console.error('Error loading asset masters:', error);
-                            assetList.innerHTML = '';
-                            const errorItem = document.createElement('li');
-                            errorItem.className = 'px-4 py-2 text-red-500';
-                            if (error.name === 'AbortError') {
-                                errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+
+                            if (pageNum === 1) {
+                                assetList.innerHTML = '';
+                                const errorItem = document.createElement('li');
+                                errorItem.className = 'px-4 py-2 text-red-500';
+                                if (error.name === 'AbortError') {
+                                    errorItem.textContent = 'Permintaan timeout. Server tidak merespon dalam waktu yang ditentukan.';
+                                } else {
+                                    errorItem.textContent = `Gagal memuat aset yang dapat disusutkan: ${error.message}`;
+                                }
+                                assetList.appendChild(errorItem);
+
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
+                                retryOption.textContent = '🔄 Coba lagi';
+                                retryOption.addEventListener('click', function () {
+                                    loadAssetMasters(searchTerm);
+                                });
+                                assetList.appendChild(retryOption);
+                                searchInput.placeholder = "Gagal memuat aset yang dapat disusutkan";
                             } else {
-                                errorItem.textContent = `Gagal memuat aset yang dapat disusutkan: ${error.message}`;
+                                // For errors on subsequent pages, just add a retry button
+                                const retryOption = document.createElement('li');
+                                retryOption.className = 'px-4 py-2 text-center text-red-700';
+                                retryOption.innerHTML = `Gagal memuat lebih banyak aset. <span class="text-blue-600 cursor-pointer hover:underline">Coba lagi</span>`;
+                                retryOption.addEventListener('click', function () {
+                                    loadAssetMastersPage(searchTerm, pageNum);
+                                });
+                                assetList.appendChild(retryOption);
                             }
-                            assetList.appendChild(errorItem);
-                            const retryOption = document.createElement('li');
-                            retryOption.className = 'px-4 py-2 text-center bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100';
-                            retryOption.textContent = '🔄 Coba lagi';
-                            retryOption.addEventListener('click', function () {
-                                loadAssetMasters(searchTerm);
-                            });
-                            assetList.appendChild(retryOption);
-                            searchInput.placeholder = "Gagal memuat aset yang dapat disusutkan";
                         } finally {
-                            if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                            isLoading = false;
+                            if (loadingIndicator && pageNum === 1) {
+                                loadingIndicator.classList.add('hidden');
+                            }
                         }
                     }
 
                     function addAssetMasterOption(item) {
                         const li = document.createElement('li');
-                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                        li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer asset-option';
 
                         const assetMasterName = item.asset_name || 'Unknown';
                         const assetMasterCode = item.asset_master_code || '';
@@ -1264,7 +1829,17 @@
                         }
 
                         const asOfDateInput = document.querySelector('input[name="as_of_date"]');
-                        if (asOfDateInput) {
+                        if (asOfDateInput && asOfDateInput._flatpickr) {
+                            // Use selected date from flatpickr if available
+                            const yearMonthInput = document.createElement('input');
+                            yearMonthInput.type = 'hidden';
+                            yearMonthInput.name = 'year_month';
+                            yearMonthInput.value = asOfDateInput._flatpickr.selectedDates.length > 0 ?
+                                asOfDateInput._flatpickr.formatDate(asOfDateInput._flatpickr.selectedDates[0], 'Y-m') :
+                                asOfDateInput.value;
+                            this.appendChild(yearMonthInput);
+                        } else if (asOfDateInput) {
+                            // Fallback to input value
                             const yearMonthInput = document.createElement('input');
                             yearMonthInput.type = 'hidden';
                             yearMonthInput.name = 'year_month';

@@ -90,7 +90,7 @@
                                 </tr>
                             </thead>
                             <tbody id="complaintsTableBody">
-                                @forelse($complaints as $complaint)
+                                @forelse($complaints ?? [] as $complaint)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex flex-col">

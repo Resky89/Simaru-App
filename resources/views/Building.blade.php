@@ -149,7 +149,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($buildings as $building)
+                                @forelse($buildings ?? [] as $building)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['building_name'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $building['address'] }}</td>

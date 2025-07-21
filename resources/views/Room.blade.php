@@ -156,7 +156,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($rooms as $room)
+                                @forelse($rooms ?? [] as $room)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['room_name'] ?? '-'}}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $room['building_name'] ?? '-' }}

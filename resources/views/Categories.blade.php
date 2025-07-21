@@ -115,7 +115,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($subcategories as $subcategory)
+                                @forelse($subcategories ?? [] as $subcategory)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @if($subcategory['asset_type'] == 'medical')

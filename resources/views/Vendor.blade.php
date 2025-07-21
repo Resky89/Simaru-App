@@ -200,7 +200,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($vendors as $vendor)
+                                @forelse($vendors ?? [] as $vendor)
                                     <tr>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['vendor_name'] }}</td>
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $vendor['contact_person'] }}</td>
