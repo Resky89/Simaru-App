@@ -67,8 +67,8 @@
                         <div id="procurement_dropdown"
                             class="absolute z-10 top-[45px] left-0 right-0 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                             <!-- Loading indicator -->
-                            <div id="procurement_loading" class="flex justify-center py-2">
-                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            <div id="procurement_loading" class="p-2 text-gray-500 text-center">
+                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                                     </circle>
@@ -76,8 +76,21 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
+                                <span>Memuat Permintaan...</span>
                             </div>
-                            <ul id="procurement_list" class="max-h-56 overflow-y-auto"></ul>
+                            <ul id="procurement_list" class="py-1"></ul>
+                            <!-- Load more indicator -->
+                            <div id="procurement_load_more" class="p-2 text-gray-500 text-center hidden">
+                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                    </circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <span>Memuat lebih banyak...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -543,10 +556,21 @@
                 };
             }
 
+            // Helper function to create dropdown items
+            function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                const li = document.createElement('li');
+                li.className = className;
+                li.textContent = text;
+                return li;
+            }
+
             requestNumber.addEventListener('focus', function () {
                 if (!isEditMode) {
                     procurementDropdown.classList.remove('hidden');
                     if (procurementList.children.length === 0) {
+                        // Reset pagination
+                        procurementList.dataset.page = "1";
+                        procurementList.dataset.hasMoreData = "true";
                         loadProcurements('');
                     }
                 }
@@ -555,6 +579,18 @@
             document.addEventListener('click', function (e) {
                 if (!requestNumber.contains(e.target) && !procurementDropdown.contains(e.target) && !searchBtn.contains(e.target)) {
                     procurementDropdown.classList.add('hidden');
+                }
+            });
+
+            // Add scroll event listener for lazy loading
+            procurementDropdown.addEventListener('scroll', function () {
+                // Check if we're already loading or if there's no more data
+                if (procurementList.dataset.loading === "true" || procurementList.dataset.hasMoreData === "false") return;
+
+                const { scrollTop, scrollHeight, clientHeight } = procurementDropdown;
+                // When user is near the bottom (20px threshold)
+                if (scrollTop + clientHeight >= scrollHeight - 20) {
+                    loadProcurements(procurementList.dataset.searchTerm || '');
                 }
             });
 
@@ -567,11 +603,31 @@
             requestNumber.addEventListener('input', debouncedSearch);
 
             async function loadProcurements(searchTerm) {
-                if (procurementLoading) procurementLoading.classList.remove('hidden');
-                procurementList.innerHTML = '';
+                // Setup for lazy loading
+                let page = procurementList.dataset.page ? parseInt(procurementList.dataset.page) : 1;
+                let isLoading = procurementList.dataset.loading === "true";
+                let hasMoreData = procurementList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || procurementList.dataset.searchTerm !== searchTerm;
+                const loadMoreIndicator = document.getElementById('procurement_load_more');
+
+                // Save current search term
+                procurementList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                procurementList.dataset.loading = "true";
+
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (procurementLoading) procurementLoading.classList.remove('hidden');
+                    procurementList.innerHTML = '';
+                } else {
+                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                }
 
                 try {
-                    const response = await fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(searchTerm)}&status=approved`);
+                    const response = await fetch(`{{ route('procurement.search') }}?search=${encodeURIComponent(searchTerm || '')}&status=approved&page=${page}&limit=20`);
 
                     if (!response.ok) {
                         throw new Error('Gagal mengambil daftar permintaan');
@@ -580,7 +636,7 @@
                     const result = await response.json();
                     let procurements = result.data || [];
 
-                    const comparisonResponse = await fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
+                    const comparisonResponse = await fetch(`{{ route("procurement.price-comparison") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm || '')}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -613,13 +669,15 @@
                         !procurementsWithComparisons.has(procurement.procurement_id)
                     );
 
-                    procurementList.innerHTML = '';
+                    // Check if we have more data to load
+                    hasMoreData = filteredProcurements.length === 20;
 
-                    if (filteredProcurements.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada permintaan yang tersedia untuk perbandingan harga';
-                        procurementList.appendChild(noResults);
+                    // Save next page number and has more data state
+                    procurementList.dataset.page = page + 1;
+                    procurementList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (filteredProcurements.length === 0 && procurementList.children.length === 0) {
+                        procurementList.appendChild(createDropdownItem('Tidak ada permintaan yang tersedia untuk perbandingan harga', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         filteredProcurements.forEach(procurement => {
                             if (procurement.status && procurement.status.toLowerCase() !== 'approved') {
@@ -629,9 +687,25 @@
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            const displayText = procurement.procurement_code || '';
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'procurement-item';
 
-                            li.textContent = displayText;
+                            const codeSpan = document.createElement('div');
+                            codeSpan.className = 'code text-black font-medium';
+                            codeSpan.textContent = procurement.procurement_code || '';
+                            itemContainer.appendChild(codeSpan);
+
+                            // Use procurement_name or title, whichever is available
+                            const procurementTitle = procurement.procurement_name || procurement.title || '';
+                            if (procurementTitle) {
+                                const nameSpan = document.createElement('div');
+                                nameSpan.className = 'name text-gray-500 text-sm';
+                                nameSpan.textContent = procurementTitle;
+                                itemContainer.appendChild(nameSpan);
+                            }
+
+                            li.appendChild(itemContainer);
+
                             li.setAttribute('data-id', procurement.procurement_id);
                             li.setAttribute('data-code', procurement.procurement_code);
                             li.setAttribute('data-name', procurement.procurement_name || '');
@@ -643,6 +717,10 @@
                                 requestNumber.value = this.getAttribute('data-code');
                                 formHasBeenFilled = true;
                                 procurementDropdown.classList.add('hidden');
+
+                                // Update the displayed values immediately without waiting for fetch
+                                document.getElementById('displayRequestNumber').textContent = this.getAttribute('data-code') || '';
+                                document.getElementById('displayRequestName').textContent = this.getAttribute('data-name') || '';
                             });
 
                             procurementList.appendChild(li);
@@ -650,12 +728,14 @@
                     }
                 } catch (error) {
                     console.error('Error loading procurement requests:', error);
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Gagal memuat daftar permintaan';
-                    procurementList.appendChild(errorItem);
+                    if (procurementList.children.length === 0) {
+                        procurementList.appendChild(createDropdownItem('Gagal memuat daftar permintaan', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    procurementList.dataset.loading = "false";
                     if (procurementLoading) procurementLoading.classList.add('hidden');
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
 
@@ -969,27 +1049,53 @@
             });
 
             document.head.insertAdjacentHTML('beforeend', `
-                            <style>
-                                @keyframes slideInRight {
-                                    from { transform: translateX(100%); }
-                                    to { transform: translateX(0); }
-                                }
-                                .animate-slide-in-right {
-                                    animation: slideInRight 0.3s ease-out forwards;
-                                }
+                <style>
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); }
+                        to { transform: translateX(0); }
+                    }
+                    .animate-slide-in-right {
+                        animation: slideInRight 0.3s ease-out forwards;
+                    }
 
-                                .error-message ul {
-                                    margin-top: 0.5rem;
-                                    padding-left: 1.5rem;
-                                }
-                                .error-message ul li {
-                                    margin-bottom: 0.25rem;
-                                }
-                                .error-message ul li:last-child {
-                                    margin-bottom: 0;
-                                }
-                            </style>
-                        `);
+                    .error-message ul {
+                        margin-top: 0.5rem;
+                        padding-left: 1.5rem;
+                    }
+                    .error-message ul li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .error-message ul li:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    /* Procurement dropdown styles */
+                    .procurement-item {
+                        display: flex;
+                        flex-direction: column;
+                        padding: 2px 0;
+                    }
+                    .procurement-item .code {
+                        font-weight: 500;
+                        color: #000;
+                        margin-bottom: 2px;
+                    }
+                    .procurement-item .name {
+                        font-size: 0.8rem;
+                        color: #666;
+                        line-height: 1.2;
+                    }
+
+                    /* Animation for new items */
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(5px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    #procurement_list li {
+                        animation: fadeIn 0.2s ease-out forwards;
+                    }
+                </style>
+            `);
         });
     </script>
 @endpush

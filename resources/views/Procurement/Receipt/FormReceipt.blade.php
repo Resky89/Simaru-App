@@ -65,17 +65,30 @@
                             <div id="users_dropdown"
                                 class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                                 <!-- Loading indicator -->
-                                <div id="users_loading" class="flex justify-center py-2 hidden">
-                                    <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24">
+                                <div id="users_loading" class="p-2 text-gray-500 text-center">
+                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                             stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor"
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                         </path>
                                     </svg>
+                                    <span>Memuat Pengguna...</span>
                                 </div>
-                                <ul id="users_list" class="max-h-56 overflow-y-auto"></ul>
+                                <ul id="users_list" class="py-1"></ul>
+                                <!-- Load more indicator -->
+                                <div id="users_load_more" class="p-2 text-gray-500 text-center hidden">
+                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                        </path>
+                                    </svg>
+                                    <span>Memuat lebih banyak...</span>
+                                </div>
                             </div>
                         </div>
                         <div class="error-message text-red-500 text-sm mt-1 hidden">Penerima harus dipilih dari
@@ -108,8 +121,8 @@
                         <div id="po_dropdown"
                             class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                             <!-- Loading indicator -->
-                            <div id="po_loading" class="flex justify-center py-2">
-                                <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            <div id="po_loading" class="p-2 text-gray-500 text-center">
+                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                                     </circle>
@@ -117,8 +130,21 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
+                                <span>Memuat Pemesanan...</span>
                             </div>
-                            <ul id="po_list" class="max-h-56 overflow-y-auto"></ul>
+                            <ul id="po_list" class="py-1"></ul>
+                            <!-- Load more indicator -->
+                            <div id="po_load_more" class="p-2 text-gray-500 text-center hidden">
+                                <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                    </circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <span>Memuat lebih banyak...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,41 +328,41 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                                .swal2-popup {
-                                    border-radius: 15px;
-                                    padding: 1.5rem;
-                                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                                }
-                                .swal-custom-title {
-                                    font-weight: 600;
-                                    font-size: 1.5rem;
-                                    color: #333;
-                                }
-                                .swal-custom-content {
-                                    font-size: 1rem;
-                                    color: #555;
-                                    margin-top: 0.5rem;
-                                }
-                                .swal-custom-content ul {
-                                    text-align: left;
-                                    margin-top: 1rem;
-                                    margin-bottom: 1rem;
-                                }
-                                .swal-custom-confirm {
-                                    padding: 0.5rem 1.5rem;
-                                    font-weight: 500;
-                                }
-                                .swal-custom-cancel {
-                                    padding: 0.5rem 1.5rem;
-                                    font-weight: 500;
-                                }
-                                .swal2-timer-progress-bar {
-                                    background: rgba(33, 50, 104, 0.5);
-                                }
-                                .swal2-icon {
-                                    margin: 1rem auto;
-                                }
-                            `;
+                                        .swal2-popup {
+                                            border-radius: 15px;
+                                            padding: 1.5rem;
+                                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                        }
+                                        .swal-custom-title {
+                                            font-weight: 600;
+                                            font-size: 1.5rem;
+                                            color: #333;
+                                        }
+                                        .swal-custom-content {
+                                            font-size: 1rem;
+                                            color: #555;
+                                            margin-top: 0.5rem;
+                                        }
+                                        .swal-custom-content ul {
+                                            text-align: left;
+                                            margin-top: 1rem;
+                                            margin-bottom: 1rem;
+                                        }
+                                        .swal-custom-confirm {
+                                            padding: 0.5rem 1.5rem;
+                                            font-weight: 500;
+                                        }
+                                        .swal-custom-cancel {
+                                            padding: 0.5rem 1.5rem;
+                                            font-weight: 500;
+                                        }
+                                        .swal2-timer-progress-bar {
+                                            background: rgba(33, 50, 104, 0.5);
+                                        }
+                                        .swal2-icon {
+                                            margin: 1rem auto;
+                                        }
+                                    `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -373,6 +399,9 @@
             purchaseOrderNumber.addEventListener('focus', function () {
                 poDropdown.classList.remove('hidden');
                 if (poList.children.length === 0) {
+                    // Reset pagination
+                    poList.dataset.page = "1";
+                    poList.dataset.hasMoreData = "true";
                     loadPurchaseOrders('');
                 }
             });
@@ -383,6 +412,18 @@
                 }
             });
 
+            // Add scroll event listener for lazy loading
+            poDropdown.addEventListener('scroll', function () {
+                // Check if we're already loading or if there's no more data
+                if (poList.dataset.loading === "true" || poList.dataset.hasMoreData === "false") return;
+
+                const { scrollTop, scrollHeight, clientHeight } = poDropdown;
+                // When user is near the bottom (20px threshold)
+                if (scrollTop + clientHeight >= scrollHeight - 20) {
+                    loadPurchaseOrders(poList.dataset.searchTerm || '');
+                }
+            });
+
             const debouncedSearch = debounce(function (e) {
                 loadPurchaseOrders(e.target.value);
             }, 300);
@@ -390,11 +431,31 @@
             purchaseOrderNumber.addEventListener('input', debouncedSearch);
 
             async function loadPurchaseOrders(searchTerm) {
-                if (poLoading) poLoading.classList.remove('hidden');
-                poList.innerHTML = '';
+                // Setup for lazy loading
+                let page = poList.dataset.page ? parseInt(poList.dataset.page) : 1;
+                let isLoading = poList.dataset.loading === "true";
+                let hasMoreData = poList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || poList.dataset.searchTerm !== searchTerm;
+                const loadMoreIndicator = document.getElementById('po_load_more');
+
+                // Save current search term
+                poList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                poList.dataset.loading = "true";
+
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (poLoading) poLoading.classList.remove('hidden');
+                    poList.innerHTML = '';
+                } else {
+                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                }
 
                 try {
-                    const response = await fetch(`/procurement/purchase-order?search=${encodeURIComponent(searchTerm)}`, {
+                    const response = await fetch(`/procurement/purchase-order?search=${encodeURIComponent(searchTerm || '')}&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -408,7 +469,7 @@
                     const result = await response.json();
                     let purchaseOrders = result.data || [];
 
-                    const receiptsResponse = await fetch(`/procurement/receipt?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
+                    const receiptsResponse = await fetch(`/procurement/receipt?json=true&limit=1000&search=${encodeURIComponent(searchTerm || '')}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -442,21 +503,37 @@
                         !purchaseOrdersWithReceipts.has(po.purchase_order_id)
                     );
 
-                    poList.innerHTML = '';
+                    // Check if we have more data to load
+                    hasMoreData = filteredPurchaseOrders.length === 20;
 
-                    if (filteredPurchaseOrders.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada purchase order yang tersedia untuk penerimaan';
-                        poList.appendChild(noResults);
+                    // Save next page number and has more data state
+                    poList.dataset.page = page + 1;
+                    poList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (filteredPurchaseOrders.length === 0 && poList.children.length === 0) {
+                        poList.appendChild(createDropdownItem('Tidak ada purchase order yang tersedia untuk penerimaan', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         filteredPurchaseOrders.forEach(po => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            const displayText = po.purchase_order_code || '';
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'po-item';
 
-                            li.textContent = displayText;
+                            const codeSpan = document.createElement('div');
+                            codeSpan.className = 'code text-black font-medium';
+                            codeSpan.textContent = po.purchase_order_code || '';
+                            itemContainer.appendChild(codeSpan);
+
+                            if (po.vendor_name) {
+                                const vendorSpan = document.createElement('div');
+                                vendorSpan.className = 'vendor text-gray-500 text-sm';
+                                vendorSpan.textContent = po.vendor_name;
+                                itemContainer.appendChild(vendorSpan);
+                            }
+
+                            li.appendChild(itemContainer);
+
                             li.setAttribute('data-id', po.purchase_order_id);
                             li.setAttribute('data-code', po.purchase_order_code);
                             li.setAttribute('data-vendor', po.vendor_name || '');
@@ -473,12 +550,14 @@
                     }
                 } catch (error) {
                     console.error('Error loading purchase orders:', error);
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Gagal memuat daftar purchase order';
-                    poList.appendChild(errorItem);
+                    if (poList.children.length === 0) {
+                        poList.appendChild(createDropdownItem('Gagal memuat daftar purchase order', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    poList.dataset.loading = "false";
                     if (poLoading) poLoading.classList.add('hidden');
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
 
@@ -497,8 +576,8 @@
                     const originalBtnText = searchBtn.innerHTML;
                     searchBtn.disabled = true;
                     searchBtn.innerHTML = `
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            `;
+                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            `;
 
                     const poId = selectedPoId.value || null;
                     const poCode = purchaseOrderNumber.value.trim();
@@ -803,9 +882,9 @@
                     const originalBtnText = submitBtn.innerHTML;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                MENYIMPAN...
-                            `;
+                                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        MENYIMPAN...
+                                    `;
 
                     fetch('{{ route("procurement.receipt.create") }}', {
                         method: 'POST',
@@ -912,9 +991,11 @@
             receivedByInput.addEventListener('focus', function () {
                 usersDropdown.classList.remove('hidden');
 
-                usersList.innerHTML = '<li class="px-4 py-2 text-gray-500 italic">Mulai mengetik untuk mencari pengguna</li>';
-
-                loadUsers('');
+                if (usersList.children.length === 0) {
+                    usersList.appendChild(createDropdownItem('Mulai mengetik untuk mencari pengguna', 'px-4 py-2 text-gray-500 italic'));
+                    // Load users with empty search
+                    loadUsers('');
+                }
             });
 
             document.addEventListener('click', function (e) {
@@ -922,6 +1003,14 @@
                     usersDropdown.classList.add('hidden');
                 }
             });
+
+            // Helper function to create dropdown items
+            function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                const li = document.createElement('li');
+                li.className = className;
+                li.textContent = text;
+                return li;
+            }
 
             const debouncedUserSearch = debounce(function (e) {
                 const searchTerm = e.target.value.trim();
@@ -940,19 +1029,39 @@
                 }
             });
 
-            async function loadUsers(searchTerm) {
-                if (usersLoading) {
-                    usersLoading.classList.remove('hidden');
+            usersDropdown.addEventListener('scroll', function () {
+                if (usersList.dataset.loading === "true" || usersList.dataset.hasMoreData === "false") return;
+
+                const { scrollTop, scrollHeight, clientHeight } = usersDropdown;
+                if (scrollTop + clientHeight >= scrollHeight - 20) {
+                    loadUsers(usersList.dataset.searchTerm || '');
                 }
-                usersList.innerHTML = '';
+            });
+
+            async function loadUsers(searchTerm) {
+                let page = usersList.dataset.page ? parseInt(usersList.dataset.page) : 1;
+                let isLoading = usersList.dataset.loading === "true";
+                let hasMoreData = usersList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || usersList.dataset.searchTerm !== searchTerm;
+                const loadMoreIndicator = document.getElementById('users_load_more');
+
+                usersList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                usersList.dataset.loading = "true";
+
+                if (resetList) {
+                    if (usersLoading) usersLoading.classList.remove('hidden');
+                    usersList.innerHTML = '';
+                } else {
+                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                }
 
                 try {
-                    usersLoading.classList.remove('hidden');
-
-                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm)}&status=active`, {
+                    const response = await fetch(`{{ route('user') }}?search=${encodeURIComponent(searchTerm || '')}&status=active&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     });
@@ -963,45 +1072,65 @@
 
                     const result = await response.json();
                     let users = [];
-                    if (Array.isArray(result)) {
-                        users = result;
+
+                    if (result.users && Array.isArray(result.users)) {
+                        users = result.users;
                     } else if (result.data && Array.isArray(result.data)) {
                         users = result.data;
+                    } else if (Array.isArray(result)) {
+                        users = result;
                     }
 
-                    usersLoading.classList.add('hidden');
+                    hasMoreData = users.length === 20;
 
-                    usersList.innerHTML = '';
+                    usersList.dataset.page = page + 1;
+                    usersList.dataset.hasMoreData = hasMoreData.toString();
 
-                    if (users.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada pengguna ditemukan';
-                        usersList.appendChild(noResults);
+                    if (users.length === 0 && usersList.children.length === 0) {
+                        usersList.appendChild(createDropdownItem('Tidak ada pengguna ditemukan', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         users.forEach(user => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            const userName = user.employee_name || '';
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'user-item';
 
-                            let displayText = '';
-                            if (user.employee_number) {
-                                displayText = user.employee_number;
-                                if (userName) {
-                                    displayText += ` - ${userName}`;
-                                }
+                            let displayName = '';
+                            let displayId = '';
+
+                            if (user.employee_name) {
+                                displayName = user.employee_name;
                             } else {
-                                displayText = userName || `ID: ${user.user_id || user.id}`;
+                                displayName = user.name || `User ID: ${user.user_id || user.id}`;
                             }
 
-                            li.textContent = displayText;
+                            const nameSpan = document.createElement('div');
+                            nameSpan.className = 'name text-black font-medium';
+                            nameSpan.textContent = displayName;
+                            itemContainer.appendChild(nameSpan);
+
+                            if (displayId) {
+                                const idSpan = document.createElement('div');
+                                idSpan.className = 'code text-gray-500 text-sm';
+                                idSpan.textContent = displayId;
+                                itemContainer.appendChild(idSpan);
+                            }
+
+                            li.appendChild(itemContainer);
+
                             li.setAttribute('data-id', user.user_id || user.id || '');
-                            li.setAttribute('data-name', displayText);
+                            li.setAttribute('data-employee-name', user.employee_name || '');
+                            li.setAttribute('data-name', displayName);
+                            if (displayId) {
+                                li.setAttribute('data-display', `${displayId} - ${displayName}`);
+                            } else {
+                                li.setAttribute('data-display', displayName);
+                            }
 
                             li.addEventListener('click', function () {
                                 receivedByField.value = this.getAttribute('data-id');
-                                receivedByInput.value = this.getAttribute('data-name');
+                                receivedByInput.value = this.getAttribute('data-display') || this.getAttribute('data-name');
                                 usersDropdown.classList.add('hidden');
                                 receivedByInput.classList.remove('border-red-500');
                                 const errorElement = receivedByInput.closest('.form-control').querySelector('.error-message');
@@ -1013,15 +1142,14 @@
                     }
                 } catch (error) {
                     console.error('Error loading users:', error);
-                    usersList.innerHTML = '';
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Gagal memuat daftar pengguna: ' + (error.message || 'Unknown error');
-                    usersList.appendChild(errorItem);
-                } finally {
-                    if (usersLoading) {
-                        usersLoading.classList.add('hidden');
+
+                    if (usersList.children.length === 0) {
+                        usersList.appendChild(createDropdownItem('Gagal memuat daftar pengguna: ' + (error.message || 'Unknown error'), 'px-4 py-2 text-red-500'));
                     }
+                } finally {
+                    usersList.dataset.loading = "false";
+                    if (usersLoading) usersLoading.classList.add('hidden');
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
 
@@ -1044,6 +1172,44 @@
                             }
                             .error-message ul li:last-child {
                                 margin-bottom: 0;
+                            }
+
+                            /* User dropdown styles */
+                            .user-item {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            .user-item .name {
+                                font-weight: 500;
+                            }
+                            .user-item .code {
+                                font-size: 0.8rem;
+                                color: #666;
+                            }
+
+                            /* Animation for new items */
+                            @keyframes fadeIn {
+                                from { opacity: 0; transform: translateY(5px); }
+                                to { opacity: 1; transform: translateY(0); }
+                            }
+                            #po_list li {
+                                animation: fadeIn 0.2s ease-out forwards;
+                            }
+
+                            /* Purchase Order dropdown styles */
+                            .po-item {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            .po-item .code {
+                                font-weight: 500;
+                            }
+                            .po-item .vendor {
+                                font-size: 0.8rem;
+                                color: #666;
+                            }
+                            #po_list li {
+                                animation: fadeIn 0.2s ease-out forwards;
                             }
                         </style>
                     `);

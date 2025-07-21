@@ -92,7 +92,7 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">Jml</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Harga Satuan
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Additional Info</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Info Tambahan</th>
                                 </tr>
                             </thead>
                             <tbody id="items_container">
@@ -211,41 +211,41 @@
                     const styleTag = document.createElement('style');
                     styleTag.id = 'swal-custom-styles';
                     styleTag.innerHTML = `
-                                        .swal2-popup {
-                                            border-radius: 15px;
-                                            padding: 1.5rem;
-                                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                                        }
-                                        .swal-custom-title {
-                                            font-weight: 600;
-                                            font-size: 1.5rem;
-                                            color: #333;
-                                        }
-                                        .swal-custom-content {
-                                            font-size: 1rem;
-                                            color: #555;
-                                            margin-top: 0.5rem;
-                                        }
-                                        .swal-custom-content ul {
-                                            text-align: left;
-                                            margin-top: 1rem;
-                                            margin-bottom: 1rem;
-                                        }
-                                        .swal-custom-confirm {
-                                            padding: 0.5rem 1.5rem;
-                                            font-weight: 500;
-                                        }
-                                        .swal-custom-cancel {
-                                            padding: 0.5rem 1.5rem;
-                                            font-weight: 500;
-                                        }
-                                        .swal2-timer-progress-bar {
-                                            background: rgba(33, 50, 104, 0.5);
-                                        }
-                                        .swal2-icon {
-                                            margin: 1rem auto;
-                                        }
-                                    `;
+                                            .swal2-popup {
+                                                border-radius: 15px;
+                                                padding: 1.5rem;
+                                                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                            }
+                                            .swal-custom-title {
+                                                font-weight: 600;
+                                                font-size: 1.5rem;
+                                                color: #333;
+                                            }
+                                            .swal-custom-content {
+                                                font-size: 1rem;
+                                                color: #555;
+                                                margin-top: 0.5rem;
+                                            }
+                                            .swal-custom-content ul {
+                                                text-align: left;
+                                                margin-top: 1rem;
+                                                margin-bottom: 1rem;
+                                            }
+                                            .swal-custom-confirm {
+                                                padding: 0.5rem 1.5rem;
+                                                font-weight: 500;
+                                            }
+                                            .swal-custom-cancel {
+                                                padding: 0.5rem 1.5rem;
+                                                font-weight: 500;
+                                            }
+                                            .swal2-timer-progress-bar {
+                                                background: rgba(33, 50, 104, 0.5);
+                                            }
+                                            .swal2-icon {
+                                                margin: 1rem auto;
+                                            }
+                                        `;
                     document.head.appendChild(styleTag);
                 }
 
@@ -638,8 +638,8 @@
                     });
 
                     if (!hasAnyPrice) {
-                        showSweetAlert('Setidaknya satu item harus memiliki harga.', 'error');
-                        document.getElementById('items_error').textContent = 'Setidaknya satu item harus memiliki harga.';
+                        showSweetAlert('Harga satuan item harus diisi.', 'error');
+                        document.getElementById('items_error').textContent = 'Harga satuan item harus diisi.';
                         document.getElementById('items_error').classList.remove('hidden');
                         return;
                     }
@@ -673,7 +673,7 @@
                         if (tr) {
                             const infoCells = tr.querySelectorAll('td');
                             if (infoCells.length >= 4) { // We know it's the 4th cell (index 3)
-                                const infoInput = infoCells[3].querySelector('input[placeholder="Additional Info"]');
+                                const infoInput = infoCells[3].querySelector('input[placeholder="Info Tambahan"]');
                                 if (infoInput) {
                                     // Always include additional_info field
                                     itemData.additional_info = infoInput.value.trim();
@@ -730,12 +730,12 @@
                     const submitBtn = form.querySelector('button[type="submit"]');
                     const originalBtnText = submitBtn.textContent;
                     submitBtn.innerHTML = `
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        MENYIMPAN...
-                                    `;
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            MENYIMPAN...
+                                        `;
                     submitBtn.disabled = true;
 
                     let endpoint = '/procurement/price-comparison/vendor-offer';
@@ -919,9 +919,9 @@
                             try {
                                 const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
                                 detailedErrorMessage += `<details class="mt-2">
-                                        <summary class="text-xs text-gray-500 cursor-pointer">Tampilkan data error lengkap</summary>
-                                        <pre class="text-xs bg-gray-100 p-2 mt-1 overflow-auto max-h-40 rounded">${errorString}</pre>
-                                    </details>`;
+                                            <summary class="text-xs text-gray-500 cursor-pointer">Tampilkan data error lengkap</summary>
+                                            <pre class="text-xs bg-gray-100 p-2 mt-1 overflow-auto max-h-40 rounded">${errorString}</pre>
+                                        </details>`;
                             } catch (e) {
                                 console.error('Error stringifying error object:', e);
                             }
@@ -939,27 +939,27 @@
             }
 
             document.head.insertAdjacentHTML('beforeend', `
-                                    <style>
-                                        @keyframes slideInRight {
-                                            from { transform: translateX(100%); }
-                                            to { transform: translateX(0); }
-                                        }
-                                        .animate-slide-in-right {
-                                            animation: slideInRight 0.3s ease-out forwards;
-                                        }
+                                        <style>
+                                            @keyframes slideInRight {
+                                                from { transform: translateX(100%); }
+                                                to { transform: translateX(0); }
+                                            }
+                                            .animate-slide-in-right {
+                                                animation: slideInRight 0.3s ease-out forwards;
+                                            }
 
-                                        .error-message ul {
-                                            margin-top: 0.5rem;
-                                            padding-left: 1.5rem;
-                                        }
-                                        .error-message ul li {
-                                            margin-bottom: 0.25rem;
-                                        }
-                                        .error-message ul li:last-child {
-                                            margin-bottom: 0;
-                                        }
-                                    </style>
-                                `);
+                                            .error-message ul {
+                                                margin-top: 0.5rem;
+                                                padding-left: 1.5rem;
+                                            }
+                                            .error-message ul li {
+                                                margin-bottom: 0.25rem;
+                                            }
+                                            .error-message ul li:last-child {
+                                                margin-bottom: 0;
+                                            }
+                                        </style>
+                                    `);
 
             function loadComparisonData(itemPrices = new Map(), vendorOfferData = null, agreementId = null) {
                 const itemsContainer = document.getElementById('items_container');
@@ -1031,7 +1031,7 @@
                                 }
 
                                 // Set additional info if it exists
-                                const infoInput = priceCell.nextElementSibling?.querySelector('input[placeholder="Additional Info"]');
+                                const infoInput = priceCell.nextElementSibling?.querySelector('input[placeholder="Info Tambahan"]');
                                 if (infoInput && priceData.additional_info) {
                                     infoInput.value = priceData.additional_info;
                                 }
@@ -1071,7 +1071,7 @@
                             const infoInput = document.createElement('input');
                             infoInput.type = 'text';
                             infoInput.className = 'w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200';
-                            infoInput.placeholder = 'Additional Info';
+                            infoInput.placeholder = 'Info Tambahan';
                             infoInput.setAttribute('data-price-comparison-item-id', itemId); // Same id for reference
 
                             // If edit, set value

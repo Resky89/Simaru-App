@@ -46,8 +46,8 @@
                     <div id="comparison_dropdown"
                         class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm hidden">
                         <!-- Loading indicator -->
-                        <div id="comparison_loading" class="flex justify-center py-2">
-                            <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        <div id="comparison_loading" class="p-2 text-gray-500 text-center">
+                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                                 </circle>
@@ -55,8 +55,21 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
                             </svg>
+                            <span>Memuat Penawaran...</span>
                         </div>
-                        <ul id="comparison_list" class="max-h-56 overflow-y-auto"></ul>
+                        <ul id="comparison_list" class="py-1"></ul>
+                        <!-- Load more indicator -->
+                        <div id="comparison_load_more" class="p-2 text-gray-500 text-center hidden">
+                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <span>Memuat lebih banyak...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -313,9 +326,20 @@
                 };
             }
 
+            // Helper function to create dropdown items
+            function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                const li = document.createElement('li');
+                li.className = className;
+                li.textContent = text;
+                return li;
+            }
+
             quotationNumber.addEventListener('focus', function () {
                 comparisonDropdown.classList.remove('hidden');
                 if (comparisonList.children.length === 0) {
+                    // Reset pagination
+                    comparisonList.dataset.page = "1";
+                    comparisonList.dataset.hasMoreData = "true";
                     loadComparisons('');
                 }
             });
@@ -326,6 +350,18 @@
                 }
             });
 
+            // Add scroll event listener for lazy loading
+            comparisonDropdown.addEventListener('scroll', function () {
+                // Check if we're already loading or if there's no more data
+                if (comparisonList.dataset.loading === "true" || comparisonList.dataset.hasMoreData === "false") return;
+
+                const { scrollTop, scrollHeight, clientHeight } = comparisonDropdown;
+                // When user is near the bottom (20px threshold)
+                if (scrollTop + clientHeight >= scrollHeight - 20) {
+                    loadComparisons(comparisonList.dataset.searchTerm || '');
+                }
+            });
+
             const debouncedSearch = debounce(function (e) {
                 loadComparisons(e.target.value);
             }, 300);
@@ -333,11 +369,32 @@
             quotationNumber.addEventListener('input', debouncedSearch);
 
             async function loadComparisons(searchTerm) {
-                if (comparisonLoading) comparisonLoading.classList.remove('hidden');
-                comparisonList.innerHTML = '';
+                // Setup for lazy loading
+                let page = comparisonList.dataset.page ? parseInt(comparisonList.dataset.page) : 1;
+                let isLoading = comparisonList.dataset.loading === "true";
+                let hasMoreData = comparisonList.dataset.hasMoreData !== "false";
+                let resetList = page === 1 || comparisonList.dataset.searchTerm !== searchTerm;
+                const loadMoreIndicator = document.getElementById('comparison_load_more');
+
+                // Save current search term
+                comparisonList.dataset.searchTerm = searchTerm;
+
+                if (isLoading) return;
+
+                // Set loading state
+                comparisonList.dataset.loading = "true";
+
+                // Use different loading indicators based on whether we're resetting or loading more
+                if (resetList) {
+                    if (comparisonLoading) comparisonLoading.classList.remove('hidden');
+                    comparisonList.innerHTML = '';
+                } else {
+                    if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
+                }
 
                 try {
-                    const response = await fetch(`{{ route('procurement.price-comparison') }}?search=${encodeURIComponent(searchTerm)}&status=completed`, {
+                    // Using the proper endpoint from ProcurementPriceComparisonController
+                    const response = await fetch(`{{ route('procurement.price-comparison') }}?json=true&search=${encodeURIComponent(searchTerm || '')}&status=completed&page=${page}&limit=20`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -349,9 +406,18 @@
                     }
 
                     const result = await response.json();
-                    let comparisons = result.data || [];
 
-                    const purchaseOrderResponse = await fetch(`{{ route("procurement.purchase-order") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm)}`, {
+                    // Handle different response structures
+                    let comparisons = [];
+                    if (result.success && Array.isArray(result.data)) {
+                        comparisons = result.data;
+                    } else if (result.comparisons && Array.isArray(result.comparisons)) {
+                        comparisons = result.comparisons;
+                    } else if (Array.isArray(result)) {
+                        comparisons = result;
+                    }
+
+                    const purchaseOrderResponse = await fetch(`{{ route("procurement.purchase-order") }}?json=true&limit=1000&search=${encodeURIComponent(searchTerm || '')}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
@@ -380,32 +446,52 @@
                         });
                     }
 
+                    // Filter out comparisons that already have purchase orders
                     const filteredComparisons = comparisons.filter(comparison =>
-                        !comparisonsWithPurchaseOrders.has(comparison.comparison_id)
+                        !comparisonsWithPurchaseOrders.has(comparison.comparison_id) &&
+                        comparison.status &&
+                        comparison.status.toLowerCase() === 'completed'
                     );
 
-                    comparisonList.innerHTML = '';
+                    // Check if we have more data to load
+                    hasMoreData = filteredComparisons.length === 20;
 
-                    if (filteredComparisons.length === 0) {
-                        const noResults = document.createElement('li');
-                        noResults.className = 'px-4 py-2 text-gray-500 italic';
-                        noResults.textContent = 'Tidak ada penawaran yang tersedia untuk pemesanan';
-                        comparisonList.appendChild(noResults);
+                    // Save next page number and has more data state
+                    comparisonList.dataset.page = page + 1;
+                    comparisonList.dataset.hasMoreData = hasMoreData.toString();
+
+                    if (filteredComparisons.length === 0 && comparisonList.children.length === 0) {
+                        comparisonList.appendChild(createDropdownItem('Tidak ada penawaran yang tersedia untuk pemesanan', 'px-4 py-2 text-gray-500 italic'));
                     } else {
                         filteredComparisons.forEach(comparison => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
 
-                            const displayText = comparison.comparison_code || '';
+                            const itemContainer = document.createElement('div');
+                            itemContainer.className = 'comparison-item';
 
-                            li.textContent = displayText;
+                            const codeSpan = document.createElement('div');
+                            codeSpan.className = 'code text-black font-medium';
+                            codeSpan.textContent = comparison.comparison_code || '';
+                            itemContainer.appendChild(codeSpan);
+
+                            if (comparison.title) {
+                                const titleSpan = document.createElement('div');
+                                titleSpan.className = 'title text-gray-500 text-sm';
+                                titleSpan.textContent = comparison.title;
+                                itemContainer.appendChild(titleSpan);
+                            }
+
+                            li.appendChild(itemContainer);
+
                             li.setAttribute('data-id', comparison.comparison_id);
                             li.setAttribute('data-code', comparison.comparison_code);
                             li.setAttribute('data-title', comparison.title || '');
-                            li.setAttribute('data-user', comparison.creator?.employee_number);
+                            li.setAttribute('data-user', comparison.creator?.employee_number || comparison.created_by?.employee_number || '');
                             li.setAttribute('data-date', comparison.created_at || '');
                             li.setAttribute('data-completer', comparison.completer?.employee_number || '');
                             li.setAttribute('data-completed-date', comparison.completed_at || '');
+
                             li.addEventListener('click', function () {
                                 selectedComparisonId.value = this.getAttribute('data-id');
                                 quotationNumber.value = this.getAttribute('data-code');
@@ -434,12 +520,14 @@
                     }
                 } catch (error) {
                     console.error('Error loading price comparisons:', error);
-                    const errorItem = document.createElement('li');
-                    errorItem.className = 'px-4 py-2 text-red-500';
-                    errorItem.textContent = 'Gagal memuat daftar penawaran';
-                    comparisonList.appendChild(errorItem);
+                    if (comparisonList.children.length === 0) {
+                        comparisonList.appendChild(createDropdownItem('Gagal memuat daftar penawaran', 'px-4 py-2 text-red-500'));
+                    }
                 } finally {
+                    // Reset loading state
+                    comparisonList.dataset.loading = "false";
                     if (comparisonLoading) comparisonLoading.classList.add('hidden');
+                    if (loadMoreIndicator) loadMoreIndicator.classList.add('hidden');
                 }
             }
 
@@ -474,7 +562,7 @@
                                 searchBtn.innerHTML = originalBtnText;
                             });
                     } else {
-                        fetch(`{{ route('procurement.price-comparison') }}?search=${encodeURIComponent(comparisonCode)}&status=completed`, {
+                        fetch(`{{ route('procurement.price-comparison') }}?json=true&search=${encodeURIComponent(comparisonCode)}&status=completed`, {
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
@@ -485,9 +573,16 @@
                                 return response.json();
                             })
                             .then(result => {
-                                if (result.success && result.data && result.data.length > 0) {
-                                    let comparisons = result.data;
+                                let comparisons = [];
+                                if (result.success && Array.isArray(result.data)) {
+                                    comparisons = result.data;
+                                } else if (result.comparisons && Array.isArray(result.comparisons)) {
+                                    comparisons = result.comparisons;
+                                } else if (Array.isArray(result)) {
+                                    comparisons = result;
+                                }
 
+                                if (comparisons && comparisons.length > 0) {
                                     return fetch(`{{ route("procurement.purchase-order") }}?json=true&limit=1000&search=${encodeURIComponent(comparisonCode)}`, {
                                         headers: {
                                             'Accept': 'application/json',
@@ -519,7 +614,9 @@
                                             }
 
                                             const filteredComparisons = comparisons.filter(comparison =>
-                                                !comparisonsWithPurchaseOrders.has(comparison.comparison_id)
+                                                !comparisonsWithPurchaseOrders.has(comparison.comparison_id) &&
+                                                comparison.status &&
+                                                comparison.status.toLowerCase() === 'completed'
                                             );
 
                                             if (filteredComparisons.length === 0) {
@@ -579,18 +676,23 @@
 
                     const comparison = result.data;
 
+                    // Store vendors in window object for later use
                     window.vendors = comparison.vendors || [];
 
                     document.getElementById('displayComparisonCode').textContent = comparison.comparison_code || '';
                     document.getElementById('displayComparisonTitle').textContent = comparison.title || '';
-                    document.getElementById('displayUserInput').textContent = comparison.creator?.employee_number || comparison.created_by?.employee_number || 'Staff';
+                    document.getElementById('displayUserInput').textContent = comparison.creator?.employee_name ||
+                                                                             comparison.creator?.employee_number ||
+                                                                             comparison.created_by?.employee_name ||
+                                                                             comparison.created_by?.employee_number ||
+                                                                             'Staff';
 
                     const completerSection = document.getElementById('completerSection');
                     const displayCompleterInput = document.getElementById('displayCompleterInput');
                     const displayCompletedDate = document.getElementById('displayCompletedDate');
 
                     if (comparison.completer && comparison.completed_at) {
-                        displayCompleterInput.textContent = comparison.completer.employee_number || '';
+                        displayCompleterInput.textContent = comparison.completer.employee_name || comparison.completer.employee_number || '';
                         displayCompletedDate.textContent = '(' + formatDateIndonesian(comparison.completed_at) + ')';
                         completerSection.style.display = 'flex';
                     } else {
@@ -861,7 +963,7 @@
                         showSweetAlert('Tidak ada item yang dipilih', 'error');
                         return;
                     }
-                    
+
                     const notes = document.getElementById('notes').value;
                     let paymentTerms = '';
                     let deliveryTerms = '';
@@ -1067,6 +1169,28 @@
                         }
                         .error-message ul li:last-child {
                             margin-bottom: 0;
+                        }
+
+                        /* Comparison dropdown styles */
+                        .comparison-item {
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        .comparison-item .code {
+                            font-weight: 500;
+                        }
+                        .comparison-item .title {
+                            font-size: 0.8rem;
+                            color: #666;
+                        }
+
+                        /* Animation for new items */
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(5px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        #comparison_list li {
+                            animation: fadeIn 0.2s ease-out forwards;
                         }
                     </style>
                 `);
