@@ -66,11 +66,11 @@
                         <tbody>
                             @forelse($purchaseOrders ?? [] as $po)
                             <tr>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['purchase_order_code'] }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['purchase_order_code'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['comparison_code'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['vendor']['vendor_name'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['vendor']['contact_person'] ?? '-' }}</td>
-                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['creator_employee_number'] ?? '-' }}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">{{ $po['creator_employee_name'] ?? '-' }}</td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                     @if(isset($po['created_at']))
                                         @php

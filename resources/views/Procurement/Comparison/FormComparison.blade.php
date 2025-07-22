@@ -99,59 +99,75 @@
             <!-- Request Details Section - Hidden by default unless editing -->
             <div id="requestDetails" class="{{ isset($comparison) ? '' : 'hidden' }} mt-6">
                 <div class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB]">
-                    <!-- Request Details -->
-                    <div class="grid grid-cols-1 gap-3">
-                        <!-- Request Number -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Nomor Permintaan</p>
-                            <p class="text-[#666666]">: <span
-                                    id="displayRequestNumber">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}</span>
-                            </p>
+                    <!-- Request Details - Two Column Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Column - Request Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Permintaan</h2>
+
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- Request Number -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Permintaan</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span
+                                                id="displayRequestNumber">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_code'] ?? '' : '' }}</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Request Title -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Judul Permintaan</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span
+                                                id="displayRequestName">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_name'] ?? '' : '' }}</span>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Request Date -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Tanggal Permintaan</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayInputDate">
+                                                @if(isset($comparison['procurement']['created_at']))
+                                                    {{ \Carbon\Carbon::parse($comparison['procurement']['created_at'])->format('d F Y') }}
+                                                @endif
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Request Title -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Judul Permintaan</p>
-                            <p class="text-[#666666]">: <span
-                                    id="displayRequestName">{{ isset($comparison['procurement']) ? $comparison['procurement']['procurement_name'] ?? '' : '' }}</span>
-                            </p>
-                        </div>
+                        <!-- Right Column - Personnel Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil</h2>
 
-                        <!-- Requester -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Pemohon</p>
-                            <p class="text-[#666666]">: <span
-                                    id="displayUserInput">{{ isset($comparison['procurement']) ? $comparison['procurement']['user_name'] ?? '' : '' }}</span>
-                            </p>
-                        </div>
-
-                        <!-- Request Date -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Tanggal Permintaan</p>
-                            <p class="text-[#666666]">: <span id="displayInputDate">
-                                    @if(isset($comparison['procurement']['created_at']))
-                                        {{ \Carbon\Carbon::parse($comparison['procurement']['created_at'])->format('d F Y') }}
-                                    @endif
-                                </span></p>
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- Requester -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Pemohon</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span
+                                                id="displayUserInput">{{ isset($comparison['procurement']) ? $comparison['procurement']['user_name'] ?? '' : '' }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     <!-- Asset List -->
                     <div class="space-y-4 mt-6">
-                        <h2 class="text-lg font-semibold text-[#666666]">Daftar Aset</h2>
+                        <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
 
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
-                                        </th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">SPESIFIKASI
-                                        </th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">HARGA SATUAN
-                                        </th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">TOTAL</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Nama Aset</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Spesifikasi</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Jumlah</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Harga Satuan</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody id="assetListTableBody">
@@ -761,7 +777,7 @@
 
                     document.getElementById('displayRequestNumber').textContent = procurement.procurement_code || '';
                     document.getElementById('displayRequestName').textContent = procurement.title || procurement.procurement_name || '';
-                    document.getElementById('displayUserInput').textContent = procurement.requester?.employee_number || procurement.user_name || 'Karyawan';
+                    document.getElementById('displayUserInput').textContent = procurement.requester?.employee_name || procurement.requester?.employee_number || procurement.user_name || 'Karyawan';
 
                     let displayDate = procurement.request_date || procurement.created_at || '';
                     if (displayDate) {
@@ -821,6 +837,7 @@
                     const total = quantity * unitPrice;
                     grandTotal += total;
                     const formatter = new Intl.NumberFormat('id-ID');
+
                     const nameCell = document.createElement('td');
                     nameCell.className = 'p-3 text-sm text-[#666666]';
                     nameCell.textContent = assetName;

@@ -151,54 +151,79 @@
 
                 <!-- Purchase Order Details (Initially Hidden) -->
                 <div id="poDetails" class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB] mt-6 hidden">
-                    <!-- PO Information -->
-                    <div class="grid grid-cols-1 gap-3">
-                        <!-- PO Number -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Nomor Pemesanan</p>
-                            <p class="text-[#666666]">: <span id="displayPoCode"></span></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Column - Order Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Pemesanan</h2>
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- PO Number -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Pemesanan</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayPoCode"></span></td>
+                                    </tr>
+                                    <!-- Comparison ID -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Nomor Penawaran</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayComparisonCode"></span>
+                                        </td>
+                                    </tr>
+                                    <!-- PO Date -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Tanggal Pemesanan</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayPoDate"></span></td>
+                                    </tr>
+                                    <!-- Creator -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Dibuat oleh</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayCreator"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Supplier -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Vendor</p>
-                            <p class="text-[#666666]">: <span id="displayVendor"></span></p>
-                        </div>
-
-                        <!-- PIC -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">PIC</p>
-                            <p class="text-[#666666]">: <span id="displayPic"></span></p>
-                        </div>
-
-                        <!-- PIC Contact -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Kontak PIC</p>
-                            <p class="text-[#666666]">: <span id="displayPicContact"></span></p>
-                        </div>
-
-                        <!-- Input Date -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Tanggal Pemesanan</p>
-                            <p class="text-[#666666]">: <span id="displayPoDate"></span></p>
+                        <!-- Right Column - Vendor Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Vendor</h2>
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- Vendor -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Nama Vendor</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayVendor"></span></td>
+                                    </tr>
+                                    <!-- PIC -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Penanggung Jawab</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayPic"></span></td>
+                                    </tr>
+                                    <!-- PIC Contact -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Nomor Telepon</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayPicContact"></span></td>
+                                    </tr>
+                                    <!-- Email (if available) -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Email</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayEmail"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <!-- ASSET LIST -->
-                    <div class="space-y-4 mt-4">
+                    <!-- Item List -->
+                    <div class="space-y-4 mt-6">
                         <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">NAMA
-                                            ASET</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">
-                                            SPESIFIKASI</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center">JML
-                                        </th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">CATATAN
-                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JUMLAH</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-right">HARGA SATUAN</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-right">TOTAL</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">CATATAN</th>
                                     </tr>
                                 </thead>
                                 <tbody id="assetListTableBody">
@@ -689,18 +714,12 @@
 
                     const purchaseOrder = result.data;
 
+                    // Display PO information
                     document.getElementById('displayPoCode').textContent = purchaseOrder.purchase_order_code || '';
+                    document.getElementById('displayComparisonCode').textContent = purchaseOrder.comparison_code || 'N/A';
+                    document.getElementById('displayCreator').textContent = purchaseOrder.creator_employee_name || 'N/A';
 
-                    if (purchaseOrder.vendor && typeof purchaseOrder.vendor === 'object') {
-                        document.getElementById('displayVendor').textContent = purchaseOrder.vendor.vendor_name || '';
-                        document.getElementById('displayPic').textContent = purchaseOrder.vendor.contact_person || '';
-                        document.getElementById('displayPicContact').textContent = purchaseOrder.vendor.phone_number || '';
-                    } else {
-                        document.getElementById('displayVendor').textContent = purchaseOrder.vendor_name || '';
-                        document.getElementById('displayPic').textContent = purchaseOrder.creator_name || '';
-                        document.getElementById('displayPicContact').textContent = '';
-                    }
-
+                    // Format and display date
                     let displayDate = purchaseOrder.created_at || '';
                     if (displayDate) {
                         try {
@@ -713,6 +732,19 @@
                         }
                     }
                     document.getElementById('displayPoDate').textContent = displayDate;
+
+                    // Display vendor information
+                    if (purchaseOrder.vendor && typeof purchaseOrder.vendor === 'object') {
+                        document.getElementById('displayVendor').textContent = purchaseOrder.vendor.vendor_name || 'N/A';
+                        document.getElementById('displayPic').textContent = purchaseOrder.vendor.contact_person || 'N/A';
+                        document.getElementById('displayPicContact').textContent = purchaseOrder.vendor.phone_number || 'N/A';
+                        document.getElementById('displayEmail').textContent = purchaseOrder.vendor.email || 'N/A';
+                    } else {
+                        document.getElementById('displayVendor').textContent = purchaseOrder.vendor_name || 'N/A';
+                        document.getElementById('displayPic').textContent = 'N/A';
+                        document.getElementById('displayPicContact').textContent = 'N/A';
+                        document.getElementById('displayEmail').textContent = 'N/A';
+                    }
 
                     populateAssetList(purchaseOrder.items || []);
 
@@ -736,32 +768,49 @@
 
                     const cell = document.createElement('td');
                     cell.className = 'p-3 text-xs text-[#666666] text-center';
-                    cell.colSpan = 4;
+                    cell.colSpan = 5;
                     cell.textContent = 'Tidak ada item ditemukan untuk purchase order ini';
 
                     row.appendChild(cell);
                     tableBody.appendChild(row);
                 } else {
+                    let grandTotal = 0;
+
                     items.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.className = 'border-t border-[#EEF1F4]';
+
+                        // Name cell
                         const nameCell = document.createElement('td');
-                        nameCell.className = 'p-3 text-xs text-[#666666]';
+                        nameCell.className = 'p-3 text-sm text-[#666666]';
                         nameCell.textContent = item.procurement_item_name || 'Item ' + (index + 1);
                         row.appendChild(nameCell);
 
-                        const specCell = document.createElement('td');
-                        specCell.className = 'p-3 text-xs text-[#666666]';
-                        specCell.textContent = item.specification || '-';
-                        row.appendChild(specCell);
-
+                        // Quantity cell
                         const qtyCell = document.createElement('td');
-                        qtyCell.className = 'p-3 text-xs text-center text-[#666666]';
+                        qtyCell.className = 'p-3 text-sm text-center text-[#666666]';
                         qtyCell.textContent = item.quantity || 1;
                         row.appendChild(qtyCell);
 
+                        // Unit price cell
+                        const unitPriceCell = document.createElement('td');
+                        unitPriceCell.className = 'p-3 text-sm text-right text-[#666666]';
+                        const unitPrice = item.unit_price ? parseFloat(item.unit_price) : 0;
+                        unitPriceCell.textContent = unitPrice.toLocaleString('id-ID');
+                        row.appendChild(unitPriceCell);
+
+                        // Total price cell
+                        const totalPriceCell = document.createElement('td');
+                        totalPriceCell.className = 'p-3 text-sm text-right text-[#666666]';
+                        const totalPrice = item.total_price ? parseFloat(item.total_price) : 0;
+                        totalPriceCell.textContent = totalPrice.toLocaleString('id-ID');
+                        row.appendChild(totalPriceCell);
+
+                        grandTotal += totalPrice;
+
+                        // Notes cell
                         const notesCell = document.createElement('td');
-                        notesCell.className = 'p-3 text-xs text-[#666666]';
+                        notesCell.className = 'p-3 text-sm text-[#666666]';
 
                         const notesInput = document.createElement('input');
                         notesInput.type = 'text';
@@ -781,6 +830,26 @@
 
                         tableBody.appendChild(row);
                     });
+
+                    // Add grand total row
+                    const totalRow = document.createElement('tr');
+                    totalRow.className = 'border-t border-[#EEF1F4]';
+
+                    const totalLabelCell = document.createElement('td');
+                    totalLabelCell.colSpan = 3;
+                    totalLabelCell.className = 'p-3 text-sm font-medium text-right text-[#666666]';
+                    totalLabelCell.textContent = 'Total Keseluruhan';
+                    totalRow.appendChild(totalLabelCell);
+
+                    const grandTotalCell = document.createElement('td');
+                    grandTotalCell.className = 'p-3 text-sm text-right text-[#666666] font-medium';
+                    grandTotalCell.textContent = grandTotal.toLocaleString('id-ID');
+                    totalRow.appendChild(grandTotalCell);
+
+                    const emptyCell = document.createElement('td');
+                    totalRow.appendChild(emptyCell);
+
+                    tableBody.appendChild(totalRow);
                 }
             }
 

@@ -109,7 +109,7 @@
                                                     @elseif($procurement['status'] == 'Under Review') Dalam Peninjauan
                                                     @elseif($procurement['status'] == 'Approved') Disetujui
                                                     @elseif($procurement['status'] == 'Rejected') Ditolak
-                                                    @elseif($procurement['status'] == 'Procured') Dibeli
+                                                    @elseif($procurement['status'] == 'Procured') Diadakan
                                                     @else {{ $procurement['status'] }}
                                                     @endif
                                                 </span>

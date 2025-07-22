@@ -77,57 +77,69 @@
             <!-- Order Details - Hidden by default -->
             <div id="orderDetails" class="hidden mt-6">
                 <div class="border border-[#CCCCCC] rounded-lg p-4 bg-[#F9FAFB]">
-                    <div class="grid grid-cols-1 gap-3 mb-6">
-                        <!-- Nomor -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Nomor Penawaran</p>
-                            <p class="text-[#666666]">: <span id="displayComparisonCode">PH2406001</span></p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Column - Comparison Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Perbandingan</h2>
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- Nomor Penawaran -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Nomor Penawaran</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayComparisonCode"></span>
+                                        </td>
+                                    </tr>
+                                    <!-- Judul Penawaran -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Judul Penawaran</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayComparisonTitle"></span>
+                                        </td>
+                                    </tr>
+                                    <!-- Tanggal Penawaran -->
+                                    <tr>
+                                        <td class="py-1 align-top font-medium text-[#666666]">Tanggal Penawaran</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayComparisonDate"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <!-- Judul -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Judul Penawaran</p>
-                            <p class="text-[#666666]">: <span id="displayComparisonTitle">Pembelian Komputer IT</span></p>
-                        </div>
-
-                        <!-- User Input -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Pembuat</p>
-                            <p class="text-[#666666]">: <span id="displayUserInput">Staff</span></p>
-                        </div>
-
-                        <!-- Completer (if available) -->
-                        <div class="flex items-start gap-2" id="completerSection" style="display: none;">
-                            <p class="w-40 text-[#666666] font-medium">Diselesaikan oleh</p>
-                            <p class="text-[#666666]">: <span id="displayCompleterInput"></span>
-                                <span class="text-xs text-gray-500 ml-2" id="displayCompletedDate"></span>
-                            </p>
-                        </div>
-
-                        <!-- Tanggal Input -->
-                        <div class="flex items-start gap-2">
-                            <p class="w-40 text-[#666666] font-medium">Tanggal Penawaran</p>
-                            <p class="text-[#666666]">: <span id="displayComparisonDate">2024-06-30 06:52:12</span></p>
+                        <!-- Right Column - Personnel & Status Information -->
+                        <div class="space-y-5">
+                            <h2 class="text-lg font-semibold text-[#666666]">Informasi Personil</h2>
+                            <table class="w-full">
+                                <tbody>
+                                    <!-- Pembuat -->
+                                    <tr>
+                                        <td class="py-1 align-top w-48 font-medium text-[#666666]">Dibuat oleh</td>
+                                        <td class="py-1 align-top text-[#666666]">: <span id="displayUserInput"></span></td>
+                                    </tr>
+                                    <!-- Completer (if available) -->
+                                    <tr id="completerSection" style="display: none;">
+                                        <td class="py-1 align-top font-medium text-[#666666]">Diselesaikan oleh</td>
+                                        <td class="py-1 align-top text-[#666666]">:
+                                            <span id="displayCompleterInput"></span>
+                                            <span class="text-xs text-gray-500 ml-2" id="displayCompletedDate"></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     <!-- Item List -->
                     <div class="space-y-4 mt-6">
-                        <label class="block text-base font-semibold text-[#666666]">DAFTAR ASET</label>
+                        <h2 class="text-lg font-semibold text-[#666666]">Perbandingan Harga</h2>
 
                         <div class="overflow-x-auto">
                             <table class="w-full">
                                 <thead>
                                     <tr>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">NAMA ASET
-                                        </th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">JML</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PERKIRAAN
-                                            HARGA</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT WIBOWO
-                                            (PERSERO) TBK</th>
-                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">PT SETIAWAN
-                                        </th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Nama Aset</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-center">Jumlah</th>
+                                        <th class="bg-[#213268] text-white p-3 font-bold text-sm text-left">Perkiraan Harga</th>
+                                        <!-- Vendor columns will be added dynamically -->
                                     </tr>
                                 </thead>
                                 <tbody id="assetListTableBody">
@@ -509,7 +521,7 @@
                                 if (completer && completedDate) {
                                     displayCompleterInput.textContent = completer;
                                     displayCompletedDate.textContent = '(' + formatDateIndonesian(completedDate) + ')';
-                                    completerSection.style.display = 'flex';
+                                    completerSection.style.display = 'table-row';
                                 } else {
                                     completerSection.style.display = 'none';
                                 }
@@ -682,10 +694,10 @@
                     document.getElementById('displayComparisonCode').textContent = comparison.comparison_code || '';
                     document.getElementById('displayComparisonTitle').textContent = comparison.title || '';
                     document.getElementById('displayUserInput').textContent = comparison.creator?.employee_name ||
-                                                                             comparison.creator?.employee_number ||
-                                                                             comparison.created_by?.employee_name ||
-                                                                             comparison.created_by?.employee_number ||
-                                                                             'Staff';
+                        comparison.creator?.employee_number ||
+                        comparison.created_by?.employee_name ||
+                        comparison.created_by?.employee_number ||
+                        'Staff';
 
                     const completerSection = document.getElementById('completerSection');
                     const displayCompleterInput = document.getElementById('displayCompleterInput');
@@ -694,7 +706,7 @@
                     if (comparison.completer && comparison.completed_at) {
                         displayCompleterInput.textContent = comparison.completer.employee_name || comparison.completer.employee_number || '';
                         displayCompletedDate.textContent = '(' + formatDateIndonesian(comparison.completed_at) + ')';
-                        completerSection.style.display = 'flex';
+                        completerSection.style.display = 'table-row';
                     } else {
                         completerSection.style.display = 'none';
                     }
@@ -753,9 +765,9 @@
                 const headerRow = document.createElement('tr');
 
                 const headers = [
-                    { text: 'NAMA ASET', align: 'left' },
-                    { text: 'JML', align: 'center' },
-                    { text: 'PERKIRAAN HARGA', align: 'left' }
+                    { text: 'Nama Aset', align: 'left' },
+                    { text: 'Jumlah', align: 'center' },
+                    { text: 'Perkiraan Harga', align: 'left' }
                 ];
 
                 if (vendors && vendors.length > 0) {
@@ -791,68 +803,161 @@
                     items.forEach((item, index) => {
                         const row = document.createElement('tr');
                         row.className = 'border-t border-[#EEF1F4]';
+
+                        // Name cell
                         const nameCell = document.createElement('td');
                         nameCell.className = 'p-3 text-sm text-[#666666]';
                         nameCell.textContent = item.procurement_item_name || 'Item ' + (index + 1);
                         row.appendChild(nameCell);
+
+                        // Quantity cell
                         const qtyCell = document.createElement('td');
                         qtyCell.className = 'p-3 text-sm text-center text-[#666666]';
                         qtyCell.textContent = item.quantity || 1;
                         row.appendChild(qtyCell);
+
+                        // Estimated price cell with flex layout
                         const estPriceCell = document.createElement('td');
                         estPriceCell.className = 'p-3 text-sm text-[#666666]';
+
+                        const estPriceContainer = document.createElement('div');
+                        estPriceContainer.className = 'flex flex-col space-y-1';
+
                         const estUnitPrice = parseFloat(item.estimated_unit_price || 0);
                         const estPrice = estUnitPrice * parseInt(item.quantity);
-                        const estPriceDiv = document.createElement('div');
-                        estPriceDiv.className = 'text-sm font-medium';
-                        estPriceDiv.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(estPrice);
-                        const estUnitPriceSpan = document.createElement('span');
-                        estUnitPriceSpan.className = 'text-xs text-gray-500 block mt-1';
-                        estUnitPriceSpan.textContent = '@Rp ' + new Intl.NumberFormat('id-ID').format(estUnitPrice);
-                        estPriceCell.appendChild(estPriceDiv);
-                        estPriceCell.appendChild(estUnitPriceSpan);
+
+                        // Total price div with blue background
+                        const totalPriceDiv = document.createElement('div');
+                        totalPriceDiv.className = 'flex items-center justify-between bg-blue-50 px-2 py-0.5 rounded';
+
+                        const totalLabel = document.createElement('span');
+                        totalLabel.className = 'text-xs font-medium text-[#213268]';
+                        totalLabel.textContent = 'Total:';
+
+                        const totalValue = document.createElement('span');
+                        totalValue.className = 'text-sm font-bold';
+                        totalValue.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(estPrice);
+
+                        totalPriceDiv.appendChild(totalLabel);
+                        totalPriceDiv.appendChild(totalValue);
+                        estPriceContainer.appendChild(totalPriceDiv);
+
+                        // Unit price div with gray background
+                        const unitPriceDiv = document.createElement('div');
+                        unitPriceDiv.className = 'flex items-center justify-between bg-gray-50 px-2 py-0.5 rounded';
+
+                        const unitLabel = document.createElement('span');
+                        unitLabel.className = 'text-xs font-medium text-gray-600';
+                        unitLabel.textContent = 'Harga Satuan:';
+
+                        const unitValue = document.createElement('span');
+                        unitValue.className = 'text-sm';
+                        unitValue.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(estUnitPrice);
+
+                        unitPriceDiv.appendChild(unitLabel);
+                        unitPriceDiv.appendChild(unitValue);
+                        estPriceContainer.appendChild(unitPriceDiv);
+
+                        estPriceCell.appendChild(estPriceContainer);
                         row.appendChild(estPriceCell);
+
+                        // Vendor cells
                         if (vendors && vendors.length > 0) {
                             vendors.forEach(vendor => {
                                 const vendorCell = document.createElement('td');
-                                vendorCell.className = 'p-3';
+                                vendorCell.className = 'p-3 text-sm text-[#666666]';
+
                                 let vendorOffer = null;
                                 if (item.vendor_offers && Array.isArray(item.vendor_offers)) {
                                     vendorOffer = item.vendor_offers.find(offer =>
                                         offer.vendor && offer.vendor.vendor_id == vendor.vendor_id
                                     );
                                 }
-                                if (vendorOffer) {
-                                    const priceContainer = document.createElement('div');
-                                    const unitPrice = parseFloat(vendorOffer.unit_price || 0);
-                                    const price = unitPrice * parseInt(item.quantity || 1);
-                                    const priceDiv = document.createElement('div');
-                                    priceDiv.className = 'text-sm font-medium text-[#666666]';
-                                    priceDiv.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
-                                    const unitPriceSpan = document.createElement('span');
-                                    unitPriceSpan.className = 'text-xs text-gray-500 block mt-1';
-                                    unitPriceSpan.textContent = '@Rp ' + new Intl.NumberFormat('id-ID').format(unitPrice);
 
-                                    priceContainer.appendChild(priceDiv);
-                                    priceContainer.appendChild(unitPriceSpan);
+                                if (vendorOffer) {
+                                    // Create a container for the radio button and price info
                                     const vendorContainer = document.createElement('div');
-                                    vendorContainer.className = 'flex items-center';
+                                    vendorContainer.className = 'flex items-start gap-3';
+
+                                    const radioWrapper = document.createElement('div');
+                                    radioWrapper.className = 'mt-2';
+
                                     const radioInput = document.createElement('input');
                                     radioInput.type = 'radio';
                                     radioInput.name = `vendor_item${item.price_comparison_item_id}`;
                                     radioInput.value = vendor.vendor_id;
-                                    radioInput.className = 'mr-2';
+                                    radioInput.className = 'h-5 w-5 text-[#213268] border-gray-300 focus:ring-[#213268]';
                                     radioInput.dataset.item_id = item.price_comparison_item_id;
                                     radioInput.dataset.vendor_id = vendor.vendor_id;
                                     radioInput.dataset.vendor_offer_id = vendorOffer.vendor_offer_id;
 
-                                    vendorContainer.appendChild(radioInput);
-                                    vendorContainer.appendChild(priceContainer);
+                                    // Create price container
+                                    const priceContainer = document.createElement('div');
+                                    priceContainer.className = 'flex flex-col space-y-1.5 flex-grow';
 
+                                    const unitPrice = parseFloat(vendorOffer.unit_price || 0);
+                                    const price = unitPrice * parseInt(item.quantity || 1);
+
+                                    // Total price div with blue background
+                                    const totalDiv = document.createElement('div');
+                                    totalDiv.className = 'flex items-center justify-between bg-blue-50 px-3 py-1 rounded';
+
+                                    const totalLabel = document.createElement('span');
+                                    totalLabel.className = 'text-xs font-medium text-[#213268]';
+                                    totalLabel.textContent = 'Total:';
+
+                                    const totalValue = document.createElement('span');
+                                    totalValue.className = 'text-sm font-semibold';
+                                    totalValue.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(price);
+
+                                    totalDiv.appendChild(totalLabel);
+                                    totalDiv.appendChild(totalValue);
+                                    priceContainer.appendChild(totalDiv);
+
+                                    // Unit price div with gray background
+                                    const unitDiv = document.createElement('div');
+                                    unitDiv.className = 'flex items-center justify-between bg-gray-50 px-3 py-1 rounded';
+
+                                    const unitLabel = document.createElement('span');
+                                    unitLabel.className = 'text-xs font-medium text-gray-600';
+                                    unitLabel.textContent = 'Harga Satuan:';
+
+                                    const unitValue = document.createElement('span');
+                                    unitValue.className = 'text-sm text-gray-700';
+                                    unitValue.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(unitPrice);
+
+                                    unitDiv.appendChild(unitLabel);
+                                    unitDiv.appendChild(unitValue);
+                                    priceContainer.appendChild(unitDiv);
+
+                                    // Add additional info if available
+                                    if (vendorOffer.additional_info) {
+                                        const infoDiv = document.createElement('div');
+                                        infoDiv.className = 'bg-yellow-50 px-3 py-1 rounded';
+
+                                        const infoLabel = document.createElement('div');
+                                        infoLabel.className = 'text-xs font-medium text-gray-600';
+                                        infoLabel.textContent = 'Info:';
+
+                                        const infoValue = document.createElement('div');
+                                        infoValue.className = 'text-xs text-gray-700';
+                                        infoValue.textContent = vendorOffer.additional_info;
+
+                                        infoDiv.appendChild(infoLabel);
+                                        infoDiv.appendChild(infoValue);
+                                        priceContainer.appendChild(infoDiv);
+                                    }
+
+                                    // Assemble the cell content
+                                    radioWrapper.appendChild(radioInput);
+                                    vendorContainer.appendChild(radioWrapper);
+                                    vendorContainer.appendChild(priceContainer);
                                     vendorCell.appendChild(vendorContainer);
                                 } else {
-                                    vendorCell.textContent = 'Tidak tersedia';
-                                    vendorCell.className += ' text-xs text-gray-500';
+                                    const notAvailableDiv = document.createElement('div');
+                                    notAvailableDiv.className = 'text-sm font-medium text-gray-400 p-2';
+                                    notAvailableDiv.textContent = 'Tidak Tersedia';
+                                    vendorCell.appendChild(notAvailableDiv);
                                 }
 
                                 row.appendChild(vendorCell);
@@ -1192,8 +1297,28 @@
                         #comparison_list li {
                             animation: fadeIn 0.2s ease-out forwards;
                         }
-                    </style>
-                `);
+
+                            /* Custom radio button styling */
+                            input[type="radio"] {
+                                -webkit-appearance: none;
+                                -moz-appearance: none;
+                                appearance: none;
+                                width: 1rem;
+                                height: 1rem;
+                                border: 2px solid #ccc;
+                                border-radius: 50%;
+                                outline: none;
+                                cursor: pointer;
+                            }
+
+                            input[type="radio"]:checked {
+                                border-color: #213268;
+                                background-color: white;
+                                box-shadow: inset 0 0 0 3px #213268;
+                            }
+
+                                </style>
+                            `);
         });
     </script>
 @endpush

@@ -77,7 +77,7 @@
                                 <!-- Creator -->
                                 <tr>
                                     <td class="py-1 align-top font-medium text-[#666666]">Dibuat oleh</td>
-                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['creator_employee_number'] ?? 'N/A' }}</td>
+                                    <td class="py-1 align-top text-[#666666]">: {{ $purchaseOrder['creator_employee_name'] ?? 'N/A' }}</td>
                                 </tr>
                             </tbody>
                         </table>
