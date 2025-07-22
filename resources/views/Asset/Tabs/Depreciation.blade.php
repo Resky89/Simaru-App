@@ -1,5 +1,5 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-xl font-bold text-[#213268]">PENYUSUTAN</h2>
         <div class="flex items-center gap-4">
             <div class="flex items-center">
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Depreciation Chart -->
-        <div id="depreciationChartContainer" class="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <div id="depreciationChartContainer" class="bg-white p-4 md:p-6 rounded-lg shadow-sm mb-8">
             <h3 class="text-center text-lg font-semibold text-[#213268] mb-6">Penyusutan Bulanan</h3>
             <div class="h-64 w-full">
                 <canvas id="depreciationChart"></canvas>
@@ -172,7 +172,8 @@
                                                     class="text-red-500">*</span></label>
                                             <input type="text" id="acquisition_cost" name="acquisition_cost" placeholder="0"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
-                                                required onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
+                                                required onkeyup="formatCurrency(this)"
+                                                onblur="formatCurrency(this, 'blur')">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pengadaan
                                                 harus diisi</div>
                                         </div>
@@ -182,7 +183,8 @@
                                                     class="text-red-500">*</span></label>
                                             <input type="text" id="salvage_value" name="salvage_value" placeholder="0"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
-                                                required onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
+                                                required onkeyup="formatCurrency(this)"
+                                                onblur="formatCurrency(this, 'blur')">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
                                                 diisi</div>
                                         </div>
@@ -357,7 +359,7 @@
 
                     // Format currency inputs
                     const formatCurrency = (element) => {
-                        element.addEventListener('input', function(e) {
+                        element.addEventListener('input', function (e) {
                             let value = this.value.replace(/[^\d]/g, '');
 
                             if (value) {
@@ -369,7 +371,7 @@
                         });
 
                         // Format on focus out to ensure proper display
-                        element.addEventListener('focusout', function(e) {
+                        element.addEventListener('focusout', function (e) {
                             if (this.value === '') return;
 
                             let value = this.value.replace(/[^\d]/g, '');
@@ -380,7 +382,7 @@
                         });
 
                         // On focus, position cursor at the end
-                        element.addEventListener('focus', function(e) {
+                        element.addEventListener('focus', function (e) {
                             const val = this.value;
                             this.value = '';
                             this.value = val;
@@ -814,15 +816,15 @@
                     if (noDataElement) {
                         noDataElement.classList.remove('hidden');
                         noDataElement.innerHTML = `
-                                <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
-                                    <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
-                                    <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
-                                </div>
-                            `;
+                                    <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-8 rounded-lg mb-8 text-center">
+                                        <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <h3 class="text-lg font-medium mb-2">Asset Ini Belum Memiliki Data Penyusutan</h3>
+                                        <p class="text-blue-600">Silakan gunakan tombol Pengaturan untuk menambahkan data penyusutan</p>
+                                    </div>
+                                `;
                     }
 
                     document.getElementById('depreciationChartContainer').classList.add('hidden');
@@ -837,15 +839,15 @@
                     const currentValue = this.calculateCurrentValue(depreciation);
 
                     document.getElementById('depreciationSummary').innerHTML = `
-                        <tr>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.date_acquired || '-'}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? '100%' : this.formatCurrency(totalCost)}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
-                            <td class="p-3 text-xs border-t border-[#EEF1F4] font-semibold text-[#213268]">${this.isPercentageView ? this.formatPercentage(currentValue, totalCost) : this.formatCurrency(currentValue)}</td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.formatIndonesianDate(depreciation.date_acquired)}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? '100%' : this.formatCurrency(totalCost)}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.isPercentageView ? this.formatPercentage(salvageValue, totalCost) : this.formatCurrency(salvageValue)}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${depreciation.asset_life_months || '-'}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4]">${this.getDepreciationMethodText(depreciation.depreciation_method)}</td>
+                                <td class="p-3 text-xs border-t border-[#EEF1F4] font-semibold text-[#213268]">${this.isPercentageView ? this.formatPercentage(currentValue, totalCost) : this.formatCurrency(currentValue)}</td>
+                            </tr>
+                        `;
 
                     if (Array.isArray(depreciation.monthly_data)) {
                         const today = new Date();
@@ -928,26 +930,26 @@
                     const displayData = { ...this.originalChartData };
                     const assetLifeMonths = this.currentDepreciation?.asset_life_months || 0;
                     const showMonthlyView = assetLifeMonths <= 12;
-                    
+
                     // Variables to track current value point for highlighting
                     let currentValueIndex = -1;
-                    
+
                     // If asset life is 12 months or less, prepare monthly chart data
                     if (showMonthlyView && this.currentDepreciation && this.currentDepreciation.monthly_data) {
                         const monthlyData = this.currentDepreciation.monthly_data;
                         const totalCost = this.currentDepreciation.total_cost || 0;
-                        
+
                         // Extract month names and book values
                         const labels = [];
                         const values = [];
-                        
+
                         // Find the current month to highlight
                         const today = new Date();
                         const currentYear = today.getFullYear();
                         const currentMonth = today.getMonth() + 1;
                         const currentMonthMatch = this.findCurrentMonthMatch(monthlyData, currentYear, currentMonth);
                         const mostRecentMonth = currentMonthMatch || this.findMostRecentMonth(monthlyData, this.currentDepreciation.date_acquired);
-                        
+
                         monthlyData.forEach((month, index) => {
                             if (month.month_name) {
                                 // Extract just the month name without year for readability
@@ -957,23 +959,23 @@
                                 } else {
                                     labels.push(month.month_name);
                                 }
-                                
+
                                 // Get the book value
                                 const value = this.isPercentageView && totalCost > 0
                                     ? (month.book_value / totalCost) * 100
                                     : month.book_value;
-                                
+
                                 values.push(value);
-                                
+
                                 // Check if this is the current month or most recent month
-                                if (mostRecentMonth && 
-                                    ((month.month_number && mostRecentMonth.month_number === month.month_number) || 
+                                if (mostRecentMonth &&
+                                    ((month.month_number && mostRecentMonth.month_number === month.month_number) ||
                                      (month.month_name && mostRecentMonth.month_name === month.month_name))) {
                                     currentValueIndex = index;
                                 }
                             }
                         });
-                        
+
                         // Update display data with monthly values
                         displayData.years = labels;
                         displayData.values = values;
@@ -983,7 +985,7 @@
                         if (displayData.years && displayData.years.length > 0) {
                             const currentYear = new Date().getFullYear();
                             currentValueIndex = displayData.years.findIndex(year => parseInt(year) === currentYear);
-                            
+
                             // If current year not found, use the last data point that's not in the future
                             if (currentValueIndex === -1) {
                                 for (let i = displayData.years.length - 1; i >= 0; i--) {
@@ -994,7 +996,7 @@
                                 }
                             }
                         }
-                        
+
                         // Apply percentage conversion if needed
                         if (this.isPercentageView) {
                             const totalCost = this.currentDepreciation?.total_cost || 0;
@@ -1011,7 +1013,7 @@
                     const pointRadius = Array(displayData.values.length).fill(4);
                     const pointBackgroundColors = Array(displayData.values.length).fill('#36A2EB');
                     const borderWidth = Array(displayData.values.length).fill(2);
-                    
+
                     // Highlight current value point if found
                     if (currentValueIndex >= 0) {
                         pointRadius[currentValueIndex] = 8;
@@ -1045,12 +1047,12 @@
                                     callbacks: {
                                         label: (context) => {
                                             let label = '';
-                                            
+
                                             // Add "Nilai Saat Ini" label for highlighted point
                                             if (context.dataIndex === currentValueIndex) {
                                                 label = 'Nilai Saat Ini: ';
                                             }
-                                            
+
                                             if (this.isPercentageView) {
                                                 label += context.parsed.y.toFixed(2) + '%';
                                             } else {
@@ -1245,6 +1247,14 @@
                     }
 
                     return mostRecentMonth;
+                },
+
+                // Function to format date to Indonesian
+                formatIndonesianDate(dateString) {
+                    if (!dateString) return '-';
+                    const date = new Date(dateString);
+                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                    return date.toLocaleDateString('id-ID', options);
                 }
             };
 

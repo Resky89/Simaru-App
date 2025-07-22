@@ -1,5 +1,5 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-xl font-bold text-[#213268]">DOKUMEN</h2>
         @if(hasPermission('asset:document:create'))
             <button id="addDocumentBtn"
@@ -27,7 +27,7 @@
     <!-- Content sections -->
     <div id="documentContentSections" class="hidden">
         <!-- Document Table -->
-        <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+        <div class="overflow-x-auto mb-8">
             <table class="w-full min-w-[500px] border-collapse">
                 <thead>
                     <tr>
@@ -789,7 +789,7 @@
                 let html = '';
                 documents.forEach(doc => {
                     const fileName = doc.file_path ? doc.file_path.split('/').pop() : 'Unknown file';
-                    const uploadDate = doc.upload_date ? new Date(doc.upload_date).toLocaleDateString() : '-';
+                    const uploadDate = doc.upload_date ? new Date(doc.upload_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
                     const fileExt = fileName.split('.').pop().toLowerCase();
 
                     let previewUrl;

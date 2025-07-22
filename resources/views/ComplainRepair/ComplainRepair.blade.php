@@ -106,11 +106,11 @@
                                                 $status = $complaint['status'] ?? '';
 
                                                 if ($status == 'new') {
-                                                    $statusClass = 'bg-yellow-100 text-yellow-800';
-                                                } elseif ($status == 'in progress') {
                                                     $statusClass = 'bg-blue-100 text-blue-800';
+                                                } elseif ($status == 'in progress') {
+                                                    $statusClass = 'bg-yellow-100 text-yellow-800';
                                                 } elseif ($status == 'finished') {
-                                                    $statusClass = 'bg-emerald-100 text-emerald-800';
+                                                    $statusClass = 'bg-green-100 text-green-800';
                                                 } elseif ($status == 'approved') {
                                                     $statusClass = 'bg-green-100 text-green-800';
                                                 } else {
@@ -129,7 +129,7 @@
                                                     $statusText = 'Disetujui';
                                             @endphp
                                             <span
-                                                class="px-3 py-1.5 rounded-full text-xs font-medium {{ $statusClass }} inline-block min-w-[90px] text-center whitespace-nowrap">
+                                                class="px-2 py-1 rounded text-xs {{ $statusClass }} inline-block w-full text-center whitespace-nowrap">
                                                 {{ $statusText }}
                                             </span>
                                         </td>
@@ -1580,7 +1580,7 @@
                                         const statusBadge = button.closest('tr').querySelector('td:nth-child(3) span');
                                         if (statusBadge) {
                                             statusBadge.textContent = 'Sedang Diproses';
-                                            statusBadge.className = 'px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 inline-block min-w-[90px] text-center whitespace-nowrap';
+                                            statusBadge.className = 'px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800 inline-block w-full text-center whitespace-nowrap';
                                         }
                                     }
                                     return fetchComplaintDetails(complaintId);

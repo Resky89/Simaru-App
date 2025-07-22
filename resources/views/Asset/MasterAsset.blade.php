@@ -67,10 +67,26 @@
                         <div class="flex flex-wrap gap-4">
                             <select id="assetTypeFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
-                                <option value="" disabled selected>Pilih Tipe</option>
+                                <option value="" disabled {{ !request()->query('type') ? 'selected' : '' }}>Pilih Tipe</option>
                                 <option value="">Semua Tipe</option>
-                                <option value="medical">Medis</option>
-                                <option value="non_medical">Non Medis</option>
+                                <option value="medical" {{ request()->query('type') === 'medical' ? 'selected' : '' }}>Medis</option>
+                                <option value="non_medical" {{ request()->query('type') === 'non_medical' ? 'selected' : '' }}>Non Medis</option>
+                            </select>
+
+                            <select id="calibrationFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" disabled {{ !request()->query('needs_calibration') ? 'selected' : '' }}>Kalibrasi</option>
+                                <option value="">Semua</option>
+                                <option value="true" {{ request()->query('needs_calibration') === 'true' ? 'selected' : '' }}>Ya</option>
+                                <option value="false" {{ request()->query('needs_calibration') === 'false' ? 'selected' : '' }}>Tidak</option>
+                            </select>
+
+                            <select id="depreciationFilter"
+                                class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                <option value="" disabled {{ !request()->query('is_depreciable') ? 'selected' : '' }}>Penyusutan</option>
+                                <option value="">Semua</option>
+                                <option value="true" {{ request()->query('is_depreciable') === 'true' ? 'selected' : '' }}>Ya</option>
+                                <option value="false" {{ request()->query('is_depreciable') === 'false' ? 'selected' : '' }}>Tidak</option>
                             </select>
 
                             <select id="sortOrder"
@@ -1018,6 +1034,94 @@
                 showToast('{!! session('error') ?? $error ?? 'Terjadi kesalahan' !!}', 'error');
             @endif
 
+            // Initialize filters with URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchParam = urlParams.get('search');
+            const typeParam = urlParams.get('type');
+            const calibrationParam = urlParams.get('needs_calibration');
+            const depreciationParam = urlParams.get('is_depreciable');
+            const sortParam = urlParams.get('sort');
+
+            // Set initial values from URL parameters
+            if (searchParam) {
+                document.getElementById('searchInput').value = searchParam;
+            }
+
+            if (typeParam) {
+                document.getElementById('assetTypeFilter').value = typeParam;
+            }
+
+            if (calibrationParam) {
+                document.getElementById('calibrationFilter').value = calibrationParam;
+            }
+
+            if (depreciationParam) {
+                document.getElementById('depreciationFilter').value = depreciationParam;
+            }
+
+            if (sortParam) {
+                document.getElementById('sortOrder').value = sortParam;
+            }
+
+            // Add event listeners for filters
+            document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 500));
+            document.getElementById('assetTypeFilter').addEventListener('change', applyFilters);
+            document.getElementById('calibrationFilter').addEventListener('change', applyFilters);
+            document.getElementById('depreciationFilter').addEventListener('change', applyFilters);
+            document.getElementById('sortOrder').addEventListener('change', applyFilters);
+
+            // Function to apply filters
+            function applyFilters() {
+                const searchValue = document.getElementById('searchInput').value.trim();
+                const typeValue = document.getElementById('assetTypeFilter').value;
+                const calibrationValue = document.getElementById('calibrationFilter').value;
+                const depreciationValue = document.getElementById('depreciationFilter').value;
+                const sortValue = document.getElementById('sortOrder').value;
+
+                const url = new URL(window.location.href);
+                url.searchParams.delete('page'); // Reset pagination when filters change
+
+                if (searchValue) {
+                    url.searchParams.set('search', searchValue);
+                } else {
+                    url.searchParams.delete('search');
+                }
+
+                if (typeValue) {
+                    url.searchParams.set('type', typeValue);
+                } else {
+                    url.searchParams.delete('type');
+                }
+
+                if (calibrationValue) {
+                    url.searchParams.set('needs_calibration', calibrationValue);
+                } else {
+                    url.searchParams.delete('needs_calibration');
+                }
+
+                if (depreciationValue) {
+                    url.searchParams.set('is_depreciable', depreciationValue);
+                } else {
+                    url.searchParams.delete('is_depreciable');
+                }
+
+                if (sortValue) {
+                    url.searchParams.set('sort', sortValue);
+                } else {
+                    url.searchParams.delete('sort');
+                }
+
+                window.location.href = url.toString();
+            }
+
+            function debounce(func, wait) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
             const openModal = function (modal, content) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -1033,14 +1137,6 @@
                     modal.classList.add('hidden');
                 }, 300);
             };
-
-            function debounce(func, wait) {
-                let timeout;
-                return function (...args) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(this, args), wait);
-                };
-            }
 
             function initCustomSelects() {
                 document.querySelectorAll('.custom-select-container').forEach(container => {
@@ -1319,6 +1415,19 @@
             document.getElementById('exportBtn')?.addEventListener('click', () => {
                 const url = new URL(window.location.href);
                 const searchParams = url.searchParams;
+
+                // Make sure to include all filter parameters
+                const currentParams = new URLSearchParams(window.location.search);
+                const calibrationParam = currentParams.get('needs_calibration');
+                const depreciationParam = currentParams.get('is_depreciable');
+
+                if (calibrationParam) {
+                    searchParams.set('needs_calibration', calibrationParam);
+                }
+
+                if (depreciationParam) {
+                    searchParams.set('is_depreciable', depreciationParam);
+                }
 
                 const exportUrl = "{{ route('export-asset-master-pdf') }}?" + searchParams.toString();
 
@@ -1750,73 +1859,12 @@
             });
 
             window.changePage = function (page) {
-                if (page < 1) return;
-
                 const url = new URL(window.location.href);
                 url.searchParams.set('page', page);
                 window.location.href = url.toString();
             };
 
-            window.changePerPage = function (perPage) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('limit', perPage);
-                url.searchParams.set('page', 1);
-                window.location.href = url.toString();
-            };
-
-            function applyFilters() {
-                const searchValue = document.getElementById('searchInput')?.value.trim() || '';
-                const typeValue = document.getElementById('assetTypeFilter')?.value || '';
-                const sortValue = document.getElementById('sortOrder')?.value || '';
-
-                const url = new URL(window.location.href);
-
-                ['search', 'type', 'sort', 'page'].forEach(param => {
-                    url.searchParams.delete(param);
-                });
-
-                if (searchValue) url.searchParams.set('search', searchValue);
-                if (typeValue) url.searchParams.set('type', typeValue);
-                if (sortValue) url.searchParams.set('sort', sortValue);
-
-                url.searchParams.set('page', 1);
-
-                window.location.href = url.toString();
-            }
-
-            let searchTimeout;
-            document.getElementById('searchInput')?.addEventListener('input', function () {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(applyFilters, 500);
-            });
-
-            document.getElementById('assetTypeFilter')?.addEventListener('change', applyFilters);
-            document.getElementById('sortOrder')?.addEventListener('change', applyFilters);
-
-            const urlParams = new URLSearchParams(window.location.search);
-            if (document.getElementById('searchInput')) {
-                document.getElementById('searchInput').value = urlParams.get('search') || '';
-            }
-            if (document.getElementById('assetTypeFilter')) {
-                const typeValue = urlParams.get('type');
-                if (typeValue) {
-                    document.getElementById('assetTypeFilter').value = typeValue;
-                }
-            }
-            if (document.getElementById('sortOrder')) {
-                const sortValue = urlParams.get('sort');
-                if (sortValue) {
-                    document.getElementById('sortOrder').value = sortValue;
-                }
-            }
-
-            window.changePage = function (page) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('page', page);
-                window.location.href = url.toString();
-            };
-
-            window.changePerPage = function (perPage) {
+            window.changeMasterAssetPerPage = function (perPage) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('limit', perPage);
                 url.searchParams.set('page', 1);

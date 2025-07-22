@@ -10,7 +10,7 @@
             <!-- Header with status banner -->
             <div class="relative">
                 <!-- Header with back button -->
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div class="flex items-center">
                         <a href="{{ route('complaint.index') }}"
                             class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
@@ -24,13 +24,13 @@
                     <!-- Export Button -->
                     @if(hasPermission('complaint:export'))
                         <a href="{{ route('complaint.detail.export.pdf', ['id' => $complaint['id']]) }}" target="_blank"
-                            class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                            class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                            Ekspor PDF
+                            <span>Ekspor PDF</span>
                         </a>
                     @endif
                 </div>
@@ -44,17 +44,17 @@
                     $status = $complaint['status'] ?? '';
 
                     if ($status == 'new') {
-                        $statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                        $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
                         $statusText = 'Baru';
                         $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
                         $statusDescription = 'Keluhan baru dibuat';
                     } elseif ($status == 'in progress') {
-                        $statusClass = 'bg-blue-100 text-blue-800 border-blue-200';
+                        $statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
                         $statusText = 'Sedang Diproses';
                         $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
                         $statusDescription = 'Keluhan sedang dalam proses perbaikan';
                     } elseif ($status == 'finished') {
-                        $statusClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                        $statusClass = 'bg-green-100 text-green-800 border-green-200';
                         $statusText = 'Selesai';
                         $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
                         $statusDescription = 'Keluhan telah selesai diperbaiki';
@@ -351,6 +351,6 @@
                     }
                 });
             @endif
-     });
+            });
     </script>
 @endsection

@@ -33,6 +33,16 @@ class MasterAssetController extends Controller
             $extraParams['subcategory_id'] = (int) $request->input('subcategory_id');
         }
 
+        // Needs calibration filter
+        if ($request->filled('needs_calibration')) {
+            $extraParams['needs_calibration'] = filter_var($request->input('needs_calibration'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Is depreciable filter
+        if ($request->filled('is_depreciable')) {
+            $extraParams['is_depreciable'] = filter_var($request->input('is_depreciable'), FILTER_VALIDATE_BOOLEAN);
+        }
+
         // Custom sort mappings
         $sortMappings = [
             'oldest' => ['sort_by' => 'asset_master_id', 'sort_order' => 'asc'],
@@ -278,6 +288,16 @@ class MasterAssetController extends Controller
 
             if ($request->filled('type')) {
                 $queryParams['asset_type'] = $request->input('type');
+            }
+
+            // Add needs_calibration filter
+            if ($request->filled('needs_calibration')) {
+                $queryParams['needs_calibration'] = filter_var($request->input('needs_calibration'), FILTER_VALIDATE_BOOLEAN);
+            }
+
+            // Add is_depreciable filter
+            if ($request->filled('is_depreciable')) {
+                $queryParams['is_depreciable'] = filter_var($request->input('is_depreciable'), FILTER_VALIDATE_BOOLEAN);
             }
 
             // Tidak menggunakan pagination untuk export

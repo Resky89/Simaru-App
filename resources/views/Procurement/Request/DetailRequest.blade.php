@@ -169,18 +169,18 @@
 
                         <!-- Item List -->
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-lg font-semibold text-[#666666]">DAFTAR ASET</h2>
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                                <h2 class="text-lg font-semibold text-[#666666] mb-3 sm:mb-0">DAFTAR ASET</h2>
 
                                 <!-- Action Buttons - Repositioned -->
-                                <div class="flex flex-wrap gap-3">
+                                <div class="flex flex-row w-full sm:w-auto gap-2">
                                     @if(
                                         $procurement['status'] == 'Under Review' &&
                                         !isset($procurement['approved_by_manager']) &&
                                         hasPermission('procurement:approve:manager')
                                     )
                                         <button id="managerApprovalBtn" type="button"
-                                            class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
+                                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                             SETUJU
                                         </button>
                                     @endif
@@ -194,7 +194,7 @@
                                             hasPermission('procurement:approve:director')
                                         )
                                         <button id="directorApprovalBtn" type="button"
-                                            class="px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
+                                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-green-600 text-green-600 rounded-lg text-base hover:bg-green-50 transform active:scale-[0.98] transition-all duration-200">
                                             SETUJU
                                         </button>
                                     @endif
@@ -208,7 +208,7 @@
                                             )
                                         )
                                         <button id="rejectBtn" type="button"
-                                            class="px-6 py-2 border border-red-600 text-red-600 rounded-lg text-base hover:bg-red-50 transform active:scale-[0.98] transition-all duration-200">
+                                            class="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-red-600 text-red-600 rounded-lg text-base hover:bg-red-50 transform active:scale-[0.98] transition-all duration-200">
                                             TOLAK
                                         </button>
                                     @endif

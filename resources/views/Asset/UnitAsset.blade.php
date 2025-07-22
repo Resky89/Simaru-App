@@ -130,7 +130,7 @@
                             <select id="statusFilter"
                                 class="h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                 <option value="" disabled selected>Status</option>
-                                <option value="">All Status</option>
+                                <option value="">Semua Status</option>
                                 <option value="available">Tersedia</option>
                                 <option value="check out">Dipinjam</option>
                                 <option value="dispose">Dihapus</option>

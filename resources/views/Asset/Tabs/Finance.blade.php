@@ -1,5 +1,5 @@
 <div class="p-3 md:p-6 bg-white rounded-lg shadow-sm">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-xl font-bold text-[#213268]">TRANSAKSI KEUANGAN</h2>
         @if(hasPermission('asset:transaction:create'))
             <button id="addTransactionBtn" type="button"
@@ -27,7 +27,8 @@
     <!-- Content sections -->
     <div id="financeContentSections" class="hidden">
         <!-- Transaction Filter/Sort -->
-        <div class="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
+        <div
+            class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 bg-gray-50 p-3 rounded-md gap-4">
             <div class="text-sm font-medium text-gray-700" id="transaction-count">Total Transaksi: 0</div>
             <div class="flex space-x-2">
                 <select id="filter-type"
@@ -48,7 +49,7 @@
 
         <!-- Transactions List with better headers -->
         @if(hasPermission('asset:transaction:view'))
-            <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-md">
+            <div class="overflow-x-auto mb-8">
                 <table class="w-full min-w-[500px] border-collapse">
                     <thead>
                         <tr>

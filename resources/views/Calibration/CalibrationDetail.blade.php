@@ -33,7 +33,7 @@
                     }
                 @endphp
 
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div class="flex items-center">
                     <a href="{{ route('calibration') }}"
                         class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
@@ -47,12 +47,12 @@
                     @if(hasPermission('calibration:export'))
                     <a href="{{ route('calibration.detail.export.pdf', ['id' => $calibration['id'] ?? 0]) }}"
                         target="_blank"
-                        class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                        class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Ekspor PDF
+                        <span>Ekspor PDF</span>
                     </a>
                     @endif
                 </div>

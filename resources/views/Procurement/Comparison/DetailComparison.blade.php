@@ -330,7 +330,7 @@
                                                                         @if(isset($vendorOffer['additional_info']) && !empty($vendorOffer['additional_info']))
                                                                             <div class="bg-yellow-50 px-2 py-0.5 rounded">
                                                                                 <div class="text-xs font-medium text-gray-600">Info:</div>
-                                                                                <div class="text-s">{{ $vendorOffer['additional_info'] }}</div>
+                                                                                <div class="text-xs">{{ $vendorOffer['additional_info'] }}</div>
                                                                             </div>
                                                                         @endif
                                                                     </div>

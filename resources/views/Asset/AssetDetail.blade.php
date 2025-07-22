@@ -20,158 +20,159 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto justify-start md:justify-end">
+                <div
+                    class="flex flex-row overflow-x-auto gap-2 pb-2 w-full md:w-auto md:gap-3 justify-start md:justify-end no-scrollbar">
                     @if($asset['current_status'] === 'dispose')
                         <!-- When status is disposed, show only Edit button -->
                         @if(hasPermission('asset:edit'))
                             <a href="javascript:void(0)" id="editAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span>Ubah</span>
+                                <span class="hidden md:inline">Ubah</span>
                             </a>
                         @endif
                     @elseif($asset['current_status'] === 'available')
                         <!-- When status is available: Check Out, Dispose, Lost, Edit buttons -->
                         @if(hasPermission('asset:checkout'))
                             <button type="button" id="checkoutAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
-                                <span>Pinjam</span>
+                                <span class="hidden md:inline">Pinjam</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:dispose'))
                             <button type="button" id="disposeAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                <span>Hapuskan</span>
+                                <span class="hidden md:inline">Hapuskan</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:report-loss'))
                             <button type="button" id="lostAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
-                                <span>Hilang</span>
+                                <span class="hidden md:inline">Hilang</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span>Ubah</span>
+                                <span class="hidden md:inline">Ubah</span>
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'check out')
                         <!-- When status is check out: Check In, Dispose, Lost, Edit buttons -->
                         @if(hasPermission('asset:checkout'))
                             <button type="button" id="checkinAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                 </svg>
-                                <span>Kembalikan</span>
+                                <span class="hidden md:inline">Kembalikan</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:dispose'))
                             <button type="button" id="disposeAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                <span>Hapuskan</span>
+                                <span class="hidden md:inline">Hapuskan</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:report-loss'))
                             <button type="button" id="lostAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
-                                <span>Hilang</span>
+                                <span class="hidden md:inline">Hilang</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span>Ubah</span>
+                                <span class="hidden md:inline">Ubah</span>
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'lost')
                         <!-- When status is lost: Found, Edit buttons -->
                         @if(hasPermission('asset:report-found'))
                             <button type="button" id="foundAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                <span>Ditemukan</span>
+                                <span class="hidden md:inline">Ditemukan</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span>Ubah</span>
+                                <span class="hidden md:inline">Ubah</span>
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'under repair')
                         @if(hasPermission('asset:dispose'))
                             <button type="button" id="disposeAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                <span>Hapuskan</span>
+                                <span class="hidden md:inline">Hapuskan</span>
                             </button>
                         @endif
                         <!-- When status is under repair: Edit button -->
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
-                                class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
-                                <span>Ubah</span>
+                                <span class="hidden md:inline">Ubah</span>
                             </button>
                         @endif
                     @endif
                     <!-- Add this button alongside the other action buttons -->
                     @if(hasPermission('asset:export'))
                         <a href="{{ route('asset.export-pdf', ['id' => $asset['asset_id'] ?? '']) }}"
-                            class="flex items-center gap-2 px-4 py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
+                            class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200"
                             target="_blank">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
-                            <span>Export PDF</span>
+                            <span class="hidden md:inline">Export PDF</span>
                         </a>
                     @endif
                 </div>
@@ -185,10 +186,10 @@
                         <div class="flip-card w-full h-full transition-transform duration-700">
                             <!-- Front side (Asset image) -->
                             <div
-                                class="flip-card-front bg-[#D9D9D9] rounded-[20px] shadow-md flex items-center justify-center overflow-hidden relative w-full h-full">
+                                class="flip-card-front bg-[#D9D9D9] rounded-[20px] shadow-md flex items-center justify-center overflow-hidden w-full h-full">
                                 @if(isset($asset['asset_master']['reference_image_path']) && $asset['asset_master']['reference_image_path'])
                                     <img src="{{ config('app.backend_url') }}/public{{ $asset['asset_master']['reference_image_path'] }}"
-                                        alt="Asset Image" class="absolute inset-0 w-full h-full object-cover p-0"
+                                        alt="Asset Image" class="absolute inset-0 w-full h-full object-cover p-0 rounded-[20px]"
                                         style="object-position: center;"
                                         onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.remove('object-cover'); this.classList.add('object-contain', 'p-4'); this.style.position='relative';">
                                     <div
@@ -217,7 +218,7 @@
 
                             <!-- Back side (QR Code) -->
                             <div
-                                class="flip-card-back bg-white rounded-[20px] shadow-md flex items-center justify-center overflow-hidden relative w-full h-full">
+                                class="flip-card-back bg-white rounded-[20px] shadow-md flex items-center justify-center overflow-hidden w-full h-full">
                                 <div class="flex flex-col items-center justify-center w-3/4 h-3/4">
                                     @if(isset($asset['qr_base64']))
                                         <img src="{{ $asset['qr_base64'] }}" alt="Asset QR Code"
@@ -395,7 +396,8 @@
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Garansi Berakhir</span>
-                                <span class="text-sm">{{ $asset['warranty_end_date'] ? \Carbon\Carbon::parse($asset['warranty_end_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
+                                <span
+                                    class="text-sm">{{ $asset['warranty_end_date'] ? \Carbon\Carbon::parse($asset['warranty_end_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Nomor Seri</span>
@@ -412,7 +414,8 @@
                             </div>
                             <div class="flex flex-wrap items-center">
                                 <span class="w-[150px] font-semibold text-sm">Tanggal Beli</span>
-                                <span class="text-sm">{{ $asset['purchase_date'] ? \Carbon\Carbon::parse($asset['purchase_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
+                                <span
+                                    class="text-sm">{{ $asset['purchase_date'] ? \Carbon\Carbon::parse($asset['purchase_date'])->locale('id')->translatedFormat('d F Y') : '-' }}</span>
                             </div>
 
                             @if($asset['current_status'] === 'dispose')
@@ -606,7 +609,8 @@
                                                     </div>
                                                     <ul id="edit_asset_master_list" class="py-1"></ul>
                                                     <!-- Load more indicator for infinite scroll -->
-                                                    <div id="edit_asset_master_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <div id="edit_asset_master_load_more"
+                                                        class="p-2 text-gray-500 text-center hidden">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -648,8 +652,7 @@
                                                     class="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg hidden">
                                                     <div id="edit_brand_loading" class="p-2 text-gray-500 text-center">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
-                                                            xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                            viewBox="0 0 24 24">
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                 stroke="currentColor" stroke-width="4"></circle>
                                                             <path class="opacity-75" fill="currentColor"
@@ -677,9 +680,9 @@
 
                                         <!-- Model field -->
                                         <div class="mb-5 space-y-2">
-                                            <label for="edit_model" class="block text-base font-semibold text-[#666666] mb-2">Model</label>
-                                            <input type="text" name="model" id="edit_model"
-                                                value="{{ $asset['model'] ?? '' }}"
+                                            <label for="edit_model"
+                                                class="block text-base font-semibold text-[#666666] mb-2">Model</label>
+                                            <input type="text" name="model" id="edit_model" value="{{ $asset['model'] ?? '' }}"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                 placeholder="Masukkan model">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Model harus diisi</div>
@@ -700,14 +703,17 @@
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="purchase_cost" id="edit_purchase_cost"
                                                         value="{{ number_format($asset['purchase_cost'] ?? 0, 0, '', '.') }}"
                                                         class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')">
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian harus diisi</div>
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)"
+                                                        onblur="formatCurrency(this, 'blur')">
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
+                                                        harus diisi</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -751,9 +757,11 @@
                                                         </div>
                                                         <ul id="edit_building_list" class="py-1"></ul>
                                                         <!-- Load more indicator for building dropdown -->
-                                                        <div id="edit_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_building_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -773,7 +781,8 @@
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                         placeholder="Pilih gedung terlebih dahulu" autocomplete="off" disabled>
                                                     <input type="hidden" name="room_id" id="edit_selected_room_id">
-                                                    <input type="hidden" name="room_id" id="edit_selected_room_id" value="{{ $asset['room_id'] ?? '' }}">
+                                                    <input type="hidden" name="room_id" id="edit_selected_room_id"
+                                                        value="{{ $asset['room_id'] ?? '' }}">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Ruangan harus
                                                         dipilih</div>
                                                     <div id="edit_room_dropdown"
@@ -792,9 +801,11 @@
                                                         </div>
                                                         <ul id="edit_room_list" class="py-1"></ul>
                                                         <!-- Load more indicator for room dropdown -->
-                                                        <div id="edit_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_room_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -848,9 +859,11 @@
                                                         </div>
                                                         <ul id="edit_user_list" class="py-1"></ul>
                                                         <!-- Load more indicator for user dropdown -->
-                                                        <div id="edit_user_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                        <div id="edit_user_load_more"
+                                                            class="p-2 text-gray-500 text-center hidden">
                                                             <svg class="animate-spin h-5 w-5 mx-auto"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24">
                                                                 <circle class="opacity-25" cx="12" cy="12" r="10"
                                                                     stroke="currentColor" stroke-width="4"></circle>
                                                                 <path class="opacity-75" fill="currentColor"
@@ -890,28 +903,34 @@
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Biaya Perolehan
                                                     <span class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="acquisition_cost" id="edit_acquisition_cost"
                                                         class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')"
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)"
+                                                        onblur="formatCurrency(this, 'blur')"
                                                         value="{{ isset($asset['depreciation']) ? number_format($asset['depreciation']['acquisition_cost'], 0, '', '.') : '0' }}">
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan harus diisi</div>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya perolehan
+                                                        harus diisi</div>
                                                 </div>
                                             </div>
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Nilai Sisa
                                                     <span class="text-red-500">*</span></label>
                                                 <div class="relative">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                                         <span class="text-gray-500">Rp</span>
                                                     </div>
                                                     <input type="text" name="salvage_value" id="edit_salvage_value"
                                                         class="currency-input w-full h-[45px] pl-10 pr-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)" onblur="formatCurrency(this, 'blur')"
+                                                        placeholder="0" data-type="currency" onkeyup="formatCurrency(this)"
+                                                        onblur="formatCurrency(this, 'blur')"
                                                         value="{{ isset($asset['depreciation']) ? number_format($asset['depreciation']['salvage_value'], 0, '', '.') : '0' }}">
-                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus diisi</div>
+                                                    <div class="error-message text-red-500 text-sm mt-1 hidden">Nilai sisa harus
+                                                        diisi</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1034,10 +1053,10 @@
                                                 <ul id="checkout_user_list" class="py-1"></ul>
                                                 <!-- Load more indicator for checkout user dropdown -->
                                                 <div id="checkout_user_load_more" class="p-2 text-gray-500 text-center hidden">
-                                                    <svg class="animate-spin h-5 w-5 mx-auto"
-                                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                    <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                            stroke-width="4"></circle>
                                                         <path class="opacity-75" fill="currentColor"
                                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                                         </path>
@@ -1076,7 +1095,8 @@
                                                     </div>
                                                     <ul id="pinjam_building_list" class="py-1"></ul>
                                                     <!-- Load more indicator for pinjam building dropdown -->
-                                                    <div id="pinjam_building_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <div id="pinjam_building_load_more"
+                                                        class="p-2 text-gray-500 text-center hidden">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -1117,7 +1137,8 @@
                                                     </div>
                                                     <ul id="pinjam_room_list" class="py-1"></ul>
                                                     <!-- Load more indicator for pinjam room dropdown -->
-                                                    <div id="pinjam_room_load_more" class="p-2 text-gray-500 text-center hidden">
+                                                    <div id="pinjam_room_load_more"
+                                                        class="p-2 text-gray-500 text-center hidden">
                                                         <svg class="animate-spin h-5 w-5 mx-auto"
                                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -1431,6 +1452,7 @@
         .flip-card {
             position: relative;
             transform-style: preserve-3d;
+            transition: transform 0.7s;
         }
 
         .flip-card.flipped {
@@ -1473,11 +1495,17 @@
         }
 
         /* Fix dropdown positioning */
-        #user_dropdown, #edit_user_dropdown,
-        #building_dropdown, #edit_building_dropdown,
-        #room_dropdown, #edit_room_dropdown,
-        #asset_master_dropdown, #edit_asset_master_dropdown,
-        #checkout_user_dropdown, #pinjam_building_dropdown, #pinjam_room_dropdown {
+        #user_dropdown,
+        #edit_user_dropdown,
+        #building_dropdown,
+        #edit_building_dropdown,
+        #room_dropdown,
+        #edit_room_dropdown,
+        #asset_master_dropdown,
+        #edit_asset_master_dropdown,
+        #checkout_user_dropdown,
+        #pinjam_building_dropdown,
+        #pinjam_room_dropdown {
             position: absolute;
             z-index: 9999;
         }
@@ -1490,11 +1518,15 @@
 
         /* Fix for modals to allow dropdowns to appear outside */
         .modal-container {
-            overflow-y: auto !important; /* Enable vertical scrolling */
-            height: 100vh; /* Use full viewport height */
+            overflow-y: auto !important;
+            /* Enable vertical scrolling */
+            height: 100vh;
+            /* Use full viewport height */
             /* Hide scrollbar but keep functionality */
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
         }
 
         /* Hide scrollbar for Chrome, Safari and Opera */
@@ -1513,24 +1545,30 @@
         }
 
         /* Add spacing at the bottom for long forms */
-        .modal-container > div {
+        .modal-container>div {
             padding-bottom: 2rem;
         }
 
         /* Reset inner content scrolling */
-        #editAssetModalContent, #checkoutAssetModalContent, #checkinAssetModalContent,
-        #reportLostModalContent, #foundAssetModalContent, #disposeAssetModalContent {
+        #editAssetModalContent,
+        #checkoutAssetModalContent,
+        #checkinAssetModalContent,
+        #reportLostModalContent,
+        #foundAssetModalContent,
+        #disposeAssetModalContent {
             overflow-y: visible !important;
             max-height: none !important;
         }
 
         /* Asset Master Dropdown Styling */
-        .asset-master-item, .building-item {
+        .asset-master-item,
+        .building-item {
             display: flex;
             flex-direction: column;
         }
 
-        .asset-master-item .name, .building-item .name {
+        .asset-master-item .name,
+        .building-item .name {
             font-weight: 500;
             color: #666;
         }
@@ -1568,7 +1606,10 @@
         }
 
         /* Dropdown Scroll Loading Indicator */
-        #edit_asset_master_load_more, #edit_room_load_more, #edit_building_load_more, #edit_user_load_more {
+        #edit_asset_master_load_more,
+        #edit_room_load_more,
+        #edit_building_load_more,
+        #edit_user_load_more {
             padding: 8px 0;
         }
     </style>
@@ -1650,9 +1691,45 @@
                         if (btn) btn.style.display = 'none';
                     });
                 @endif
-                                }
+                }
 
             initializeButtons();
+
+            // Flip card functionality
+            const flipCard = document.querySelector('.flip-card');
+            const flipBtns = document.querySelectorAll('.flip-btn');
+
+            flipBtns.forEach(btn => {
+                btn.addEventListener('click', () => flipCard.classList.toggle('flipped'));
+            });
+
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            if (tabPanes.length > 0) {
+                tabPanes.forEach(pane => pane.classList.add('hidden'));
+                const firstTab = document.getElementById(tabButtons[0].getAttribute('data-tab'));
+                if (firstTab) firstTab.classList.remove('hidden');
+            }
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    tabButtons.forEach(button => {
+                        button.classList.remove('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
+                        button.classList.add('text-gray-500');
+                    });
+
+                    this.classList.remove('text-gray-500');
+                    this.classList.add('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
+
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
+
+                    const tabName = this.getAttribute('data-tab');
+                    const selectedTab = document.getElementById(tabName);
+                    if (selectedTab) selectedTab.classList.remove('hidden');
+                });
+            });
 
             function showToast(message, type = 'success') {
                 const notification = document.createElement('div');
@@ -1665,19 +1742,19 @@
                 if (type === 'success') {
                     notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                     notification.innerHTML = `
-                                            <div class="flex items-start">
-                                                <div class="py-1">
-                                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
+                                                <div class="flex items-start">
+                                                    <div class="py-1">
+                                                        <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-bold">Berhasil!</p>
+                                                        <div>${message}</div>
+                                                    </div>
+                                                    <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
                                                 </div>
-                                                <div>
-                                                    <p class="font-bold">Berhasil!</p>
-                                                    <div>${message}</div>
-                                                </div>
-                                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                                            </div>
-                                        `;
+                                            `;
                 } else {
                     notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
@@ -1687,10 +1764,10 @@
                     const iconContainer = document.createElement('div');
                     iconContainer.className = 'py-1 flex-shrink-0';
                     iconContainer.innerHTML = `
-                                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        `;
+                                                <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            `;
 
                     const contentContainer = document.createElement('div');
                     contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
@@ -2048,7 +2125,7 @@
                 });
 
                 // Add scroll event listener for lazy loading
-                dropdown.addEventListener('scroll', function() {
+                dropdown.addEventListener('scroll', function () {
                     // Check if we're already loading or if there's no more data
                     if (list.dataset.loading === "true" || list.dataset.hasMoreData === "false") return;
 
@@ -2201,7 +2278,7 @@
                 });
 
                 // Add scroll event listener for lazy loading
-                dropdown.addEventListener('scroll', function() {
+                dropdown.addEventListener('scroll', function () {
                     // Check if we're already loading or if there's no more data
                     if (userList.dataset.loading === "true" || userList.dataset.hasMoreData === "false") return;
 
@@ -2246,7 +2323,7 @@
                 });
 
                 // Add scroll event listener for lazy loading
-                dropdown.addEventListener('scroll', function() {
+                dropdown.addEventListener('scroll', function () {
                     // Check if we're already loading or if there's no more data
                     if (assetMasterList.dataset.loading === "true" || assetMasterList.dataset.hasMoreData === "false") return;
 
@@ -2937,40 +3014,6 @@
             // Initialize all search components
             initSearchComponents();
 
-            const flipCard = document.querySelector('.flip-card');
-            const flipBtns = document.querySelectorAll('.flip-btn');
-
-            flipBtns.forEach(btn => {
-                btn.addEventListener('click', () => flipCard.classList.toggle('flipped'));
-            });
-
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-
-            if (tabPanes.length > 0) {
-                tabPanes.forEach(pane => pane.classList.add('hidden'));
-                const firstTab = document.getElementById(tabButtons[0].getAttribute('data-tab'));
-                if (firstTab) firstTab.classList.remove('hidden');
-            }
-
-            tabButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    tabButtons.forEach(button => {
-                        button.classList.remove('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
-                        button.classList.add('text-gray-500');
-                    });
-
-                    this.classList.remove('text-gray-500');
-                    this.classList.add('active', 'text-[#213268]', 'border-b-2', 'border-[#213268]');
-
-                    tabPanes.forEach(pane => pane.classList.add('hidden'));
-
-                    const tabName = this.getAttribute('data-tab');
-                    const selectedTab = document.getElementById(tabName);
-                    if (selectedTab) selectedTab.classList.remove('hidden');
-                });
-            });
-
             const modals = {
                 edit: {
                     btn: document.getElementById('editAssetBtn'),
@@ -3260,32 +3303,32 @@
                                 'X-Requested-With': 'XMLHttpRequest'
                             }
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            const buildings = data.buildings || [];
-                            // Find the building with matching name
-                            const matchingBuilding = buildings.find(b =>
-                                b.building_name.toLowerCase() === buildingName.toLowerCase()
-                            );
-
-                            if (matchingBuilding) {
-                                document.getElementById('edit_selected_building_id').value = matchingBuilding.building_id;
-
-                                // Load rooms for this building
-                                loadRoomsForBuilding(
-                                    '',
-                                    matchingBuilding.building_id,
-                                    document.getElementById('edit_room_list'),
-                                    document.getElementById('edit_room_loading'),
-                                    document.getElementById('edit_selected_room_id'),
-                                    roomSearch,
-                                    document.getElementById('edit_room_dropdown')
+                            .then(response => response.json())
+                            .then(data => {
+                                const buildings = data.buildings || [];
+                                // Find the building with matching name
+                                const matchingBuilding = buildings.find(b =>
+                                    b.building_name.toLowerCase() === buildingName.toLowerCase()
                                 );
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching buildings:', error);
-                        });
+
+                                if (matchingBuilding) {
+                                    document.getElementById('edit_selected_building_id').value = matchingBuilding.building_id;
+
+                                    // Load rooms for this building
+                                    loadRoomsForBuilding(
+                                        '',
+                                        matchingBuilding.building_id,
+                                        document.getElementById('edit_room_list'),
+                                        document.getElementById('edit_room_loading'),
+                                        document.getElementById('edit_selected_room_id'),
+                                        roomSearch,
+                                        document.getElementById('edit_room_dropdown')
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching buildings:', error);
+                            });
                     }
                 }
 
@@ -3970,4 +4013,3 @@
         });
     </script>
 @endpush
-

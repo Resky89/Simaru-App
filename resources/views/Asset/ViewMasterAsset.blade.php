@@ -6,7 +6,7 @@
 @include('Layout.loading')
 <div class="p-4 md:p-6">
     <!-- Header with title and back button -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div class="flex items-center">
             <a href="{{ route('asset-master') }}" class="mr-4 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                 <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,21 +17,21 @@
                 DETAIL ASSET MASTER
             </h1>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-row overflow-x-auto gap-2 pb-2 w-full md:w-auto md:gap-3 justify-start md:justify-end no-scrollbar">
             @if(hasPermission('asset-master:edit'))
-            <button data-master-asset-id="{{ $masterAsset['asset_master_id'] ?? '' }}" class="edit-master-asset-btn flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
+            <button data-master-asset-id="{{ $masterAsset['asset_master_id'] ?? '' }}" class="edit-master-asset-btn flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
-                Ubah
+                <span class="hidden md:inline">Ubah</span>
             </button>
             @endif
             @if(hasPermission('asset-master:export'))
-            <a href="{{ route('export-view-master-asset-pdf', ['id' => $masterAsset['asset_master_id'] ?? '']) }}" target="_blank" class="flex items-center gap-2 px-4 py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
+            <a href="{{ route('export-view-master-asset-pdf', ['id' => $masterAsset['asset_master_id'] ?? '']) }}" target="_blank" class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#28356B] rounded-lg text-[#28356B] hover:bg-[#28356B] hover:text-white transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Expor PDF
+                <span class="hidden md:inline">Expor PDF</span>
             </a>
             @endif
         </div>
