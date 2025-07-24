@@ -320,20 +320,6 @@
                             </button>
                         </div>
 
-                        <!-- Error messages container -->
-                        <div id="errorMessages" class="px-6 pt-4">
-                            @if ($errors->any())
-                                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                                    <p class="font-bold">Error validasi:</p>
-                                    <ul class="list-disc pl-5">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
-
                         <!-- Form -->
                         <form id="complaintForm" action="{{ route('complaint.create') }}" method="POST"
                             enctype="multipart/form-data" data-no-loading>
@@ -542,9 +528,6 @@
                                 </svg>
                             </button>
                         </div>
-
-                        <!-- Error messages container -->
-                        <div id="repairErrorMessages" class="px-6 pt-4"></div>
 
                         <!-- Form -->
                         <form id="repairForm" action="{{ route('complaint.repair.create') }}" method="POST"
@@ -1362,7 +1345,7 @@
                 assetDropdown.classList.add('hidden');
 
                 selectedAssetName.textContent = asset.asset_master_name || asset.asset_name;
-                selectedAssetId.textContent = `Code: ${asset.asset_code || 'N/A'}`;
+                selectedAssetId.textContent = `Kode: ${asset.asset_code || 'N/A'}`;
                 selectedAssetInfo.classList.remove('hidden');
             }
 
@@ -1399,8 +1382,10 @@
                     }
 
                     const submitBtn = this.querySelector('button[type="submit"]');
+                    let originalBtnText = '';
+
                     if (submitBtn) {
-                        const originalText = submitBtn.innerHTML;
+                        originalBtnText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
@@ -1409,17 +1394,73 @@
                                         <span>Memproses...</span>
                                     </div>
                                 `;
-
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
                     }
 
-                    this.submit();
+                    // Create FormData for AJAX request
+                    const formData = new FormData(this);
+
+                    // Send AJAX request
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+
+                        if (data.success) {
+                            // Close modal on success
+                            if (createComplaintModal && createComplaintModalContent) {
+                                closeModal(createComplaintModal, createComplaintModalContent);
+                                resetComplaintForm();
+                            }
+
+                            showToast(data.message || 'Keluhan berhasil dibuat', 'success');
+
+                            // Reload page after success
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error messages in the modal
+                            showToast(data.message || 'Terjadi kesalahan saat membuat keluhan', 'error');
+
+                            // Display validation errors
+                            if (data.errors) {
+                                Object.keys(data.errors).forEach(field => {
+                                    const input = document.getElementById(field === 'asset_id' ? 'assetSearch' : field);
+                                    if (input) {
+                                        input.classList.add('border-red-500');
+                                        const errorElement = input.type === 'file'
+                                            ? input.parentElement?.parentElement?.querySelector('.error-message')
+                                            : input.parentElement?.querySelector('.error-message');
+
+                                        if (errorElement) {
+                                            errorElement.textContent = data.errors[field][0];
+                                            errorElement.classList.remove('hidden');
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+                        showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                    });
                 });
             }
 
@@ -1468,8 +1509,10 @@
                     }
 
                     const submitBtn = this.querySelector('button[type="submit"]');
+                    let originalBtnText = '';
+
                     if (submitBtn) {
-                        const originalText = submitBtn.innerHTML;
+                        originalBtnText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
@@ -1478,17 +1521,116 @@
                                                 <span>Memproses...</span>
                                             </div>
                                         `;
-
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
                     }
 
-                    this.submit();
+                    // Create FormData for AJAX request
+                    const formData = new FormData(this);
+
+                    // Clear previous error messages
+                    if (repairErrorMsgDiv) {
+                        repairErrorMsgDiv.innerHTML = '';
+                    }
+
+                    // Send AJAX request
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+
+                        if (data.success) {
+                            // Close modal on success
+                            if (repairComplaintModal && repairComplaintModalContent) {
+                                closeModal(repairComplaintModal, repairComplaintModalContent);
+                                clearRepairForm();
+                            }
+
+                            showToast(data.message || 'Perbaikan berhasil dibuat', 'success');
+
+                            // Reload page after success
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error messages in the modal
+                            showToast(data.message || 'Terjadi kesalahan saat membuat perbaikan', 'error');
+
+                            // Display validation errors
+                            if (data.errors) {
+                                // Create error message container
+                                const errorContainer = document.createElement('div');
+                                errorContainer.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded';
+
+                                const errorTitle = document.createElement('p');
+                                errorTitle.className = 'font-bold';
+                                errorTitle.textContent = 'Terdapat kesalahan pada form:';
+                                errorContainer.appendChild(errorTitle);
+
+                                const errorList = document.createElement('ul');
+                                errorList.className = 'mt-1 ml-4 list-disc';
+
+                                Object.keys(data.errors).forEach(field => {
+                                    // Add to error list
+                                    const errorItem = document.createElement('li');
+                                    errorItem.textContent = data.errors[field][0];
+                                    errorList.appendChild(errorItem);
+
+                                    // Highlight field
+                                    let inputField;
+                                    if (field === 'file') {
+                                        inputField = document.getElementById('repairImageFile');
+                                    } else if (field === 'repair_description') {
+                                        inputField = document.getElementById('repairDescription');
+                                    } else if (field === 'final_result') {
+                                        inputField = document.getElementById('finalResult');
+                                    } else if (field === 'repair_cost') {
+                                        inputField = document.getElementById('repairCost');
+                                    } else if (field === 'parts_replaced') {
+                                        inputField = document.getElementById('partsReplaced');
+                                    } else {
+                                        inputField = document.getElementById(field);
+                                    }
+
+                                    if (inputField) {
+                                        inputField.classList.add('border-red-500');
+                                        const errorElement = inputField.type === 'file'
+                                            ? inputField.parentElement?.parentElement?.querySelector('.error-message')
+                                            : inputField.parentElement?.querySelector('.error-message');
+
+                                        if (errorElement) {
+                                            errorElement.textContent = data.errors[field][0];
+                                            errorElement.classList.remove('hidden');
+                                        }
+                                    }
+                                });
+
+                                errorContainer.appendChild(errorList);
+
+                                if (repairErrorMsgDiv) {
+                                    repairErrorMsgDiv.appendChild(errorContainer);
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+                        showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                    });
                 });
             }
 
@@ -1699,8 +1841,10 @@
                     }
 
                     const submitBtn = this.querySelector('button[type="submit"]');
+                    let originalBtnText = '';
+
                     if (submitBtn) {
-                        const originalText = submitBtn.innerHTML;
+                        originalBtnText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
@@ -1729,33 +1873,74 @@
                             return response.json();
                         })
                         .then(data => {
-                            if (deleteComplaintModal && deleteComplaintModalContent) {
-                                closeModal(deleteComplaintModal, deleteComplaintModalContent);
-                            }
-
                             if (data.success) {
+                                // Close modal on success
+                                if (deleteComplaintModal && deleteComplaintModalContent) {
+                                    closeModal(deleteComplaintModal, deleteComplaintModalContent);
+                                }
+
                                 showToast(data.message || 'Keluhan berhasil dihapus', 'success');
 
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
                             } else {
+                                // Keep modal open and display error
                                 showToast(data.message || 'Gagal menghapus keluhan', 'error');
+
+                                // Re-enable the submit button
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalBtnText;
+                                }
+
+                                // Display error message in modal
+                                const errorMessage = document.createElement('div');
+                                errorMessage.className = 'mt-4 p-3 bg-red-100 text-red-700 rounded-md text-sm';
+                                errorMessage.innerHTML = `<p class="font-semibold">Gagal menghapus keluhan:</p><p>${data.message || 'Terjadi kesalahan, silakan coba lagi.'}</p>`;
+
+                                // Find a place to add the error message
+                                const modalContent = deleteComplaintForm.closest('.space-y-6');
+                                if (modalContent) {
+                                    // Remove any existing error messages
+                                    const existingError = modalContent.querySelector('.bg-red-100');
+                                    if (existingError) {
+                                        existingError.remove();
+                                    }
+
+                                    modalContent.insertBefore(errorMessage, modalContent.querySelector('.flex.gap-3'));
+                                }
                             }
                         })
                         .catch(error => {
                             console.error('Delete request failed:', error);
 
-                            if (deleteComplaintModal && deleteComplaintModalContent) {
-                                closeModal(deleteComplaintModal, deleteComplaintModalContent);
-                            }
-
+                            // Keep modal open and display error
                             showToast(error.message || 'Gagal menghapus keluhan', 'error');
 
+                            // Re-enable the submit button
                             if (submitBtn) {
                                 submitBtn.disabled = false;
                                 submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
+                                submitBtn.innerHTML = originalBtnText;
+                            }
+
+                            // Display error message in modal
+                            const errorMessage = document.createElement('div');
+                            errorMessage.className = 'mt-4 p-3 bg-red-100 text-red-700 rounded-md text-sm';
+                            errorMessage.innerHTML = `<p class="font-semibold">Gagal menghapus keluhan:</p><p>${error.message || 'Terjadi kesalahan, silakan coba lagi.'}</p>`;
+
+                            // Find a place to add the error message
+                            const modalContent = deleteComplaintForm.closest('.space-y-6');
+                            if (modalContent) {
+                                // Remove any existing error messages
+                                const existingError = modalContent.querySelector('.bg-red-100');
+                                if (existingError) {
+                                    existingError.remove();
+                                }
+
+                                modalContent.insertBefore(errorMessage, modalContent.querySelector('.flex.gap-3'));
                             }
                         });
                 });

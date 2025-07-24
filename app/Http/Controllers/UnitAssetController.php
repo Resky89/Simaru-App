@@ -143,15 +143,39 @@ class UnitAssetController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal membuat aset';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat aset']
+                    ]);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
             }
 
             // Berhasil dibuat
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Aset berhasil dibuat',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('assets')
                 ->with('success', $result['message'] ?? 'Aset berhasil dibuat');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'Asset.UnitAsset');
         }
     }
@@ -237,15 +261,39 @@ class UnitAssetController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal memperbarui aset';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal memperbarui aset']
+                    ]);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
             }
 
             // Berhasil diperbarui
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Aset berhasil diperbarui',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('assets')
                 ->with('success', $result['message'] ?? 'Aset berhasil diperbarui');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'Asset.UnitAsset');
         }
     }
@@ -253,14 +301,57 @@ class UnitAssetController extends Controller
     /**
      * Menghapus aset yang ditentukan.
      */
-    public function destroyAsset($id)
+    public function destroyAsset($id, Request $request)
     {
-        return $this->deleteResource(
-            request(),
-            "/assets/{$id}",
-            'Aset berhasil dihapus',
-            'assets'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/assets/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus aset';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus aset']
+                    ]);
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Aset berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('assets')
+                ->with('success', 'Aset berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
+            return $this->handleException($e, $request, 'Asset.UnitAsset');
+        }
     }
 
     /**

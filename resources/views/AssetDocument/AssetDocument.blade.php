@@ -136,8 +136,8 @@
                                         @endif
                                     </td>
                                     <td class="p-3 text-sm border-t border-[#EEF1F4]">
-                                        @if(isset($document['uploader']) && isset($document['uploader']['employee_number']))
-                                            {{ $document['uploader']['employee_number'] }}
+                                        @if(isset($document['uploader']) && isset($document['uploader']['employee_name']))
+                                            {{ $document['uploader']['employee_name'] }}
                                         @else
                                             -
                                         @endif
@@ -1021,31 +1021,33 @@
         });
 
         function fetchDocumentDetails(documentId) {
-            fetch(`/asset-documents/${documentId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                logApiResponse('fetchDocumentDetails', data);
+    return fetch(`/asset-documents/${documentId}`, {
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (typeof logApiResponse === 'function') {
+            logApiResponse('fetchDocumentDetails', data);
+        }
 
-                if (data.document) {
-                    openEditModal(data.document);
-                } else {
-                    showToast('Gagal mengambil detail dokumen: Format data tidak valid', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching document details:', error);
-                showToast('Gagal mengambil detail dokumen. Silakan coba lagi nanti.', 'error');
-            });
+        if (data.document) {
+            openEditModal(data.document);
+        } else {
+            showToast('Gagal mengambil detail dokumen: Format data tidak valid', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching document details:', error);
+        showToast('Gagal mengambil detail dokumen. Silakan coba lagi nanti.', 'error');
+    });
         }
 
         const hasImageExtension = function(filename) {
@@ -1283,21 +1285,23 @@
                             submitBtn.disabled = false;
                         }
                     } else {
-                        let errorMessage = 'Gagal mengupload dokumen';
+                        let errorMessage = '';
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            if (response.message) {
-                                errorMessage = response.message;
-                            }
 
-                            // Handle error details if available
+                            // Ambil pesan error langsung dari server
                             if (response.data && response.data.errors) {
-                                errorMessage = handleErrorDetails(response.data.errors, errorMessage);
+                                errorMessage = handleErrorDetails(response.data.errors, '');
                             } else if (response.errors) {
-                                errorMessage = handleErrorDetails(response.errors, errorMessage);
+                                errorMessage = handleErrorDetails(response.errors, '');
+                            } else if (response.message) {
+                                errorMessage = response.message;
+                            } else {
+                                errorMessage = 'Gagal mengupload dokumen';
                             }
                         } catch (e) {
                             console.error('Error parsing error response:', e);
+                            errorMessage = 'Gagal mengupload dokumen';
                         }
 
                         progressBar.classList.remove('bg-green-500');
@@ -1422,21 +1426,23 @@
                             submitBtn.disabled = false;
                         }
                     } else {
-                        let errorMessage = 'Gagal memperbarui dokumen';
+                        let errorMessage = '';
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            if (response.message) {
-                                errorMessage = response.message;
-                            }
 
-                            // Handle error details if available
+                            // Ambil pesan error langsung dari server
                             if (response.data && response.data.errors) {
-                                errorMessage = handleErrorDetails(response.data.errors, errorMessage);
+                                errorMessage = handleErrorDetails(response.data.errors, '');
                             } else if (response.errors) {
-                                errorMessage = handleErrorDetails(response.errors, errorMessage);
+                                errorMessage = handleErrorDetails(response.errors, '');
+                            } else if (response.message) {
+                                errorMessage = response.message;
+                            } else {
+                                errorMessage = 'Gagal memperbarui dokumen';
                             }
                         } catch (e) {
                             console.error('Error parsing error response:', e);
+                            errorMessage = 'Gagal memperbarui dokumen';
                         }
 
                         progressBar.classList.remove('bg-green-500');
@@ -1489,39 +1495,42 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    const modal = document.getElementById('deleteModal');
-                    const content = document.getElementById('deleteModalContent');
-                    closeModal(modal, content);
-
                     if (data.success) {
+                        // Hanya tutup modal jika berhasil
+                        const modal = document.getElementById('deleteModal');
+                        const content = document.getElementById('deleteModalContent');
+                        closeModal(modal, content);
+
                         showToast('Dokumen berhasil dihapus', 'success');
 
                         setTimeout(() => {
                             location.reload();
                         }, 1000);
-                    } else {
-                        let errorMessage = data.message || 'Gagal menghapus dokumen';
+                                            } else {
+                            let errorMessage = '';
 
-                        // Handle error details if available
-                        if (data.data && data.data.errors) {
-                            errorMessage = handleErrorDetails(data.data.errors, errorMessage);
-                        } else if (data.errors) {
-                            errorMessage = handleErrorDetails(data.errors, errorMessage);
+                            // Ambil pesan error langsung dari server
+                            if (data.data && data.data.errors) {
+                                errorMessage = handleErrorDetails(data.data.errors, '');
+                            } else if (data.errors) {
+                                errorMessage = handleErrorDetails(data.errors, '');
+                            } else if (data.message) {
+                                errorMessage = data.message;
+                            } else {
+                                errorMessage = 'Gagal menghapus dokumen';
+                            }
+
+                            showToast(errorMessage, 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
                         }
-
-                        showToast(errorMessage, 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const modal = document.getElementById('deleteModal');
-                    const content = document.getElementById('deleteModalContent');
-                    closeModal(modal, content);
                     showToast('Terjadi kesalahan, silakan coba lagi', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
+                    // Modal tetap terbuka saat error
                 });
             });
         }
@@ -1610,40 +1619,31 @@
 
     // Helper function to format error details
     function handleErrorDetails(errors, baseMessage) {
-        let hasDetails = false;
-        let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
+        let errorMessage = '';
 
         if (Array.isArray(errors)) {
-            hasDetails = true;
             errors.forEach(error => {
                 if (typeof error === 'string') {
-                    detailsHtml += `<li>${error}</li>`;
+                    errorMessage += `${error}. `;
                 } else if (typeof error === 'object') {
-                    if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                    else if (error.message) detailsHtml += `<li>${error.message}</li>`;
+                    if (error.reason) errorMessage += `${error.reason}. `;
+                    else if (error.message) errorMessage += `${error.message}. `;
                 }
             });
         } else if (typeof errors === 'string') {
-            detailsHtml += `<li>${errors}</li>`;
-            hasDetails = true;
+            errorMessage = errors;
         } else if (typeof errors === 'object') {
-            hasDetails = true;
             Object.entries(errors).forEach(([field, fieldErrors]) => {
                 if (Array.isArray(fieldErrors)) {
-                    fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                    fieldErrors.forEach(error => errorMessage += `${error}. `);
                 } else if (typeof fieldErrors === 'string') {
-                    detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
+                    errorMessage += `${fieldErrors}. `;
                 }
             });
         }
 
-        detailsHtml += '</ul>';
-
-        if (hasDetails) {
-            return baseMessage + detailsHtml;
-        }
-
-        return baseMessage;
+        // Jika tidak ada error detail, kembalikan pesan default
+        return errorMessage || baseMessage;
     }
 </script>
 

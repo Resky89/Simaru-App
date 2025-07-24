@@ -83,8 +83,9 @@ class VendorController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat vendor']
+                    ], 422);
                 }
 
                 return redirect()->back()
@@ -104,6 +105,17 @@ class VendorController extends Controller
             return redirect()->route('vendor')
                 ->with('success', $result['message'] ?? 'Vendor berhasil dibuat');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $e->getMessage(),
+                    'errors' => $errors
+                ], 422);
+            }
             return $this->handleException($e, $request, 'Vendor');
         }
     }
@@ -155,8 +167,9 @@ class VendorController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorMessage
-                    ], 400);
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal mengubah vendor']
+                    ], 422);
                 }
 
                 return redirect()->back()
@@ -176,6 +189,17 @@ class VendorController extends Controller
             return redirect()->route('vendor')
                 ->with('success', $result['message'] ?? 'Vendor berhasil diubah');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $e->getMessage(),
+                    'errors' => $errors
+                ], 422);
+            }
             return $this->handleException($e, $request, 'Vendor');
         }
     }
@@ -185,12 +209,56 @@ class VendorController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        return $this->deleteResource(
-            $request,
-            "/vendors/{$id}",
-            'Vendor berhasil dihapus',
-            'vendor'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/vendors/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus vendor';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus vendor']
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Vendor berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('vendor')
+                ->with('success', 'Vendor berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus vendor: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
+            return $this->handleException($e, $request, 'Vendor');
+        }
     }
 
     /**
@@ -245,6 +313,7 @@ class VendorController extends Controller
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
+                        'message' => $errorMessage,
                         'errors' => $errorData,
                         'data' => $result['data'] ?? null
                     ], 400);
@@ -284,7 +353,8 @@ class VendorController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Gagal mengimpor data vendor: ' . $e->getMessage()],
+                    'message' => 'Gagal mengimpor data vendor: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()],
                     'data' => null
                 ], 500);
             }

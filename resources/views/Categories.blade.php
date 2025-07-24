@@ -1,6 +1,6 @@
 @extends('Layout.app')
 
-@section('title', 'Kategori Aset')
+@section('title', 'Kategori')
 
 @section('content')
     @include('Layout.loading')
@@ -767,10 +767,6 @@
                     });
                 }
 
-                preventMultipleSubmits(createSubCategoryForm, 'button[type="submit"]');
-                preventMultipleSubmits(editSubCategoryForm, 'button[type="submit"]');
-                preventMultipleSubmits(deleteSubCategoryForm, 'button[type="submit"]');
-
                 @if(session('success'))
                     showToast("{{ session('success') }}", 'success');
                 @endif
@@ -940,6 +936,8 @@
 
                 if (createSubCategoryForm) {
                     createSubCategoryForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
                         const assetTypeInput = document.getElementById('add_asset_type');
                         const subcategoryNameInput = document.getElementById('add_subcategory_name');
                         const descriptionInput = document.getElementById('add_description');
@@ -952,14 +950,66 @@
                         }
 
                         if (!isAssetTypeValid || !isSubcategoryNameValid) {
-                            event.preventDefault();
                             showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return;
+                        }
+
+                        const formData = new FormData(this);
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+
+                                if (data.success) {
+                                    const modal = document.getElementById('addSubCategoryModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Kategori berhasil ditambahkan', 'success');
+
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    showToast(data.message || 'Terjadi kesalahan saat menyimpan kategori', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
                         }
                     });
                 }
 
                 if (editSubCategoryForm) {
                     editSubCategoryForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
                         const assetTypeInput = document.getElementById('editAssetType');
                         const subcategoryNameInput = document.getElementById('editSubCategoryName');
                         const descriptionInput = document.getElementById('editDescription');
@@ -972,8 +1022,59 @@
                         }
 
                         if (!isAssetTypeValid || !isSubcategoryNameValid) {
-                            event.preventDefault();
                             showToast('Silakan isi semua field yang diperlukan', 'error');
+                            return;
+                        }
+
+                        const formData = new FormData(this);
+                        formData.append('_method', 'PUT');
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+
+                                if (data.success) {
+                                    const modal = document.getElementById('editSubCategoryModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Kategori berhasil diperbarui', 'success');
+
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    showToast(data.message || 'Terjadi kesalahan saat memperbarui kategori', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
                         }
                     });
                 }
@@ -1620,6 +1721,66 @@
                             }
                         });
                 });
+
+                // Validate field for edit form fields...
+
+                if (deleteSubCategoryForm) {
+                    deleteSubCategoryForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
+                        // Submit the form using fetch
+                        const formData = new FormData(this);
+                        formData.append('_method', 'DELETE'); // For DELETE method
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+
+                                if (data.success) {
+                                    const modal = document.getElementById('deleteSubCategoryModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Kategori berhasil dihapus', 'success');
+
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    showToast(data.message || 'Terjadi kesalahan saat menghapus kategori', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
+                        }
+                    });
+                }
             });
         </script>
     @endpush

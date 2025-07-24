@@ -251,7 +251,6 @@
             <thead>
                 <tr>
                     <th>Kode Aset</th>
-                    <th>Nomor Seri</th>
                     <th>Kondisi</th>
                     <th>Status</th>
                     <th>Lokasi</th>
@@ -261,7 +260,6 @@
                 @foreach($masterAsset['linked_assets'] as $asset)
                 <tr>
                     <td>{{ $asset['asset_code'] ?? 'N/A' }}</td>
-                    <td>{{ $asset['serial_number'] ?? 'N/A' }}</td>
                     <td>
                         @php
                             $conditionClass = 'status-badge';

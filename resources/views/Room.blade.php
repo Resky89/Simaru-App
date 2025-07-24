@@ -592,6 +592,7 @@
                     deleteRoomForm.addEventListener('submit', function (e) {
                         e.preventDefault();
 
+                        const roomId = document.getElementById('deleteRoomId').value;
                         const formData = new FormData(this);
                         const submitBtn = this.querySelector('button[type="submit"]');
                         const originalBtnText = submitBtn.innerHTML;
@@ -611,43 +612,32 @@
                             body: formData,
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                             }
                         })
-                            .then(response => {
-                                const contentType = response.headers.get('content-type');
-                                if (contentType && contentType.includes('application/json')) {
-                                    return response.json().then(data => {
-                                        data.status = response.status;
-                                        return data;
-                                    });
-                                } else {
-                                    throw new Error('Invalid response format');
-                                }
-                            })
+                        .then(response => response.json())
                             .then(data => {
-                                // Reset button state
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalBtnText;
 
-                                // Close the modal
+                            if (data.success) {
                                 const modal = document.getElementById('deleteRoomModal');
                                 closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                showToast(data.message || 'Ruangan berhasil dihapus!', 'success');
 
-                                // Reload the page to show server-side notification
+                                setTimeout(() => {
                                 window.location.reload();
+                                }, 1000);
+                            } else {
+                                showToast(data.message || 'Gagal menghapus ruangan.', 'error');
+                            }
                             })
                             .catch(error => {
-                                // Reset button state
+                            console.error('Error:', error);
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalBtnText;
-
-                                // Close the modal
-                                const modal = document.getElementById('deleteRoomModal');
-                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-
-                                // Reload the page to show server-side error notification
-                                window.location.reload();
+                            showToast('Terjadi kesalahan saat menghapus ruangan. Silakan coba lagi.', 'error');
                             });
                     });
                 }
@@ -1687,7 +1677,90 @@
                             return false;
                         }
 
-                        this.submit();
+                        const formData = new FormData(this);
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                                            <div class="flex items-center justify-center">
+                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                <span>Memproses...</span>
+                                            </div>
+                                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+
+                                if (data.success) {
+                                    const modal = document.getElementById('addRoomModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Ruangan berhasil ditambahkan', 'success');
+
+                                    setTimeout(() => {
+                                    window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    // Handle validation errors
+                                    if (data.errors) {
+                                        document.querySelectorAll('.error-message').forEach(el => {
+                                            el.classList.add('hidden');
+                                        });
+
+                                        if (typeof data.errors === 'object') {
+                                            Object.keys(data.errors).forEach(key => {
+                                                let field;
+                                                let errorElement;
+
+                                                if (key === 'room_name') {
+                                                    field = document.getElementById('add_room_name');
+                                                } else if (key === 'building_id') {
+                                                    field = document.getElementById('add_building_search');
+                                                } else if (key === 'floor_number') {
+                                                    field = document.getElementById('add_floor_number');
+                                                }
+
+                                                if (field) {
+                                                    field.classList.add('border-red-500');
+                                                    errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                                                    if (errorElement) {
+                                                        const errorMsg = Array.isArray(data.errors[key]) ?
+                                                            data.errors[key][0] : data.errors[key];
+
+                                                        errorElement.textContent = errorMsg;
+                                                        errorElement.classList.remove('hidden');
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    showToast(data.message || 'Terjadi kesalahan saat menyimpan ruangan', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
+                        }
                     });
                 }
 
@@ -1710,7 +1783,90 @@
                             return false;
                         }
 
-                        this.submit();
+                        const formData = new FormData(this);
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                                            <div class="flex items-center justify-center">
+                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                <span>Memproses...</span>
+                                            </div>
+                                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+
+                                if (data.success) {
+                                    const modal = document.getElementById('editRoomModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Ruangan berhasil diperbarui', 'success');
+
+                                    setTimeout(() => {
+                                    window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    // Handle validation errors
+                                    if (data.errors) {
+                                        document.querySelectorAll('.error-message').forEach(el => {
+                                            el.classList.add('hidden');
+                                        });
+
+                                        if (typeof data.errors === 'object') {
+                                            Object.keys(data.errors).forEach(key => {
+                                                let field;
+                                                let errorElement;
+
+                                                if (key === 'room_name') {
+                                                    field = document.getElementById('editRoomName');
+                                                } else if (key === 'building_id') {
+                                                    field = document.getElementById('edit_building_search');
+                                                } else if (key === 'floor_number') {
+                                                    field = document.getElementById('editRoomFloor');
+                                                }
+
+                                                if (field) {
+                                                    field.classList.add('border-red-500');
+                                                    errorElement = field.closest('.space-y-2').querySelector('.error-message');
+
+                                                    if (errorElement) {
+                                                        const errorMsg = Array.isArray(data.errors[key]) ?
+                                                            data.errors[key][0] : data.errors[key];
+
+                                                        errorElement.textContent = errorMsg;
+                                                        errorElement.classList.remove('hidden');
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    showToast(data.message || 'Terjadi kesalahan saat memperbarui ruangan', 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
+                        }
                     });
                 }
 
@@ -1820,213 +1976,9 @@
                     });
                 }
 
-                let roomFormAjax = document.getElementById('addRoomForm');
-                if (roomFormAjax) {
-                    roomFormAjax.addEventListener('submit', function (e) {
-                        e.preventDefault();
+                                // Form submission is handled by the form's submit event listener above
 
-                        const roomNameInput = document.getElementById('add_room_name');
-                        const buildingInput = document.getElementById('add_building_id');
-                        const buildingSearchInput = document.getElementById('add_building_search');
-                        const floorInput = document.getElementById('add_floor_number');
-
-                        const isRoomNameValid = validateField(roomNameInput);
-                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
-                        const isFloorValid = validateField(floorInput);
-
-                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
-                            showToast('Silakan isi semua field yang diperlukan', 'error');
-                            return false;
-                        }
-
-                        const formData = new FormData(this);
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        const originalBtnText = submitBtn.innerHTML;
-
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                                            <div class="flex items-center justify-center">
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                <span>Memproses...</span>
-                                            </div>
-                                        `;
-
-                        fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                            .then(response => {
-                                const contentType = response.headers.get('content-type');
-                                if (contentType && contentType.includes('application/json')) {
-                                    return response.json().then(data => {
-                                        data.status = response.status;
-                                        return data;
-                                    });
-                                } else {
-                                    throw new Error('Invalid response format');
-                                }
-                            })
-                            .then(data => {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnText;
-
-                                if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                                    const modal = document.getElementById('addRoomModal');
-                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-
-                                    window.location.reload();
-                                } else {
-                                    if (data.errors) {
-                                        document.querySelectorAll('.error-message').forEach(el => {
-                                            el.classList.add('hidden');
-                                        });
-
-                                        if (typeof data.errors === 'object') {
-                                            Object.keys(data.errors).forEach(key => {
-                                                let field;
-                                                let errorElement;
-
-                                                if (key === 'room_name') {
-                                                    field = document.getElementById('add_room_name');
-                                                } else if (key === 'building_id') {
-                                                    field = document.getElementById('add_building_search');
-                                                } else if (key === 'floor_number') {
-                                                    field = document.getElementById('add_floor_number');
-                                                }
-
-                                                if (field) {
-                                                    field.classList.add('border-red-500');
-                                                    errorElement = field.closest('.space-y-2').querySelector('.error-message');
-
-                                                    if (errorElement) {
-                                                        const errorMsg = Array.isArray(data.errors[key]) ?
-                                                            data.errors[key][0] : data.errors[key];
-
-                                                        errorElement.textContent = errorMsg;
-                                                        errorElement.classList.remove('hidden');
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            })
-                            .catch(error => {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnText;
-
-                                window.location.reload();
-                            });
-                    });
-                }
-
-                let editRoomFormAjax = document.getElementById('editRoomForm');
-                if (editRoomFormAjax) {
-                    editRoomFormAjax.addEventListener('submit', function (e) {
-                        e.preventDefault();
-
-                        const roomNameInput = document.getElementById('editRoomName');
-                        const buildingInput = document.getElementById('editRoomBuilding');
-                        const buildingSearchInput = document.getElementById('edit_building_search');
-                        const floorInput = document.getElementById('editRoomFloor');
-
-                        const isRoomNameValid = validateField(roomNameInput);
-                        const isBuildingValid = validateBuildingField(buildingInput, buildingSearchInput);
-                        const isFloorValid = validateField(floorInput);
-
-                        if (!isRoomNameValid || !isBuildingValid || !isFloorValid) {
-                            showToast('Silakan isi semua field yang diperlukan', 'error');
-                            return false;
-                        }
-
-                        const formData = new FormData(this);
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        const originalBtnText = submitBtn.innerHTML;
-
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `
-                                            <div class="flex items-center justify-center">
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                <span>Memproses...</span>
-                                            </div>
-                                        `;
-
-                        fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                            .then(response => {
-                                const contentType = response.headers.get('content-type');
-                                if (contentType && contentType.includes('application/json')) {
-                                    return response.json().then(data => {
-                                        data.status = response.status;
-                                        return data;
-                                    });
-                                } else {
-                                    throw new Error('Invalid response format');
-                                }
-                            })
-                            .then(data => {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnText;
-
-                                if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                                    const modal = document.getElementById('editRoomModal');
-                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-
-                                    window.location.reload();
-                                } else {
-                                    if (data.errors) {
-                                        document.querySelectorAll('.error-message').forEach(el => {
-                                            el.classList.add('hidden');
-                                        });
-
-                                        if (typeof data.errors === 'object') {
-                                            Object.keys(data.errors).forEach(key => {
-                                                let field;
-                                                let errorElement;
-
-                                                if (key === 'room_name') {
-                                                    field = document.getElementById('editRoomName');
-                                                } else if (key === 'building_id') {
-                                                    field = document.getElementById('edit_building_search');
-                                                } else if (key === 'floor_number') {
-                                                    field = document.getElementById('editRoomFloor');
-                                                }
-
-                                                if (field) {
-                                                    field.classList.add('border-red-500');
-                                                    errorElement = field.closest('.space-y-2').querySelector('.error-message');
-
-                                                    if (errorElement) {
-                                                        const errorMsg = Array.isArray(data.errors[key]) ?
-                                                            data.errors[key][0] : data.errors[key];
-
-                                                        errorElement.textContent = errorMsg;
-                                                        errorElement.classList.remove('hidden');
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                }
-                            })
-                            .catch(error => {
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = originalBtnText;
-
-                                window.location.reload();
-                            });
-                    });
-                }
+                                // Form submission is handled by the form's submit event listener above
 
                 const roomImportForm = document.getElementById('room-import-form');
                 if (roomImportForm) {

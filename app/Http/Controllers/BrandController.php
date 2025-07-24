@@ -218,6 +218,14 @@ class BrandController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal membuat merek';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat merek']
+                    ], 422);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -235,6 +243,13 @@ class BrandController extends Controller
             return redirect()->route('brands')
                 ->with('success', $result['message']);
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
             return $this->handleException($e, $request, 'Brand');
         }
     }
@@ -265,6 +280,14 @@ class BrandController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal memperbarui merek';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal memperbarui merek']
+                    ], 422);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -282,6 +305,13 @@ class BrandController extends Controller
             return redirect()->route('brands')
                 ->with('success', $result['message']);
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
             return $this->handleException($e, $request, 'Brand');
         }
     }
@@ -291,12 +321,55 @@ class BrandController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        return $this->deleteResource(
-            $request,
-            "/brands/{$id}",
-            'Merek berhasil dihapus',
-            'brands'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/brands/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus merek';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus merek']
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Merek berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('brands')
+                ->with('success', 'Merek berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+            return $this->handleException($e, $request, 'Brand');
+        }
     }
 
     /**

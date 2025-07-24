@@ -75,8 +75,16 @@ class CategoriesController extends Controller
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal membuat subkategori';
+                $errorData = $result['errors'] ?? 'Gagal membuat Kategori';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat Kategori']
+                    ]);
+                }
 
                 return redirect()->back()
                     ->withInput()
@@ -128,8 +136,16 @@ class CategoriesController extends Controller
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Gagal memperbarui subkategori';
+                $errorData = $result['errors'] ?? 'Gagal memperbarui Kategori';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal memperbarui Kategori']
+                    ]);
+                }
 
                 return redirect()->back()
                     ->withInput()
@@ -156,12 +172,48 @@ class CategoriesController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        return $this->deleteResource(
-            request(),
-            "/asset-subcategories/{$id}",
-            'Subkategori berhasil dihapus',
-            'categories'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/asset-subcategories/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus Kategori';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus Kategori']
+                    ]);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Kategori berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('categories')
+                ->with('success', 'Kategori berhasil dihapus');
+        } catch (\Exception $e) {
+            return $this->handleException($e, $request, 'Categories');
+        }
     }
 
     /**
@@ -210,7 +262,7 @@ class CategoriesController extends Controller
 
             // Check for other API errors
             if (!isset($result['success']) || $result['success'] === false) {
-                $errorData = $result['errors'] ?? 'Gagal mengimpor subkategori';
+                $errorData = $result['errors'] ?? 'Gagal mengimpor Kategori';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
                 if ($request->expectsJson()) {
@@ -240,11 +292,11 @@ class CategoriesController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => 'Gagal mengimpor subkategori: ' . $e->getMessage()]
+                    'errors' => ['exception' => 'Gagal mengimpor Kategori: ' . $e->getMessage()]
                 ], 500);
             }
 
-            return redirect()->back()->with('error', 'Gagal mengimpor subkategori: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor Kategori: ' . $e->getMessage());
         }
     }
 }

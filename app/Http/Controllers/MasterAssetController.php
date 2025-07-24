@@ -130,14 +130,40 @@ class MasterAssetController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal membuat aset master';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                // Handle AJAX request
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat aset master']
+                    ]);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
             }
 
+            // Handle AJAX request on success
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Aset master berhasil dibuat',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('asset-master')
                 ->with('success', $result['message'] ?? 'Aset master berhasil dibuat');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat membuat aset master',
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'Asset.MasterAsset');
         }
     }
@@ -217,14 +243,40 @@ class MasterAssetController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal memperbarui aset master';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                // Handle AJAX request
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal memperbarui aset master']
+                    ]);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
             }
 
+            // Handle AJAX request on success
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Aset master berhasil diperbarui',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
             return redirect()->route('asset-master')
                 ->with('success', $result['message'] ?? 'Aset master berhasil diperbarui');
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memperbarui aset master',
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'Asset.MasterAsset');
         }
     }
@@ -234,12 +286,58 @@ class MasterAssetController extends Controller
      */
     public function destroyMasterAsset($id)
     {
-        return $this->deleteResource(
-            request(),
-            "/asset-masters/{$id}",
-            'Aset master berhasil dihapus',
-            'asset-master'
-        );
+        try {
+            $request = request();
+
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/asset-masters/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus aset master';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus aset master']
+                    ]);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Aset master berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('asset-master')
+                ->with('success', 'Aset master berhasil dihapus');
+        } catch (\Exception $e) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat menghapus aset master',
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
+            return $this->handleException($e, request(), 'Asset.MasterAsset');
+        }
     }
 
     /**

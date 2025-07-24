@@ -52,6 +52,42 @@ class BuildingController extends Controller
                 'address' => 'required|string'
             ]);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                try {
+                    // Kirim ke API
+                    $result = $this->apiService->request('POST', '/buildings', ['json' => $validated]);
+
+                    // Periksa kesalahan autentikasi
+                    $authError = $this->handleAuthError($result, $request);
+                    if ($authError) {
+                        return $authError;
+                    }
+
+                    // Periksa kesalahan API atau respons tidak berhasil
+                    if (!isset($result['success']) || $result['success'] === false) {
+                        $errorMessage = DataFormatter::formatErrorMessage($result['errors'] ?? 'Gagal membuat gedung');
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => $result['errors'] ?? null
+                        ], 400);
+                    }
+
+                    // Berhasil
+                    return response()->json([
+                        'success' => true,
+                        'message' => $result['message'] ?? 'Gedung berhasil dibuat',
+                        'data' => $result['data'] ?? null
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal membuat gedung: ' . $e->getMessage(),
+                        'errors' => ['exception' => $e->getMessage()]
+                    ], 500);
+                }
+            }
+
             return $this->storeResource(
                 $request,
                 '/buildings',
@@ -60,6 +96,18 @@ class BuildingController extends Controller
                 'buildings'
             );
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $errors
+                ], 422);
+            }
+
             return $this->handleException($e, $request, 'Building');
         }
     }
@@ -79,6 +127,42 @@ class BuildingController extends Controller
             // Add building_id to the data
             $data = array_merge(['building_id' => $id], $validated);
 
+            if ($request->expectsJson() || $request->ajax()) {
+                try {
+                    // Kirim ke API
+                    $result = $this->apiService->request('PUT', "/buildings/{$id}", ['json' => $data]);
+
+                    // Periksa kesalahan autentikasi
+                    $authError = $this->handleAuthError($result, $request);
+                    if ($authError) {
+                        return $authError;
+                    }
+
+                    // Periksa kesalahan API atau respons tidak berhasil
+                    if (!isset($result['success']) || $result['success'] === false) {
+                        $errorMessage = DataFormatter::formatErrorMessage($result['errors'] ?? 'Gagal mengubah gedung');
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => $result['errors'] ?? null
+                        ], 400);
+                    }
+
+                    // Berhasil
+                    return response()->json([
+                        'success' => true,
+                        'message' => $result['message'] ?? 'Gedung berhasil diubah',
+                        'data' => $result['data'] ?? null
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengubah gedung: ' . $e->getMessage(),
+                        'errors' => ['exception' => $e->getMessage()]
+                    ], 500);
+                }
+            }
+
             return $this->updateResource(
                 $request,
                 "/buildings/{$id}",
@@ -87,6 +171,18 @@ class BuildingController extends Controller
                 'buildings'
             );
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $errors
+                ], 422);
+            }
+
             return $this->handleException($e, $request, 'Building');
         }
     }
@@ -96,6 +192,42 @@ class BuildingController extends Controller
      */
     public function destroy($id, Request $request)
     {
+        if ($request->expectsJson() || $request->ajax()) {
+            try {
+                // Kirim ke API
+                $result = $this->apiService->request('DELETE', "/buildings/{$id}");
+
+                // Periksa kesalahan autentikasi
+                $authError = $this->handleAuthError($result, $request);
+                if ($authError) {
+                    return $authError;
+                }
+
+                // Periksa kesalahan API atau respons tidak berhasil
+                if (!isset($result['success']) || $result['success'] === false) {
+                    $errorMessage = DataFormatter::formatErrorMessage($result['errors'] ?? 'Gagal menghapus gedung');
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? null
+                    ], 400);
+                }
+
+                // Berhasil
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Gedung berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus gedung: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+        }
+
         return $this->deleteResource(
             $request,
             "/buildings/{$id}",

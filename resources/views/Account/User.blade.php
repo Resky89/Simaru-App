@@ -1682,6 +1682,107 @@
                     return true;
                 }
             }
+
+            const deleteUserFormElement = document.getElementById('deleteUserForm');
+            if (deleteUserFormElement) {
+                deleteUserFormElement.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = 'Hapus';
+
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+                    }
+
+                    const formData = new FormData(this);
+                    formData.append('_method', 'DELETE');
+
+                    const resetButton = () => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        }
+                    };
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            resetButton();
+                            return response.json().then(data => {
+                                throw data;
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const modal = document.getElementById('deleteUserModal');
+                            const content = document.getElementById('deleteUserModalContent');
+                            closeModal(modal, content);
+
+                            showToast(data.message || 'Pengguna berhasil dihapus', 'success');
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            resetButton();
+                            throw data.errors || 'Gagal menghapus pengguna';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+
+                        resetButton();
+
+                        let errorMessage = 'Terjadi kesalahan saat menghapus pengguna';
+
+                        if (typeof error === 'string') {
+                            errorMessage = error;
+                        } else if (typeof error === 'object') {
+                            if (error.message) {
+                                errorMessage = error.message;
+                            } else if (error.errors) {
+                                if (typeof error.errors === 'string') {
+                                    errorMessage = error.errors;
+                                } else {
+                                    const errorMessages = [];
+                                    for (const key in error.errors) {
+                                        if (Array.isArray(error.errors[key])) {
+                                            error.errors[key].forEach(msg => {
+                                                errorMessages.push(msg);
+                                            });
+                                        } else if (typeof error.errors[key] === 'string') {
+                                            errorMessages.push(error.errors[key]);
+                                        }
+                                    }
+                                    errorMessage = errorMessages.join(' ');
+                                }
+                            }
+                        }
+
+                        showToast(errorMessage, 'error');
+                    })
+                    .finally(() => {
+                        resetButton();
+                    });
+                });
+            }
         });
     </script>
 @endsection

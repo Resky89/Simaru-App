@@ -240,10 +240,12 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     // View Master Asset with linked assets
     Route::middleware('permission:asset-master:view')->group(function () {
         Route::get('/view-asset-master/{id}', [ViewMasterAssetController::class, 'getMasterAssetById'])->name('view-asset-master');
-        Route::get('/view-asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset'])->name('asset-master.edit');
         Route::get('/view-asset-master/{id}/export-pdf', [ViewMasterAssetController::class, 'exportViewMasterAssetPDF'])
             ->name('export-view-master-asset-pdf')
             ->middleware('permission:asset-master:export');
+        Route::put('/view-asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])
+            ->name('view-asset-master.update')
+            ->middleware('permission:asset-master:edit');
     });
 
     // Categories Management
@@ -667,11 +669,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 // ROUTES OUTSIDE THE AUTH MIDDLEWARE GROUP
 //=============================================================================
 
-// Edit routes for master assets
-Route::middleware(['permission:asset-master:edit'])->group(function () {
-    Route::get('/asset-master/{id}/edit', [ViewMasterAssetController::class, 'editMasterAsset']);
-    Route::put('/asset-master/{id}', [ViewMasterAssetController::class, 'updateMasterAsset'])->name('asset-master.update');
-});
 
 // Calibration detail routes
 Route::middleware(['permission:calibration:view'])->group(function () {

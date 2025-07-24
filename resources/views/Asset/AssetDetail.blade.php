@@ -3909,12 +3909,32 @@
                 event.preventDefault(); // Prevent default form submission
 
                 // Process currency inputs
+                const formData = new FormData(this);
+
+                // Parse currency inputs to ensure full values
                 this.querySelectorAll('.currency-input').forEach(input => {
                     if (input.value) {
                         const numericValue = parseFormattedNumber(input.value);
-                        input.value = numericValue;
+                        formData.set(input.name, numericValue);
                     }
                 });
+
+                // Process specific fields for depreciation
+                const depreciationFieldsDiv = document.getElementById('edit_depreciation_fields');
+                if (depreciationFieldsDiv && !depreciationFieldsDiv.classList.contains('hidden')) {
+                    const fieldsToCheck = [
+                        { id: 'edit_depreciation_method', name: 'depreciation_method' },
+                        { id: 'edit_asset_life_months', name: 'asset_life_months' },
+                        { id: 'edit_date_acquired', name: 'date_acquired' }
+                    ];
+
+                    fieldsToCheck.forEach(field => {
+                        const element = document.getElementById(field.id);
+                        if (element && element.value && !formData.has(field.name)) {
+                            formData.append(field.name, element.value);
+                        }
+                    });
+                }
 
                 if (validateEditForm()) {
                     const submitBtn = this.querySelector('button[type="submit"]');
@@ -3926,17 +3946,65 @@
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>`;
 
-                        setTimeout(() => {
-                            if (submitBtn.disabled) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
-                            }
-                        }, 10000);
-                    }
+                        // Add method override for PUT
+                        formData.append('_method', 'PUT');
 
-                    // Submit the form if validation passes
-                    this.submit();
+                        // Send AJAX request
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                const modal = document.getElementById('editAssetModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                resetEditAssetForm(document.getElementById('editAssetForm'));
+                                showToast(data.message || 'Aset berhasil diperbarui', 'success');
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Handle validation errors
+                                let errorMessage = data.message || 'Terjadi kesalahan saat memperbarui aset';
+
+                                if (data.errors) {
+                                    // Display each validation error
+                                    Object.entries(data.errors).forEach(([field, errors]) => {
+                                        if (Array.isArray(errors)) {
+                                            const fieldInput = document.querySelector(`[name="${field}"]`);
+                                            if (fieldInput) {
+                                                fieldInput.classList.add('border-red-500');
+                                                const errorElement = fieldInput.closest('.space-y-2')?.querySelector('.error-message');
+                                                if (errorElement) {
+                                                    errorElement.textContent = errors[0];
+                                                    errorElement.classList.remove('hidden');
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
+                    }
                 }
             });
 

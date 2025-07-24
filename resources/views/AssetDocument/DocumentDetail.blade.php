@@ -57,7 +57,7 @@
                             <p class="text-sm text-gray-500">Tanggal Upload</p>
                             <p class="font-medium">
                                 @if(isset($document['upload_date']))
-                                    {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->isoFormat('D MMMM YYYY, HH:mm') }}
+                                    {{ \Carbon\Carbon::parse($document['upload_date'])->locale('id')->isoFormat('D MMMM YYYY') }}
                                 @else
                                     N/A
                                 @endif
@@ -70,19 +70,8 @@
                         <div class="mb-4">
                             <p class="text-sm text-gray-500">Dibuat Oleh</p>
                             <p class="font-medium">
-                                @if(isset($document['uploader']) && isset($document['uploader']['employee_number']))
-                                    {{ $document['uploader']['employee_number'] }}
-                                @else
-                                    N/A
-                                @endif
-                            </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <p class="text-sm text-gray-500">Tanggal Dibuat</p>
-                            <p class="font-medium">
-                                @if(isset($document['created_at']))
-                                    {{ \Carbon\Carbon::parse($document['created_at'])->locale('id')->isoFormat('D MMMM YYYY') }}
+                                @if(isset($document['uploader']) && isset($document['uploader']['employee_name']))
+                                    {{ $document['uploader']['employee_name'] }}
                                 @else
                                     N/A
                                 @endif
@@ -1237,65 +1226,58 @@
                             let errorMessage = 'Gagal memperbarui dokumen';
                             try {
                                 const response = JSON.parse(xhr.responseText);
-                                if (response.message) {
-                                    errorMessage = response.message;
-                                }
 
-                                let hasDetails = false;
-                                let detailsHtml = '<ul class="mt-2 ml-4 list-disc">';
-
+                                // Ambil pesan error langsung dari server
                                 if (response.data && response.data.errors) {
-                                    hasDetails = true;
+                                    errorMessage = '';
 
                                     if (Array.isArray(response.data.errors)) {
                                         response.data.errors.forEach(error => {
                                             if (typeof error === 'string') {
-                                                detailsHtml += `<li>${error}</li>`;
+                                                errorMessage += `${error}. `;
                                             } else if (typeof error === 'object') {
-                                                if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                                else if (error.message) detailsHtml += `<li>${error.message}</li>`;
+                                                if (error.reason) errorMessage += `${error.reason}. `;
+                                                else if (error.message) errorMessage += `${error.message}. `;
                                             }
                                         });
                                     } else if (typeof response.data.errors === 'string') {
-                                        detailsHtml += `<li>${response.data.errors}</li>`;
+                                        errorMessage = response.data.errors;
                                     } else if (typeof response.data.errors === 'object') {
                                         Object.entries(response.data.errors).forEach(([field, fieldErrors]) => {
                                             if (Array.isArray(fieldErrors)) {
-                                                fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                                                fieldErrors.forEach(error => errorMessage += `${error}. `);
                                             } else if (typeof fieldErrors === 'string') {
-                                                detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
+                                                errorMessage += `${fieldErrors}. `;
                                             }
                                         });
                                     }
                                 } else if (response.errors) {
-                                    hasDetails = true;
+                                    errorMessage = '';
 
                                     if (Array.isArray(response.errors)) {
                                         response.errors.forEach(error => {
                                             if (typeof error === 'string') {
-                                                detailsHtml += `<li>${error}</li>`;
+                                                errorMessage += `${error}. `;
                                             } else if (typeof error === 'object') {
-                                                if (error.reason) detailsHtml += `<li>${error.reason}</li>`;
-                                                else if (error.message) detailsHtml += `<li>${error.message}</li>`;
+                                                if (error.reason) errorMessage += `${error.reason}. `;
+                                                else if (error.message) errorMessage += `${error.message}. `;
                                             }
                                         });
                                     } else if (typeof response.errors === 'string') {
-                                        detailsHtml += `<li>${response.errors}</li>`;
+                                        errorMessage = response.errors;
                                     } else if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
                                         Object.entries(response.errors).forEach(([field, fieldErrors]) => {
                                             if (Array.isArray(fieldErrors)) {
-                                                fieldErrors.forEach(error => detailsHtml += `<li>${field}: ${error}</li>`);
+                                                fieldErrors.forEach(error => errorMessage += `${error}. `);
                                             } else if (typeof fieldErrors === 'string') {
-                                                detailsHtml += `<li>${field}: ${fieldErrors}</li>`;
+                                                errorMessage += `${fieldErrors}. `;
                                             }
                                         });
                                     }
-                                }
-
-                                detailsHtml += '</ul>';
-
-                                if (hasDetails) {
-                                    errorMessage += detailsHtml;
+                                } else if (response.message) {
+                                    errorMessage = response.message;
+                                } else {
+                                    errorMessage = 'Gagal memperbarui dokumen';
                                 }
                             } catch (e) {
                                 console.error('Error parsing error response:', e);

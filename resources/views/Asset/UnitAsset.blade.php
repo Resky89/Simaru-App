@@ -1920,15 +1920,45 @@
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menyimpan...</span></div>';
 
-                        setTimeout(() => {
+                        // Prepare form data
+                        const formData = new FormData(this);
+
+                        // Send AJAX request
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText;
-                        }, 10000);
-                    }
 
-                    // Submit the form if validation passes
-                    this.submit();
+                            if (data.success) {
+                                const modal = document.getElementById('addAssetModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                resetAddAssetForm();
+                                showToast(data.message || 'Aset berhasil ditambahkan', 'success');
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                showToast(data.message || 'Terjadi kesalahan saat menyimpan aset', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
+                    }
                 });
 
                 document.getElementById('editAssetForm')?.addEventListener('submit', function (event) {
@@ -1936,8 +1966,11 @@
 
                     // Process currency inputs
                     const formData = new FormData(this);
-                    const formAction = this.action;
-                    const formMethod = this.method;
+
+                    // Tambahkan current_status jika tidak ada
+                    if (!formData.has('current_status')) {
+                        formData.append('current_status', 'available');
+                    }
 
                     // Parse currency inputs to ensure full values
                     this.querySelectorAll('.currency-input').forEach(input => {
@@ -1946,6 +1979,23 @@
                             formData.set(input.name, numericValue);
                         }
                     });
+
+                    // Process specific fields for depreciation
+                    const depreciationFieldsDiv = document.getElementById('edit_depreciation_fields');
+                    if (depreciationFieldsDiv && !depreciationFieldsDiv.classList.contains('hidden')) {
+                        const fieldsToCheck = [
+                            { id: 'edit_depreciation_method', name: 'depreciation_method' },
+                            { id: 'edit_asset_life_months', name: 'asset_life_months' },
+                            { id: 'edit_date_acquired', name: 'date_acquired' }
+                        ];
+
+                        fieldsToCheck.forEach(field => {
+                            const element = document.getElementById(field.id);
+                            if (element && element.value && !formData.has(field.name)) {
+                                formData.append(field.name, element.value);
+                            }
+                        });
+                    }
 
                     // Continue with validation
                     this.querySelectorAll('.currency-input').forEach(input => {
@@ -2003,37 +2053,45 @@
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Memperbarui...</span></div>';
 
-                        setTimeout(() => {
+                        // Add method override for PUT
+                        formData.append('_method', 'PUT');
+
+                        // Send AJAX request
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText;
-                        }, 10000);
+
+                            if (data.success) {
+                                const modal = document.getElementById('editAssetModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                resetEditAssetForm();
+                                showToast(data.message || 'Aset berhasil diperbarui', 'success');
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                showToast(data.message || 'Terjadi kesalahan saat memperbarui aset', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
                     }
-
-                    // Create a dynamic form for submission
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = formAction;
-                    form.style.display = 'none';
-
-                    const methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    methodInput.value = 'PUT';
-                    form.appendChild(methodInput);
-
-                    for (const [key, value] of formData.entries()) {
-                        if (key === '_method') continue;
-
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = key;
-                        input.value = value;
-                        form.appendChild(input);
-                    }
-
-                    document.body.appendChild(form);
-                    form.submit();
                 });
 
                 function validateField(field, customCheck = null) {
@@ -2735,6 +2793,23 @@
                                         document.getElementById('edit_user_search').value = asset.employee_name;
                                     }
 
+                                    // Set brand data
+                                    if (asset.brand_id) {
+                                        document.getElementById('edit_selected_brand_id').value = asset.brand_id;
+
+                                        let brandName = 'Brand ID: ' + asset.brand_id;
+                                        if (asset.brand_name) {
+                                            brandName = asset.brand_name;
+                                        }
+
+                                        document.getElementById('edit_brand_search').value = brandName;
+                                    }
+
+                                    // Set model data
+                                    if (asset.model) {
+                                        document.getElementById('edit_model').value = asset.model;
+                                    }
+
                                     const depreciationFields = document.getElementById('edit_depreciation_fields');
                                     if (depreciationFields) {
                                         const hasDepreciationData =
@@ -2922,75 +2997,7 @@
                                 });
                             });
 
-                            const editForm = document.getElementById('editAssetForm');
-                            if (editForm) {
-                                editForm.addEventListener('submit', function (e) {
-                                    e.preventDefault();
-
-                                    const formData = new FormData(this);
-                                    const assetId = this.action.split('/').pop();
-
-                                    if (!formData.has('current_status')) {
-                                        formData.append('current_status', 'available');
-                                    }
-
-                                    // Process currency inputs to ensure full values
-                                    const currencyInputs = ['edit_purchase_cost', 'edit_acquisition_cost', 'edit_salvage_value'];
-                                    currencyInputs.forEach(inputId => {
-                                        const element = document.getElementById(inputId);
-                                        if (element && element.value) {
-                                            const fieldName = inputId.replace('edit_', '');
-                                            const numericValue = parseFormattedNumber(element.value);
-                                            formData.set(fieldName, numericValue);
-                                        }
-                                    });
-
-                                    const depreciationFields = document.getElementById('edit_depreciation_fields');
-                                    if (depreciationFields && !depreciationFields.classList.contains('hidden')) {
-                                        const fieldsToCheck = [
-                                            { id: 'edit_depreciation_method', name: 'depreciation_method' },
-                                            { id: 'edit_asset_life_months', name: 'asset_life_months' },
-                                            { id: 'edit_date_acquired', name: 'date_acquired' }
-                                        ];
-
-                                        fieldsToCheck.forEach(field => {
-                                            const element = document.getElementById(field.id);
-                                            if (element && element.value && !formData.has(field.name)) {
-                                                formData.append(field.name, element.value);
-                                            }
-                                        });
-                                    }
-
-                                    // Add CSRF token
-                                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                                    formData.append('_token', csrfToken);
-
-                                    // Create a dynamic form for submission
-                                    const form = document.createElement('form');
-                                    form.method = 'POST';
-                                    form.action = `{{ url('assets') }}/${assetId}`;
-                                    form.style.display = 'none';
-
-                                    const methodInput = document.createElement('input');
-                                    methodInput.type = 'hidden';
-                                    methodInput.name = '_method';
-                                    methodInput.value = 'PUT';
-                                    form.appendChild(methodInput);
-
-                                    for (const [key, value] of formData.entries()) {
-                                        if (key === '_method') continue;
-
-                                        const input = document.createElement('input');
-                                        input.type = 'hidden';
-                                        input.name = key;
-                                        input.value = value;
-                                        form.appendChild(input);
-                                    }
-
-                                    document.body.appendChild(form);
-                                    form.submit();
-                                });
-                            }
+                            // Handler untuk form edit telah diganti dengan implementasi AJAX
 
                             const printQRForm = document.getElementById('printQRForm');
                             if (printQRForm) {
@@ -3260,7 +3267,7 @@
                                                 // Display code and name in search field for better UX
                                                 const code = this.getAttribute('data-code');
                                                 const name = this.getAttribute('data-name');
-                                                searchInput.value = code ? `${name} - ${code}` : name;
+                                                searchInput.value = code ? `${name}` : name;
 
                                                 const isDepreciable = this.getAttribute('data-depreciable') === 'true';
                                                 selectedIsDepreciable.setAttribute('value', isDepreciable.toString());
@@ -4470,6 +4477,8 @@
                         });
 
                         document.getElementById('deleteAssetForm')?.addEventListener('submit', function (event) {
+                            event.preventDefault();
+
                             const submitBtn = this.querySelector('button[type="submit"]');
 
                             if (submitBtn && !submitBtn.disabled) {
@@ -4479,11 +4488,46 @@
                                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                                 submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
 
-                                setTimeout(() => {
+                                // Get the asset ID from the form action URL
+                                const url = this.action;
+                                const formData = new FormData(this);
+                                formData.append('_method', 'DELETE');
+
+                                // Send AJAX request
+                                fetch(url, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
                                     submitBtn.disabled = false;
                                     submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                                     submitBtn.innerHTML = originalText;
-                                }, 10000);
+
+                                    if (data.success) {
+                                        const modal = document.getElementById('deleteAssetModal');
+                                        closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                        resetDeleteAssetForm();
+                                        showToast(data.message || 'Aset berhasil dihapus', 'success');
+
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1000);
+                                    } else {
+                                        showToast(data.message || 'Terjadi kesalahan saat menghapus aset', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    submitBtn.disabled = false;
+                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                    submitBtn.innerHTML = originalText;
+                                    showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                                });
                             }
                         });
 

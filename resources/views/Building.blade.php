@@ -983,6 +983,7 @@
                     notification.role = 'alert';
 
                     const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+                    const isArray = Array.isArray(message);
 
                     if (type === 'success') {
                         notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
@@ -1025,7 +1026,14 @@
                         const messageContainer = document.createElement('div');
                         messageContainer.className = 'error-message';
 
-                        if (hasHTML) {
+                        if (isArray) {
+                            let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
+                            message.forEach(item => {
+                                htmlContent += `<li>${item}</li>`;
+                            });
+                            htmlContent += '</ul>';
+                            messageContainer.innerHTML = htmlContent;
+                        } else if (hasHTML) {
                             messageContainer.innerHTML = message;
                         } else {
                             messageContainer.textContent = message;
@@ -1055,6 +1063,8 @@
                 }
 
                 document.getElementById('addBuildingForm')?.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
                     const buildingNameInput = document.getElementById('add_building_name');
                     const buildingAddressInput = document.getElementById('add_building_address');
 
@@ -1062,34 +1072,89 @@
                     const isAddressValid = validateField(buildingAddressInput);
 
                     if (!isNameValid || !isAddressValid) {
-                        event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
-                    } else {
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        if (submitBtn && !submitBtn.disabled) {
-                            const originalText = submitBtn.innerHTML;
+                        return false;
+                    }
 
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = `
-                                                <div class="flex items-center justify-center">
-                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                    <span>Memproses...</span>
-                                                </div>
-                                            `;
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        const originalText = submitBtn.innerHTML;
 
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Create FormData and send via AJAX
+                        const formData = new FormData(this);
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                // Success
+                                showToast(result.message || 'Gedung berhasil dibuat', 'success');
+
+                                // Close modal
+                                const modal = document.getElementById('addBuildingModal');
+                                const content = modal.querySelector('[id$="ModalContent"]');
+                                closeModal(modal, content);
+                                clearModalForms(modal);
+
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error
+                                let errorMessage = result.message || 'Terjadi kesalahan saat membuat gedung';
+
+                                // Handle validation errors
+                                if (result.errors) {
+                                    const errors = result.errors;
+                                    Object.keys(errors).forEach(key => {
+                                        const input = document.getElementById(`add_${key}`);
+                                        if (input) {
+                                            input.classList.add('border-red-500');
+                                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                            if (errorElement) {
+                                                errorElement.textContent = errors[key][0];
+                                                errorElement.classList.remove('hidden');
+                                            }
+                                        }
+                                    });
                                 }
-                            }, 10000);
-                        }
+
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('Terjadi kesalahan saat mengirim permintaan', 'error');
+                        })
+                        .finally(() => {
+                            // Re-enable submit button
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        });
                     }
                 });
 
                 document.getElementById('editBuildingForm')?.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
                     const buildingNameInput = document.getElementById('editBuildingName');
                     const buildingAddressInput = document.getElementById('editAddress');
 
@@ -1097,36 +1162,96 @@
                     const isAddressValid = validateField(buildingAddressInput);
 
                     if (!isNameValid || !isAddressValid) {
-                        event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
-                    } else {
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        if (submitBtn && !submitBtn.disabled) {
-                            const originalText = submitBtn.innerHTML;
+                        return false;
+                    }
 
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = `
-                                                <div class="flex items-center justify-center">
-                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                    <span>Memproses...</span>
-                                                </div>
-                                            `;
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        const originalText = submitBtn.innerHTML;
 
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        // Create FormData and send via AJAX
+                        const formData = new FormData(this);
+                        formData.append('_method', 'PUT'); // For Laravel method spoofing
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                // Success
+                                showToast(result.message || 'Gedung berhasil diubah', 'success');
+
+                                // Close modal
+                                const modal = document.getElementById('editBuildingModal');
+                                const content = modal.querySelector('[id$="ModalContent"]');
+                                closeModal(modal, content);
+                                clearModalForms(modal);
+
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error
+                                let errorMessage = result.message || 'Terjadi kesalahan saat mengubah gedung';
+
+                                // Handle validation errors
+                                if (result.errors) {
+                                    const errors = result.errors;
+                                    Object.keys(errors).forEach(key => {
+                                        let inputId = key;
+                                        if (key === 'building_name') inputId = 'editBuildingName';
+                                        else if (key === 'address') inputId = 'editAddress';
+
+                                        const input = document.getElementById(inputId);
+                                        if (input) {
+                                            input.classList.add('border-red-500');
+                                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                                            if (errorElement) {
+                                                errorElement.textContent = errors[key][0];
+                                                errorElement.classList.remove('hidden');
+                                            }
+                                        }
+                                    });
                                 }
-                            }, 10000);
-                        }
+
+                                showToast(errorMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('Terjadi kesalahan saat mengirim permintaan', 'error');
+                        })
+                        .finally(() => {
+                            // Re-enable submit button
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                        });
                     }
                 });
 
                 const deleteBuildingForm = document.getElementById('deleteBuildingForm');
                 if (deleteBuildingForm) {
                     deleteBuildingForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
                         const submitBtn = this.querySelector('button[type="submit"]');
                         if (submitBtn && !submitBtn.disabled) {
                             const originalText = submitBtn.innerHTML;
@@ -1134,19 +1259,55 @@
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
-                                                <div class="flex items-center justify-center">
-                                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                    <span>Menghapus...</span>
-                                                </div>
-                                            `;
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Menghapus...</span>
+                                </div>
+                            `;
 
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
+                            // Create FormData and send via AJAX
+                            const formData = new FormData(this);
+                            formData.append('_method', 'DELETE'); // For Laravel method spoofing
+
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json',
                                 }
-                            }, 10000);
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    // Success
+                                    showToast(result.message || 'Gedung berhasil dihapus', 'success');
+
+                                    // Close modal
+                                    const modal = document.getElementById('deleteBuildingModal');
+                                    const content = modal.querySelector('[id$="ModalContent"]');
+                                    closeModal(modal, content);
+
+                                    // Reload page after a short delay
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1000);
+                                } else {
+                                    // Error
+                                    let errorMessage = result.message || 'Terjadi kesalahan saat menghapus gedung';
+                                    showToast(errorMessage, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showToast('Terjadi kesalahan saat mengirim permintaan', 'error');
+                            })
+                            .finally(() => {
+                                // Re-enable submit button
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
+                            });
                         }
                     });
                 }
@@ -1496,7 +1657,6 @@
                             importBtn.innerHTML = originalBtnText;
 
                             if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                                console.log('Import successful:', data);
 
                                 const modal = document.getElementById('importBuildingModal');
                                 closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
@@ -1513,7 +1673,6 @@
                                 let errorDetails = [];
 
                                 if (data.data && data.data.errors) {
-                                    console.log('Server returned detailed errors:', data.data.errors);
 
                                     if (Array.isArray(data.data.errors)) {
                                         data.data.errors.forEach(error => {

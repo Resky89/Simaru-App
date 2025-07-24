@@ -1,3 +1,4 @@
+
 @extends('Layout.app')
 
 @section('title', 'Detail Aset Master')
@@ -77,7 +78,17 @@
 
                     <div class="mb-4">
                         <p class="text-sm text-gray-500">Jenis Aset</p>
-                        <p class="font-medium">{{ isset($masterAsset['asset_type']) ? ucwords(str_replace('_', ' ', $masterAsset['asset_type'])) : 'N/A' }}</p>
+                        @if(isset($masterAsset['asset_type']))
+                            @if(strtolower($masterAsset['asset_type']) == 'medical')
+                                <p class="font-medium">Medis</p>
+                            @elseif(strtolower($masterAsset['asset_type']) == 'non_medical')
+                                <p class="font-medium">Non Medis</p>
+                            @else
+                                <p class="font-medium">{{ $masterAsset['asset_type'] ?? 'N/A' }}</p>
+                            @endif
+                        @else
+                            <p class="font-medium">{{ $masterAsset['asset_type'] ?? 'N/A' }}</p>
+                        @endif
                     </div>
                 </div>
 
@@ -267,7 +278,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form id="editMasterAssetForm" method="POST" action="{{ route('asset-master.update', $masterAsset['asset_master_id']) }}" data-no-loading enctype="multipart/form-data">
+                    <form id="editMasterAssetForm" method="POST" action="{{ route('view-asset-master.update', $masterAsset['asset_master_id']) }}" data-no-loading enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="p-6">
@@ -478,7 +489,75 @@
         const editFormSpinner = document.getElementById('edit-loading');
         const editFormContent = document.getElementById('edit-form-content');
 
+        function fetchMasterAssetDetails(assetId) {
+            fetch(`/view-asset-master/${assetId}?json=true`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw errorData;
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.masterAsset) {
+                    document.getElementById('edit_asset_type').value = data.masterAsset.asset_type || '';
+
+                    initCustomSelects();
+
+                    if (data.masterAsset.asset_type) {
+                        const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                        const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
+                        subcategorySearchInput.disabled = false;
+                        subcategorySearchInput.placeholder = "Cari kategori...";
+
+                        fetchCategories(data.masterAsset.asset_type, '', 'edit_subcategory_id');
+                    }
+
+                    populateEditForm(data.masterAsset);
+
+                    editFormSpinner.classList.add('hidden');
+                    editFormContent.classList.remove('hidden');
+                } else {
+                    console.error('Gagal mengambil detail aset master');
+                    closeEditModal();
+                    showToast('Gagal memuat detail aset master. Silakan coba lagi.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching master asset details:', error);
+
+                let errorMessage = 'Gagal memuat detail aset master. Silakan coba lagi.';
+                if (typeof error === 'object' && error !== null) {
+                    if (error.message) {
+                        errorMessage = error.message;
+                    } else if (error.errors) {
+                        const errorMessages = [];
+                        for (const field in error.errors) {
+                            if (Array.isArray(error.errors[field])) {
+                                errorMessages.push(...error.errors[field]);
+                            } else if (typeof error.errors[field] === 'string') {
+                                errorMessages.push(error.errors[field]);
+                            }
+                        }
+                        errorMessage = errorMessages.join('\n');
+                    }
+                }
+
+                closeEditModal();
+                showToast(errorMessage, 'error');
+            });
+        }
+
         editForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
             const assetNameInput = document.getElementById('edit_asset_name');
             const assetTypeInput = document.getElementById('edit_asset_type');
             const subcategoryInput = document.getElementById('edit_subcategory_id');
@@ -486,132 +565,181 @@
             let isValid = true;
 
             if (!assetNameInput.value.trim()) {
-                showFieldError(assetNameInput);
+                assetNameInput.classList.add('border-red-500');
+                const errorElement = assetNameInput.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Nama Aset harus diisi';
+                    errorElement.classList.remove('hidden');
+                }
                 isValid = false;
             }
 
             if (!assetTypeInput.value) {
-                showFieldError(assetTypeInput);
+                assetTypeInput.classList.add('border-red-500');
+                const errorElement = assetTypeInput.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Tipe Aset harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
                 isValid = false;
             }
 
+            const subcategoryContainer = subcategoryInput.closest('.custom-select-container');
+            const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
             if (!subcategoryInput.value) {
-                const subcategoryContainer = subcategoryInput.closest('.custom-select-container');
-                const searchInput = subcategoryContainer.querySelector('.search-input');
-                showFieldError(searchInput);
+                subcategorySearchInput.classList.add('border-red-500');
+                const errorElement = subcategoryContainer.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.textContent = 'Kategori harus dipilih';
+                    errorElement.classList.remove('hidden');
+                }
                 isValid = false;
             }
 
             if (!isValid) {
-                event.preventDefault();
                 showToast('Silakan isi semua field yang diperlukan', 'error');
-                resetSubmitButton();
                 return;
             }
 
             const submitBtn = document.getElementById('edit-submit-btn');
-            if (submitBtn.disabled) {
-                event.preventDefault();
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Menyimpan...
-            `;
-
-            // Use AJAX to submit the form
-            event.preventDefault();
-
             const formData = new FormData(this);
+            const actionUrl = this.action;
 
-            // Laravel menggunakan _method untuk simulasi PUT/DELETE
-            // Pastikan formData memiliki _method=PUT
-            if (this.getAttribute('method').toUpperCase() === 'PUT' || this.querySelector('input[name="_method"][value="PUT"]')) {
-                formData.set('_method', 'PUT');
-            }
+            if (submitBtn && !submitBtn.disabled) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Menyimpan...
+                `;
 
-            fetch(this.action, {
-                method: 'POST', // Selalu gunakan POST dan biarkan _method menangani metode sebenarnya
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                // Ensure _method is set for Laravel's method spoofing
+                if (this.getAttribute('method').toUpperCase() === 'PUT' || this.querySelector('input[name="_method"][value="PUT"]')) {
+                    formData.set('_method', 'PUT');
                 }
-            })
-            .then(response => {
-                const contentType = response.headers.get('content-type');
-                if (!response.ok) {
-                    // Jika respons bukan JSON, kembalikan pesan error umum
-                    if (!contentType || !contentType.includes('application/json')) {
-                        // Coba ambil teks respons untuk debugging
-                        return response.text().then(text => {
-                            console.error('Server returned non-JSON response:', text.substring(0, 200) + '...');
-                            throw new Error('Server mengembalikan respons HTML alih-alih JSON. Kemungkinan terjadi error pada server.');
-                        });
+
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }
-                    return response.json().then(errorData => {
-                        throw errorData;
-                    });
-                }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
 
-                // Jika respons bukan JSON, kembalikan pesan sukses umum
-                if (!contentType || !contentType.includes('application/json')) {
-                    return { success: true, message: 'Data aset master berhasil diperbarui' };
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Close the modal
-                closeEditModal();
-                resetEditMasterAssetForm();
+                    if (data.success) {
+                        // Close modal on success
+                        closeEditModal();
+                        resetEditMasterAssetForm();
 
-                // Show success message
-                showToast(data.message || 'Data aset master berhasil diperbarui', 'success');
+                        // Show success message
+                        showToast(data.message || 'Data aset master berhasil diperbarui', 'success');
 
-                // Reload the page after a short delay
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            })
-            .catch(error => {
-                console.error('Error updating asset master:', error);
-
-                // Show error message
-                if (typeof error === 'object' && error !== null) {
-                    if (error.message) {
-                        showToast(error.message, 'error');
-                    } else if (error.errors) {
-                        const errorMessages = Object.values(error.errors).flat();
-                        showToast(errorMessages.join('<br>'), 'error');
+                        // Reload the page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                     } else {
-                        showToast('Terjadi kesalahan saat memperbarui data aset master', 'error');
-                    }
-                } else if (typeof error === 'string') {
-                    showToast(error, 'error');
-                } else {
-                    showToast('Terjadi kesalahan saat memperbarui data aset master. Periksa koneksi dan coba lagi.', 'error');
-                }
+                        // Clear previous errors first
+                        document.querySelectorAll('#editMasterAssetModal .error-message').forEach(el => {
+                            el.classList.add('hidden');
+                        });
+                        document.querySelectorAll('#editMasterAssetModal input, #editMasterAssetModal select, #editMasterAssetModal textarea').forEach(el => {
+                            el.classList.remove('border-red-500');
+                        });
 
-                // Reset the submit button
-                resetSubmitButton();
-            });
+                        // Handle validation errors
+                        if (data.errors) {
+                            let errorMessage = '';
+
+                            // Process each error field
+                            Object.keys(data.errors).forEach(field => {
+                                const errorMessages = data.errors[field];
+                                const fieldElement = document.getElementById('edit_' + field);
+
+                                if (fieldElement) {
+                                    // Highlight the field
+                                    fieldElement.classList.add('border-red-500');
+
+                                    // Find and show error message container
+                                    const errorContainer = fieldElement.closest('.space-y-2')?.querySelector('.error-message');
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                }
+
+                                // Special handling for subcategory field (custom select)
+                                if (field === 'subcategory_id') {
+                                    const container = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
+                                    const searchInput = container.querySelector('.search-input');
+                                    searchInput.classList.add('border-red-500');
+
+                                    const errorContainer = container.closest('.space-y-2')?.querySelector('.error-message');
+                                    if (errorContainer) {
+                                        errorContainer.textContent = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages;
+                                        errorContainer.classList.remove('hidden');
+                                    }
+                                }
+
+                                // Build error message for toast
+                                if (Array.isArray(errorMessages)) {
+                                    errorMessage += errorMessages.join(', ');
+                                } else {
+                                    errorMessage += errorMessages;
+                                }
+                            });
+
+                            // Show toast with all error messages
+                            showToast(errorMessage || data.message || 'Gagal memperbarui data aset master', 'error');
+                        } else {
+                            // Show generic error message
+                        showToast(data.message || 'Gagal memperbarui data aset master', 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating asset:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    submitBtn.innerHTML = originalText;
+                    showToast('Terjadi kesalahan saat memperbarui aset master', 'error');
+                });
+            }
         });
 
-        function showFieldError(field) {
+        function showFieldError(field, message = null) {
             field.classList.add('border-red-500');
             const errorElement = field.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.remove('hidden');
+            if (errorElement) {
+                if (message) {
+                    errorElement.textContent = message;
+                }
+                errorElement.classList.remove('hidden');
+            }
         }
 
         function clearFieldError(field) {
             field.classList.remove('border-red-500');
             const errorElement = field.closest('.space-y-2').querySelector('.error-message');
-            if (errorElement) errorElement.classList.add('hidden');
+            if (errorElement) {
+                // Reset to default error message
+                const defaultMessage = field.id === 'edit_asset_name' ? 'Nama Aset harus diisi' :
+                                      field.id === 'edit_asset_type' ? 'Tipe Aset harus dipilih' :
+                                      'Field ini harus diisi';
+                errorElement.textContent = defaultMessage;
+                errorElement.classList.add('hidden');
+            }
         }
 
         document.getElementById('edit_asset_name').addEventListener('input', function() {
@@ -691,7 +819,7 @@
 
                 editFormSpinner.classList.remove('hidden');
                 editFormContent.classList.add('hidden');
-                editForm.action = `/asset-master/${assetId}`;
+                editForm.action = `/view-asset-master/${assetId}`;
                 openModal(editModal, editModalContent);
 
                 fetchMasterAssetDetails(assetId);
@@ -710,47 +838,6 @@
             const submitBtn = document.getElementById('edit-submit-btn');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Perbarui';
-        }
-
-        function fetchMasterAssetDetails(assetId) {
-            fetch(`/asset-master/${assetId}/edit`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.masterAsset) {
-                    document.getElementById('edit_asset_type').value = data.masterAsset.asset_type || '';
-
-                    initCustomSelects();
-
-                    if (data.masterAsset.asset_type) {
-                        const subcategoryContainer = document.querySelector('#edit_subcategory_id').closest('.custom-select-container');
-                        const subcategorySearchInput = subcategoryContainer.querySelector('.search-input');
-                        subcategorySearchInput.disabled = false;
-                        subcategorySearchInput.placeholder = "Cari kategori...";
-
-                        fetchCategories(data.masterAsset.asset_type, '', 'edit_subcategory_id');
-                    }
-
-                    populateEditForm(data.masterAsset);
-
-                    editFormSpinner.classList.add('hidden');
-                    editFormContent.classList.remove('hidden');
-                } else {
-                    console.error('Gagal mengambil detail aset master');
-                    closeEditModal();
-                    alert('Gagal memuat detail aset master. Silakan coba lagi.');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching master asset details:', error);
-                closeEditModal();
-                alert('Gagal memuat detail aset master. Silakan coba lagi.');
-            });
         }
 
         function populateEditForm(masterAsset) {
@@ -867,37 +954,156 @@
         }
 
         function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 flex items-center';
+            const notification = document.createElement('div');
+            notification.id = type + 'Notification' + Date.now();
+            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
+            notification.role = 'alert';
+
+            const hasHTML = typeof message === 'string' && /<[a-z][\s\S]*>/i.test(message);
+            const isObject = typeof message === 'object' && message !== null;
 
             if (type === 'success') {
-                toast.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-            } else {
-                toast.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-            }
-
-            toast.innerHTML = `
+                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+                notification.innerHTML = `
+                    <div class="flex items-start">
                 <div class="py-1">
-                    <svg class="h-6 w-6 mr-4 ${type === 'success' ? 'text-green-500' : 'text-red-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        ${type === 'success'
-                            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'
-                            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                            <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="font-bold">${type === 'success' ? 'Success!' : 'Gagal!'}</p>
-                    <p>${message}</p>
+                            <p class="font-bold">Berhasil!</p>
+                            <div>${isObject ? message.message || 'Operasi berhasil' : message}</div>
                 </div>
-                <span class="ml-4 cursor-pointer" onclick="this.parentElement.remove()">×</span>
-            `;
+                        <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
+                    </div>
+                `;
+            } else {
+                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
 
-            document.body.appendChild(toast);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-start';
+
+                const iconContainer = document.createElement('div');
+                iconContainer.className = 'py-1 flex-shrink-0';
+                iconContainer.innerHTML = `
+                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+
+                const contentContainer = document.createElement('div');
+                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                const title = document.createElement('p');
+                title.className = 'font-bold';
+                title.textContent = 'Gagal!';
+                contentContainer.appendChild(title);
+
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'error-message';
+
+                if (isObject) {
+                    let errorContent = '';
+
+                    if (message.message) {
+                        errorContent = `<p>${message.message}</p>`;
+                    } else {
+                        errorContent = '<p>Terjadi kesalahan</p>';
+                    }
+
+                    if (message.errors) {
+                        errorContent += '<ul class="mt-2 ml-4 list-disc">';
+
+                        if (Array.isArray(message.errors)) {
+                            message.errors.forEach(err => {
+                                if (typeof err === 'string') {
+                                    errorContent += `<li>${err}</li>`;
+                                } else if (typeof err === 'object' && err !== null) {
+                                    if (err.path && err.message) {
+                                        errorContent += `<li>${err.path}: ${err.message}</li>`;
+                                    } else if (err.message) {
+                                        errorContent += `<li>${err.message}</li>`;
+                                    } else {
+                                        const values = Object.values(err).filter(v => typeof v === 'string');
+                                        if (values.length > 0) {
+                                            errorContent += `<li>${values.join(': ')}</li>`;
+                                        }
+                                    }
+                                }
+                            });
+                        } else if (typeof message.errors === 'object') {
+                            Object.entries(message.errors).forEach(([field, fieldErrors]) => {
+                                if (Array.isArray(fieldErrors)) {
+                                    fieldErrors.forEach(err => errorContent += `<li>${field}: ${err}</li>`);
+                                } else if (typeof fieldErrors === 'string') {
+                                    errorContent += `<li>${field}: ${fieldErrors}</li>`;
+                                }
+                            });
+                        }
+
+                        errorContent += '</ul>';
+                    }
+
+                    if (message.data && message.data.errors) {
+                        errorContent += '<ul class="mt-2 ml-4 list-disc">';
+
+                        if (Array.isArray(message.data.errors)) {
+                            message.data.errors.forEach(err => {
+                                if (typeof err === 'string') {
+                                    errorContent += `<li>${err}</li>`;
+                                } else if (typeof err === 'object' && err !== null) {
+                                    if (err.path && err.message) {
+                                        errorContent += `<li>${err.path}: ${err.message}</li>`;
+                                    } else if (err.message) {
+                                        errorContent += `<li>${err.message}</li>`;
+                                    } else if (err.reason) {
+                                        errorContent += `<li>${err.reason}</li>`;
+                                    }
+                                }
+                            });
+                        } else if (typeof message.data.errors === 'object') {
+                            Object.entries(message.data.errors).forEach(([field, fieldErrors]) => {
+                                if (Array.isArray(fieldErrors)) {
+                                    fieldErrors.forEach(err => errorContent += `<li>${field}: ${err}</li>`);
+                                } else if (typeof fieldErrors === 'string') {
+                                    errorContent += `<li>${field}: ${fieldErrors}</li>`;
+                                }
+                            });
+                        }
+
+                        errorContent += '</ul>';
+                    }
+
+                    messageContainer.innerHTML = errorContent;
+                } else {
+                    if (hasHTML) {
+                        messageContainer.innerHTML = message;
+                    } else {
+                        messageContainer.textContent = message;
+                    }
+                }
+
+                contentContainer.appendChild(messageContainer);
+
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = function() {
+                    notification.remove();
+                };
+
+                wrapper.appendChild(iconContainer);
+                wrapper.appendChild(contentContainer);
+                wrapper.appendChild(closeBtn);
+                notification.appendChild(wrapper);
+            }
+
+            document.body.appendChild(notification);
 
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => {
-                    toast.remove();
-                }, 500);
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+                setTimeout(() => notification.remove(), 500);
             }, 5000);
         }
 
@@ -1127,39 +1333,6 @@
             }
         }
     });
-
-    // Add CSS styles for scrollable dropdowns
-    document.head.insertAdjacentHTML('beforeend', `
-        <style>
-            .scrollable-dropdown {
-                max-height: 250px;
-                overflow-y: auto;
-                scrollbar-width: thin;
-            }
-            .scrollable-dropdown::-webkit-scrollbar {
-                width: 6px;
-            }
-            .scrollable-dropdown::-webkit-scrollbar-track {
-                background: #f1f1f1;
-            }
-            .scrollable-dropdown::-webkit-scrollbar-thumb {
-                background: #888;
-                border-radius: 3px;
-            }
-            .scrollable-dropdown::-webkit-scrollbar-thumb:hover {
-                background: #555;
-            }
-            .loading-indicator {
-                border-top: 1px solid #eee;
-                padding-top: 8px;
-            }
-            .dropdown-header {
-                position: sticky;
-                top: 0;
-                background-color: white;
-                z-index: 10;
-            }
-        </style>
-    `);
 </script>
 @endpush
+

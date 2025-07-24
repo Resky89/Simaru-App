@@ -83,7 +83,7 @@
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Ditugaskan Ke</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Vendor</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Status</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[120px]">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[100px]">Aksi
                                     </th>
                                 </tr>
@@ -137,7 +137,7 @@
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ $maintenance['vendor_name'] ?? '-' }}
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4] w-[120px]">
                                             @php
                                                 $statusClass = '';
                                                 $status = $maintenance['status'] ?? '';
@@ -154,9 +154,11 @@
                                                     $statusText = 'Selesai';
                                                 }
                                             @endphp
-                                            <span class="px-2 py-1 rounded text-xs {{ $statusClass }}">
-                                                {{ $statusText }}
-                                            </span>
+                                            <div class="flex justify-center">
+                                                <span class="px-2 py-1 rounded text-xs {{ $statusClass }} whitespace-nowrap">
+                                                    {{ $statusText }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td class="p-3 border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
@@ -2314,7 +2316,6 @@
 
                         if (resultsElem) resultsElem.style.display = 'block';
 
-                        // Reset pagination variables when starting a new search
                         if (mode === 'add') {
                             vendorPage = 1;
                             hasMoreVendors = true;
@@ -2389,9 +2390,8 @@
                                 }
                             }
 
-                            // Check if we have more pages to load
                             if (mode === 'add') {
-                                hasMoreVendors = vendors.length === 20; // Assuming 20 is the page size
+                                hasMoreVendors = vendors.length === 20;
                                 isLoadingVendors = false;
                             } else {
                                 hasMoreEditVendors = vendors.length === 20;
@@ -2425,7 +2425,6 @@
                         if (!append) {
                         resultsElem.innerHTML = '';
                         } else {
-                            // Remove loading indicator if it exists
                             const loadingIndicator = resultsElem.querySelector('.vendor-loading-indicator');
                             if (loadingIndicator) {
                                 loadingIndicator.remove();
@@ -2467,35 +2466,28 @@
                         }
                     }
 
-                    // Setup infinite scrolling for vendor results
                     if (vendorResults) {
                         vendorResults.addEventListener('scroll', function() {
                             if (!hasMoreVendors || isLoadingVendors) return;
 
-                            // Check if user scrolled to bottom
                             if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
-                                // Load next page
                                 vendorPage++;
                                 fetchVendors(currentVendorSearch, 'add', vendorPage, true);
                             }
                         });
                     }
 
-                    // Setup infinite scrolling for edit vendor results
                     if (editVendorResults) {
                         editVendorResults.addEventListener('scroll', function() {
                             if (!hasMoreEditVendors || isLoadingEditVendors) return;
 
-                            // Check if user scrolled to bottom
                             if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
-                                // Load next page
                                 editVendorPage++;
                                 fetchVendors(currentEditVendorSearch, 'edit', editVendorPage, true);
                             }
                         });
                     }
 
-                    // Preload vendors if available in cache
                     function loadAllVendors() {
                         const cachedVendors = localStorage.getItem('allVendors');
                         if (cachedVendors) {
@@ -2509,13 +2501,11 @@
 
                     loadAllVendors();
 
-                    // Variables for user lazy loading
                     let userPage = 1;
                     let isLoadingUsers = false;
                     let hasMoreUsers = true;
                     let currentUserSearch = '';
 
-                    // Variables for edit user lazy loading
                     let editUserPage = 1;
                     let isLoadingEditUsers = false;
                     let hasMoreEditUsers = true;
@@ -2536,7 +2526,6 @@
                         searchInput.addEventListener('focus', function() {
                             dropdown.classList.remove('hidden');
 
-                            // Reset pagination variables when focusing
                             if (searchInputId === 'user_search') {
                                 userPage = 1;
                                 hasMoreUsers = true;
@@ -2560,7 +2549,6 @@
                             const searchTerm = e.target.value;
                             const isEditMode = searchInputId === 'edit_user_search';
 
-                            // Reset pagination when starting a new search
                             if (isEditMode) {
                                 editUserPage = 1;
                                 hasMoreEditUsers = true;
@@ -2580,7 +2568,6 @@
                         const permissionRadios = document.querySelectorAll(isEditMode ? '.edit-permission-radio' : '.permission-radio');
                         permissionRadios.forEach(radio => {
                             radio.addEventListener('change', function() {
-                                // Reset pagination when changing permission filter
                                 if (isEditMode) {
                                     editUserPage = 1;
                                     hasMoreEditUsers = true;
@@ -2594,7 +2581,6 @@
                             });
                         });
 
-                        // Setup infinite scrolling for user results
                         dropdown.addEventListener('scroll', function() {
                             const isEditMode = searchInputId === 'edit_user_search';
                             const hasMore = isEditMode ? hasMoreEditUsers : hasMoreUsers;
@@ -2602,9 +2588,7 @@
 
                             if (!hasMore || isLoading) return;
 
-                            // Check if user scrolled to bottom
                             if (this.scrollHeight - this.scrollTop <= this.clientHeight + 50) {
-                                // Load next page
                                 if (isEditMode) {
                                     editUserPage++;
                                     loadUsers(currentEditUserSearch, editUserPage, true);
@@ -2635,7 +2619,6 @@
                         searchingMsg.textContent = searchTerm ? `Mencari "${searchTerm}"...` : 'Memuat pengguna...';
                         userList.appendChild(searchingMsg);
                         } else {
-                            // Add loading indicator at the bottom when appending
                             const loadingItem = document.createElement('li');
                             loadingItem.className = 'px-4 py-2 text-blue-500 text-center user-loading-indicator';
                             loadingItem.textContent = 'Memuat lebih banyak...';
@@ -2691,7 +2674,6 @@
                                     users = data.data;
                                 }
 
-                            // Remove loading indicators
                             if (append) {
                                 const loadingIndicator = userList.querySelector('.user-loading-indicator');
                                 if (loadingIndicator) {
@@ -2701,9 +2683,8 @@
                             userList.innerHTML = '';
                             }
 
-                            // Track if we have more users to load
                             if (isEditMode) {
-                                hasMoreEditUsers = users.length === 10; // Assuming 10 is the page size
+                                hasMoreEditUsers = users.length === 10;
                             } else {
                                 hasMoreUsers = users.length === 10;
                             }
@@ -2757,7 +2738,6 @@
                                     userList.appendChild(li);
                                 });
 
-                                // Add "load more" indicator if we have more users
                                 if ((isEditMode && hasMoreEditUsers) || (!isEditMode && hasMoreUsers)) {
                                 const countDiv = document.createElement('li');
                                 countDiv.className = 'p-2 text-xs text-gray-500 text-center border-t';
@@ -2767,12 +2747,11 @@
                                     countDiv.textContent = `Scroll untuk memuat lebih banyak pengguna dengan ${permissionText}`;
                                 userList.appendChild(countDiv);
                                 }
-                                                    }
+                            }
                         })
                         .catch(error => {
                             console.error('Error loading users with permissions:', error);
 
-                            // Remove loading indicators
                             if (append) {
                                 const loadingIndicator = userList.querySelector('.user-loading-indicator');
                                 if (loadingIndicator) {
@@ -2888,7 +2867,6 @@
                             })
                         .then(handleApiResponse)
                         .then(data => {
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
@@ -2901,16 +2879,11 @@
                                     window.location.reload();
                                 }, 1500);
                             } else {
-                                // Reset button state on error
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 resetButton(submitBtn);
 
-                                if (data.error) {
-                                    showToast(data.error, 'error');
-                                } else if (data.message) {
-                                    showToast(data.message, 'error');
-                                } else if (data.errors) {
-                                    showToast({ errors: data.errors }, 'error');
+                                if (data.errors) {
+                                    showToast(data.errors, 'error');
                                 } else {
                                     showToast('Gagal membuat jadwal pemeliharaan', 'error');
                                 }
@@ -2919,11 +2892,9 @@
                         .catch(error => {
                             console.error('Error creating maintenance schedule:', error);
 
-                            // Reset button state on error
                             const submitBtn = this.querySelector('button[type="submit"]');
                             resetButton(submitBtn);
 
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
@@ -2932,7 +2903,7 @@
                                 if (Array.isArray(error.errors)) {
                                     showToast(error.errors, 'error');
                                 } else {
-                                    showToast({ errors: error.errors }, 'error');
+                                    showToast( error.errors, 'error');
                                 }
                             } else if (error && error.status === 422) {
                                 showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
@@ -3005,46 +2976,41 @@
                         })
                         .then(handleApiResponse)
                         .then(data => {
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
 
-                            closeModal(modals.delete, modalContents.delete);
-
                             if (data.success) {
+                                closeModal(modals.delete, modalContents.delete);
                                 showToast(data.message || 'Rekaman pemeliharaan berhasil dihapus', 'success');
 
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Reset button state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 resetButton(submitBtn);
 
                                 showToast(data.message || 'Gagal menghapus rekaman pemeliharaan', 'error');
+
+                                return;
                             }
                         })
                         .catch(error => {
                             console.error('Delete request failed:', error);
 
-                            // Reset button state on error
                             const submitBtn = this.querySelector('button[type="submit"]');
                             resetButton(submitBtn);
 
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
-
-                            closeModal(modals.delete, modalContents.delete);
 
                             if (error && error.errors) {
                                 if (Array.isArray(error.errors)) {
                                     showToast(error.errors, 'error');
                                 } else {
-                                    showToast({ errors: error.errors }, 'error');
+                                    showToast(error.errors, 'error');
                                 }
                             } else if (error && error.status === 422) {
                                 showToast(`Validasi gagal: ${error.message || 'Silakan periksa form Anda'}`, 'error');
@@ -3088,6 +3054,8 @@
                                 }
 
                                 const maintenance = result.data;
+
+                                    editMaintenanceForm.dataset.originalData = JSON.stringify(maintenance);
 
                                     const editMaintenanceId = document.getElementById('edit_maintenance_id');
                                     const editStartDate = document.getElementById('edit_start_date');
@@ -3194,15 +3162,56 @@
                             return;
                         }
 
-                        const formData = {
-                            interval: intervalField.value,
-                            start_date: startDateField.value,
-                            assigned_to: parseInt(document.getElementById('edit_assigned_to').value, 10),
-                            vendor_id: document.getElementById('edit_vendor_id').value ? parseInt(document.getElementById('edit_vendor_id').value, 10) : null
+                        const formData = {};
+
+                        const originalData = JSON.parse(this.dataset.originalData || '{}');
+
+                        const formatDate = (dateString) => {
+                            if (!dateString) return '';
+                            const date = new Date(dateString);
+                            return date.toISOString().split('T')[0];
                         };
 
-                        if (formData.interval !== 'ONCE' && formData.interval !== 'DAILY') {
-                            formData.end_date = endDateField.value;
+                        if (intervalField.value !== originalData.interval) {
+                            formData.interval = intervalField.value;
+                        }
+
+                        const originalStartDate = formatDate(originalData.start_date);
+                        if (startDateField.value !== originalStartDate) {
+                            formData.start_date = startDateField.value;
+                        }
+
+                        if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                            const originalEndDate = formatDate(originalData.end_date);
+                            if (endDateField.value !== originalEndDate) {
+                                formData.end_date = endDateField.value;
+                            }
+                        }
+
+                        const assignedTo = parseInt(document.getElementById('edit_assigned_to').value, 10);
+                        if (assignedTo !== originalData.assigned_to) {
+                            formData.assigned_to = assignedTo;
+                        }
+
+                        const vendorId = document.getElementById('edit_vendor_id').value ?
+                            parseInt(document.getElementById('edit_vendor_id').value, 10) : null;
+                        const originalVendorId = originalData.vendor_id || null;
+
+                        if (vendorId !== originalVendorId) {
+                            formData.vendor_id = vendorId;
+                        }
+
+                        if (Object.keys(formData).length === 0) {
+                            closeModal(modals.edit, modalContents.edit);
+                            showToast('Tidak ada perubahan yang dilakukan', 'info');
+
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = 'Simpan Perubahan';
+                            }
+                            return;
                         }
 
                         fetch(`/maintenance/${maintenanceId}`, {
@@ -3216,7 +3225,6 @@
                         })
                         .then(handleApiResponse)
                         .then(data => {
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
@@ -3230,7 +3238,6 @@
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Reset button state
                                 const submitBtn = this.querySelector('button[type="submit"]');
                                 resetButton(submitBtn);
 
@@ -3240,11 +3247,9 @@
                         .catch(error => {
                             console.error('Update request failed:', error);
 
-                            // Reset button state on error
                             const submitBtn = this.querySelector('button[type="submit"]');
                             resetButton(submitBtn);
 
-                            // Clear the safety timeout
                             if (this.dataset.safetyTimeoutId) {
                                 clearTimeout(parseInt(this.dataset.safetyTimeoutId));
                             }
@@ -3253,7 +3258,7 @@
                                 if (Array.isArray(error.errors)) {
                                     showToast(error.errors, 'error');
                                 } else {
-                                    showToast({ errors: error.errors }, 'error');
+                                    showToast(error.errors, 'error');
                                 }
                             } else if (error && error.status === 422) {
                                 showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
@@ -3282,17 +3287,14 @@
                                 return;
                             }
 
-                            // Show loading state
                             button.setAttribute('data-original-html', button.innerHTML);
                             button.disabled = true;
                             button.innerHTML = `<div class="inline-block w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin mr-1"></div>`;
 
-                            // Set timeout to revert button after 10 seconds as a safety
                             const safetyTimeout = setTimeout(() => {
                                 resetReportButton();
                             }, 10000);
 
-                            // Function to reset button
                             const resetReportButton = () => {
                                 const originalHtml = button.getAttribute('data-original-html');
                                 if (originalHtml) {
@@ -3302,7 +3304,6 @@
                                 clearTimeout(safetyTimeout);
                             };
 
-                            // If status is "new", hit the startMaintenance endpoint first
                             if (status === 'new') {
                                 fetch(`/maintenance/${maintenanceId}/start`, {
                                     method: 'PATCH',
@@ -3455,7 +3456,6 @@
                                                 ? imagePath
                                                 : "{{ config('app.backend_url') }}/public" + imagePath;
 
-                                            // Handle image load errors
                                             assetImage.onerror = function() {
                                                 this.onerror = null;
                                                 this.src = "{{ asset('images/placeholder.png') }}";
@@ -3503,7 +3503,6 @@
                                 return;
                             }
 
-                            // Validate required fields
                             const isDateValid = validateField(maintenanceDate);
                             const isDescriptionValid = validateField(description);
 
@@ -3564,7 +3563,7 @@
                                     if (Array.isArray(error.errors)) {
                                         showToast(error.errors, 'error');
                                     } else {
-                                        showToast({ errors: error.errors }, 'error');
+                                        showToast(error.errors, 'error');
                                     }
                                 } else if (error && error.status === 422) {
                                     showToast(`Validasi gagal: ${error.message || 'Silakan periksa isian form Anda'}`, 'error');
@@ -3742,6 +3741,15 @@
             .relative {
                 position: relative;
                 overflow: visible;
+            }
+
+            table td:nth-child(7) {
+                width: 120px;
+                text-align: center;
+            }
+
+            table th:nth-child(7) {
+                width: 120px;
             }
         </style>
 @endsection

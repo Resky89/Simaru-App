@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helpers\DataFormatter;
+use App\Http\Controllers\Traits\ApiResourceOperations;
+use App\Http\Controllers\Traits\ExportableToPdf;
 use App\Services\ApiService;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ViewMasterAssetController extends Controller
 {
+    use ApiResourceOperations, ExportableToPdf;
+
     protected $apiService;
 
     public function __construct(ApiService $apiService)
@@ -19,81 +23,30 @@ class ViewMasterAssetController extends Controller
      * Get a master asset by its ID with linked assets information.
      *
      * @param int $id The master asset ID
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function getMasterAssetById($id)
     {
         try {
-            // Log request info
-            \Log::info('Fetching master asset with linked assets, ID:', [
-                'asset_master_id' => $id,
-                'request_url' => request()->fullUrl()
-            ]);
-
             // Fetch the master asset with the given ID
             $result = $this->apiService->request('GET', "/asset-masters/{$id}");
 
-            // Log API response for debugging
-            \Log::info('API response for master asset with linked assets:', [
-                'api_response_status' => $result['success'] ?? false,
-                'api_response_message' => $result['message'] ?? null,
-                'asset_master_id' => $id
-            ]);
-
             // Check for auth errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                \Log::warning('Authentication error during master asset retrieval:', [
-                    'errors' => $result['errors'] ?? 'Authentication failed'
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['authentication' => 'Authentication failed']
-                    ], 401);
-                }
-
-                return redirect()->route('login')->with('error', is_string($result['errors']) ? $result['errors'] : 'Authentication failed');
+            $authError = $this->handleAuthError($result, request());
+            if ($authError) {
+                return $authError;
             }
 
-            // Check for API errors based on success flag
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
-
-                \Log::warning('Error during master asset retrieval:', [
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                if (request()->ajax() || request()->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                    ], 404);
-                }
-
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
-                return redirect()->back()->with('error', $errorMessage);
+            // Check for API errors
+            $apiError = $this->handleApiError($result, request(), 'Asset.ViewMasterAsset', 'Gagal mengambil data aset master');
+            if ($apiError) {
+                return $apiError;
             }
 
             $masterAsset = $result['data'] ?? null;
 
             if (!$masterAsset) {
-                $errorMessage = 'Master asset not found or response data is invalid';
+                $errorMessage = 'Aset master tidak ditemukan atau data respons tidak valid';
 
                 if (request()->ajax() || request()->wantsJson()) {
                     return response()->json([
@@ -105,83 +58,27 @@ class ViewMasterAssetController extends Controller
                 return redirect()->back()->with('error', $errorMessage);
             }
 
-            // Return view with master asset data only
+            // Return JSON for AJAX requests (for modal edit)
+            if (request()->ajax() || request()->wantsJson() || request()->has('json')) {
+                return response()->json([
+                    'success' => true,
+                    'masterAsset' => $masterAsset
+                ]);
+            }
+
+            // Return view with master asset data for normal requests
             return view('Asset.ViewMasterAsset', [
                 'masterAsset' => $masterAsset
             ]);
         } catch (\Exception $e) {
-            $errorMessage = 'Failed to retrieve master asset: ' . $e->getMessage();
-
-            \Log::error('Exception during master asset retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_master_id' => $id
-            ]);
-
-            if (request()->ajax() || request()->wantsJson()) {
+            if (request()->ajax() || request()->wantsJson() || request()->has('json')) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
+                    'message' => 'Gagal memuat data aset master: ' . $e->getMessage()
                 ], 500);
             }
 
-            return redirect()->back()->with('error', $errorMessage);
-        }
-    }
-
-    /**
-     * Get master asset for editing.
-     */
-    public function editMasterAsset($id)
-    {
-        try {
-            // Log request info
-            \Log::info('Fetching master asset for editing:', [
-                'asset_master_id' => $id,
-                'request_url' => request()->fullUrl(),
-                'is_ajax' => request()->ajax() ? 'Yes' : 'No'
-            ]);
-
-            // Only continue if this is an AJAX request
-            if (!request()->ajax()) {
-                return redirect()->route('view-asset-master', ['id' => $id]);
-            }
-
-            // Fetch the master asset data
-            $result = $this->apiService->request('GET', "/asset-masters/{$id}");
-
-            // Check for errors
-            if (isset($result['errors']) && is_string($result['errors']) &&
-                in_array($result['errors'], ['auth_failed', 'session_expired'])) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['authentication' => 'Authentication failed']
-                ], 401);
-            }
-
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to retrieve master asset';
-
-                return response()->json([
-                    'success' => false,
-                    'errors' => is_array($errorData) ? $errorData : ['general' => $errorData]
-                ], 400);
-            }
-
-            // Return JSON response with just the master asset data
-            return response()->json([
-                'masterAsset' => $result['data']
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Exception during master asset edit retrieval:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load master asset: ' . $e->getMessage()
-            ], 500);
+            return $this->handleException($e, request(), 'Asset.ViewMasterAsset');
         }
     }
 
@@ -191,35 +88,35 @@ class ViewMasterAssetController extends Controller
     public function updateMasterAsset(Request $request, $id)
     {
         try {
-            // Log request data
-            \Log::info('Updating master asset:', [
-                'asset_master_id' => $id,
-                'request_data' => $request->except(['image_file'])
-            ]);
-
-            // Prepare master asset data
-            $masterAssetData = [
-                'asset_master_id' => $id,
-                'asset_name' => $request->input('asset_name'),
-                'description' => $request->input('description'),
-                'subcategory_id' => (int) $request->input('subcategory_id'),
-                'brand_id' => (int) $request->input('brand_id'),
-                'is_depreciable' => $request->has('is_depreciable'),
-                'needs_calibration' => $request->has('needs_calibration'),
-                'asset_type' => $request->input('asset_type')
+            // Define field definitions for DataFormatter
+            $fields = [
+                'asset_name' => ['type' => 'string', 'required' => true],
+                'description' => 'string',
+                'subcategory_id' => 'integer',
+                'brand_id' => 'integer',
+                'is_depreciable' => 'boolean',
+                'needs_calibration' => 'boolean',
+                'asset_type' => 'string'
             ];
+
+            // Format request data using DataFormatter
+            $data = DataFormatter::formatRequestData($request, $fields);
+
+            // Add the ID to the data
+            $data['asset_master_id'] = $id;
 
             // Check if the image should be removed
             if ($request->has('remove_image')) {
-                $masterAssetData['remove_image'] = true;
+                $data['remove_image'] = true;
             }
 
-            // Handle image upload if present
             if ($request->hasFile('image_file')) {
+                // For file uploads, we can't use updateResource directly
+                // because it doesn't handle multipart form data
                 $multipartData = [];
 
-                // Convert each field to multipart form data
-                foreach ($masterAssetData as $key => $value) {
+                // Add asset data as form fields
+                foreach ($data as $key => $value) {
                     // Convert boolean values to string
                     if (is_bool($value)) {
                         $value = $value ? 'true' : 'false';
@@ -229,69 +126,77 @@ class ViewMasterAssetController extends Controller
                         $value = '';
                     }
 
-                    $multipartData[] = [
-                        'name' => $key,
-                        'contents' => (string)$value
-                    ];
+                    $multipartData[] = ['name' => $key, 'contents' => (string)$value];
                 }
 
-                // Add file to multipart data
+                // Add the image file
                 $multipartData[] = [
                     'name' => 'image_file',
                     'contents' => fopen($request->file('image_file')->getPathname(), 'r'),
                     'filename' => $request->file('image_file')->getClientOriginalName()
                 ];
 
-                $options = ['multipart' => $multipartData];
-                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", $options);
-            } else {
-                // Standard JSON request if no file
-                $options = ['json' => $masterAssetData];
-                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", $options);
-            }
-
-            // Handle API response
-            if (!isset($result['success']) || $result['success'] !== true) {
-                $errorData = $result['errors'] ?? 'Failed to update master asset';
-
-                \Log::warning('Error updating master asset:', [
-                    'asset_master_id' => $id,
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
+                $result = $this->apiService->request('PUT', "/asset-masters/{$id}", [
+                    'multipart' => $multipartData
                 ]);
 
-                // Format error message for redirect
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
+                // Handle auth errors
+                $authError = $this->handleAuthError($result, $request);
+                if ($authError) {
+                    return $authError;
                 }
 
-                return redirect()->back()->with('error', $errorMessage);
+                // Check for API errors
+                if (!isset($result['success']) || $result['success'] !== true) {
+                    $errorData = $result['errors'] ?? 'Gagal memperbarui aset master';
+                    $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                    // Handle AJAX request
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $errorMessage,
+                            'errors' => $result['errors'] ?? ['general' => 'Gagal memperbarui aset master']
+                        ]);
+                    }
+
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $errorMessage);
+                }
+
+                // Handle AJAX request on success
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $result['message'] ?? 'Aset master berhasil diperbarui',
+                        'data' => $result['data'] ?? null
+                    ]);
+                }
+
+                return redirect()->route('view-asset-master', ['id' => $id])
+                    ->with('success', $result['message'] ?? 'Aset master berhasil diperbarui');
+
+            } else {
+                // For regular updates without file uploads, we can use updateResource
+                return $this->updateResource(
+                    $request,
+                    "/asset-masters/{$id}",
+                    $data,
+                    'Aset master berhasil diperbarui',
+                    'view-asset-master'
+                );
+            }
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui aset master: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
             }
 
-            // Success
-            \Log::info('Master asset updated successfully:', [
-                'asset_master_id' => $id
-            ]);
-
-            return redirect()->route('asset-master', ['id' => $id])
-                ->with('success', 'Master asset updated successfully');
-        } catch (\Exception $e) {
-            \Log::error('Exception during master asset update:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()
-                ->with('error', 'Failed to update master asset: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.ViewMasterAsset');
         }
     }
 
@@ -300,7 +205,7 @@ class ViewMasterAssetController extends Controller
      *
      * @param int $id
      * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
      */
     public function exportViewMasterAssetPDF($id, Request $request)
     {
@@ -308,29 +213,16 @@ class ViewMasterAssetController extends Controller
             // Fetch master asset details
             $result = $this->apiService->request('GET', "/asset-masters/{$id}");
 
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
             if (!isset($result['data'])) {
-                $errorData = $result['errors'] ?? 'Master asset not found';
-
-                \Log::warning('Error retrieving master asset for PDF export:', [
-                    'asset_master_id' => $id,
-                    'success' => $result['success'] ?? false,
-                    'errors' => $errorData
-                ]);
-
-                // Format error message
-                $errorMessage = '';
-                if (is_array($errorData)) {
-                    foreach ($errorData as $field => $messages) {
-                        if (is_array($messages)) {
-                            $errorMessage .= implode(', ', $messages) . '; ';
-                        } else {
-                            $errorMessage .= $messages . '; ';
-                        }
-                    }
-                } else {
-                    $errorMessage = $errorData;
-                }
-
+                $errorData = $result['errors'] ?? 'Aset master tidak ditemukan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
                 return redirect()->route('asset-master')->with('error', $errorMessage);
             }
 
@@ -345,32 +237,22 @@ class ViewMasterAssetController extends Controller
 
                     if ($imageData !== false) {
                         $masterAsset['reference_image_base64'] = base64_encode($imageData);
-                        \Log::info('Successfully encoded image to base64', ['size' => strlen($masterAsset['reference_image_base64'])]);
-                    } else {
-                        \Log::warning('Failed to get image data', ['url' => $imageUrl]);
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Error loading image: ' . $e->getMessage());
+                    // Image loading failed, continue without image
                 }
             }
 
-            // Generate PDF
-            $pdf = Pdf::loadView('Asset.ViewMasterAssetPDF', [
+            return $this->generatePdf(
+                'Asset.ViewMasterAssetPDF',
+                [
                 'masterAsset' => $masterAsset,
                 'date_generated' => now()->format('d M Y H:i:s')
-            ]);
-
-            // Stream the PDF to browser
-            return $pdf->stream('master_asset_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf');
-
+                ],
+                'master_asset_detail_' . $id . '_' . now()->format('YmdHis') . '.pdf'
+            );
         } catch (\Exception $e) {
-            \Log::error('Exception during master asset detail PDF export:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'asset_master_id' => $id
-            ]);
-
-            return redirect()->back()->with('error', 'Failed to export master asset detail as PDF: ' . $e->getMessage());
+            return $this->handleException($e, $request, 'Asset.ViewMasterAsset');
         }
     }
 }

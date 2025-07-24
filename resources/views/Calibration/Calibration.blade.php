@@ -784,36 +784,37 @@
                                 </div>
 
                                 <!-- Form -->
-                                <form id="deleteCalibrationForm" method="POST" data-no-loading>
-                                    @csrf
-                                    <div class="p-6">
-                                        <div class="space-y-6 max-w-[400px] mx-auto">
-                                            <div class="flex flex-col items-center">
-                                                <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
-                                                    data
-                                                    kalibrasi ini? Tindakan ini tidak dapat dibatalkan.</p>
-                                                <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
-                                            </div>
-                                            <div class="flex gap-3">
-                                                <button type="button"
-                                                    class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
-                                                    data-modal="deleteCalibrationModal">
-                                                    Batal
-                                                </button>
+                                <div class="p-6">
+                                    <div class="space-y-6 max-w-[400px] mx-auto">
+                                        <div class="flex flex-col items-center">
+                                            <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus
+                                                data
+                                                kalibrasi ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                            <p id="deleteCalibrationName" class="text-base font-semibold text-center mt-2"></p>
+                                        </div>
+                                        <div class="flex gap-3">
+                                            <button type="button"
+                                                class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200"
+                                                data-modal="deleteCalibrationModal">
+                                                Batal
+                                            </button>
+                                            <form id="deleteCalibrationForm" method="POST" data-no-loading class="w-1/2">
+                                                @csrf
+                                                <input type="hidden" id="delete_calibration_id" name="ids">
                                                 <button type="submit"
-                                                    class="w-1/2 h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                                    class="w-full h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
                                                     Hapus
                                                 </button>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
+                                </div>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -2201,20 +2202,15 @@
                 document.querySelectorAll('.delete-calibration-btn').forEach(button => {
                     button.addEventListener('click', function () {
                         const calibrationId = this.getAttribute('data-id');
-                        const calibrationForm = document.getElementById('deleteCalibrationForm');
                         const deleteCalibrationName = document.getElementById('deleteCalibrationName');
                         const assetName = this.closest('tr').querySelector('td:nth-child(3) .font-medium').textContent;
                         const assetCode = this.closest('tr').querySelector('td:nth-child(3) .text-gray-500').textContent;
-                        calibrationForm.action = "{{ route('calibrations.bulk.delete') }}";
 
                         let hiddenInput = document.getElementById('delete_calibration_id');
-                        if (!hiddenInput) {
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.id = 'delete_calibration_id';
-                            calibrationForm.appendChild(hiddenInput);
+                        if (hiddenInput) {
+                            hiddenInput.value = calibrationId;
                         }
-                        hiddenInput.value = calibrationId;
+
                         deleteCalibrationName.textContent = `${assetName} (${assetCode})`;
                         openModal(modals.delete, modalContents.delete);
                     });
@@ -2236,28 +2232,44 @@
                             ids = [parseInt(calibrationIdInput)];
                         }
 
-                        fetch("{{ route('calibrations.bulk.delete') }}", {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ ids })
-                        })
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
+
+                            fetch("{{ route('calibrations.bulk.delete') }}", {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify({ ids })
+                            })
                             .then(response => {
                                 if (!response.ok) {
                                     return response.json().then(data => {
                                         console.error('Server error response:', data);
-                                        throw new Error(data.message || `Server merespons dengan status ${response.status}`);
+                                        throw data;
                                     });
                                 }
                                 return response.json();
                             })
                             .then(data => {
-                                closeModal(modals.delete, modalContents.delete);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
 
                                 if (data.success) {
+                                    closeModal(modals.delete, modalContents.delete);
                                     showToast(data.message || 'Kalibrasi berhasil dihapus', 'success');
 
                                     setTimeout(() => {
@@ -2270,7 +2282,9 @@
                             })
                             .catch(error => {
                                 console.error('Delete request failed:', error);
-                                closeModal(modals.delete, modalContents.delete);
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
 
                                 if (typeof error === 'object' && error !== null) {
                                     if (error.errors) {
@@ -2297,6 +2311,7 @@
                                     showToast('Terjadi kesalahan saat menghapus kalibrasi', 'error');
                                 }
                             });
+                        }
                     });
                 }
 

@@ -442,15 +442,9 @@
 
                                 let errorMessage = 'Server error';
                                 if (result.errors) {
-                                    if (typeof result.errors === 'string') {
-                                        errorMessage = result.errors;
-                                    } else if (typeof result.errors === 'object') {
-                                        const firstErrorKey = Object.keys(result.errors)[0];
-                                        if (firstErrorKey) {
-                                            const firstError = result.errors[firstErrorKey];
-                                            errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
-                                        }
-                                    }
+                                    errorMessage = handleErrorDetails(result.errors, 'Server error');
+                                } else if (result.message) {
+                                    errorMessage = result.message;
                                 }
 
                                 statusMessage.textContent = 'Error: ' + errorMessage;
@@ -463,15 +457,9 @@
 
                             let errorMessage = 'Server error: ' + xhr.status;
                             if (result.errors) {
-                                if (typeof result.errors === 'string') {
-                                    errorMessage = result.errors;
-                                } else if (typeof result.errors === 'object') {
-                                    const firstErrorKey = Object.keys(result.errors)[0];
-                                    if (firstErrorKey) {
-                                        const firstError = result.errors[firstErrorKey];
-                                        errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
-                                    }
-                                }
+                                errorMessage = handleErrorDetails(result.errors, 'Server error: ' + xhr.status);
+                            } else if (result.message) {
+                                errorMessage = result.message;
                             }
 
                             statusMessage.textContent = 'Error: ' + errorMessage;
@@ -511,6 +499,35 @@
                 xhr.setRequestHeader('Accept', 'application/json');
                 xhr.send(formData);
             });
+        }
+
+        // Function to handle error details
+        function handleErrorDetails(errors, baseMessage) {
+            let errorMessage = '';
+
+            if (Array.isArray(errors)) {
+                errors.forEach(error => {
+                    if (typeof error === 'string') {
+                        errorMessage += `${error}. `;
+                    } else if (typeof error === 'object') {
+                        if (error.reason) errorMessage += `${error.reason}. `;
+                        else if (error.message) errorMessage += `${error.message}. `;
+                    }
+                });
+            } else if (typeof errors === 'string') {
+                errorMessage = errors;
+            } else if (typeof errors === 'object') {
+                Object.entries(errors).forEach(([field, fieldErrors]) => {
+                    if (Array.isArray(fieldErrors)) {
+                        fieldErrors.forEach(error => errorMessage += `${error}. `);
+                    } else if (typeof fieldErrors === 'string') {
+                        errorMessage += `${fieldErrors}. `;
+                    }
+                });
+            }
+
+            // Jika tidak ada error detail, kembalikan pesan default
+            return errorMessage || baseMessage;
         }
 
         var addBtn = document.getElementById('addDocumentBtn');

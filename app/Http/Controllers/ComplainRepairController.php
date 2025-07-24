@@ -168,6 +168,7 @@ class ComplainRepairController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
+                        'message' => 'Validasi gagal. Silakan periksa kembali data yang dimasukkan.',
                         'errors' => $validator->errors()
                     ], 422);
                 }
@@ -218,7 +219,8 @@ class ComplainRepairController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorData
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat keluhan']
                     ], 422);
                 }
 
@@ -240,6 +242,14 @@ class ComplainRepairController extends Controller
                 ->with('success', 'Keluhan berhasil dibuat');
 
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
         }
     }
@@ -253,12 +263,55 @@ class ComplainRepairController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        return $this->deleteResource(
-            $request,
-            "/complaints/{$id}",
-            'Keluhan berhasil dihapus',
-            'complaint-repair.index'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/complaints/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus keluhan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus keluhan']
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->with('error', $errorMessage);
+            }
+
+            // Success response
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Keluhan berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('complaint-repair.index')
+                ->with('success', 'Keluhan berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
+            return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
+        }
     }
 
     /**
@@ -283,6 +336,7 @@ class ComplainRepairController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
+                        'message' => 'Validasi gagal. Silakan periksa kembali data yang dimasukkan.',
                         'errors' => $validator->errors()
                     ], 422);
                 }
@@ -345,7 +399,8 @@ class ComplainRepairController extends Controller
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $errorData
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat perbaikan']
                     ], 422);
                 }
 
@@ -366,6 +421,14 @@ class ComplainRepairController extends Controller
             return $this->index($request->merge(['with_success' => 'Perbaikan berhasil dibuat']));
 
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'ComplainRepair.ComplainRepair');
         }
     }
@@ -391,12 +454,15 @@ class ComplainRepairController extends Controller
 
             // Check for API errors
             if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal memulai proses perbaikan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Gagal memulai proses perbaikan',
-                        'errors' => $result['errors'] ?? 'Unknown error'
-                    ], 400);
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal memulai proses perbaikan']
+                    ], 422);
                 }
 
                 return redirect()->back()->with('error', 'Gagal memulai proses perbaikan');
@@ -406,14 +472,22 @@ class ComplainRepairController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Keluhan berhasil dimulai',
+                    'message' => 'Proses perbaikan berhasil dimulai',
                     'data' => $result['data'] ?? null
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Keluhan berhasil dimulai');
+            return redirect()->back()->with('success', 'Proses perbaikan berhasil dimulai');
 
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'ComplainRepair.ComplainRepairDetail');
         }
     }
@@ -422,7 +496,7 @@ class ComplainRepairController extends Controller
      * Export complaints list to PDF.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View|\Symfony\Component\HttpFoundation\Response
      */
     public function exportPDF(Request $request)
     {
@@ -501,7 +575,7 @@ class ComplainRepairController extends Controller
      *
      * @param int $id
      * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View|\Symfony\Component\HttpFoundation\Response
      */
     public function exportDetailPDF($id, Request $request)
     {

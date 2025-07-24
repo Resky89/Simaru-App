@@ -84,6 +84,14 @@ class RoomController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal membuat ruangan';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal membuat ruangan']
+                    ], 422);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -93,7 +101,7 @@ class RoomController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'],
+                    'message' => $result['message'] ?? 'Ruangan berhasil dibuat',
                     'data' => $result['data'] ?? null
                 ]);
             }
@@ -101,6 +109,18 @@ class RoomController extends Controller
             return redirect()->route('rooms')
                 ->with('success', $result['message']);
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $e->getMessage(),
+                    'errors' => $errors
+                ], 422);
+            }
+
             return $this->handleException($e, $request, 'Room');
         }
     }
@@ -147,6 +167,14 @@ class RoomController extends Controller
                 $errorData = $result['errors'] ?? 'Gagal mengubah ruangan';
                 $errorMessage = DataFormatter::formatErrorMessage($errorData);
 
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal mengubah ruangan']
+                    ], 422);
+                }
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -156,7 +184,7 @@ class RoomController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => $result['message'],
+                    'message' => $result['message'] ?? 'Ruangan berhasil diperbarui',
                     'data' => $result['data'] ?? null
                 ]);
             }
@@ -164,6 +192,18 @@ class RoomController extends Controller
             return redirect()->route('rooms')
                 ->with('success', $result['message']);
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                $errors = $e instanceof \Illuminate\Validation\ValidationException
+                    ? $e->errors()
+                    : ['exception' => $e->getMessage()];
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . $e->getMessage(),
+                    'errors' => $errors
+                ], 422);
+            }
+
             return $this->handleException($e, $request, 'Room');
         }
     }
@@ -173,12 +213,56 @@ class RoomController extends Controller
      */
     public function destroy($id, Request $request)
     {
-        return $this->deleteResource(
-            $request,
-            "/rooms/{$id}",
-            'Ruangan berhasil dihapus',
-            'rooms'
-        );
+        try {
+            // Send delete request to API
+            $result = $this->apiService->request('DELETE', "/rooms/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check for API errors
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus ruangan';
+                $errorMessage = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'errors' => $result['errors'] ?? ['general' => 'Gagal menghapus ruangan']
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $errorMessage);
+            }
+
+            // Successfully deleted
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Ruangan berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('rooms')
+                ->with('success', 'Ruangan berhasil dihapus');
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus ruangan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
+            return $this->handleException($e, $request, 'Room');
+        }
     }
 
     /**
@@ -194,7 +278,7 @@ class RoomController extends Controller
         );
     }
 
-   /**
+    /**
      * Mengimpor data ruangan dari file Excel.
      */
     public function import(Request $request)
@@ -251,6 +335,7 @@ class RoomController extends Controller
 
                     return response()->json([
                         'success' => false,
+                        'message' => $errorMessage,
                         'errors' => $errorData,
                         'errorDetails' => $errorDetails,
                         'data' => $result['data'] ?? null
@@ -288,6 +373,14 @@ class RoomController extends Controller
 
             return redirect()->route('rooms')->with('success', $successMessage);
         } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengimpor data ruangan: ' . $e->getMessage(),
+                    'errors' => ['exception' => $e->getMessage()]
+                ], 500);
+            }
+
             return $this->handleException($e, $request, 'Room');
         }
     }

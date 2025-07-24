@@ -516,7 +516,8 @@ class MaintenanceController extends Controller
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Contracts\View\View
-    public function destroy($id)
+     */
+    public function destroy ($id)
     {
         return $this->deleteResource(
             request(),
@@ -575,10 +576,10 @@ class MaintenanceController extends Controller
     }
 
     /**
-     * Export maintenance data to PDF
+     * Export maintenance records to PDF
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function exportMaintenancePDF(Request $request)
     {

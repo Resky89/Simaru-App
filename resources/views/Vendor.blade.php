@@ -964,6 +964,39 @@
                 }, 300);
             }
 
+            function clearModalForms(modal) {
+                if (!modal) return;
+
+                const forms = modal.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.reset();
+
+                    const inputs = form.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        input.classList.remove('border-red-500');
+                        const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    });
+                });
+
+                if (modal.id === 'importVendorModal') {
+                    const fileInput = modal.querySelector('#vendor_excel_file');
+                    if (fileInput) fileInput.value = '';
+
+                    const fileNameContainer = modal.querySelector('#vendor-excel-file-name');
+                    if (fileNameContainer) fileNameContainer.classList.add('hidden');
+
+                    const previewBtn = modal.querySelector('#vendor-preview-btn');
+                    if (previewBtn) previewBtn.disabled = true;
+
+                    const errorDiv = modal.querySelector('#vendor-excel-error');
+                    if (errorDiv) errorDiv.classList.add('hidden');
+
+                    document.getElementById('import-vendor-step-1')?.classList.remove('hidden');
+                    document.getElementById('import-vendor-step-2')?.classList.add('hidden');
+                }
+            }
+
             if (addVendorBtn) {
                 addVendorBtn.addEventListener('click', () => {
                     const form = document.getElementById('createVendorForm');
@@ -1022,7 +1055,8 @@
 
             preventMultipleSubmits(createVendorForm, 'button[type="submit"]');
             preventMultipleSubmits(editVendorForm, 'button[type="submit"]');
-            preventMultipleSubmits(deleteVendorForm, 'button[type="submit"]');
+            // Using custom AJAX handling for delete form instead
+            // preventMultipleSubmits(deleteVendorForm, 'button[type="submit"]');
             preventMultipleSubmits(vendorImportForm, 'button[type="submit"]');
 
             document.querySelectorAll('.edit-vendor-btn').forEach(button => {
@@ -1036,7 +1070,7 @@
                     const website = button.getAttribute('data-website');
                     const address = button.getAttribute('data-address');
 
-                    const formAction = "{{ url('vendor/update') }}/" + vendorId;
+                    const formAction = "{{ url('vendors/update') }}/" + vendorId;
                     const editForm = document.getElementById('editVendorForm');
                     if (editForm) {
                         editForm.action = formAction;
@@ -1073,7 +1107,7 @@
                 button.addEventListener('click', () => {
                     const vendorId = button.getAttribute('data-vendor-id');
 
-                    const formAction = "{{ url('vendor/delete') }}/" + vendorId;
+                    const formAction = "{{ url('vendors/delete') }}/" + vendorId;
                     const deleteForm = document.getElementById('deleteVendorForm');
                     if (deleteForm) {
                         deleteForm.action = formAction;
@@ -1151,49 +1185,87 @@
                         </div>
                     `;
 
-                    (async function() {
-                        try {
-                            // Create FormData object
-                            const formData = new FormData(createVendorForm);
+                        const formData = new FormData(createVendorForm);
 
-                            // Send request using fetch API
-                            const response = await fetch(createVendorForm.action, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Accept': 'application/json'
-                                }
-                            });
+                        fetch(createVendorForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
 
-                            const result = await response.json();
+                            if (data.success) {
+                                const modal = document.getElementById('addVendorModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                clearModalForms(modal);
 
-                            if (response.ok) {
-                                // Success
-                                showToast(result.message || 'Vendor berhasil ditambahkan', 'success');
+                                showToast(data.message || 'Vendor berhasil ditambahkan', 'success');
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Error
-                                if (result.errors) {
-                                    showToast(result.errors, 'error');
-                                } else {
-                                    showToast(result.message || 'Gagal menambahkan vendor', 'error');
+                                // Reset all error messages
+                                document.querySelectorAll('.error-message').forEach(el => {
+                                    el.classList.add('hidden');
+                                });
+                                document.querySelectorAll('input, select, textarea').forEach(field => {
+                                    field.classList.remove('border-red-500');
+                                });
+
+                                // Display field-specific errors
+                                if (data.errors && typeof data.errors === 'object') {
+                                    Object.keys(data.errors).forEach(key => {
+                                        let field;
+
+                                        // Map field names to form elements
+                                        if (key === 'vendor_name') {
+                                            field = document.getElementById('add_vendor_name');
+                                        } else if (key === 'contact_person') {
+                                            field = document.getElementById('add_contact_person');
+                                        } else if (key === 'phone_number') {
+                                            field = document.getElementById('add_phone_number');
+                                        } else if (key === 'email') {
+                                            field = document.getElementById('add_email');
+                                        } else if (key === 'website') {
+                                            field = document.getElementById('add_website');
+                                        }
+
+                                        if (field) {
+                                            field.classList.add('border-red-500');
+                                            const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+
+                                            if (errorElement) {
+                                                const errorMsg = Array.isArray(data.errors[key])
+                                                    ? data.errors[key][0]
+                                                    : data.errors[key];
+
+                                                errorElement.textContent = errorMsg;
+                                                errorElement.classList.remove('hidden');
+                                            }
+                                        }
+                                    });
                                 }
+
+                                // Show general error message
+                                showToast(data.message || 'Gagal menambahkan vendor', 'error');
                             }
-                        } catch (error) {
+                        })
+                        .catch(error => {
                             console.error('Error adding vendor:', error);
-                            showToast('Terjadi kesalahan saat menambahkan vendor', 'error');
-                        } finally {
-                            // Re-enable submit button
                             submitBtn.disabled = false;
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText;
-                        }
-                    })();
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
+                    }
                 }
-            }
 
             if (createVendorForm) {
                 createVendorForm.addEventListener('submit', handleCreateVendorSubmit);
@@ -1221,63 +1293,99 @@
                         return false;
                     }
 
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn && !submitBtn.disabled) {
-                        const originalText = submitBtn.innerHTML;
+                        const formData = new FormData(this);
+                        formData.append('_method', 'PUT');
 
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                        submitBtn.innerHTML = `
-                            <div class="flex items-center justify-center">
-                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                <span>Memproses...</span>
-                            </div>
-                        `;
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.disabled = true;
+                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = `
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    <span>Memproses...</span>
+                                </div>
+                            `;
 
-                        (async () => {
-                            try {
-                                // Create FormData object
-                                const formData = new FormData(this);
+                            fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                                submitBtn.innerHTML = originalText;
 
-                                // Send request using fetch API
-                                const response = await fetch(this.action, {
-                                    method: 'POST',
-                                    body: formData,
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'Accept': 'application/json'
-                                    }
-                                });
+                                if (data.success) {
+                                    const modal = document.getElementById('editVendorModal');
+                                    closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                    clearModalForms(modal);
+                                    showToast(data.message || 'Vendor berhasil diperbarui', 'success');
 
-                                const result = await response.json();
-
-                                if (response.ok) {
-                                    // Success
-                                    showToast(result.message || 'Vendor berhasil diperbarui', 'success');
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 1000);
                                 } else {
-                                    // Error
-                                    if (result.errors) {
-                                        showToast(result.errors, 'error');
-                                    } else {
-                                        showToast(result.message || 'Gagal memperbarui vendor', 'error');
+                                    // Reset all error messages
+                                    document.querySelectorAll('.error-message').forEach(el => {
+                                        el.classList.add('hidden');
+                                    });
+                                    document.querySelectorAll('input, select, textarea').forEach(field => {
+                                        field.classList.remove('border-red-500');
+                                    });
+
+                                    // Display field-specific errors
+                                    if (data.errors && typeof data.errors === 'object') {
+                                        Object.keys(data.errors).forEach(key => {
+                                            let field;
+                                            // Map field names to form elements
+                                            if (key === 'vendor_name') {
+                                                field = document.getElementById('editVendorName');
+                                            } else if (key === 'contact_person') {
+                                                field = document.getElementById('editContactPerson');
+                                            } else if (key === 'phone_number') {
+                                                field = document.getElementById('editPhoneNumber');
+                                            } else if (key === 'email') {
+                                                field = document.getElementById('editEmail');
+                                            } else if (key === 'website') {
+                                                field = document.getElementById('editWebsite');
+                                            }
+
+                                            if (field) {
+                                                field.classList.add('border-red-500');
+                                                const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+
+                                                if (errorElement) {
+                                                    const errorMsg = Array.isArray(data.errors[key])
+                                                        ? data.errors[key][0]
+                                                        : data.errors[key];
+
+                                                    errorElement.textContent = errorMsg;
+                                                    errorElement.classList.remove('hidden');
+                                                }
+                                            }
+                                        });
                                     }
+
+                                    showToast(data.message || 'Gagal memperbarui vendor', 'error');
                                 }
-                            } catch (error) {
-                                console.error('Error updating vendor:', error);
-                                showToast('Terjadi kesalahan saat memperbarui vendor', 'error');
-                            } finally {
-                                // Re-enable submit button
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
                                 submitBtn.disabled = false;
                                 submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                                 submitBtn.innerHTML = originalText;
-                            }
-                        })();
-                    }
-                });
-            }
+                                showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                            });
+                        }
+                    });
+                }
 
             function validateField(field) {
                 if (!field) return true;
@@ -1820,7 +1928,6 @@
                         importBtn.innerHTML = originalBtnText;
 
                         if (data.success === true || (data.status >= 200 && data.status < 300)) {
-                            console.log('Import successful:', data);
 
                             const modal = document.getElementById('importVendorModal');
                             closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
@@ -1837,7 +1944,6 @@
                             let errorDetails = [];
 
                             if (data.data && data.data.errors) {
-                                console.log('Server returned detailed errors:', data.data.errors);
 
                                 if (Array.isArray(data.data.errors)) {
                                     data.data.errors.forEach(error => {
@@ -1952,6 +2058,60 @@
                     url.searchParams.set('sort', newSort);
                     url.searchParams.set('page', 1);
                     window.location.href = url.toString();
+                });
+            }
+
+            // Handle delete form submission with AJAX
+            if (deleteVendorForm) {
+                deleteVendorForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const vendorId = document.getElementById('deleteVendorId').value;
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <span>Memproses...</span>
+                        </div>
+                    `;
+
+                    fetch(this.action, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+
+                        if (data.success) {
+                            const modal = document.getElementById('deleteVendorModal');
+                            closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                            showToast(data.message || 'Vendor berhasil dihapus!', 'success');
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            showToast(data.message || 'Gagal menghapus vendor.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        showToast('Terjadi kesalahan saat menghapus vendor. Silakan coba lagi.', 'error');
+                    });
                 });
             }
         });

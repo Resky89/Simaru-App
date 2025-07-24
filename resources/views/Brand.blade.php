@@ -878,7 +878,6 @@
 
                     document.getElementById('edit_brand_name').value = brandName;
                     document.getElementById('editBrandForm').action = `/brands/${brandId}`;
-                    console.log('Edit form action set to:', `/brands/${brandId}`);
 
                     const modal = document.getElementById('editBrandModal');
                     const content = document.getElementById('editBrandModalContent');
@@ -895,7 +894,6 @@
 
                     const formAction = "{{ url('brands') }}/" + brandId;
                     document.getElementById('deleteBrandForm').action = formAction;
-                    console.log('Delete form action set to:', formAction);
 
                     document.getElementById('deleteBrandId').value = brandId;
 
@@ -1247,7 +1245,6 @@
                             let errorDetails = [];
 
                             if (data.data && data.data.errors) {
-                                console.log('Server returned detailed errors:', data.data.errors);
 
                                 if (Array.isArray(data.data.errors)) {
                                     data.data.errors.forEach(error => {
@@ -1289,34 +1286,68 @@
             const addBrandForm = document.getElementById('addBrandForm');
             if (addBrandForm) {
                 addBrandForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
                     const brandNameInput = document.getElementById('add_brand_name');
                     const isValid = validateField(brandNameInput);
 
                     if (!isValid) {
-                        event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
-                    } else {
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        if (submitBtn && !submitBtn.disabled) {
-                            const originalText = submitBtn.innerHTML;
+                        return;
+                    }
 
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = `
-                                            <div class="flex items-center justify-center">
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                <span>Memproses...</span>
-                                            </div>
-                                        `;
+                    // If validation passes, submit the form using fetch
+                    const formData = new FormData(this);
 
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
-                                }
-                            }, 10000);
-                        }
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                // Success - close modal and show success message
+                                const modal = document.getElementById('addBrandModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                resetForm('addBrandForm');
+                                showToast(data.message || 'Merk berhasil ditambahkan', 'success');
+
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error - keep modal open and show error
+                                showToast(data.message || 'Terjadi kesalahan saat menyimpan merk', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
                     }
                 });
             }
@@ -1324,34 +1355,69 @@
             const editBrandForm = document.getElementById('editBrandForm');
             if (editBrandForm) {
                 editBrandForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
                     const brandNameInput = document.getElementById('edit_brand_name');
                     const isValid = validateField(brandNameInput);
 
                     if (!isValid) {
-                        event.preventDefault();
                         showToast('Silakan isi semua field yang diperlukan', 'error');
-                    } else {
-                        const submitBtn = this.querySelector('button[type="submit"]');
-                        if (submitBtn && !submitBtn.disabled) {
-                            const originalText = submitBtn.innerHTML;
+                        return;
+                    }
 
-                            submitBtn.disabled = true;
-                            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                            submitBtn.innerHTML = `
-                                            <div class="flex items-center justify-center">
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                                <span>Memproses...</span>
-                                            </div>
-                                        `;
+                    // If validation passes, submit the form using fetch
+                    const formData = new FormData(this);
+                    formData.append('_method', 'PUT'); // For PUT method
 
-                            setTimeout(() => {
-                                if (submitBtn) {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
-                                }
-                            }, 10000);
-                        }
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                // Success - close modal and show success message
+                                const modal = document.getElementById('editBrandModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                resetForm('editBrandForm');
+                                showToast(data.message || 'Merk berhasil diperbarui', 'success');
+
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error - keep modal open and show error
+                                showToast(data.message || 'Terjadi kesalahan saat memperbarui merk', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
                     }
                 });
             }
@@ -1359,26 +1425,60 @@
             const deleteBrandForm = document.getElementById('deleteBrandForm');
             if (deleteBrandForm) {
                 deleteBrandForm.addEventListener('submit', function (event) {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn && !submitBtn.disabled) {
-                        const originalText = submitBtn.innerHTML;
+                    event.preventDefault();
 
+                    // Submit the form using fetch
+                    const formData = new FormData(this);
+                    formData.append('_method', 'DELETE'); // For DELETE method
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = `
-                                        <div class="flex items-center justify-center">
-                                            <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            <span>Menghapus...</span>
-                                        </div>
-                                    `;
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Menghapus...</span>
+                            </div>
+                        `;
 
-                        setTimeout(() => {
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
                             }
-                        }, 10000);
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                // Success - close modal and show success message
+                                const modal = document.getElementById('deleteBrandModal');
+                                closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
+                                showToast(data.message || 'Merk berhasil dihapus', 'success');
+
+                                // Reload page after a short delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Error - keep modal open and show error
+                                showToast(data.message || 'Terjadi kesalahan saat menghapus merk', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+                            showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                        });
                     }
                 });
             }

@@ -576,7 +576,7 @@
                         </div>
 
                         <!-- Form -->
-                        <form id="editMasterAssetForm" method="POST" data-no-loading enctype="multipart/form-data">
+                        <form id="editMasterAssetForm" action="" method="POST" data-no-loading enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="p-6">
@@ -1617,26 +1617,28 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(errorData => {
-                                    throw errorData;
-                                });
-                            }
-                            return response.json();
-                        })
+                        .then(response => response.json())
                         .then(data => {
-                            const deleteModal = document.getElementById('deleteModal');
-                            const deleteContent = document.getElementById('deleteModalContent');
-                            if (deleteModal && deleteContent) {
-                                closeModal(deleteModal, deleteContent);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                const deleteModal = document.getElementById('deleteModal');
+                                const deleteContent = document.getElementById('deleteModalContent');
+                                if (deleteModal && deleteContent) {
+                                    closeModal(deleteModal, deleteContent);
+                                }
+
+                                showToast(data.message || 'Aset master berhasil dihapus!', 'success');
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Keep modal open and show error
+                                showToast(data.message || 'Gagal menghapus aset master', 'error');
                             }
-
-                            showToast(data.message || 'Aset master berhasil dihapus!', 'success');
-
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
                         })
                         .catch(error => {
                             console.error('Error deleting asset:', error);
@@ -1645,7 +1647,7 @@
                             submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = originalText;
 
-                            showToast(error, 'error');
+                            showToast('Terjadi kesalahan saat menghapus aset master', 'error');
                         });
                 }
             });
@@ -2630,6 +2632,7 @@
             }
 
             document.getElementById('createMasterAssetForm')?.addEventListener('submit', function (event) {
+                event.preventDefault();
                 const assetName = this.querySelector('input[name="asset_name"]');
                 const assetType = document.getElementById('asset_type');
                 const subcategoryId = document.getElementById('subcategory_id');
@@ -2669,13 +2672,17 @@
                 }
 
                 if (!isValid) {
-                    event.preventDefault();
                     showToast('Silakan isi semua field yang diperlukan', 'error');
                     return;
                 }
 
                 const submitBtn = this.querySelector('button[type="submit"]');
+                const formData = new FormData(this);
+                const actionUrl = this.action;
+
                 if (submitBtn && !submitBtn.disabled) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
                         <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -2684,8 +2691,51 @@
                         </svg>
                         Menyimpan...
                     `;
-                }
 
+                    fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+
+                        if (data.success) {
+                            // Close modal on success
+                            const modal = document.getElementById('addMasterAssetModal');
+                            const content = document.getElementById('addMasterAssetModalContent');
+                            if (modal && content) {
+                                closeModal(modal, content);
+                                // Reset form
+                                resetAddMasterAssetForm();
+                            }
+
+                            showToast(data.message || 'Aset master berhasil dibuat', 'success');
+
+                            // Reload page after success
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Keep modal open and show error
+                            showToast(data.message || 'Gagal membuat aset master', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating asset:', error);
+
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = originalText;
+
+                        showToast('Terjadi kesalahan saat menghubungi server', 'error');
+                    });
+                }
             });
 
             document.getElementById('editMasterAssetForm')?.addEventListener('submit', function (event) {
@@ -2740,6 +2790,7 @@
 
                 if (submitBtn && !submitBtn.disabled) {
                     const originalText = submitBtn.innerHTML;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = `
                         <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -2756,38 +2807,38 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw errorData;
-                            });
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
                         submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = originalText;
 
-                        // Close the modal
-                        const editModal = document.getElementById('editMasterAssetModal');
-                        const editContent = document.getElementById('editMasterAssetModalContent');
-                        if (editModal && editContent) {
-                            closeModal(editModal, editContent);
+                        if (data.success) {
+                            // Close the modal on success
+                            const editModal = document.getElementById('editMasterAssetModal');
+                            const editContent = document.getElementById('editMasterAssetModalContent');
+                            if (editModal && editContent) {
+                                closeModal(editModal, editContent);
+                            }
+
+                            showToast(data.message || 'Aset master berhasil diperbarui', 'success');
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Keep modal open and show error
+                            showToast(data.message || 'Gagal memperbarui aset master', 'error');
                         }
-
-                        showToast(data.message || 'Aset master berhasil diperbarui', 'success');
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
                     })
                     .catch(error => {
                         console.error('Error updating asset:', error);
 
                         submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                         submitBtn.innerHTML = originalText;
 
-                        showToast(error, 'error');
+                        showToast('Terjadi kesalahan saat memperbarui aset master', 'error');
                     });
                 }
             });
