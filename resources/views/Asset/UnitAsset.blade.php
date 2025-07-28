@@ -260,19 +260,16 @@
                                                 {{ $asset['asset_master_name'] ?? $asset['asset_master']['asset_name'] ?? '-' }}
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                                @if(isset($asset['asset_master']) && isset($asset['asset_master']['asset_master_code']))
-                                                    @php
-                                                        $code = $asset['asset_master']['asset_master_code'];
-                                                        $assetType = 'Non Medical';
-                                                        if (strpos($code, 'MED-') === 0) {
-                                                            $assetType = 'Medis';
-                                                        } elseif (strpos($code, 'NMED-') === 0) {
-                                                            $assetType = 'Non Medis';
-                                                        }
-                                                    @endphp
-                                                    {{ $assetType }}
+                                                 @if(isset($asset['asset_master']['asset_type']))
+                                                    @if(strtolower($asset['asset_master']['asset_type']) == 'medical')
+                                                        Medis
+                                                    @elseif(strtolower($asset['asset_master']['asset_type']) == 'non_medical')
+                                                        Non Medis
+                                                    @else
+                                                        {{ $asset['asset_master']['asset_type'] }}
+                                                    @endif
                                                 @else
-                                                    Non Medis
+                                                    -
                                                 @endif
                                             </td>
                                             <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -657,12 +654,22 @@
                                                 <label for="purchase_date"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Tanggal
                                                     Pembelian</label>
-                                                <input type="date" name="purchase_date" id="purchase_date"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                                <input type="text" name="purchase_date" id="purchase_date"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian
                                                     harus diisi</div>
                                             </div>
                                             <div>
+                                                <label for="warranty_end_date"
+                                                    class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
+                                                    Garansi</label>
+                                                <input type="text" name="warranty_end_date" id="warranty_end_date"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
                                                 <label for="purchase_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
@@ -676,17 +683,7 @@
                                                         placeholder="0" data-type="currency">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
                                                         harus diisi</div>
-                                                </div>
                                             </div>
-                                        </div>
-
-                                        <!-- Warranty -->
-                                        <div class="mb-5">
-                                            <label for="warranty_end_date"
-                                                class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
-                                                Garansi</label>
-                                            <input type="date" name="warranty_end_date" id="warranty_end_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         </div>
 
                                         <!-- Building and Room Selection -->
@@ -853,11 +850,11 @@
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                 disabled>
                                                 <option value="">Pilih Metode</option>
-                                                <option value="Straight Line">Garis Lurus</option>
-                                                <option value="Declining Balance">Saldo Menurun</option>
-                                                <option value="Double Declining Balance">Saldo Menurun Ganda</option>
-                                                <option value="150% Declining Balance">Saldo Menurun 150%</option>
-                                                <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
+                                                <option value="Straight Line">Garis Lurus (Straight Line)</option>
+                                                <option value="Declining Balance">Saldo Menurun (Declining Balance)</option>
+                                                <option value="Double Declining Balance">Saldo Menurun Ganda (Double Declining Balance)</option>
+                                                <option value="150% Declining Balance">Saldo Menurun 150% (150% Declining Balance)</option>
+                                                <option value="Sum of the Year's Digits">Jumlah Digit Tahun (Sum of Year's Digits)</option>
                                             </select>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus
                                                 dipilih</div>
@@ -914,9 +911,9 @@
                                                 <label for="date_acquired"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="date" name="date_acquired" id="date_acquired"
+                                                <input type="text" name="date_acquired" id="date_acquired"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    disabled>
+                                                    placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                     harus diisi</div>
                                             </div>
@@ -1082,12 +1079,22 @@
                                                 <label for="edit_purchase_date"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Tanggal
                                                     Pembelian</label>
-                                                <input type="date" name="purchase_date" id="edit_purchase_date"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                                <input type="text" name="purchase_date" id="edit_purchase_date"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian
                                                     harus diisi</div>
                                             </div>
                                             <div>
+                                                <label for="edit_warranty_end_date"
+                                                    class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
+                                                    Garansi</label>
+                                                <input type="text" name="warranty_end_date" id="edit_warranty_end_date"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
                                                 <label for="edit_purchase_cost"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
@@ -1101,17 +1108,7 @@
                                                         placeholder="0" data-type="currency">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
                                                         harus diisi</div>
-                                                </div>
                                             </div>
-                                        </div>
-
-                                        <!-- Warranty -->
-                                        <div class="mb-5">
-                                            <label for="edit_warranty_end_date"
-                                                class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
-                                                Garansi</label>
-                                            <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
                                         </div>
 
                                         <!-- Building and Room Selection -->
@@ -1280,11 +1277,11 @@
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
                                                 disabled>
                                                 <option value="">Pilih Metode</option>
-                                                <option value="Straight Line">Garis Lurus</option>
-                                                <option value="Declining Balance">Saldo Menurun</option>
-                                                <option value="Double Declining Balance">Saldo Menurun Ganda</option>
-                                                <option value="150% Declining Balance">Saldo Menurun 150%</option>
-                                                <option value="Sum of the Year's Digits">Jumlah Tahun Angka (SYD)</option>
+                                                <option value="Straight Line">Garis Lurus (Straight Line)</option>
+                                                <option value="Declining Balance">Saldo Menurun (Declining Balance)</option>
+                                                <option value="Double Declining Balance">Saldo Menurun Ganda (Double Declining Balance)</option>
+                                                <option value="150% Declining Balance">Saldo Menurun 150% (150% Declining Balance)</option>
+                                                <option value="Sum of the Year's Digits">Jumlah Digit Tahun (Sum of Year's Digits)</option>
                                             </select>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus
                                                 dipilih</div>
@@ -1341,9 +1338,9 @@
                                                 <label for="edit_date_acquired"
                                                     class="block text-base font-semibold text-[#666666] mb-2">Tanggal Pengadaan
                                                     <span class="text-red-500">*</span></label>
-                                                <input type="date" name="date_acquired" id="edit_date_acquired"
+                                                <input type="text" name="date_acquired" id="edit_date_acquired"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    disabled>
+                                                    placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                     harus diisi</div>
                                             </div>
@@ -2341,7 +2338,17 @@
                         function setFieldValue(fieldId, value) {
                             const field = document.getElementById(fieldId);
                             if (field) {
+                                if (field._flatpickr) {
+                                    if (value) {
+                                        // Ambil hanya tanggal (tanpa jam)
+                                        const dateStr = typeof value === 'string' ? value.split(' ')[0] : value;
+                                        field._flatpickr.setDate(dateStr, true, 'Y-m-d');
+                                    } else {
+                                        field._flatpickr.clear();
+                                    }
+                                } else {
                                 field.value = value || '';
+                                }
                             }
                         }
 
@@ -4488,12 +4495,10 @@
                                 submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                                 submitBtn.innerHTML = '<div class="flex items-center justify-center"><div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div><span>Menghapus...</span></div>';
 
-                                // Get the asset ID from the form action URL
                                 const url = this.action;
                                 const formData = new FormData(this);
                                 formData.append('_method', 'DELETE');
 
-                                // Send AJAX request
                                 fetch(url, {
                                     method: 'POST',
                                     body: formData,
@@ -4531,7 +4536,6 @@
                             }
                         });
 
-                        // Column header sorting
                         const sortByCodeHeader = document.getElementById('sortByCode');
                         if (sortByCodeHeader) {
                             sortByCodeHeader.addEventListener('click', function () {
@@ -4570,7 +4574,6 @@
                             });
                         }
 
-                        // Add this new dedicated function for building dropdowns
                         function initBuildingSearch(
                             searchInput,
                             dropdown,
@@ -4597,20 +4600,17 @@
                                 }
                             });
 
-                            // Prevent any mousedown events on dropdown from closing it
                             dropdown.addEventListener('mousedown', function (e) {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 return false;
                             });
 
-                            // Prevent wheel events from propagating
                             dropdown.addEventListener('wheel', function (e) {
                                 e.stopPropagation();
                             }, { passive: true });
 
                             document.addEventListener('click', function (e) {
-                                // Only close dropdown if the click is outside both searchInput and dropdown
                                 if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
                                     dropdown.classList.add('hidden');
                                 }
@@ -4630,19 +4630,15 @@
 
                             searchInput.addEventListener('input', debouncedSearch);
 
-                            // Add scroll event directly here to prevent dropdown from closing
                             dropdown.addEventListener('scroll', function (e) {
-                                // Prevent the event from propagating
                                 e.stopPropagation();
 
                                 if (buildingList.dataset.loading === "true" || buildingList.dataset.hasMoreData === "false") return;
 
-                                // Check if we're near bottom
                                 if (this.scrollHeight - this.scrollTop - this.clientHeight < 50) {
                                     const loadMoreIndicator = dropdown.querySelector('[id$="_load_more"]');
                                     if (loadMoreIndicator) loadMoreIndicator.classList.remove('hidden');
 
-                                    // Load next page with current search term
                                     loadBuildings(
                                         buildingList.dataset.searchTerm || '',
                                         buildingList,
@@ -4658,7 +4654,6 @@
                         }
 
                         function initSearchComponents() {
-                            // Replace initDropdown with initBuildingSearch for edit_building
                             initBuildingSearch(
                                 document.getElementById('edit_building_search'),
                                 document.getElementById('edit_building_dropdown'),
@@ -4669,7 +4664,6 @@
                                 document.getElementById('edit_room_search')
                             );
 
-                            // Initialize brand search for edit form
                             initDropdown(
                                 document.getElementById('edit_brand_search'),
                                 document.getElementById('edit_brand_dropdown'),
@@ -4712,7 +4706,6 @@
                                 }
                             );
 
-                            // Replace initDropdown with initBuildingSearch for building
                             initBuildingSearch(
                                 document.getElementById('building_search'),
                                 document.getElementById('building_dropdown'),
@@ -4723,7 +4716,6 @@
                                 document.getElementById('room_search')
                             );
 
-                            // Initialize brand search for add form
                             initDropdown(
                                 document.getElementById('brand_search'),
                                 document.getElementById('brand_dropdown'),
@@ -4808,28 +4800,23 @@
                         }
 
                         async function loadBrands(searchTerm, brandList, loadingIndicator, selectedBrandId, searchInput, dropdown) {
-                            // Setup for lazy loading
                             let page = brandList.dataset.page ? parseInt(brandList.dataset.page) : 1;
                             let isLoading = brandList.dataset.loading === "true";
                             let hasMoreData = brandList.dataset.hasMoreData !== "false";
                             let resetList = page === 1 || brandList.dataset.searchTerm !== searchTerm;
 
-                            // Save current search term
                             brandList.dataset.searchTerm = searchTerm;
 
                             if (isLoading) return;
 
-                            // Set loading state
                             brandList.dataset.loading = "true";
 
-                            // Show loading indicator
                             if (resetList) {
                                 if (loadingIndicator) loadingIndicator.classList.remove('hidden');
                                 brandList.innerHTML = '';
                             }
 
                             try {
-                                // Construct URL with query parameters
                                 let queryParams = new URLSearchParams();
                                 queryParams.append('json', 'true');
                                 queryParams.append('page', page);
@@ -4853,7 +4840,6 @@
                                 let brands = [];
                                 let pagination = null;
 
-                                // Handle different response formats
                                 if (Array.isArray(data)) {
                                     brands = data;
                                 } else if (data.brands && Array.isArray(data.brands)) {
@@ -4864,14 +4850,12 @@
                                     pagination = data.pagination || data.meta || null;
                                 }
 
-                                // Check if we have more data to load
                                 if (pagination) {
                                     hasMoreData = pagination.current_page < pagination.last_page;
                                 } else {
                                     hasMoreData = brands.length >= 20;
                                 }
 
-                                // Save next page number and has more data state
                                 brandList.dataset.page = page + 1;
                                 brandList.dataset.hasMoreData = hasMoreData.toString();
 
@@ -4914,7 +4898,6 @@
                                     brandList.appendChild(createDropdownItem('Galat memuat merk', 'px-4 py-2 text-red-500'));
                                 }
                             } finally {
-                                // Reset loading state
                                 brandList.dataset.loading = "false";
                                 if (loadingIndicator) loadingIndicator.classList.add('hidden');
                             }
@@ -4943,6 +4926,139 @@
                             const errorElement = this.closest('.mb-5')?.querySelector('.error-message');
                             if (errorElement) errorElement.classList.add('hidden');
                         });
+
+                        const indonesianLocale = {
+                            weekdays: {
+                                shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                                longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                            },
+                            months: {
+                                shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+                                longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                            },
+                            firstDayOfWeek: 1,
+                            rangeSeparator: " sampai ",
+                            weekAbbreviation: "Minggu",
+                            scrollTitle: "Gulir untuk menambah",
+                            toggleTitle: "Klik untuk beralih",
+                            time_24hr: true,
+                        };
+
+                        function loadFlatpickr() {
+                            if (typeof flatpickr === 'undefined') {
+                                const cssLink = document.createElement('link');
+                                cssLink.rel = 'stylesheet';
+                                cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+                                document.head.appendChild(cssLink);
+
+                                const script = document.createElement('script');
+                                script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+                                script.onload = function() {
+                                    if (flatpickr && flatpickr.l10ns) {
+                                        flatpickr.l10ns.id = indonesianLocale;
+                                        initAllDatepickers();
+                                    }
+                                };
+                                document.head.appendChild(script);
+                            } else {
+                                if (flatpickr.l10ns) {
+                                    flatpickr.l10ns.id = indonesianLocale;
+                                }
+                                initAllDatepickers();
+                            }
+                        }
+
+                        function initAllDatepickers() {
+                            const dateFields = [
+                                'edit_purchase_date',
+                                'edit_warranty_end_date',
+                                'edit_date_acquired',
+                                'purchase_date',
+                                'warranty_end_date',
+                                'date_acquired'
+                            ];
+                            dateFields.forEach(fieldId => {
+                                const dateField = document.getElementById(fieldId);
+                                if (dateField) {
+                                    initFlatpickr(dateField, false);
+                                }
+                            });
+                        }
+
+                        function initFlatpickr(dateInput, isReadonly) {
+                            if (!dateInput) return;
+                            const fpInstance = flatpickr(dateInput, {
+                                locale: 'id',
+                                dateFormat: "Y-m-d",
+                                altInput: true,
+                                altFormat: "j F Y",
+                                static: true,
+                                disableMobile: true,
+                                allowInput: false,
+                                clickOpens: !isReadonly,
+                                onReady: function(selectedDates, dateStr, instance) {
+                                    if (instance.altInput) {
+                                        instance.altInput.style.width = "100%";
+                                        instance.altInput.style.display = "block";
+                                        const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                        if (parentWrapper) {
+                                            parentWrapper.style.width = "100%";
+                                            parentWrapper.style.display = "block";
+                                        }
+                                        instance.altInput.className = dateInput.className;
+                                    }
+                                    if (selectedDates && selectedDates.length > 0) {
+                                        const date = selectedDates[0];
+                                        const day = date.getDate();
+                                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                        const month = monthsInIndonesian[date.getMonth()];
+                                        const year = date.getFullYear();
+                                        if (instance.altInput) {
+                                            instance.altInput.value = `${day} ${month} ${year}`;
+                                        }
+                                    }
+                                },
+                                onChange: function(selectedDates, dateStr, instance) {
+                                    if (selectedDates && selectedDates.length > 0) {
+                                        const date = selectedDates[0];
+                                        const day = date.getDate();
+                                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                        const month = monthsInIndonesian[date.getMonth()];
+                                        const year = date.getFullYear();
+                                        if (instance.altInput) {
+                                            instance.altInput.value = `${day} ${month} ${year}`;
+                                        }
+                                    }
+                                },
+                                formatDate: (date, format) => {
+                                    if (format === "Y-m-d") {
+                                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                                        const year = localDate.getFullYear();
+                                        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                        const day = String(localDate.getDate()).padStart(2, '0');
+                                        return `${year}-${month}-${day}`;
+                                    }
+                                    if (format === "j F Y") {
+                                        const day = date.getDate();
+                                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                        const month = monthsInIndonesian[date.getMonth()];
+                                        const year = date.getFullYear();
+                                        return `${day} ${month} ${year}`;
+                                    }
+                                    return flatpickr.formatDate(date, format);
+                                },
+                                parseDate: (datestr, format) => {
+                                    if (format === "Y-m-d") {
+                                        const [year, month, day] = datestr.split("-").map(Number);
+                                        return new Date(year, month - 1, day);
+                                    }
+                                    return flatpickr.parseDate(datestr, format);
+                                }
+                            });
+                            return fpInstance;
+                        }
+
+                        loadFlatpickr();
                     });
                 </script>
 

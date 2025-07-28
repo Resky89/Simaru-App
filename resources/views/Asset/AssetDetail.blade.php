@@ -693,13 +693,27 @@
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal
                                                     Pembelian</label>
-                                                <input type="date" name="purchase_date" id="edit_purchase_date"
+                                                <input type="text" name="purchase_date" id="edit_purchase_date"
                                                     value="{{ $asset['purchase_date'] ?? '' }}"
-                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pembelian
                                                     harus diisi</div>
                                             </div>
                                             <div class="space-y-2">
+                                                <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
+                                                    Garansi</label>
+                                                <input type="text" name="warranty_end_date" id="edit_warranty_end_date"
+                                                    value="{{ $asset['warranty_end_date'] ?? '' }}"
+                                                    class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                                    placeholder="Pilih Tanggal">
+                                                <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal berakhir garansi
+                                                    harus diisi</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Biaya Pembelian -->
+                                        <div class="mb-5 space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Biaya
                                                     Pembelian</label>
                                                 <div class="relative">
@@ -714,20 +728,10 @@
                                                         onblur="formatCurrency(this, 'blur')">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Biaya pembelian
                                                         harus diisi</div>
-                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Warranty -->
-                                        <div class="mb-5 space-y-2">
-                                            <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal Berakhir
-                                                Garansi</label>
-                                            <input type="date" name="warranty_end_date" id="edit_warranty_end_date"
-                                                value="{{ $asset['warranty_end_date'] ?? '' }}"
-                                                class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                            <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal berakhir garansi
-                                                harus diisi</div>
-                                        </div>
+
 
                                         <!-- Location Information -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -888,11 +892,11 @@
                                                 <span class="text-red-500">*</span></label>
                                             <select name="depreciation_method" id="edit_depreciation_method"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]">
-                                                <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Garis Lurus</option>
-                                                <option value="Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Declining Balance' ? 'selected' : '' }}>Penyusutan Dua Kali</option>
-                                                <option value="Double Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Double Declining Balance' ? 'selected' : '' }}>Dua Kali Penyusutan</option>
-                                                <option value="150% Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == '150% Declining Balance' ? 'selected' : '' }}>150% Penyusutan</option>
-                                                <option value="Sum of the Year's Digits" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == "Sum of the Year's Digits" ? 'selected' : '' }}>Jumlah Tahun</option>
+                                                <option value="Straight Line" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Straight Line' ? 'selected' : '' }}>Garis Lurus (Straight Line)</option>
+                                                <option value="Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Declining Balance' ? 'selected' : '' }}>Saldo Menurun (Declining Balance)</option>
+                                                <option value="Double Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == 'Double Declining Balance' ? 'selected' : '' }}>Saldo Menurun Ganda (Double Declining Balance)</option>
+                                                <option value="150% Declining Balance" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == '150% Declining Balance' ? 'selected' : '' }}>Saldo Menurun 150% (150% Declining Balance)</option>
+                                                <option value="Sum of the Year's Digits" {{ isset($asset['depreciation']) && $asset['depreciation']['depreciation_method'] == "Sum of the Year's Digits" ? 'selected' : '' }}>Jumlah Digit Tahun (Sum of Year's Digits)</option>
                                             </select>
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Metode penyusutan harus
                                                 dipilih</div>
@@ -948,9 +952,10 @@
                                             <div class="space-y-2">
                                                 <label class="block text-base font-semibold text-[#666666] mb-2">Tanggal
                                                     Pengadaan <span class="text-red-500">*</span></label>
-                                                <input type="date" name="date_acquired" id="edit_date_acquired"
+                                                                                            <input type="text" name="date_acquired" id="edit_date_acquired"
                                                     class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                                    value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}">
+                                                value="{{ isset($asset['depreciation']) ? $asset['depreciation']['date_acquired'] : '' }}"
+                                                placeholder="Pilih Tanggal">
                                                 <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                     harus diisi</div>
                                             </div>
@@ -1002,9 +1007,9 @@
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Tanggal Pinjam <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" name="checkout_date" readonly
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
-                                            value="{{ date('Y-m-d') }}">
+                                        <input type="text" name="checkout_date" id="checkout_date" readonly tabindex="-1"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
                                     </div>
 
                                     <!-- Check Out To -->
@@ -1207,9 +1212,9 @@
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Tanggal Kembali <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" name="return_date" readonly
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
-                                            value="{{ date('Y-m-d') }}">
+                                        <input type="text" name="return_date" id="return_date" readonly tabindex="-1"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
                                     </div>
 
                                     <!-- Asset Condition -->
@@ -1279,9 +1284,9 @@
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Tanggal Hilang <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" name="loss_date" readonly
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
-                                            value="{{ date('Y-m-d') }}">
+                                        <input type="text" name="loss_date" id="loss_date" readonly tabindex="-1"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal hilang harus diisi
                                         </div>
                                     </div>
@@ -1389,9 +1394,9 @@
                                     <div class="space-y-2">
                                         <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" name="dispose_date" readonly
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268] bg-gray-100"
-                                            value="{{ date('Y-m-d') }}">
+                                        <input type="text" name="dispose_date" id="dispose_date" readonly tabindex="-1"
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
+                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
                                     </div>
 
                                     <!-- Disposal Method -->
@@ -1654,6 +1659,179 @@
                 return value.replace(/\./g, '').replace(/[^\d]/g, '');
             }
             window.parseFormattedNumber = parseFormattedNumber;
+
+            // Initialize Flatpickr date pickers
+            function initDatepickers() {
+                // Define Indonesian locale
+                const indonesianLocale = {
+                    weekdays: {
+                        shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                        longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                    },
+                    months: {
+                        shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+                        longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                    },
+                    firstDayOfWeek: 1,
+                    rangeSeparator: " sampai ",
+                    weekAbbreviation: "Minggu",
+                    scrollTitle: "Gulir untuk menambah",
+                    toggleTitle: "Klik untuk beralih",
+                    time_24hr: true,
+                };
+
+                // Dynamically load Flatpickr if not already available
+                function loadFlatpickr() {
+                    if (typeof flatpickr === 'undefined') {
+                        // Create link for CSS
+                        const cssLink = document.createElement('link');
+                        cssLink.rel = 'stylesheet';
+                        cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+                        document.head.appendChild(cssLink);
+
+                        // Create script for Flatpickr core
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+                        script.onload = function() {
+                            if (flatpickr && flatpickr.l10ns) {
+                                flatpickr.l10ns.id = indonesianLocale;
+                                initAllDatepickers();
+                            }
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        if (flatpickr.l10ns) {
+                            flatpickr.l10ns.id = indonesianLocale;
+                        }
+                        initAllDatepickers();
+                    }
+                }
+
+                function initAllDatepickers() {
+                    // Editable date fields (edit modal)
+                    const dateFields = [
+                        'edit_purchase_date',
+                        'edit_warranty_end_date',
+                        'edit_date_acquired'
+                    ];
+
+                    dateFields.forEach(fieldId => {
+                        const dateField = document.getElementById(fieldId);
+                        if (dateField) {
+                            initFlatpickr(dateField, false);
+                        }
+                    });
+
+                    // Read-only date fields (with today's date)
+                    const readonlyDateFields = [
+                        'checkout_date',
+                        'return_date',
+                        'loss_date',
+                        'dispose_date'
+                    ];
+
+                    readonlyDateFields.forEach(fieldId => {
+                        const dateField = document.getElementById(fieldId);
+                        if (dateField) {
+                            // Initialize with readonly false to allow opening the calendar but with custom styling
+                            initFlatpickr(dateField, true); // clickOpens: false
+                        }
+                    });
+                }
+
+                function initFlatpickr(dateInput, isReadonly) {
+                    if (!dateInput) return;
+
+                    const fpInstance = flatpickr(dateInput, {
+                        locale: 'id',
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "j F Y",
+                        static: true,
+                        disableMobile: true,
+                        allowInput: false,
+                        clickOpens: !isReadonly,
+                        // Ensure field styling is consistent
+                        onReady: function(selectedDates, dateStr, instance) {
+                            if (instance.altInput) {
+                                instance.altInput.style.width = "100%";
+                                instance.altInput.style.display = "block";
+
+                                // Maintain container width
+                                const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                if (parentWrapper) {
+                                    parentWrapper.style.width = "100%";
+                                    parentWrapper.style.display = "block";
+                                }
+
+                                // Inherit original input's styling
+                                instance.altInput.className = dateInput.className;
+                            }
+
+                            // Override date display with Indonesian format
+                            if (selectedDates && selectedDates.length > 0) {
+                                const date = selectedDates[0];
+                                const day = date.getDate();
+                                const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                           "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                const month = monthsInIndonesian[date.getMonth()];
+                                const year = date.getFullYear();
+
+                                if (instance.altInput) {
+                                    instance.altInput.value = `${day} ${month} ${year}`;
+                                }
+                            }
+                        },
+                        onChange: function(selectedDates, dateStr, instance) {
+                            if (selectedDates && selectedDates.length > 0) {
+                                const date = selectedDates[0];
+                                const day = date.getDate();
+                                const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                           "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                const month = monthsInIndonesian[date.getMonth()];
+                                const year = date.getFullYear();
+
+                                if (instance.altInput) {
+                                    instance.altInput.value = `${day} ${month} ${year}`;
+                                }
+                            }
+                        },
+                        formatDate: (date, format) => {
+                            if (format === "Y-m-d") {
+                                const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                                const year = localDate.getFullYear();
+                                const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                const day = String(localDate.getDate()).padStart(2, '0');
+                                return `${year}-${month}-${day}`;
+                            }
+
+                            if (format === "j F Y") {
+                                const day = date.getDate();
+                                const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                            "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                const month = monthsInIndonesian[date.getMonth()];
+                                const year = date.getFullYear();
+                                return `${day} ${month} ${year}`;
+                            }
+
+                            return flatpickr.formatDate(date, format);
+                        },
+                        parseDate: (datestr, format) => {
+                            if (format === "Y-m-d") {
+                                const [year, month, day] = datestr.split("-").map(Number);
+                                return new Date(year, month - 1, day);
+                            }
+                            return flatpickr.parseDate(datestr, format);
+                        }
+                    });
+
+                    return fpInstance;
+                }
+
+                loadFlatpickr();
+            }
+
+            initDatepickers();
 
             function initializeButtons() {
                 @if(!hasPermission('asset:edit'))
@@ -1972,8 +2150,12 @@
                 document.getElementById('employeeDropdown').classList.remove('hidden');
                 document.getElementById('locationDropdown').classList.add('hidden');
 
-                const dateField = form.querySelector('input[name="checkout_date"]');
-                if (dateField) {
+                // Reset date using Flatpickr if available
+                const dateField = document.getElementById('checkout_date');
+                if (dateField && dateField._flatpickr) {
+                    const today = new Date();
+                    dateField._flatpickr.setDate(today);
+                } else if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
 
@@ -1986,8 +2168,12 @@
             function resetCheckinForm(form) {
                 resetGenericForm(form);
 
-                const dateField = form.querySelector('input[name="return_date"]');
-                if (dateField) {
+                // Reset date using Flatpickr if available
+                const dateField = document.getElementById('return_date');
+                if (dateField && dateField._flatpickr) {
+                    const today = new Date();
+                    dateField._flatpickr.setDate(today);
+                } else if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
@@ -1995,8 +2181,12 @@
             function resetLostForm(form) {
                 resetGenericForm(form);
 
-                const dateField = form.querySelector('input[name="loss_date"]');
-                if (dateField) {
+                // Reset date using Flatpickr if available
+                const dateField = document.getElementById('loss_date');
+                if (dateField && dateField._flatpickr) {
+                    const today = new Date();
+                    dateField._flatpickr.setDate(today);
+                } else if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
@@ -2008,8 +2198,12 @@
             function resetDisposeForm(form) {
                 resetGenericForm(form);
 
-                const dateField = form.querySelector('input[name="dispose_date"]');
-                if (dateField) {
+                // Reset date using Flatpickr if available
+                const dateField = document.getElementById('dispose_date');
+                if (dateField && dateField._flatpickr) {
+                    const today = new Date();
+                    dateField._flatpickr.setDate(today);
+                } else if (dateField) {
                     dateField.value = new Date().toISOString().split('T')[0];
                 }
             }
@@ -3005,13 +3199,11 @@
                         brandList.appendChild(createDropdownItem('Galat memuat merk', 'px-4 py-2 text-red-500'));
                     }
                 } finally {
-                    // Reset loading state
                     brandList.dataset.loading = "false";
                     if (loadingIndicator) loadingIndicator.classList.add('hidden');
                 }
             }
 
-            // Initialize all search components
             initSearchComponents();
 
             const modals = {
@@ -3226,17 +3418,26 @@
 
                 document.getElementById('edit_serial_number').value = asset.serial_number || '';
 
-                // Format purchase cost with Indonesian format (dots for thousands)
                 const purchaseCost = asset.purchase_cost || '0';
                 const formattedPurchaseCost = Number(purchaseCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 document.getElementById('edit_purchase_cost').value = formattedPurchaseCost;
 
                 if (asset.purchase_date) {
-                    document.getElementById('edit_purchase_date').value = asset.purchase_date.split(' ')[0];
+                    const purchaseDateInput = document.getElementById('edit_purchase_date');
+                    if (purchaseDateInput && purchaseDateInput._flatpickr) {
+                        purchaseDateInput._flatpickr.setDate(asset.purchase_date.split(' ')[0]);
+                    } else {
+                        purchaseDateInput.value = asset.purchase_date.split(' ')[0];
+                    }
                 }
 
                 if (asset.warranty_end_date) {
-                    document.getElementById('edit_warranty_end_date').value = asset.warranty_end_date.split(' ')[0];
+                    const warrantyEndInput = document.getElementById('edit_warranty_end_date');
+                    if (warrantyEndInput && warrantyEndInput._flatpickr) {
+                        warrantyEndInput._flatpickr.setDate(asset.warranty_end_date.split(' ')[0]);
+                    } else {
+                        warrantyEndInput.value = asset.warranty_end_date.split(' ')[0];
+                    }
                 }
 
                 setSelectValue('edit_condition', asset.condition);
@@ -3257,35 +3458,27 @@
                     }
                 }
 
-                // Get building name from asset data
                 const buildingName = asset.building_name || '';
 
-                // Set the building name in the search field
                 document.getElementById('edit_building_search').value = buildingName;
 
-                // Enable room search field
                 const roomSearch = document.getElementById('edit_room_search');
                 if (roomSearch) {
                     roomSearch.disabled = false;
                     roomSearch.placeholder = "Cari ruangan...";
                 }
 
-                // Set room data
                 const roomId = asset.room_id || '';
                 const roomName = asset.room_name || '';
                 document.getElementById('edit_selected_room_id').value = roomId;
                 document.getElementById('edit_room_search').value = roomName;
 
-                // If we have a building name, fetch building data to get the ID
                 if (buildingName) {
-                    // First check if building is in our cache
                     let buildingId = asset.building_id || '';
 
-                    // If we have the building ID from asset data, use it directly
                     if (buildingId) {
                         document.getElementById('edit_selected_building_id').value = buildingId;
 
-                        // Load rooms for this building
                         loadRoomsForBuilding(
                             '',
                             buildingId,
@@ -3296,7 +3489,6 @@
                             document.getElementById('edit_room_dropdown')
                         );
                     } else {
-                        // Otherwise, fetch buildings to find the ID by name
                         fetch(`{{ route('buildings') }}?search=${encodeURIComponent(buildingName)}`, {
                             headers: {
                                 'Accept': 'application/json',
@@ -3306,7 +3498,6 @@
                             .then(response => response.json())
                             .then(data => {
                                 const buildings = data.buildings || [];
-                                // Find the building with matching name
                                 const matchingBuilding = buildings.find(b =>
                                     b.building_name.toLowerCase() === buildingName.toLowerCase()
                                 );
@@ -3314,7 +3505,6 @@
                                 if (matchingBuilding) {
                                     document.getElementById('edit_selected_building_id').value = matchingBuilding.building_id;
 
-                                    // Load rooms for this building
                                     loadRoomsForBuilding(
                                         '',
                                         matchingBuilding.building_id,
@@ -3350,10 +3540,8 @@
                     document.getElementById('edit_user_search').value = userDisplay;
                 }
 
-                // Set model field
                 document.getElementById('edit_model').value = asset.model || '';
 
-                // Set brand data
                 const brandId = asset.brand_id || '';
                 const brandName = asset.brand_name || '';
                 document.getElementById('edit_selected_brand_id').value = brandId;
@@ -3374,38 +3562,44 @@
                         if (asset.depreciation) {
                             document.getElementById('edit_depreciation_method').value = asset.depreciation.depreciation_method || 'Straight Line';
 
-                            // Format acquisition cost with Indonesian format
                             const acquisitionCost = asset.depreciation.acquisition_cost || asset.purchase_cost || '0';
                             const formattedAcquisitionCost = Number(acquisitionCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                             document.getElementById('edit_acquisition_cost').value = formattedAcquisitionCost;
 
-                            // Format salvage value with Indonesian format
                             const salvageValue = asset.depreciation.salvage_value || '0';
                             const formattedSalvageValue = Number(salvageValue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                             document.getElementById('edit_salvage_value').value = formattedSalvageValue;
 
                             document.getElementById('edit_asset_life_months').value = asset.depreciation.asset_life_months || '12';
 
-                            if (asset.depreciation.date_acquired) {
-                                document.getElementById('edit_date_acquired').value = asset.depreciation.date_acquired.split(' ')[0];
-                            } else if (asset.purchase_date) {
-                                document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
+                            if (asset.depreciation.date_acquired || asset.purchase_date) {
+                                const dateAcquired = asset.depreciation.date_acquired || asset.purchase_date;
+                                const dateAcquiredInput = document.getElementById('edit_date_acquired');
+
+                                if (dateAcquiredInput && dateAcquiredInput._flatpickr) {
+                                    dateAcquiredInput._flatpickr.setDate(dateAcquired.split(' ')[0]);
+                                } else {
+                                    dateAcquiredInput.value = dateAcquired.split(' ')[0];
+                                }
                             }
                         } else {
                             document.getElementById('edit_depreciation_method').value = 'Straight Line';
 
-                            // Format acquisition cost with Indonesian format
                             const acquisitionCost = asset.purchase_cost || '0';
                             const formattedAcquisitionCost = Number(acquisitionCost).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                             document.getElementById('edit_acquisition_cost').value = formattedAcquisitionCost;
 
-                            // Set default salvage value to 0
                             document.getElementById('edit_salvage_value').value = '0';
 
                             document.getElementById('edit_asset_life_months').value = '12';
 
                             if (asset.purchase_date) {
-                                document.getElementById('edit_date_acquired').value = asset.purchase_date.split(' ')[0];
+                                const dateAcquiredInput = document.getElementById('edit_date_acquired');
+                                if (dateAcquiredInput && dateAcquiredInput._flatpickr) {
+                                    dateAcquiredInput._flatpickr.setDate(asset.purchase_date.split(' ')[0]);
+                                } else {
+                                    dateAcquiredInput.value = asset.purchase_date.split(' ')[0];
+                                }
                             }
                         }
                     }
@@ -3549,7 +3743,6 @@
                 const modelInput = document.getElementById('edit_model');
                 const depreciationFields = document.getElementById('edit_depreciation_fields');
 
-                // Validate mandatory fields
                 const isAssetMasterValid = validateField(assetMasterSearch, selectedAssetMasterId.value ? true : false);
                 if (!isAssetMasterValid) {
                     const errorElement = assetMasterSearch.closest('.space-y-2')?.querySelector('.error-message');
@@ -3597,7 +3790,6 @@
 
                 let isValid = isAssetMasterValid && isBuildingValid && isRoomValid && isBrandValid && isModelValid;
 
-                // Check depreciation fields if applicable
                 const isDepreciable = !depreciationFields.classList.contains('hidden');
                 if (isDepreciable) {
                     const depreciation_method = document.getElementById('edit_depreciation_method');

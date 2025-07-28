@@ -207,9 +207,9 @@
                                             <label for="date_acquired"
                                                 class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pengadaan <span
                                                     class="text-red-500">*</span></label>
-                                            <input type="date" id="date_acquired" name="date_acquired"
+                                            <input type="text" id="date_acquired" name="date_acquired"
                                                 class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#213268] focus:ring focus:ring-[#213268] focus:ring-opacity-20"
-                                                required>
+                                                required placeholder="Pilih Tanggal">
                                             <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal pengadaan
                                                 harus diisi</div>
                                         </div>
@@ -254,6 +254,7 @@
                 isPercentageView: true,
                 originalChartData: null,
                 hasEditPermission: {{ hasPermission('asset:depreciation:edit') ? 'true' : 'false' }},
+                flatpickrInstance: null,
 
                 init() {
                     if (this.initialized) return;
@@ -267,8 +268,151 @@
                     this.setupModalHelpers();
                     this.setupEventListeners();
                     this.setupFormInputs();
+                    this.initFlatpickr();
                     this.loadDepreciationData();
                     this.initialized = true;
+                },
+
+                // Add Flatpickr initialization for date picker
+                initFlatpickr() {
+                    // Dynamically load Flatpickr if not already available
+                    if (typeof flatpickr === 'undefined') {
+                        // Create link for CSS
+                        const cssLink = document.createElement('link');
+                        cssLink.rel = 'stylesheet';
+                        cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+                        document.head.appendChild(cssLink);
+
+                        // Create script for Flatpickr core
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+                        script.onload = () => {
+                            this.setupDatePicker();
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        this.setupDatePicker();
+                    }
+                },
+
+                setupDatePicker() {
+                    const dateAcquiredInput = document.getElementById('date_acquired');
+                    if (dateAcquiredInput) {
+                        // Define manual Indonesian locale untuk memastikan tampilan tanggal dalam bahasa Indonesia
+                        const indonesianLocale = {
+                            weekdays: {
+                                shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                                longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                            },
+                            months: {
+                                shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+                                longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                            },
+                            firstDayOfWeek: 1,
+                            rangeSeparator: " sampai ",
+                            weekAbbreviation: "Minggu",
+                            scrollTitle: "Gulir untuk menambah",
+                            toggleTitle: "Klik untuk beralih",
+                            time_24hr: true,
+                        };
+
+                        // Daftarkan locale kustom ke flatpickr
+                        if (flatpickr.l10ns) {
+                            flatpickr.l10ns.id = indonesianLocale;
+                        }
+
+                        this.flatpickrInstance = flatpickr(dateAcquiredInput, {
+                            locale: 'id', // Gunakan ID locale yang sudah didaftarkan
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "j F Y", // Format tanggal Indonesia: tanggal bulan tahun
+                            static: true,
+                            disableMobile: true,
+                            allowInput: false,
+                            // Pastikan field memiliki lebar yang sama dengan field lainnya
+                            onReady: function(selectedDates, dateStr, instance) {
+                                // Tetapkan gaya pada input yang terlihat (altInput) untuk memastikan ukuran yang sama
+                                if (instance.altInput) {
+                                    instance.altInput.style.width = "100%";
+                                    instance.altInput.style.display = "block";
+
+                                    // Pastikan bahwa container Flatpickr tidak mengubah lebar field
+                                    const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                    if (parentWrapper) {
+                                        parentWrapper.style.width = "100%";
+                                        parentWrapper.style.display = "block";
+                                    }
+
+                                    // Pastikan inherit semua styling dari input asli
+                                    instance.altInput.className = dateAcquiredInput.className;
+                                }
+
+                                // Override bulan dalam bahasa Inggris jika masih ada
+                                const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                           "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                // Paksa penggunaan bulan Indonesia
+                                if (instance.selectedDates && instance.selectedDates.length > 0) {
+                                    const date = instance.selectedDates[0];
+                                    const day = date.getDate();
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+
+                                    // Set langsung ke input yang terlihat
+                                    if (instance.altInput) {
+                                        instance.altInput.value = `${day} ${month} ${year}`;
+                                    }
+                                }
+                            },
+                            onChange: function(selectedDates, dateStr, instance) {
+                                if (selectedDates.length > 0) {
+                                    const date = selectedDates[0];
+                                    const day = date.getDate();
+                                    // Gunakan nama bulan dalam bahasa Indonesia
+                                    const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                               "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+
+                                    // Set nilai langsung ke altInput untuk memastikan tampilan dalam bahasa Indonesia
+                                    if (instance.altInput) {
+                                        instance.altInput.value = `${day} ${month} ${year}`;
+                                    }
+                                }
+                            },
+                            // Fix timezone issue causing date to be off by one day
+                            formatDate: (date, format) => {
+                                // Force date parsing in local timezone
+                                if (format === "Y-m-d") {
+                                    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                                    const year = localDate.getFullYear();
+                                    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                    const day = String(localDate.getDate()).padStart(2, '0');
+                                    return `${year}-${month}-${day}`;
+                                }
+
+                                // Format khusus untuk tampilan dalam bahasa Indonesia
+                                if (format === "j F Y") {
+                                    const day = date.getDate();
+                                    // Gunakan nama bulan dalam bahasa Indonesia
+                                    const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                                                                "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+                                    return `${day} ${month} ${year}`;
+                                }
+
+                                return flatpickr.formatDate(date, format);
+                            },
+                            // Ensure that when we parse dates, it's done in the local timezone
+                            parseDate: (datestr, format) => {
+                                if (format === "Y-m-d") {
+                                    const [year, month, day] = datestr.split("-").map(Number);
+                                    return new Date(year, month - 1, day);
+                                }
+                                return flatpickr.parseDate(datestr, format);
+                            }
+                        });
+                    }
                 },
 
                 setupModalHelpers() {
@@ -456,9 +600,39 @@
                             assetLife.value = this.currentDepreciation.asset_life_months || '';
                         }
 
-                        const dateAcquired = document.getElementById('date_acquired');
-                        if (dateAcquired && this.currentDepreciation.date_acquired) {
-                            dateAcquired.value = this.currentDepreciation.date_acquired;
+                        if (this.currentDepreciation.date_acquired && this.flatpickrInstance) {
+                            // Memastikan tanggal yang ditampilkan sama dengan yang disimpan
+                            console.log('Original date from server:', this.currentDepreciation.date_acquired);
+
+                            // Parse tanggal dari string YYYY-MM-DD tanpa mempertimbangkan timezone
+                            const [year, month, day] = this.currentDepreciation.date_acquired.split('-').map(Number);
+                            const fixedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                            console.log('Fixed date to set:', fixedDate);
+
+                            // Atur tanggal tanpa waktu
+                            this.flatpickrInstance.setDate(fixedDate, true, 'Y-m-d');
+                            console.log('Date display value:', document.getElementById('date_acquired').value);
+
+                            // Memastikan altInput memiliki lebar yang tepat
+                            if (this.flatpickrInstance.altInput) {
+                                setTimeout(() => {
+                                    this.flatpickrInstance.altInput.style.width = "100%";
+                                    this.flatpickrInstance.altInput.className = document.getElementById('date_acquired').className;
+
+                                    const parentWrapper = this.flatpickrInstance.altInput.closest('.flatpickr-wrapper');
+                                    if (parentWrapper) {
+                                        parentWrapper.style.width = "100%";
+                                    }
+                                }, 0);
+                            }
+
+                            if (this.flatpickrInstance.selectedDates.length > 0) {
+                                console.log('Selected date after setting:',
+                                    this.flatpickrInstance.selectedDates[0].getFullYear() + '-' +
+                                    (this.flatpickrInstance.selectedDates[0].getMonth() + 1) + '-' +
+                                    this.flatpickrInstance.selectedDates[0].getDate()
+                                );
+                            }
                         }
                     }
 
@@ -487,7 +661,23 @@
                     let acquisitionCost = acquisitionCostField.value;
                     let salvageValue = salvageValueField.value;
                     const assetLifeMonths = assetLifeMonthsField.value;
-                    const dateAcquired = dateAcquiredField.value;
+
+                    // Dapatkan tanggal dalam format YYYY-MM-DD tanpa time component
+                    let dateAcquired = '';
+                    if (this.flatpickrInstance && this.flatpickrInstance.selectedDates.length > 0) {
+                        const selectedDate = this.flatpickrInstance.selectedDates[0];
+                        // Gunakan nilai tahun, bulan, dan hari langsung dari objek Date tanpa mempertimbangkan waktu
+                        const year = selectedDate.getFullYear();
+                        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(selectedDate.getDate()).padStart(2, '0');
+                        // Format string tanggal secara manual untuk memastikan tidak ada perubahan karena timezone
+                        dateAcquired = `${year}-${month}-${day}`;
+                        console.log('Date from flatpickr instance:', dateAcquired);
+                    } else {
+                        // Fallback jika tidak ada tanggal yang dipilih di flatpickr
+                        dateAcquired = dateAcquiredField.value;
+                        console.log('Date from input field:', dateAcquired);
+                    }
 
                     const fields = [depreciationMethodField, acquisitionCostField, salvageValueField, assetLifeMonthsField, dateAcquiredField];
                     fields.forEach(field => {
@@ -553,6 +743,8 @@
                         asset_life_months: parseInt(assetLifeMonths),
                         depreciation_method: depreciationMethod
                     };
+
+                    console.log('Sending data to server:', formData);
 
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -931,19 +1123,15 @@
                     const assetLifeMonths = this.currentDepreciation?.asset_life_months || 0;
                     const showMonthlyView = assetLifeMonths <= 12;
 
-                    // Variables to track current value point for highlighting
                     let currentValueIndex = -1;
 
-                    // If asset life is 12 months or less, prepare monthly chart data
                     if (showMonthlyView && this.currentDepreciation && this.currentDepreciation.monthly_data) {
                         const monthlyData = this.currentDepreciation.monthly_data;
                         const totalCost = this.currentDepreciation.total_cost || 0;
 
-                        // Extract month names and book values
                         const labels = [];
                         const values = [];
 
-                        // Find the current month to highlight
                         const today = new Date();
                         const currentYear = today.getFullYear();
                         const currentMonth = today.getMonth() + 1;
@@ -952,22 +1140,19 @@
 
                         monthlyData.forEach((month, index) => {
                             if (month.month_name) {
-                                // Extract just the month name without year for readability
                                 const monthParts = month.month_name.split(' ');
                                 if (monthParts.length > 0) {
-                                    labels.push(monthParts[0]); // Just the month name
+                                    labels.push(monthParts[0]);
                                 } else {
                                     labels.push(month.month_name);
                                 }
 
-                                // Get the book value
                                 const value = this.isPercentageView && totalCost > 0
                                     ? (month.book_value / totalCost) * 100
                                     : month.book_value;
 
                                 values.push(value);
 
-                                // Check if this is the current month or most recent month
                                 if (mostRecentMonth &&
                                     ((month.month_number && mostRecentMonth.month_number === month.month_number) ||
                                      (month.month_name && mostRecentMonth.month_name === month.month_name))) {
@@ -976,17 +1161,13 @@
                             }
                         });
 
-                        // Update display data with monthly values
                         displayData.years = labels;
                         displayData.values = values;
                     } else if (displayData.values && displayData.values.length > 0) {
-                        // For yearly view
-                        // Find current year index
                         if (displayData.years && displayData.years.length > 0) {
                             const currentYear = new Date().getFullYear();
                             currentValueIndex = displayData.years.findIndex(year => parseInt(year) === currentYear);
 
-                            // If current year not found, use the last data point that's not in the future
                             if (currentValueIndex === -1) {
                                 for (let i = displayData.years.length - 1; i >= 0; i--) {
                                     if (parseInt(displayData.years[i]) <= currentYear) {
@@ -997,7 +1178,6 @@
                             }
                         }
 
-                        // Apply percentage conversion if needed
                         if (this.isPercentageView) {
                             const totalCost = this.currentDepreciation?.total_cost || 0;
                             displayData.values = displayData.values.map(value =>
@@ -1009,15 +1189,13 @@
                     const chartTitle = showMonthlyView ? 'Penyusutan Bulanan' : 'Penyusutan Tahunan';
                     document.querySelector('#depreciationChartContainer h3').textContent = chartTitle;
 
-                    // Create point styles array with special style for current value
                     const pointRadius = Array(displayData.values.length).fill(4);
                     const pointBackgroundColors = Array(displayData.values.length).fill('#36A2EB');
                     const borderWidth = Array(displayData.values.length).fill(2);
 
-                    // Highlight current value point if found
                     if (currentValueIndex >= 0) {
                         pointRadius[currentValueIndex] = 8;
-                        pointBackgroundColors[currentValueIndex] = '#FF6384'; // Highlight color
+                        pointBackgroundColors[currentValueIndex] = '#FF6384';
                         borderWidth[currentValueIndex] = 3;
                     }
 
@@ -1048,7 +1226,6 @@
                                         label: (context) => {
                                             let label = '';
 
-                                            // Add "Nilai Saat Ini" label for highlighted point
                                             if (context.dataIndex === currentValueIndex) {
                                                 label = 'Nilai Saat Ini: ';
                                             }
@@ -1249,12 +1426,24 @@
                     return mostRecentMonth;
                 },
 
-                // Function to format date to Indonesian
                 formatIndonesianDate(dateString) {
                     if (!dateString) return '-';
+
+                    try {
+                        const [year, month, day] = dateString.split('-').map(Number);
+                        if (!year || !month || !day) {
                     const date = new Date(dateString);
                     const options = { day: 'numeric', month: 'long', year: 'numeric' };
                     return date.toLocaleDateString('id-ID', options);
+                        }
+
+                        const date = new Date(year, month - 1, day);
+                        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                        return date.toLocaleDateString('id-ID', options);
+                    } catch (e) {
+                        console.error('Error formatting date:', e);
+                        return dateString;
+                    }
                 }
             };
 

@@ -189,8 +189,9 @@
                                         <label for="transaction-date"
                                             class="block text-base font-semibold text-[#666666]">Tanggal <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" id="transaction-date" name="transaction_date" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        <input type="text" id="transaction-date" name="transaction_date" required
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Pilih Tanggal">
                                     </div>
 
                                     <!-- Amount Input with currency prefix -->
@@ -315,8 +316,9 @@
                                         <label for="edit-transaction-date"
                                             class="block text-base font-semibold text-[#666666]">Tanggal <span
                                                 class="text-red-500">*</span></label>
-                                        <input type="date" id="edit-transaction-date" name="transaction_date" required
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
+                                        <input type="text" id="edit-transaction-date" name="transaction_date" required
+                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
+                                            placeholder="Pilih Tanggal">
                                     </div>
 
                                     <!-- Amount Input -->
@@ -839,6 +841,8 @@
                         form.parentNode.replaceChild(newForm, form);
 
                         setupEditForm(newForm);
+                        // Inisialisasi flatpickr ulang pada input edit setelah form di-replace
+                        initEditTransactionFlatpickr(transaction.transaction_date);
 
                         document.getElementById('edit-transaction-id').value = transaction.transaction_id;
                         document.getElementById('edit-asset-id').value = transaction.asset_id;
@@ -849,7 +853,6 @@
                             document.getElementById('edit-type-expense').checked = true;
                         }
 
-                        document.getElementById('edit-transaction-date').value = transaction.transaction_date;
                         document.getElementById('edit-transaction-amount').value = parseFloat(transaction.amount).toLocaleString('id-ID');
                         document.getElementById('edit-transaction-description').value = transaction.description || '';
 
@@ -869,7 +872,6 @@
                                 }
                             }
                         }
-
                         showToast(errorMessage, 'error');
                     }
                 })
@@ -877,7 +879,7 @@
                     console.error('Error fetching transaction details:', error);
                     showToast('Error: ' + error.message, 'error');
                 });
-        }
+        };
 
         function showDeleteModal(id) {
             currentDeleteId = id;
@@ -1242,4 +1244,98 @@
             return parseFloat(value) || 0;
         }
     });
+
+    // === FLATPICKR LOGIC SAMA DENGAN Depreciation.blade.php ===
+    const indonesianLocale = {
+        weekdays: {
+            shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+            longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+        },
+        months: {
+            shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+            longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+        },
+        firstDayOfWeek: 1,
+        rangeSeparator: " sampai ",
+        weekAbbreviation: "Minggu",
+        scrollTitle: "Gulir untuk menambah",
+        toggleTitle: "Klik untuk beralih",
+        time_24hr: true,
+    };
+    function initFlatpickrFinance() {
+        if (typeof flatpickr === 'undefined') {
+            const cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+            document.head.appendChild(cssLink);
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+            script.onload = function() { setupDatePickers(); };
+            document.head.appendChild(script);
+        } else {
+            setupDatePickers();
+        }
+    }
+    function setupDatePickers() {
+        if (flatpickr.l10ns) flatpickr.l10ns.id = indonesianLocale;
+        const addDateField = document.getElementById('transaction-date');
+        if (addDateField) {
+            flatpickr(addDateField, {
+                locale: 'id',
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                static: true,
+                disableMobile: true,
+                allowInput: false,
+                onReady: function(selectedDates, dateStr, instance) {
+                    if (instance.altInput) {
+                        instance.altInput.style.width = "100%";
+                        instance.altInput.style.display = "block";
+                        const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                        if (parentWrapper) {
+                            parentWrapper.style.width = "100%";
+                            parentWrapper.style.display = "block";
+                        }
+                        instance.altInput.className = addDateField.className;
+                    }
+                }
+            });
+        }
+    }
+
+    function initEditTransactionFlatpickr(dateValue) {
+        const dateInput = document.getElementById('edit-transaction-date');
+        if (dateInput) {
+            if (dateInput._flatpickr) {
+                dateInput._flatpickr.destroy();
+            }
+            const instance = flatpickr(dateInput, {
+                locale: 'id',
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "j F Y",
+                static: true,
+                disableMobile: true,
+                allowInput: false,
+                onReady: function(selectedDates, dateStr, instance) {
+                    if (instance.altInput) {
+                        instance.altInput.style.width = "100%";
+                        instance.altInput.style.display = "block";
+                        const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                        if (parentWrapper) {
+                            parentWrapper.style.width = "100%";
+                            parentWrapper.style.display = "block";
+                        }
+                        instance.altInput.className = dateInput.className;
+                    }
+                }
+            });
+            if (dateValue) {
+                instance.setDate(dateValue, true, 'Y-m-d');
+            }
+            window.editTransactionFlatpickrInstance = instance;
+        }
+    }
+    // === END FLATPICKR LOGIC ===
 </script>

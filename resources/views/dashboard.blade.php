@@ -4,6 +4,10 @@
 
 @section('content')
     @include('Layout.loading')
+    <!-- Add Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <div class="h-full">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
@@ -602,10 +606,10 @@
                                                 class="block text-sm font-medium text-gray-700">
                                                 TANGGAL RENCANA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="planning_date_display" name="planning_calibration_date"
-                                                required
-                                                class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                readonly>
+                                            <input type="text" id="planning_date_display" name="planning_calibration_date"
+                                                required readonly
+                                                class="flatpickr mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                placeholder="Pilih tanggal...">
                                         </div>
 
                                         <!-- Work Date (Actual Calibration Date) -->
@@ -614,9 +618,9 @@
                                                 class="block text-sm font-medium text-gray-700">
                                                 TANGGAL KERJA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="actual_calibration_date" name="actual_calibration_date"
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                required>
+                                            <input type="text" id="actual_calibration_date" name="actual_calibration_date"
+                                                class="flatpickr mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                required placeholder="Pilih tanggal...">
                                         </div>
 
                                         <!-- Next Calibration Date -->
@@ -624,9 +628,9 @@
                                             <label for="next_calibration_date" class="block text-sm font-medium text-gray-700">
                                                 KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
                                             </label>
-                                            <input type="date" id="next_calibration_date" name="next_calibration_date" required
-                                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
-                                                required>
+                                            <input type="text" id="next_calibration_date" name="next_calibration_date"
+                                                class="flatpickr mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]"
+                                                required placeholder="Pilih tanggal...">
                                         </div>
                                     </div>
                                 </div>
@@ -1066,6 +1070,24 @@
     </style>
 
     <script>
+        // Define Indonesian locale
+        const indonesianLocale = {
+            weekdays: {
+                shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+            },
+            months: {
+                shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+                longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+            },
+            firstDayOfWeek: 1,
+            rangeSeparator: " sampai ",
+            weekAbbreviation: "Minggu",
+            scrollTitle: "Gulir untuk menambah",
+            toggleTitle: "Klik untuk beralih",
+            time_24hr: true,
+        };
+
         let currentDate = new Date();
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
@@ -2241,6 +2263,63 @@
                             const calibration = data.data;
                             const status = calibration.status_calibration || '';
 
+                            // Initialize date inputs
+                            const planningDateDisplay = document.getElementById('planning_date_display');
+                            const actualCalibrationDateInput = document.getElementById('actual_calibration_date');
+                            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+
+                            // Destroy existing instances if they exist
+                            if (planningDateDisplay._flatpickr) {
+                                planningDateDisplay._flatpickr.destroy();
+                            }
+                            if (actualCalibrationDateInput._flatpickr) {
+                                actualCalibrationDateInput._flatpickr.destroy();
+                            }
+                            if (nextCalibrationDateInput._flatpickr) {
+                                nextCalibrationDateInput._flatpickr.destroy();
+                            }
+
+                            // Initialize planning date (read-only)
+                            flatpickr(planningDateDisplay, {
+                                dateFormat: 'Y-m-d',
+                                locale: 'id',
+                                altInput: true,
+                                altFormat: 'j F Y',
+                                defaultDate: calibration.planning_calibration_date,
+                                readOnly: true,
+                                clickOpens: false
+                            });
+
+                            // Initialize work date (actual calibration date)
+                            flatpickr(actualCalibrationDateInput, {
+                                dateFormat: 'Y-m-d',
+                                locale: 'id',
+                                altInput: true,
+                                altFormat: 'j F Y',
+                                defaultDate: new Date(),
+                                onChange: function(selectedDates, dateStr, instance) {
+                                    const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                    if (parentWrapper) {
+                                        parentWrapper.classList.remove('error');
+                                    }
+                                }
+                            });
+
+                            // Initialize next calibration date
+                            flatpickr(nextCalibrationDateInput, {
+                                dateFormat: 'Y-m-d',
+                                locale: 'id',
+                                altInput: true,
+                                altFormat: 'j F Y',
+                                minDate: new Date(),
+                                onChange: function(selectedDates, dateStr, instance) {
+                                    const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                    if (parentWrapper) {
+                                        parentWrapper.classList.remove('error');
+                                    }
+                                }
+                            });
+
                             // Only call start endpoint if status is 'scheduled'
                             if (status === 'scheduled') {
                                 return fetch(`/calibrations/${calibrationId}/start`, {
@@ -2789,5 +2868,76 @@
                 timeout = setTimeout(later, wait);
             };
         }
+
+        // Flatpickr initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Indonesian locale for flatpickr
+            if (flatpickr.l10ns) {
+                flatpickr.l10ns.id = indonesianLocale;
+            }
+
+            // Initialize Flatpickr
+            function initFlatpickr(dateInput, isReadonly = false) {
+                if (!dateInput) return;
+
+                // Basic configuration for date picker
+                const config = {
+                    dateFormat: 'Y-m-d',
+                    locale: 'id',
+                    allowInput: true,
+                    disableMobile: true,
+                    altInput: true,
+                    altFormat: 'j F Y',
+                    static: true,
+                    readOnly: isReadonly,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                        if (parentWrapper) {
+                            parentWrapper.classList.remove('error');
+                        }
+                    },
+                    // Override date display with Indonesian format
+                    formatDate: (date, format) => {
+                        return flatpickr.formatDate(date, format);
+                    }
+                };
+
+                const fpInstance = flatpickr(dateInput, config);
+                return fpInstance;
+            }
+
+            // Initialize date inputs
+            const dateInputs = document.querySelectorAll('.flatpickr');
+            dateInputs.forEach(input => {
+                const isReadonly = input.hasAttribute('readonly');
+                initFlatpickr(input, isReadonly);
+            });
+
+            // Initialize modal date inputs
+            const planningDateDisplay = document.getElementById('planning_date_display');
+            const actualCalibrationDateInput = document.getElementById('actual_calibration_date');
+            const nextCalibrationDateInput = document.getElementById('next_calibration_date');
+
+            if (planningDateDisplay) {
+                flatpickr(planningDateDisplay, {
+                    dateFormat: 'Y-m-d',
+                    locale: 'id',
+                    altInput: true,
+                    altFormat: 'j F Y',
+                    defaultDate: planningDateDisplay.value,
+                    static: true,
+                    readOnly: true,
+                    disableMobile: true
+                });
+            }
+
+            if (actualCalibrationDateInput) {
+                const fpActual = initFlatpickr(actualCalibrationDateInput);
+            }
+
+            if (nextCalibrationDateInput) {
+                const fpNext = initFlatpickr(nextCalibrationDateInput);
+            }
+        });
     </script>
 @endsection

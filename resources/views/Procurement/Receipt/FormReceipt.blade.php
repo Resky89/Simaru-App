@@ -6,6 +6,9 @@
     @include('Layout.loading')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
     <!-- Toast container for notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-4"></div>
 
@@ -32,7 +35,8 @@
                     <div class="form-control">
                         <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan <span
                                 class="text-red-500">*</span></label>
-                        <input type="date" id="receipt_date" name="receipt_date" value="<?php    echo date('Y-m-d'); ?>"
+                        <input type="text" id="receipt_date" name="receipt_date" value="<?php echo date('Y-m-d'); ?>"
+                            placeholder="Pilih Tanggal"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal penerimaan harus diisi
                         </div>
@@ -270,6 +274,49 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Flatpickr with Indonesian locale and configuration
+            flatpickr.localize(flatpickr.l10ns.id);
+
+            // Define Indonesian locale
+            const indonesianLocale = {
+                weekdays: {
+                    longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                },
+                months: {
+                    longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                },
+                firstDayOfWeek: 1,
+                rangeSeparator: " sampai ",
+                weekAbbreviation: "Minggu",
+                scrollTitle: "Gulir untuk menambah",
+                toggleTitle: "Klik untuk beralih",
+                time_24hr: true
+            };
+
+            // Initialize receipt date picker with Indonesian format
+            const receiptDatePicker = flatpickr("#receipt_date", {
+                dateFormat: "d F Y",
+                locale: "id",
+                disableMobile: true,
+                allowInput: true,
+                maxDate: "today",
+                altInput: true,
+                altFormat: "d F Y",
+                ariaDateFormat: "d F Y",
+                parseDate: (datestr, format) => {
+                    return new Date(datestr);
+                },
+                formatDate: (date, format, locale) => {
+                    if (format === "d F Y") {
+                        const day = date.getDate();
+                        const month = locale.months.longhand[date.getMonth()];
+                        const year = date.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                    return flatpickr.formatDate(date, format);
+                }
+            });
+
             const form = document.getElementById('receiptForm');
             const searchBtn = document.getElementById('searchBtn');
             const poDetails = document.getElementById('poDetails');

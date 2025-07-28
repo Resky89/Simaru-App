@@ -554,10 +554,10 @@
                                                             class="block text-sm font-medium text-gray-700">
                                                             TANGGAL RENCANA<span class="text-red-500">*</span>
                                                         </label>
-                                                        <input type="date" id="planning_date_display"
+                                                        <input type="text" id="planning_date_display" readonly
                                                             name="planning_calibration_date"
-                                                            class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
-                                                            readonly>
+                                                            class="flatpickr mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
+                                                            placeholder="Pilih tanggal...">
                                                     </div>
 
                                                     <!-- Work Date (Actual Calibration Date) -->
@@ -577,7 +577,7 @@
                                                             class="block text-sm font-medium text-gray-700">
                                                             KALIBRASI BERIKUTNYA<span class="text-red-500">*</span>
                                                         </label>
-                                                        <input type="date" id="next_calibration_date" name="next_calibration_date"
+                                                        <input type="date" id="next_calibration_date" name="next_calibration_date" placeholder="Pilih tanggal..."
                                                             class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                     </div>
                                                 </div>
@@ -1124,11 +1124,74 @@
 
 
     @push('scripts')
+        <!-- Tambahkan di bagian scripts -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
         <script>
             const flashSuccess = @json(session('success') ?? null);
             const flashError = @json(session('error') ?? null);
 
+            // Define Indonesian locale
+            const indonesianLocale = {
+                weekdays: {
+                    shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                    longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                },
+                months: {
+                    shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"],
+                    longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                },
+                firstDayOfWeek: 1,
+                rangeSeparator: " sampai ",
+                weekAbbreviation: "Minggu",
+                scrollTitle: "Gulir untuk menambah",
+                toggleTitle: "Klik untuk beralih",
+                time_24hr: true,
+            };
+
             document.addEventListener('DOMContentLoaded', function () {
+                // Set Indonesian locale for flatpickr
+                if (flatpickr.l10ns) {
+                    flatpickr.l10ns.id = indonesianLocale;
+                }
+
+                // Initialize Flatpickr
+                function initFlatpickr(dateInput, isReadonly = false) {
+                    if (!dateInput) return;
+
+                    return flatpickr(dateInput, {
+                        locale: 'id',
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "j F Y",
+                        minDate: "today",
+                        disableMobile: true,
+                        allowInput: true,
+                        static: true,
+                        onReady: function(selectedDates, dateStr, instance) {
+                            if (instance.altInput) {
+                                instance.altInput.style.width = "100%";
+                                instance.altInput.style.display = "block";
+                                const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                if (parentWrapper) {
+                                    parentWrapper.style.width = "100%";
+                                    parentWrapper.style.display = "block";
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Initialize date inputs
+                const dateInputs = ['planning_calibration_date', 'actual_calibration_date', 'next_calibration_date'];
+                dateInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        initFlatpickr(input);
+                    }
+                });
+
                 @if(!hasPermission('calibration:create'))
                     const createButtons = document.querySelectorAll('#addCalibrationBtn, #addAssetsBtn');
                     createButtons.forEach(btn => {
@@ -1999,15 +2062,35 @@
                                 const nextCalibrationDateInput = document.getElementById('next_calibration_date');
 
                                 if (actualCalibrationDateInput) {
-                                    actualCalibrationDateInput.value = today;
-                                    actualCalibrationDateInput.setAttribute('min', today);
+                                    const fpActual = initFlatpickr(actualCalibrationDateInput);
+                                    fpActual.setDate(calibration.actual_calibration_date || today);
                                 }
 
                                 if (nextCalibrationDateInput) {
-                                    nextCalibrationDateInput.setAttribute('min', today);
+                                    const fpNext = initFlatpickr(nextCalibrationDateInput);
+                                    fpNext.setDate(calibration.next_calibration_date || null);
                                 }
 
-                                document.getElementById('planning_date_display').value = calibration.planning_calibration_date || '';
+                                // Initialize planning date with Indonesian format
+                const planningDateDisplay = document.getElementById('planning_date_display');
+                if (planningDateDisplay) {
+                    if (calibration.planning_calibration_date) {
+                        flatpickr(planningDateDisplay, {
+                            locale: 'id',
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "j F Y",
+                            defaultDate: calibration.planning_calibration_date,
+                            disableMobile: true,
+                            static: true,
+                            allowInput: false,
+                            clickOpens: false,
+                            readOnly: true
+                        });
+                    } else {
+                        planningDateDisplay.value = '';
+                    }
+                }
                                 document.getElementById('asset_code_display').value = calibration.asset_code || '-';
                                 document.getElementById('asset_name_display').value = calibration.asset_name || '-';
                                 document.getElementById('brand_name_display').value = calibration.brand_name || '-';
@@ -3011,15 +3094,11 @@
                             .then(data => {
                                 if (data.success && data.data) {
                                     const calibration = data.data;
-                                    if (calibration.planning_calibration_date) {
-                                        if (calibration.planning_calibration_date >= today) {
-                                            planningDateInput.value = calibration.planning_calibration_date;
-                                        } else {
-                                            planningDateInput.value = today;
-                                        }
-                                    } else {
-                                        planningDateInput.value = today;
-                                    }
+                                    // Initialize flatpickr for planning date input
+                                const plannedDate = calibration.planning_calibration_date >= today ?
+                                    calibration.planning_calibration_date : today;
+                                const fpPlanning = initFlatpickr(planningDateInput);
+                                fpPlanning.setDate(plannedDate);
                                 } else {
                                     console.error('Failed to get calibration data:', data);
                                     planningDateInput.value = today;

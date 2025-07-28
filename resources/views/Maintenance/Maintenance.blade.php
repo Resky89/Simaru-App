@@ -1094,8 +1094,151 @@
             @endif
 
         @push('scripts')
+        <!-- Tambahkan di bagian head atau sebelum </body> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
+                    const indonesianLocale = {
+                        weekdays: {
+                            shorthand: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+                            longhand: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
+                        },
+                        months: {
+                            shorthand: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+                            longhand: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                        },
+                        firstDayOfWeek: 1,
+                        ordinal: () => {
+                            return "";
+                        },
+                        rangeSeparator: " sampai ",
+                        weekAbbreviation: "Minggu",
+                        scrollTitle: "Gulir untuk menambah",
+                        toggleTitle: "Klik untuk beralih",
+                        time_24hr: true,
+                    };
+
+                    function loadFlatpickr() {
+                        if (typeof flatpickr === 'undefined') {
+                            const cssLink = document.createElement('link');
+                            cssLink.rel = 'stylesheet';
+                            cssLink.href = 'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css';
+                            document.head.appendChild(cssLink);
+
+                            const script = document.createElement('script');
+                            script.src = 'https://cdn.jsdelivr.net/npm/flatpickr';
+                            script.onload = function() {
+                                if (flatpickr && flatpickr.l10ns) {
+                                    flatpickr.l10ns.id = indonesianLocale;
+                                    initAllDatepickers();
+                                }
+                            };
+                            document.head.appendChild(script);
+                        } else {
+                            if (flatpickr.l10ns) {
+                                flatpickr.l10ns.id = indonesianLocale;
+                            }
+                            initAllDatepickers();
+                        }
+                    }
+
+                    function initAllDatepickers() {
+                        const dateFields = [
+                            'start_date',
+                            'end_date',
+                            'edit_start_date',
+                            'edit_end_date',
+                            'maintenance_date'
+                        ];
+                        dateFields.forEach(fieldId => {
+                            const dateField = document.getElementById(fieldId);
+                            if (dateField) {
+                                initFlatpickr(dateField, false);
+                            }
+                        });
+                    }
+
+                    function initFlatpickr(dateInput, isReadonly) {
+                        if (!dateInput) return;
+                        // Check if this is an edit field
+                        const isEditField = dateInput.id.startsWith('edit_');
+
+                        const fpInstance = flatpickr(dateInput, {
+                            locale: 'id',
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "j F Y",
+                            static: true,
+                            disableMobile: true,
+                            allowInput: false,
+                            clickOpens: !isReadonly,
+                            // Only apply minDate: today for new entries, not for edit fields
+                            minDate: isEditField ? null : "today",
+                            onReady: function(selectedDates, dateStr, instance) {
+                                if (instance.altInput) {
+                                    instance.altInput.style.width = "100%";
+                                    instance.altInput.style.display = "block";
+                                    const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                    if (parentWrapper) {
+                                        parentWrapper.style.width = "100%";
+                                        parentWrapper.style.display = "block";
+                                    }
+                                    instance.altInput.className = dateInput.className;
+                                }
+                                if (selectedDates && selectedDates.length > 0) {
+                                    const date = selectedDates[0];
+                                    const day = date.getDate();
+                                    const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+                                    if (instance.altInput) {
+                                        instance.altInput.value = `${day} ${month} ${year}`;
+                                    }
+                                }
+                            },
+                            onChange: function(selectedDates, dateStr, instance) {
+                                if (selectedDates && selectedDates.length > 0) {
+                                    const date = selectedDates[0];
+                                    const day = date.getDate();
+                                    const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+                                    if (instance.altInput) {
+                                        instance.altInput.value = `${day} ${month} ${year}`;
+                                    }
+                                }
+                            },
+                            formatDate: (date, format) => {
+                                if (format === "Y-m-d") {
+                                    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                                    const year = localDate.getFullYear();
+                                    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                                    const day = String(localDate.getDate()).padStart(2, '0');
+                                    return `${year}-${month}-${day}`;
+                                }
+                                if (format === "j F Y") {
+                                    const day = date.getDate();
+                                    const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                                    const month = monthsInIndonesian[date.getMonth()];
+                                    const year = date.getFullYear();
+                                    return `${day} ${month} ${year}`;
+                                }
+                                return flatpickr.formatDate(date, format);
+                            },
+                            parseDate: (datestr, format) => {
+                                if (format === "Y-m-d") {
+                                    const [year, month, day] = datestr.split("-").map(Number);
+                                    return new Date(year, month - 1, day);
+                                }
+                                return flatpickr.parseDate(datestr, format);
+                            }
+                        });
+                        return fpInstance;
+                    }
+
+                    loadFlatpickr();
                     @if(!hasPermission('maintenance:create'))
                         const createButtons = document.querySelectorAll('#addMaintenanceBtn, #addAssetsBtn');
                         createButtons.forEach(btn => {
@@ -1177,14 +1320,8 @@
 
                     const today = new Date().toISOString().split('T')[0];
                     const startDateInput = document.getElementById('start_date');
-                    if (startDateInput) {
-                        startDateInput.setAttribute('min', today);
-                    }
-
                     const endDateInput = document.getElementById('end_date');
-                    if (endDateInput) {
-                        endDateInput.setAttribute('min', today);
-                    }
+                    const maintenanceDateInput = document.getElementById('maintenance_date');
 
                     function preventMultipleSubmits(form, buttonSelector) {
                         if (!form) return;
@@ -1235,36 +1372,56 @@
                     preventMultipleSubmits(document.getElementById('deleteMaintenanceForm'), 'button[type="submit"]');
                     preventMultipleSubmits(document.getElementById('createReportForm'), 'button[type="submit"]');
 
-                    if (startDateInput && endDateInput) {
-                        startDateInput.addEventListener('change', function() {
-                            endDateInput.setAttribute('min', this.value);
-
-                            if (endDateInput.value && endDateInput.value < this.value) {
-                                endDateInput.value = this.value;
+                    // Initialize flatpickr for start date with linked end date
+                    if (startDateInput) {
+                        const startDatePicker = initFlatpickr(startDateInput, false);
+                        startDatePicker.set('minDate', today);
+                        startDatePicker.config.onChange = function(selectedDates, dateStr, instance) {
+                            if (endDatePicker && selectedDates[0]) {
+                                endDatePicker.set('minDate', selectedDates[0]);
+                                const currentInterval = document.getElementById('interval').value;
+                                if (currentInterval === 'DAILY' || currentInterval === 'ONCE') {
+                                    endDatePicker.setDate(selectedDates[0]);
+                                }
                             }
-
-                            const currentInterval = document.getElementById('interval').value;
-                            if (currentInterval === 'DAILY' || currentInterval === 'ONCE') {
-                                endDateInput.value = this.value;
-                            }
-                        });
+                        };
                     }
 
+                    // Initialize flatpickr for end date
+                    let endDatePicker;
+                    if (endDateInput) {
+                        endDatePicker = initFlatpickr(endDateInput, false);
+                        endDatePicker.set('minDate', today);
+                    }
+
+                    // Initialize flatpickr for maintenance date
+                    if (maintenanceDateInput) {
+                        const maintenanceDatePicker = initFlatpickr(maintenanceDateInput, false);
+                        maintenanceDatePicker.set('minDate', today);
+                    }
+
+                    // Initialize flatpickr for edit start date with linked end date
                     const editStartDateInput = document.getElementById('edit_start_date');
                     const editEndDateInput = document.getElementById('edit_end_date');
-                    if (editStartDateInput && editEndDateInput) {
-                        editStartDateInput.addEventListener('change', function() {
-                            editEndDateInput.setAttribute('min', this.value);
-
-                            if (editEndDateInput.value && editEndDateInput.value < this.value) {
-                                editEndDateInput.value = this.value;
+                    if (editStartDateInput) {
+                        const editStartDatePicker = initFlatpickr(editStartDateInput, false);
+                        editStartDatePicker.set('minDate', today);
+                        editStartDatePicker.config.onChange = function(selectedDates, dateStr, instance) {
+                            if (editEndDatePicker && selectedDates[0]) {
+                                editEndDatePicker.set('minDate', selectedDates[0]);
+                                const currentEditInterval = document.getElementById('edit_interval').value;
+                                if (currentEditInterval === 'DAILY' || currentEditInterval === 'ONCE') {
+                                    editEndDatePicker.setDate(selectedDates[0]);
+                                }
                             }
+                        };
+                    }
 
-                            const currentEditInterval = document.getElementById('edit_interval').value;
-                            if (currentEditInterval === 'DAILY' || currentEditInterval === 'ONCE') {
-                                editEndDateInput.value = this.value;
-                            }
-                        });
+                    // Initialize flatpickr for edit end date
+                    let editEndDatePicker;
+                    if (editEndDateInput) {
+                        editEndDatePicker = initFlatpickr(editEndDateInput, false);
+                        editEndDatePicker.set('minDate', today);
                     }
 
                     function toggleEndDateVisibility(intervalValue, formType = 'add') {
@@ -1275,14 +1432,16 @@
                             ? document.getElementById('end_date')
                             : document.getElementById('edit_end_date');
 
-                                        if (intervalValue === 'DAILY' || intervalValue === 'ONCE') {
+                        if (intervalValue === 'DAILY' || intervalValue === 'ONCE') {
                             endDateField.style.display = 'none';
                             endDateInput.removeAttribute('required');
 
-                            const startDateValue = formType === 'add'
-                                ? document.getElementById('start_date').value
-                                : document.getElementById('edit_start_date').value;
-                            endDateInput.value = startDateValue;
+                            const startDatePicker = formType === 'add' ? flatpickr('#start_date') : flatpickr('#edit_start_date');
+                            const endDatePicker = formType === 'add' ? endDatePicker : editEndDatePicker;
+
+                            if (startDatePicker.selectedDates[0]) {
+                                endDatePicker.setDate(startDatePicker.selectedDates[0]);
+                            }
                         } else {
                             endDateField.style.display = 'flex';
                             endDateInput.setAttribute('required', 'required');
@@ -3069,14 +3228,41 @@
                                     if (editMaintenanceId) editMaintenanceId.value = maintenance.id;
 
                                     if (maintenance.start_date && editStartDate) {
-                                    const startDate = new Date(maintenance.start_date);
-                                        editStartDate.value = startDate.toISOString().split('T')[0];
-                                }
+                                        // Get the flatpickr instance for start date
+                                        const startDatePicker = editStartDate._flatpickr;
+                                        if (startDatePicker) {
+                                            try {
+                                                // Parse the date string from the server
+                                                const startDate = new Date(maintenance.start_date);
+                                                // Format as YYYY-MM-DD
+                                                const formattedStartDate = startDate.getFullYear() + '-' +
+                                                    String(startDate.getMonth() + 1).padStart(2, '0') + '-' +
+                                                    String(startDate.getDate()).padStart(2, '0');
+                                                startDatePicker.setDate(formattedStartDate);
+                                            } catch (error) {
+                                                console.error('Error setting start date:', error);
+                                            }
+                                        }
+                                    }
 
                                     if (maintenance.end_date && editEndDate) {
-                                    const endDate = new Date(maintenance.end_date);
-                                        editEndDate.value = endDate.toISOString().split('T')[0];
-                                }
+                                        // Get the flatpickr instance for end date
+                                        const endDatePicker = editEndDate._flatpickr;
+                                        if (endDatePicker) {
+                                            try {
+                                                // Parse the date string from the server
+                                                const endDate = new Date(maintenance.end_date);
+                                                // Format as YYYY-MM-DD
+                                                const formattedEndDate = endDate.getFullYear() + '-' +
+                                                    String(endDate.getMonth() + 1).padStart(2, '0') + '-' +
+                                                    String(endDate.getDate()).padStart(2, '0');
+                                                endDatePicker.setDate(formattedEndDate);
+                                            } catch (error) {
+                                                console.error('Error setting end date:', error);
+                                                endDatePicker.setDate(formattedEndDate, true, "Y-m-d");
+                                            }
+                                        }
+                                    }
 
                                     if (maintenance.interval && editInterval) {
                                         editInterval.value = maintenance.interval;
@@ -3111,7 +3297,7 @@
                                 console.error('Error fetching maintenance details:', error);
                                 showToast(error.message || 'Gagal mengambil detail pemeliharaan', 'error');
                             });
-                            }
+                        }
                         });
                     });
 
