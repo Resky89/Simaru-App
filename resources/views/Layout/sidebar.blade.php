@@ -6,6 +6,7 @@
         'calibration' => 'calibration:view',
         'maintenance' => 'maintenance:view',
         'complaint' => 'complaint:view',
+        'official-report' => 'official-report:view',
         'procurement' => ['procurement:view', 'price-comparison:view', 'purchase-order:view', 'receipt:view'],
         'report' => ['report:opname', 'report:finance', 'report:depreciation'],
         'account' => ['user:view', 'role:view']
@@ -243,6 +244,24 @@
                                 </svg>
                             </div>
                             <span class="{{ $menuTextClass }}">Keluhan & Perbaikan</span>
+                        </div>
+                    </a>
+                </div>
+            @endif
+
+            <!-- Official Report -->
+            @if(hasPermission($menuPermissions['official-report']))
+                <div class="{{ $menuItemClass }}">
+                    <a href="{{ route('official-report.index') }}" class="block official-report-link" data-menu="official-report">
+                        <div class="{{ $menuLinkClass }} {{ Request::routeIs('official-report.*') ? 'bg-[#56C5F1]/20' : '' }}">
+                            <div class="{{ $iconWrapperClass }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="#757575">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <span class="{{ $menuTextClass }}">Berita Acara</span>
                         </div>
                     </a>
                 </div>

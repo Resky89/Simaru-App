@@ -264,18 +264,12 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-gray-600">
+                        <span class="text-sm text-gray-600">
                                 @if(isset($buildings_pagination) && is_array($buildings_pagination))
-                                    @php
-                                        $currentPage = $buildings_pagination['current_page'] ?? 1;
-                                        $perPage = $buildings_pagination['per_page'] ?? 10;
-                                        $total = $buildings_pagination['total'] ?? count($buildings ?? []);
-                                        $from = ($currentPage - 1) * $perPage + 1;
-                                        $to = min($currentPage * $perPage, $total);
-                                    @endphp
-                                    Menampilkan {{ $from }} sampai {{ $to }} dari {{ $total }} data
+                                    Menampilkan {{ $buildings_pagination['from'] }} sampai {{ $buildings_pagination['to'] }} dari
+                                    {{ $buildings_pagination['total'] }} data
                                 @else
-                                    Menampilkan 1 sampai {{ count($buildings) }} dari {{ count($buildings) }} data
+                                    Menampilkan 0 data
                                 @endif
                             </span>
                             <select id="buildingPerPageSelect"

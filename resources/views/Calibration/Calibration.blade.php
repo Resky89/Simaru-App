@@ -859,7 +859,7 @@
                                             </label>
                                         </div>
                                         <div class="flex-1">
-                                            <input type="date" name="planning_calibration_date" id="planning_calibration_date"
+                                            <input type="date" name="planning_calibration_date" id="planning_calibration_date" placeholder="Pilih tanggal rencana kalibrasi"
                                                 class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                 required>
                                         </div>
@@ -1098,7 +1098,7 @@
                                             class="block text-base font-semibold text-[#666666]">
                                             Tanggal Rencana Kalibrasi<span class="text-red-500">*</span>
                                         </label>
-                                        <input type="date" id="edit_planning_calibration_date" name="planning_calibration_date"
+                                        <input type="text" id="edit_planning_calibration_date" name="planning_calibration_date" placeholder="Pilih tanggal rencana kalibrasi"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                             required>
                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal rencana kalibrasi
@@ -1168,7 +1168,6 @@
                         minDate: "today",
                         disableMobile: true,
                         allowInput: true,
-                        static: true,
                         onReady: function(selectedDates, dateStr, instance) {
                             if (instance.altInput) {
                                 instance.altInput.style.width = "100%";

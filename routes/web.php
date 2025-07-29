@@ -34,6 +34,7 @@ use App\Http\Controllers\ProcurementPurchaseOrderController;
 use App\Http\Controllers\ProcurementReceiptController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CsrfTokenController;
+use App\Http\Controllers\OfficialReportController;
 
 //=============================================================================
 // PUBLIC ROUTES
@@ -617,6 +618,46 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::get('/detail-receipt/{id}', [ProcurementReceiptController::class, 'show'])->name('receipt.show')->middleware('permission:receipt:view');
         Route::post('/receipt', [ProcurementReceiptController::class, 'create'])->name('receipt.create')->middleware('permission:receipt:create');
         Route::get('/receipt/detail/{id}/export-pdf', [ProcurementReceiptController::class, 'exportReceiptDetailPDF'])->name('receipt.export-pdf')->middleware('permission:receipt:export');
+    });
+
+    //-------------------------------------------------------------------------
+    // OFFICIAL REPORT MANAGEMENT
+    //-------------------------------------------------------------------------
+
+    // Official Report Routes
+    Route::prefix('official-reports')->name('official-report.')->middleware('permission:official-report:view')->group(function () {
+        // Read operations
+        Route::get('/', [OfficialReportController::class, 'index'])->name('index');
+        Route::get('/search/data', [OfficialReportController::class, 'search'])->name('search');
+
+        // Form pages
+        Route::get('/create', function () {
+            return view('OfficialReport.FormOfficialReport');
+        })->name('create')->middleware('permission:official-report:create');
+        Route::get('/{id}/edit', function ($id = null) {
+            return view('OfficialReport.FormOfficialReport', ['id' => $id]);
+        })->name('edit')->middleware('permission:official-report:edit');
+
+        Route::get('/{id}', [OfficialReportController::class, 'show'])->name('show');
+
+        // Write operations
+        Route::post('/', [OfficialReportController::class, 'store'])
+            ->name('store')
+            ->middleware('permission:official-report:create');
+        Route::put('/{id}', [OfficialReportController::class, 'update'])
+            ->name('update')
+            ->middleware('permission:official-report:edit');
+        Route::delete('/{id}', [OfficialReportController::class, 'destroy'])
+            ->name('destroy')
+            ->middleware('permission:official-report:delete');
+
+        // Approval workflow operations
+        Route::post('/{id}/approve', [OfficialReportController::class, 'approve'])
+            ->name('approve')
+            ->middleware('permission:official-report:approve');
+        Route::post('/{id}/reject', [OfficialReportController::class, 'reject'])
+            ->name('reject')
+            ->middleware('permission:official-report:reject');
     });
 
     //-------------------------------------------------------------------------
