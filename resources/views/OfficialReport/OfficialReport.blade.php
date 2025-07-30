@@ -3,6 +3,7 @@
 @section('title', 'Berita Acara')
 
 @section('content')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('Layout.loading')
     <div class="h-full space-y-4 md:space-y-6">
         <!-- Official Reports Section -->
@@ -64,10 +65,6 @@
                                 <option value="" selected>Urutan Default</option>
                                 <option value="newest">Terbaru</option>
                                 <option value="oldest">Terlama</option>
-                                <option value="report_type_asc">Tipe (A-Z)</option>
-                                <option value="report_type_desc">Tipe (Z-A)</option>
-                                <option value="status_asc">Status (A-Z)</option>
-                                <option value="status_desc">Status (Z-A)</option>
                             </select>
                         </div>
                     </div>
@@ -77,70 +74,15 @@
                         <table class="w-full">
                             <thead>
                                 <tr>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">
-                                        <div class="flex items-center space-x-1 cursor-pointer" onclick="sortTable('report_type')">
-                                            <span class="text-xs">Tipe</span>
-                                            <span class="sort-icon">
-                                                @php
-                                                    $currentSort = request()->query('sort_by');
-                                                    $currentOrder = request()->query('sort_order');
-                                                    $sortIcon = 'none';
-
-                                                    if ($currentSort === 'report_type') {
-                                                        $sortIcon = $currentOrder === 'asc' ? 'asc' : 'desc';
-                                                    }
-                                                @endphp
-
-                                                @if($sortIcon === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                                    </svg>
-                                                @elseif($sortIcon === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                                    </svg>
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[10%]">
-                                        <div class="flex items-center space-x-1 cursor-pointer" onclick="sortTable('status')">
-                                            <span class="text-xs">Status</span>
-                                            <span class="sort-icon">
-                                                @php
-                                                    $sortIcon = 'none';
-                                                    if ($currentSort === 'status') {
-                                                        $sortIcon = $currentOrder === 'asc' ? 'asc' : 'desc';
-                                                    }
-                                                @endphp
-
-                                                @if($sortIcon === 'asc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                                    </svg>
-                                                @elseif($sortIcon === 'desc')
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                                    </svg>
-                                                @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                                    </svg>
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[15%]">Nama Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">Kode Aset</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">Dibuat Oleh</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Catatan</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">
                                         <div class="flex items-center space-x-1 cursor-pointer" onclick="sortTable('release_date')">
                                             <span class="text-xs">Tanggal Rilis</span>
                                             <span class="sort-icon">
                                                 @php
+                                                    $currentSort = request()->query('sort_by');
+                                                    $currentOrder = request()->query('sort_order');
                                                     $sortIcon = 'none';
                                                     if ($currentSort === 'release_date') {
                                                         $sortIcon = $currentOrder === 'asc' ? 'asc' : 'desc';
@@ -163,14 +105,27 @@
                                             </span>
                                         </div>
                                     </th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">Dibuat Oleh</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Catatan</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[12%]">Tipe</th>
+                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left w-[10%]">Status</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-center w-[120px]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($official_reports ?? [] as $report)
                                     <tr>
+                                        <!-- Dibuat Oleh -->
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $report['created_by']['employee_name'] ?? '-' }}
+                                        </td>
+                                        <!-- Catatan -->
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $report['notes'] ? \Illuminate\Support\Str::limit($report['notes'], 30) : '-' }}
+                                        </td>
+                                        <!-- Tanggal Rilis -->
+                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                            {{ $report['release_date'] !== 'N/A' ? $report['release_date'] : '-' }}
+                                        </td>
+                                        <!-- Tipe -->
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
                                                 $typeColor = 'bg-gray-500';
@@ -197,6 +152,7 @@
                                                 <p class="text-xs text-white font-medium">{{ $typeText }}</p>
                                             </div>
                                         </td>
+                                        <!-- Status -->
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
                                                 $statusClass = 'bg-gray-100 text-gray-800';
@@ -227,40 +183,12 @@
                                                 {{ $statusText }}
                                             </span>
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            @if(isset($report['items']) && count($report['items']) > 0)
-                                                {{ $report['items'][0]['asset']['asset_name'] ?? '-' }}
-                                                @if(count($report['items']) > 1)
-                                                    <span class="text-gray-500">+{{ count($report['items']) - 1 }} lainnya</span>
-                                                @endif
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            @if(isset($report['items']) && count($report['items']) > 0)
-                                                {{ $report['items'][0]['asset']['asset_code'] ?? '-' }}
-                                                @if(count($report['items']) > 1)
-                                                    <span class="text-gray-500">+{{ count($report['items']) - 1 }}</span>
-                                                @endif
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ $report['release_date'] !== 'N/A' ? $report['release_date'] : '-' }}
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ $report['created_by']['employee_name'] ?? '-' }}
-                                        </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ $report['notes'] ? \Illuminate\Support\Str::limit($report['notes'], 30) : '-' }}
-                                        </td>
+                                        <!-- Aksi -->
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             <div class="flex items-center space-x-2 justify-center">
                                                 <!-- View Button -->
                                                 <a href="{{ route('official-report.show', $report['official_report_id']) }}"
-                                                    class="p-2 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors"
+                                                    class="p-2 bg-blue-100 text-[#213268] rounded-md hover:bg-blue-200 transition-colors"
                                                     title="Lihat Detail">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                                         viewBox="0 0 24 24" stroke="currentColor">
@@ -283,33 +211,10 @@
                                                     </a>
                                                 @endif
 
-                                                @if(hasPermission('official-report:approve') && $report['status'] == 'SUBMITTED')
-                                                    <button
-                                                        class="approve-report-btn p-2 bg-green-100 text-green-600 rounded-md hover:bg-green-200 transition-colors"
-                                                        data-report-id="{{ $report['official_report_id'] }}"
-                                                        title="Setujui Berita Acara">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    </button>
-                                                @endif
-
-                                                @if(hasPermission('official-report:reject') && $report['status'] == 'SUBMITTED')
-                                                    <button
-                                                        class="reject-report-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
-                                                        data-report-id="{{ $report['official_report_id'] }}"
-                                                        title="Tolak Berita Acara">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </button>
-                                                @endif
-
-                                                @if(hasPermission('official-report:delete') && $report['status'] != 'APPROVED')
+                                                @if(hasPermission('official-report:delete') &&
+                                    $report['status'] !== 'APPROVED' &&
+                                    (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
+                                    (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
                                                     <button
                                                         class="delete-report-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                         data-report-id="{{ $report['official_report_id'] }}"
@@ -326,7 +231,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada
+                                        <td colspan="6" class="p-3 text-xs text-center border-t border-[#EEF1F4]">Tidak ada
                                             berita acara ditemukan</td>
                                     </tr>
                                 @endforelse
@@ -422,6 +327,60 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Modal -->
+    @if(hasPermission('official-report:delete'))
+        <div id="deleteOfficialReportModal" class="fixed inset-0 z-50 hidden">
+            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
+            <div class="fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
+                        id="deleteOfficialReportModalContent">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-6 pb-0">
+                            <h2 class="text-xl sm:text-2xl font-semibold text-[#203268]">HAPUS BERITA ACARA</h2>
+                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
+                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="p-6">
+                            <div class="space-y-6 max-w-[400px] mx-auto">
+                                <div class="flex flex-col items-center">
+                                    <svg class="mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="text-base text-gray-600 text-center">Apakah Anda yakin ingin menghapus berita acara
+                                        ini? Tindakan ini tidak dapat dibatalkan.</p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button
+                                        class="close-modal w-1/2 h-[45px] bg-gray-200 text-gray-800 rounded-lg text-base hover:bg-gray-300 transform active:scale-[0.98] transition-all duration-200">
+                                        Batal
+                                    </button>
+                                    <form id="deleteOfficialReportForm" action="" method="POST" data-no-loading class="w-1/2">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" id="deleteReportId" name="report_id">
+                                        <button type="submit"
+                                            class="w-full h-[45px] bg-red-500 text-white rounded-lg text-base hover:bg-red-600 transform active:scale-[0.98] transition-all duration-200">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @push('scripts')
         <script>
@@ -572,6 +531,8 @@
                     notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
                     notification.role = 'alert';
 
+                    const hasHTML = /<[a-z][\s\S]*>/i.test(message);
+
                     if (type === 'success') {
                         notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
                         notification.innerHTML = `
@@ -589,21 +550,49 @@
                             </div>
                         `;
                     } else {
-                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
-                        notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Gagal!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
+                        notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
+
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex items-start';
+
+                        const iconContainer = document.createElement('div');
+                        iconContainer.className = 'py-1 flex-shrink-0';
+                        iconContainer.innerHTML = `
+                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         `;
+
+                        const contentContainer = document.createElement('div');
+                        contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
+
+                        const title = document.createElement('p');
+                        title.className = 'font-bold';
+                        title.textContent = 'Gagal!';
+                        contentContainer.appendChild(title);
+
+                        const messageContainer = document.createElement('div');
+                        messageContainer.className = 'error-message';
+
+                        if (hasHTML) {
+                            messageContainer.innerHTML = message;
+                        } else {
+                            messageContainer.textContent = message;
+                        }
+
+                        contentContainer.appendChild(messageContainer);
+
+                        const closeBtn = document.createElement('span');
+                        closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
+                        closeBtn.textContent = '×';
+                        closeBtn.onclick = function () {
+                            notification.remove();
+                        };
+
+                        wrapper.appendChild(iconContainer);
+                        wrapper.appendChild(contentContainer);
+                        wrapper.appendChild(closeBtn);
+                        notification.appendChild(wrapper);
                     }
 
                     document.body.appendChild(notification);
@@ -623,8 +612,190 @@
                         .animate-slide-in-right {
                             animation: slideInRight 0.3s ease-out forwards;
                         }
+
+                        /* Styling for error messages with HTML content */
+                        .error-message ul {
+                            margin-top: 0.5rem;
+                            padding-left: 1.5rem;
+                        }
+                        .error-message ul li {
+                            margin-bottom: 0.25rem;
+                        }
+                        .error-message ul li:last-child {
+                            margin-bottom: 0;
+                        }
                     </style>
                 `);
+
+                // Modal functionality
+                const deleteOfficialReportModal = document.getElementById('deleteOfficialReportModal');
+                const deleteOfficialReportModalContent = document.getElementById('deleteOfficialReportModalContent');
+
+                // Function to open modal with animation
+                function openModal(modal, modalContent) {
+                    if (modal && modalContent) {
+                        modal.classList.remove('hidden');
+                        // Force reflow
+                        modal.offsetHeight;
+                        // Add show classes
+                        modalContent.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                        modalContent.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+                    }
+                }
+
+                // Function to close modal with animation
+                function closeModal(modal, modalContent) {
+                    if (modal && modalContent) {
+                        modalContent.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+                        modalContent.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                        }, 300);
+                    }
+                }
+
+                // Delete buttons handler
+                document.querySelectorAll('.delete-report-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const reportId = button.getAttribute('data-report-id');
+                        const formAction = "{{ url('official-reports') }}/" + reportId;
+                        document.getElementById('deleteOfficialReportForm').action = formAction;
+                        document.getElementById('deleteReportId').value = reportId;
+                        openModal(deleteOfficialReportModal, deleteOfficialReportModalContent);
+                    });
+                });
+
+                // Close modal buttons
+                document.querySelectorAll('.close-modal').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        closeModal(deleteOfficialReportModal, deleteOfficialReportModalContent);
+                    });
+                });
+
+                // Close modal when clicking outside
+                if (deleteOfficialReportModal) {
+                    deleteOfficialReportModal.addEventListener('click', (e) => {
+                        if (e.target === deleteOfficialReportModal) {
+                            closeModal(deleteOfficialReportModal, deleteOfficialReportModalContent);
+                        }
+                    });
+                }
+
+                // Handle delete form submission with AJAX
+                const deleteForm = document.getElementById('deleteOfficialReportForm');
+                if (deleteForm) {
+                    deleteForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.innerHTML;
+
+                        // Show loading state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                        submitBtn.innerHTML = `
+                            <div class="flex items-center justify-center">
+                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                <span>Memproses...</span>
+                            </div>
+                        `;
+
+                        const formData = new FormData(this);
+                        formData.append('_method', 'DELETE');
+
+                        fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            if (data.success) {
+                                const modal = document.getElementById('deleteOfficialReportModal');
+                                const modalContent = document.getElementById('deleteOfficialReportModalContent');
+                                closeModal(modal, modalContent);
+                                showToast(data.message || 'Berita acara berhasil dihapus', 'success');
+
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                // Parse error response with comprehensive error handling
+                                const errorData = data.errors || [];
+                                let errorMessage = data.message || 'Gagal menghapus berita acara';
+                                let errorList = [];
+
+                                // Handle different error response formats
+                                if (Array.isArray(errorData)) {
+                                    errorData.forEach(error => {
+                                        if (error.path && error.message) {
+                                            errorList.push(error.message);
+                                        } else if (typeof error === 'string') {
+                                            errorList.push(error);
+                                        }
+                                    });
+                                }
+                                else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
+                                    Object.entries(errorData).forEach(([field, errors]) => {
+                                        if (Array.isArray(errors)) {
+                                            errors.forEach(err => {
+                                                errorList.push(err);
+                                            });
+                                        } else if (typeof errors === 'string') {
+                                            errorList.push(errors);
+                                        }
+                                    });
+                                } else if (typeof errorData === 'string') {
+                                    errorMessage = errorData;
+                                }
+
+                                // Use errorList if available, otherwise use errorMessage
+                                let finalMessage;
+                                if (errorList.length > 0) {
+                                    // If only one error, show it directly without bullet points
+                                    if (errorList.length === 1) {
+                                        finalMessage = errorList[0];
+                                    } else {
+                                        // Multiple errors, use bullet points
+                                        finalMessage = errorList.join('<br>• ');
+                                        finalMessage = '• ' + finalMessage;
+                                    }
+                                } else {
+                                    finalMessage = errorMessage;
+                                }
+
+                                showToast(finalMessage, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
+
+                            let errorMessage = 'Terjadi kesalahan saat menghapus berita acara';
+
+                            // Provide more specific error messages based on error type
+                            if (error.message.includes('JSON')) {
+                                errorMessage = 'Server mengembalikan response yang tidak valid. Silakan coba lagi atau hubungi administrator.';
+                            } else if (error.message.includes('HTTP')) {
+                                errorMessage = `Kesalahan server: ${error.message}. Silakan coba lagi.`;
+                            } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                                errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                            }
+
+                            showToast(errorMessage, 'error');
+                        });
+                    });
+                }
             });
         </script>
     @endpush

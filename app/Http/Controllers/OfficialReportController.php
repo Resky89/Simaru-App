@@ -178,7 +178,7 @@ class OfficialReportController extends Controller
         try {
             // Validate request data
             $validated = $request->validate([
-                'report_type' => 'required|string|in:DISPOSAL,TRANSFER,MAINTENANCE',
+                'report_type' => 'required|string|in:DISPOSAL,LOSS,FOUND',
                 'notes' => 'nullable|string',
                 'items' => 'required|array|min:1',
                 'items.*.asset_id' => 'required|integer',
@@ -212,9 +212,19 @@ class OfficialReportController extends Controller
             );
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson() || $request->ajax()) {
+                // Format validation errors for AJAX requests
+                $formattedErrors = [];
+                foreach ($e->errors() as $field => $messages) {
+                    $formattedErrors[] = [
+                        'path' => $field,
+                        'message' => is_array($messages) ? $messages[0] : $messages
+                    ];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => $e->errors(),
+                    'message' => 'Terjadi kesalahan validasi',
+                    'errors' => $formattedErrors,
                 ], 422);
             }
 
@@ -223,7 +233,13 @@ class OfficialReportController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Gagal membuat berita acara: ' . $e->getMessage()]],
+                    'message' => 'Terjadi kesalahan saat memproses permintaan',
+                    'errors' => [
+                        [
+                            'path' => 'exception',
+                            'message' => 'Gagal membuat berita acara: ' . $e->getMessage()
+                        ]
+                    ],
                 ], 500);
             }
 
@@ -275,7 +291,7 @@ class OfficialReportController extends Controller
 
             // Validate request data
             $validated = $request->validate([
-                'report_type' => 'required|string|in:DISPOSAL,TRANSFER,MAINTENANCE',
+                'report_type' => 'required|string|in:DISPOSAL,LOSS,FOUND',
                 'notes' => 'nullable|string',
                 'items' => 'required|array|min:1',
                 'items.*.asset_id' => 'required|integer',
@@ -309,9 +325,19 @@ class OfficialReportController extends Controller
             );
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson() || $request->ajax()) {
+                // Format validation errors for AJAX requests
+                $formattedErrors = [];
+                foreach ($e->errors() as $field => $messages) {
+                    $formattedErrors[] = [
+                        'path' => $field,
+                        'message' => is_array($messages) ? $messages[0] : $messages
+                    ];
+                }
+
                 return response()->json([
                     'success' => false,
-                    'errors' => $e->errors(),
+                    'message' => 'Terjadi kesalahan validasi',
+                    'errors' => $formattedErrors,
                 ], 422);
             }
 
@@ -320,7 +346,13 @@ class OfficialReportController extends Controller
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Gagal memperbarui berita acara: ' . $e->getMessage()]],
+                    'message' => 'Terjadi kesalahan saat memproses permintaan',
+                    'errors' => [
+                        [
+                            'path' => 'exception',
+                            'message' => 'Gagal memperbarui berita acara: ' . $e->getMessage()
+                        ]
+                    ],
                 ], 500);
             }
 
@@ -348,8 +380,14 @@ class OfficialReportController extends Controller
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => $formattedErrors,
-                    ], 400);
+                        'message' => 'Berita acara tidak ditemukan',
+                        'errors' => is_array($formattedErrors) ? $formattedErrors : [
+                            [
+                                'path' => 'not_found',
+                                'message' => $formattedErrors
+                            ]
+                        ],
+                    ], 404);
                 }
 
                 return redirect()->back()->withErrors($formattedErrors);
@@ -357,30 +395,79 @@ class OfficialReportController extends Controller
 
             // Check if the report can be deleted (e.g., not already approved)
             $status = $reportData['data']['status'] ?? null;
-            if ($status === 'APPROVED') {
+            $approval1Status = $reportData['data']['approval_1_status'] ?? null;
+            $approval2Status = $reportData['data']['approval_2_status'] ?? null;
+
+            if ($status === 'APPROVED' || $approval1Status === 'APPROVED' || $approval2Status === 'APPROVED') {
                 $errorMessage = 'Berita acara yang sudah disetujui tidak dapat dihapus';
 
                 if ($request->expectsJson() || $request->ajax()) {
                     return response()->json([
                         'success' => false,
-                        'errors' => ['status' => [$errorMessage]],
+                        'message' => $errorMessage,
+                        'errors' => [
+                            [
+                                'path' => 'status',
+                                'message' => $errorMessage
+                            ]
+                        ],
                     ], 403);
                 }
 
                 return redirect()->back()->withErrors($errorMessage);
             }
 
-            return $this->deleteResource(
-                $request,
-                "/official-reports/{$id}",
-                'Berita acara berhasil dihapus',
-                'official-report.index'
-            );
+            // Call the API to delete the official report
+            $result = $this->apiService->request('DELETE', "/official-reports/{$id}");
+
+            // Check for auth errors
+            $authError = $this->handleAuthError($result, $request);
+            if ($authError) {
+                return $authError;
+            }
+
+            // Check if we got an error response
+            if (!isset($result['success']) || $result['success'] !== true) {
+                $errorData = $result['errors'] ?? 'Gagal menghapus berita acara';
+                $formattedErrors = DataFormatter::formatErrorMessage($errorData);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal menghapus berita acara',
+                        'errors' => is_array($formattedErrors) ? $formattedErrors : [
+                            [
+                                'path' => 'delete',
+                                'message' => $formattedErrors
+                            ]
+                        ],
+                    ], 400);
+                }
+
+                return redirect()->back()->withErrors($formattedErrors);
+            }
+
+            // Success response
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Berita acara berhasil dihapus',
+                    'data' => $result['data'] ?? null
+                ]);
+            }
+
+            return redirect()->route('official-report.index')->with('success', $result['message'] ?? 'Berita acara berhasil dihapus');
         } catch (\Exception $e) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'errors' => ['exception' => ['Gagal menghapus berita acara: ' . $e->getMessage()]],
+                    'message' => 'Terjadi kesalahan saat memproses permintaan',
+                    'errors' => [
+                        [
+                            'path' => 'exception',
+                            'message' => 'Gagal menghapus berita acara: ' . $e->getMessage()
+                        ]
+                    ],
                 ], 500);
             }
 
@@ -415,7 +502,13 @@ class OfficialReportController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors,
+                    'message' => 'Gagal menyetujui berita acara',
+                    'errors' => is_array($formattedErrors) ? $formattedErrors : [
+                        [
+                            'path' => 'approval',
+                            'message' => $formattedErrors
+                        ]
+                    ],
                 ], 400);
             }
 
@@ -427,7 +520,13 @@ class OfficialReportController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Gagal menyetujui berita acara: ' . $e->getMessage()]],
+                'message' => 'Terjadi kesalahan saat memproses permintaan',
+                'errors' => [
+                    [
+                        'path' => 'exception',
+                        'message' => 'Gagal menyetujui berita acara: ' . $e->getMessage()
+                    ]
+                ],
             ], 500);
         }
     }
@@ -442,15 +541,8 @@ class OfficialReportController extends Controller
     public function reject(Request $request, $id)
     {
         try {
-            // Validate the request
-            $validated = $request->validate([
-                'rejection_reason' => 'required|string',
-            ]);
-
             // Call the API to reject the official report
-            $result = $this->apiService->request('POST', "/official-reports/{$id}/reject", [
-                'json' => $validated
-            ]);
+            $result = $this->apiService->request('POST', "/official-reports/{$id}/reject");
 
             // Check for auth errors
             $authError = $this->handleAuthError($result, $request);
@@ -465,7 +557,13 @@ class OfficialReportController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'errors' => $formattedErrors,
+                    'message' => 'Gagal menolak berita acara',
+                    'errors' => is_array($formattedErrors) ? $formattedErrors : [
+                        [
+                            'path' => 'rejection',
+                            'message' => $formattedErrors
+                        ]
+                    ],
                 ], 400);
             }
 
@@ -474,15 +572,16 @@ class OfficialReportController extends Controller
                 'message' => $result['message'] ?? 'Berita acara berhasil ditolak',
                 'data' => $result['data'] ?? null
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'errors' => ['exception' => ['Gagal menolak berita acara: ' . $e->getMessage()]],
+                'message' => 'Terjadi kesalahan saat memproses permintaan',
+                'errors' => [
+                    [
+                        'path' => 'exception',
+                        'message' => 'Gagal menolak berita acara: ' . $e->getMessage()
+                    ]
+                ],
             ], 500);
         }
     }

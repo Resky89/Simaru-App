@@ -29,7 +29,7 @@
                 <input type="hidden" id="form_method" name="_method" value="POST">
                 <input type="hidden" id="official_report_id" name="official_report_id">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-6">
                     <!-- Report Type -->
                     <div class="space-y-2">
                         <label class="block text-base font-semibold text-[#666666]">Tipe Berita Acara <span
@@ -210,7 +210,7 @@
                     });
                 }
 
-                async function fetchAssets(searchTerm = '', page = 1) {
+                async function fetchAssets(searchTerm = '', page = 1, additionalParams = {}) {
                     const loadingElements = document.querySelectorAll('.asset-loading');
                     loadingElements.forEach(loading => {
                         loading.style.display = 'block';
@@ -220,7 +220,8 @@
                     const params = new URLSearchParams({
                         search: searchTerm,
                         page: page,
-                        limit: 20
+                        limit: 20,
+                        ...additionalParams
                     });
                     url += `?${params.toString()}`;
 
@@ -248,6 +249,24 @@
                         showSweetAlert('Gagal memuat daftar aset. Silakan coba lagi.', 'error');
                         return { results: [], hasMore: false };
                     }
+                }
+
+                function getAssetFilterParams() {
+                    const reportType = document.getElementById('report_type').value;
+                    const params = {};
+
+                    switch (reportType) {
+                        case 'FOUND':
+                            params.current_status = 'lost';
+                            break;
+                        case 'LOSS':
+                            params.exclude_status = 'dispose';
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return params;
                 }
 
                 function setupAssetSearch(container) {
@@ -283,26 +302,44 @@
                         }
 
                         try {
-                            const { results, hasMore: newHasMore } = await fetchAssets(searchTerm, currentPage);
+                            const filterParams = getAssetFilterParams();
+                            const { results, hasMore: newHasMore } = await fetchAssets(searchTerm, currentPage, filterParams);
 
                             updateSelectedAssetIds();
                             const currentAssetId = hiddenInput.value ? parseInt(hiddenInput.value) : null;
 
                             const availableAssets = results.filter(asset => {
                                 const assetId = parseInt(asset.asset_id);
+                                // Pastikan asset memiliki asset_id yang valid
+                                if (!asset.asset_id || isNaN(assetId) || assetId <= 0) {
+                                    console.warn('Skipping asset with invalid ID:', asset);
+                                    return false;
+                                }
                                 return !selectedAssetIds.has(assetId) || (currentAssetId === assetId);
                             });
 
                             availableAssets.forEach(asset => {
                                 const li = document.createElement('li');
                                 li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-                                li.textContent = `${asset.asset_master.asset_name || 'Aset tidak dikenal'} (${asset.asset_code || 'N/A'})`;
+
+                                // Pastikan asset_master ada dan valid
+                                const assetName = asset.asset_master?.asset_name || asset.asset_name || 'Aset tidak dikenal';
+                                const assetCode = asset.asset_code || 'N/A';
+
+                                li.textContent = `${assetName} (${assetCode})`;
                                 li.setAttribute('data-id', asset.asset_id);
-                                li.setAttribute('data-name', asset.asset_name || 'Aset tidak dikenal');
-                                li.setAttribute('data-code', asset.asset_code || 'N/A');
+                                li.setAttribute('data-name', assetName);
+                                li.setAttribute('data-code', assetCode);
 
                                 li.addEventListener('click', function () {
                                     const clickedId = parseInt(this.getAttribute('data-id'));
+
+                                    // Validasi clicked ID
+                                    if (isNaN(clickedId) || clickedId <= 0) {
+                                        showSweetAlert('Asset ID tidak valid. Silakan coba lagi.', 'error');
+                                        return;
+                                    }
+
                                     updateSelectedAssetIds();
                                     const current = hiddenInput.value ? parseInt(hiddenInput.value) : null;
 
@@ -314,6 +351,11 @@
                                     searchInput.value = `${this.getAttribute('data-name')} (${this.getAttribute('data-code')})`;
                                     hiddenInput.value = this.getAttribute('data-id');
                                     dropdown.classList.add('hidden');
+
+                                    // Clear any previous errors
+                                    searchInput.classList.remove('border-red-500');
+                                    const errorElement = searchInput.closest('.relative').querySelector('.error-message');
+                                    if (errorElement) errorElement.classList.add('hidden');
 
                                     updateSelectedAssetIds();
                                     // Remove from other dropdowns
@@ -390,6 +432,7 @@
                     // Add initial item for new form
                     if (itemContainer.querySelectorAll('.item-entry').length === 0) {
                         addItemEntry(0);
+                        updateAssetFilterInfo(); // Update filter info for new form
                     }
                 }
 
@@ -412,7 +455,18 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Server tidak mengembalikan response JSON yang valid');
+                        }
+
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success && data.data) {
                             const report = data.data;
@@ -433,6 +487,7 @@
                                         asset_name: `${item.asset?.asset_name || 'Unknown'} (${item.asset?.asset_code || 'N/A'})`,
                                         item_notes: item.item_notes
                                     });
+                                    itemCount++;
                                 });
                             } else {
                                 // Add one empty item if no items exist
@@ -440,15 +495,37 @@
                             }
 
                             updateDeleteButtons();
+                            updateAssetFilterInfo(); // Update filter info after loading edit data
                         } else {
-                            showSweetAlert('Gagal memuat data berita acara', 'error');
+                            const errorMessage = data.message || 'Gagal memuat data berita acara';
+                            showSweetAlert(errorMessage, 'error', {
+                                title: 'Gagal Memuat Data',
+                                footer: 'Silakan coba muat ulang halaman'
+                            });
+                            setTimeout(() => {
                             window.location.href = '{{ route("official-report.index") }}';
+                            }, 2000);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showSweetAlert('Gagal memuat data berita acara', 'error');
+                        let errorMessage = 'Gagal memuat data berita acara';
+
+                        if (error.message.includes('JSON')) {
+                            errorMessage = 'Server mengembalikan response yang tidak valid. Silakan coba lagi.';
+                        } else if (error.message.includes('HTTP')) {
+                            errorMessage = `Kesalahan server: ${error.message}`;
+                        } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                            errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                        }
+
+                        showSweetAlert(errorMessage, 'error', {
+                            title: 'Gagal Memuat Data',
+                            footer: 'Silakan coba muat ulang halaman'
+                        });
+                        setTimeout(() => {
                         window.location.href = '{{ route("official-report.index") }}';
+                        }, 2000);
                     })
                     .finally(() => {
                         submitButton.disabled = false;
@@ -478,14 +555,15 @@
                             </svg>
                         </button>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="space-y-4">
                             <!-- Asset Selection -->
                             <div class="space-y-2 asset-container">
                                 <label class="block text-base font-medium text-[#666666]">Pilih Aset <span class="text-red-500">*</span></label>
+                                <div class="asset-filter-info text-xs text-blue-600 mb-1 hidden"></div>
                                 <div class="relative">
                                     <input type="text" class="asset-search w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
-                                        placeholder="Cari aset..." autocomplete="off" value="${data && data.asset ? `${data.asset.asset_name} (${data.asset.asset_code})` : ''}">
-                                    <input type="hidden" name="items[${index}][asset_id]" class="asset-id" value="${data && data.asset ? data.asset.asset_id : ''}">
+                                        placeholder="Cari aset..." autocomplete="off" value="${data && data.asset_name ? data.asset_name : ''}">
+                                    <input type="hidden" name="items[${index}][asset_id]" class="asset-id" value="${data && data.asset_id ? data.asset_id : ''}">
                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Aset harus dipilih</div>
 
                                     <!-- Dropdown -->
@@ -537,6 +615,7 @@
 
                     updateSelectedAssetIds();
                     updateDeleteButtons();
+                    updateAssetFilterInfo(); // Update filter info when new item is added
                     return newItem; // Return the created item for potential use in loadOfficialReportData
                 }
 
@@ -686,6 +765,76 @@
                     this.classList.remove('border-red-500');
                     const errorElement = this.closest('.space-y-2').querySelector('.error-message');
                     if (errorElement) errorElement.classList.add('hidden');
+
+                    // Reset all asset searches when report type changes
+                    resetAllAssetSearches();
+                });
+
+                function resetAllAssetSearches() {
+                    document.querySelectorAll('.asset-container').forEach(container => {
+                        const searchInput = container.querySelector('.asset-search');
+                        const dropdown = container.querySelector('.asset-dropdown');
+                        const list = container.querySelector('.asset-list');
+                        const hiddenInput = container.querySelector('.asset-id');
+
+                        if (searchInput && list && hiddenInput) {
+                            // Clear current selection
+                            searchInput.value = '';
+                            hiddenInput.value = '';
+                            list.innerHTML = '';
+                            dropdown.classList.add('hidden');
+
+                            // Update selected asset IDs
+                            updateSelectedAssetIds();
+                        }
+                    });
+
+                    // Update filter info for all asset containers
+                    updateAssetFilterInfo();
+                }
+
+                function updateAssetFilterInfo() {
+                    const reportType = document.getElementById('report_type').value;
+                    let filterText = '';
+
+                    switch (reportType) {
+                        case 'FOUND':
+                            filterText = '📍 Menampilkan aset dengan status: Hilang';
+                            break;
+                        case 'LOSS':
+                            filterText = '🚫 Mengecualikan aset yang sudah dihapuskan';
+                            break;
+                        case 'DISPOSAL':
+                            filterText = '📦 Menampilkan semua aset tersedia';
+                            break;
+                        default:
+                            filterText = '';
+                    }
+
+                    document.querySelectorAll('.asset-filter-info').forEach(info => {
+                        if (filterText) {
+                            info.textContent = filterText;
+                            info.classList.remove('hidden');
+                        } else {
+                            info.classList.add('hidden');
+                        }
+                    });
+                }
+
+                document.getElementById('notes').addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                    const errorElement = this.closest('.space-y-2').querySelector('.error-message');
+                    if (errorElement) errorElement.classList.add('hidden');
+                });
+
+                // Add event listeners for item fields when they are created
+                document.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('asset-search') || e.target.classList.contains('item-notes')) {
+                        e.target.classList.remove('border-red-500');
+                        const errorElement = e.target.closest('.space-y-2')?.querySelector('.error-message') ||
+                                             e.target.closest('.relative')?.querySelector('.error-message');
+                        if (errorElement) errorElement.classList.add('hidden');
+                    }
                 });
 
                 document.head.insertAdjacentHTML('beforeend', `
@@ -765,30 +914,160 @@
                         const itemNotes = item.querySelector('.item-notes');
 
                         if (assetId.value) {
+                            const parsedAssetId = parseInt(assetId.value);
+
+                            // Validasi asset_id sebelum mengirim
+                            if (isNaN(parsedAssetId) || parsedAssetId <= 0) {
+                                console.error('Invalid asset_id for item', index, ':', assetId.value);
+                                isValid = false;
+
+                                const assetSearch = item.querySelector('.asset-search');
+                                assetSearch.classList.add('border-red-500');
+                                const errorElement = assetSearch.closest('.relative').querySelector('.error-message');
+                                if (errorElement) {
+                                    errorElement.textContent = 'Asset ID tidak valid';
+                                    errorElement.classList.remove('hidden');
+                                }
+                                return;
+                            }
+
                             data.items.push({
-                                asset_id: parseInt(assetId.value),
+                                asset_id: parsedAssetId,
                                 item_notes: itemNotes.value || ''
                             });
                         }
                     });
 
+                    // Validasi final sebelum submit
+                    if (!isValid || data.items.length === 0) {
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+
+                        if (data.items.length === 0) {
+                            showSweetAlert('Minimal satu aset harus dipilih dengan benar.', 'error');
+                        } else {
+                            showSweetAlert('Terdapat asset ID yang tidak valid. Silakan pilih aset yang benar.', 'error');
+                        }
+                        return;
+                    }
+
                     const isUpdate = isEditMode && officialReportId;
-                    const url = isUpdate
-                        ? `{{ url('official-reports') }}/${officialReportId}`
-                        : '{{ route("official-report.store") }}';
-                    const method = isUpdate ? 'PUT' : 'POST';
+
+                    // Check permissions before submission
+                    @if(!hasPermission('official-report:create') && !hasPermission('official-report:edit'))
+                        showSweetAlert('Anda tidak memiliki izin untuk melakukan operasi ini.', 'error');
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                        return;
+                    @endif
+
+                    @if(hasPermission('official-report:create') && !hasPermission('official-report:edit'))
+                        if (isUpdate) {
+                            showSweetAlert('Anda tidak memiliki izin untuk mengedit berita acara.', 'error');
+                            isSubmitting = false;
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalButtonText;
+                            return;
+                        }
+                    @endif
+
+                    let url, httpMethod;
+
+                    if (isUpdate) {
+                        url = `{{ url('official-reports') }}/${officialReportId}`;
+                        httpMethod = 'PUT';
+                    } else {
+                        url = '{{ route("official-report.store") }}';
+                        httpMethod = 'POST';
+                    }
+
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                    fetch(url, {
+                    // Validate CSRF token
+                    if (!csrfToken) {
+                        showSweetAlert('CSRF token tidak ditemukan. Silakan refresh halaman dan coba lagi.', 'error');
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                        return;
+                    }
+
+                    // Prepare fetch options
+                    const fetchOptions = {
+                        method: httpMethod,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(data)
+                    };
+
+                    // Try direct method first, then fallback to POST with method override
+                    async function submitForm() {
+                        try {
+                            const response = await fetch(url, fetchOptions);
+                            return response;
+                        } catch (error) {
+                            if (isUpdate) {
+                                // Fallback to POST with method override for updates
+                                const fallbackOptions = {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
                             'X-CSRF-TOKEN': csrfToken,
-                            'X-HTTP-Method-Override': method
+                                        'X-HTTP-Method-Override': 'PUT'
                         },
                         body: JSON.stringify(data)
-                    })
-                        .then(response => response.json())
+                                };
+
+                                return await fetch(url, fallbackOptions);
+                            } else {
+                                throw error;
+                            }
+                        }
+                    }
+
+                    submitForm()
+                        .then(response => {
+                            // Check if response is ok and is JSON
+                            if (!response.ok) {
+                                // Try to get the error response body for better debugging
+                                return response.text().then(text => {
+                                    console.error('Error response body:', text);
+                                    let errorData;
+                                    try {
+                                        errorData = JSON.parse(text);
+                                        console.error('Parsed error data:', errorData);
+                                    } catch (e) {
+                                        console.error('Response is not JSON:', text);
+                                        errorData = {
+                                            message: text || `HTTP ${response.status}: ${response.statusText}`,
+                                            status: response.status,
+                                            statusText: response.statusText
+                                        };
+                                    }
+
+                                    // Create a custom error with the parsed data
+                                    const error = new Error('Server Error');
+                                    error.responseData = errorData;
+                                    error.status = response.status;
+                                    throw error;
+                                });
+                            }
+
+                            const contentType = response.headers.get('content-type');
+                            if (!contentType || !contentType.includes('application/json')) {
+                                throw new Error('Server tidak mengembalikan response JSON yang valid');
+                            }
+
+                            return response.json();
+                        })
                         .then(result => {
                             if (result.success) {
                                 showSweetAlert(
@@ -811,21 +1090,241 @@
                                 submitButton.disabled = false;
                                 submitButton.innerHTML = originalButtonText;
 
-                                const errorData = result.errors || result.message || 'Terjadi kesalahan';
-                                let errorMessage = typeof errorData === 'string' ? errorData : 'Terjadi kesalahan saat memproses permintaan Anda';
+                                const errorData = result.errors || [];
+                                let errorMessage = result.message || 'Terjadi kesalahan saat memproses permintaan Anda:';
+                                let errorList = [];
+
+                                // Handle different error response formats
+                                if (typeof errorData === 'string') {
+                                    // Handle when errors is a simple string
+                                    errorMessage = errorData;
+                                } else if (Array.isArray(errorData)) {
+                                    // Handle when errors is an array
+                                    errorData.forEach(error => {
+                                        if (error.path && error.message) {
+                                            errorList.push(`${error.message}`);
+
+                                            // Highlight specific fields based on error path
+                                            if (error.path === 'report_type') {
+                                                highlightFieldError('report_type', error.message);
+                                            } else if (error.path === 'notes') {
+                                                highlightFieldError('notes', error.message);
+                                            } else if (error.path.startsWith('items')) {
+                                                highlightItemsFieldError(error.path, error.message);
+                                            }
+                                        } else if (typeof error === 'string') {
+                                            errorList.push(error);
+                                        }
+                                    });
+                                } else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
+                                    // Handle when errors is an object with field-specific errors
+                                    Object.entries(errorData).forEach(([field, errors]) => {
+                                        if (field === 'report_type' || field === 'notes') {
+                                            highlightFieldError(field, Array.isArray(errors) ? errors[0] : errors);
+                                        }
+
+                                        if (field.includes('items.')) {
+                                            highlightItemsFieldError(field, Array.isArray(errors) ? errors[0] : errors);
+                                        }
+
+                                        if (Array.isArray(errors)) {
+                                            errors.forEach(err => {
+                                                errorList.push(`${err}`);
+                                            });
+                                        } else if (typeof errors === 'string') {
+                                            errorList.push(`${errors}`);
+                                        }
+                                    });
+                                }
+
+                                // If we have errorList items and errorData was not a simple string, format as list
+                                if (errorList.length > 0 && typeof errorData !== 'string') {
+                                    errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                                    errorList.forEach(err => {
+                                        errorMessage += `<li>${err}</li>`;
+                                    });
+                                    errorMessage += '</ul>';
+                                } else if (errorList.length > 0 && typeof errorData === 'string') {
+                                    // If errorData is string but we somehow got errorList, just use the string
+                                    errorMessage = errorData;
+                                }
 
                                 showSweetAlert(errorMessage, 'error');
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
+                            console.error('Catch block - Full error object:', error);
+                            console.error('Error message:', error.message);
+                            console.error('Error responseData:', error.responseData);
+                            console.error('Error status:', error.status);
+
                             isSubmitting = false;
                             submitButton.disabled = false;
                             submitButton.innerHTML = originalButtonText;
 
-                            showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.', 'error');
+                            let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda.';
+                            let errorData = null;
+
+                            // Check if error has responseData (from server error response)
+                            if (error.responseData) {
+                                errorData = error.responseData;
+                            } else {
+                                // Try to parse error data from thrown error message (fallback)
+                                try {
+                                    errorData = JSON.parse(error.message);
+                                } catch (e) {
+                                    // If parsing fails, errorData remains null
+                                    console.log('Could not parse error message as JSON:', error.message);
+                                }
+                            }
+
+                            if (errorData) {
+                                // Handle server error response
+                                if (errorData.errors) {
+                                    let errorList = [];
+
+                                    if (typeof errorData.errors === 'string') {
+                                        // Handle when errors is a simple string
+                                        errorMessage = errorData.errors;
+                                    } else if (Array.isArray(errorData.errors)) {
+                                        // Handle when errors is an array
+                                        errorMessage = 'Terjadi kesalahan validasi:';
+                                        errorData.errors.forEach(error => {
+                                            if (error.path && error.message) {
+                                                errorList.push(`${error.message}`);
+
+                                                // Highlight specific fields based on error path
+                                                if (error.path === 'report_type' || error.path === 'notes') {
+                                                    highlightFieldError(error.path, error.message);
+                                                } else if (error.path.startsWith('items')) {
+                                                    highlightItemsFieldError(error.path, error.message);
+                                                }
+                                            } else if (typeof error === 'string') {
+                                                errorList.push(error);
+                                            }
+                                        });
+                                    } else if (typeof errorData.errors === 'object') {
+                                        // Handle when errors is an object with field-specific errors
+                                        errorMessage = 'Terjadi kesalahan validasi:';
+                                        Object.entries(errorData.errors).forEach(([field, errors]) => {
+                                            if (field === 'report_type' || field === 'notes') {
+                                                highlightFieldError(field, Array.isArray(errors) ? errors[0] : errors);
+                                            }
+
+                                            if (field.includes('items.')) {
+                                                highlightItemsFieldError(field, Array.isArray(errors) ? errors[0] : errors);
+                                            }
+
+                                            if (Array.isArray(errors)) {
+                                                errors.forEach(err => errorList.push(`${err}`));
+                                            } else if (typeof errors === 'string') {
+                                                errorList.push(`${errors}`);
+                                            }
+                                        });
+                                    }
+
+                                    // If we have errorList items and errors was not a simple string, format as list
+                                    if (errorList.length > 0 && typeof errorData.errors !== 'string') {
+                                        errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                                        errorList.forEach(err => {
+                                            errorMessage += `<li>${err}</li>`;
+                                        });
+                                        errorMessage += '</ul>';
+                                    } else if (errorList.length > 0 && typeof errorData.errors === 'string') {
+                                        // If errors is string but we somehow got errorList, just use the string
+                                        errorMessage = errorData.errors;
+                                    }
+                                } else if (errorData.message) {
+                                    errorMessage = errorData.message;
+                                }
+                            } else {
+                                // Handle network/other errors based on error type and status
+                                if (error.status) {
+                                    // Handle specific HTTP status codes
+                                    switch (error.status) {
+                                        case 400:
+                                            errorMessage = 'Permintaan tidak valid. Silakan periksa data yang dimasukkan.';
+                                            break;
+                                        case 401:
+                                            errorMessage = 'Sesi Anda telah berakhir. Silakan login kembali.';
+                                            break;
+                                        case 403:
+                                            errorMessage = 'Anda tidak memiliki izin untuk melakukan operasi ini.';
+                                            break;
+                                        case 404:
+                                            errorMessage = 'Data yang diminta tidak ditemukan.';
+                                            break;
+                                        case 422:
+                                            errorMessage = 'Data yang dimasukkan tidak valid. Silakan periksa kembali.';
+                                            break;
+                                        case 500:
+                                            errorMessage = 'Terjadi kesalahan server internal. Silakan coba lagi atau hubungi administrator.';
+                                            break;
+                                        default:
+                                            errorMessage = `Kesalahan server (${error.status}): ${error.statusText || 'Unknown error'}. Silakan coba lagi.`;
+                                    }
+                                } else if (error.message.includes('JSON')) {
+                                    errorMessage = 'Server mengembalikan response yang tidak valid. Silakan coba lagi atau hubungi administrator.';
+                                } else if (error.message.includes('HTTP')) {
+                                    errorMessage = `Kesalahan server: ${error.message}. Silakan coba lagi.`;
+                                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                                    errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                                } else {
+                                    // For any other errors, try to show the actual error message
+                                    errorMessage = error.message || errorMessage;
+                                }
+                            }
+
+                            showSweetAlert(errorMessage, 'error');
                         });
                 });
+
+                function highlightFieldError(fieldName, errorMessage) {
+                    const field = document.getElementById(fieldName);
+                    if (!field) return;
+
+                    field.classList.add('border-red-500');
+
+                    const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = errorMessage;
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+
+                function highlightItemsFieldError(fieldPath, errorMessage) {
+                    const parts = fieldPath.split('.');
+                    if (parts.length >= 3) {
+                        const index = parseInt(parts[1]);
+                        const subField = parts[2];
+                        const items = itemContainer.querySelectorAll('.item-entry');
+                        if (items[index]) {
+                            let field;
+                            let errorElement;
+
+                            switch (subField) {
+                                case 'asset_id':
+                                    field = items[index].querySelector('.asset-search');
+                                    errorElement = field?.closest('.relative')?.querySelector('.error-message');
+                                    break;
+                                case 'item_notes':
+                                    field = items[index].querySelector('.item-notes');
+                                    errorElement = field?.closest('.space-y-2')?.querySelector('.error-message');
+                                    break;
+                            }
+
+                            if (field) {
+                                field.classList.add('border-red-500');
+                                if (errorElement) {
+                                    errorElement.textContent = errorMessage;
+                                    errorElement.classList.remove('hidden');
+                                }
+                            }
+                        }
+                    } else if (fieldPath === 'items') {
+                        showSweetAlert('Error: ' + errorMessage, 'error');
+                    }
+                }
 
                 document.getElementById('backButton').addEventListener('click', function (e) {
                     if (formHasChanges()) {
