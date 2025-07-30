@@ -290,7 +290,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     });
 
     // Asset routes
-    Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit|document:assign')->group(function () {
+    Route::middleware('permission:asset:view|maintenance:create|maintenance:edit|calibration:create|calibration:edit|complaint:create|complaint:edit|document:assign|official-report:create|official-report:edit')->group(function () {
         // Read operations
         Route::get('/assets', [UnitAssetController::class, 'index'])->name('assets');
         Route::get('/assets/{id}', [UnitAssetController::class, 'getAsset'])->name('assets.get');
@@ -337,21 +337,6 @@ Route::middleware([AuthMiddleware::class])->group(function () {
         Route::post('/asset/checkin', [AssetDetailsController::class, 'checkinAsset'])
             ->name('asset.checkin')
             ->middleware('permission:asset:checkout');
-
-        // Report Lost route
-        Route::post('/asset/lost', [AssetDetailsController::class, 'reportAssetLost'])
-            ->name('asset.lost')
-            ->middleware('permission:asset:report-loss');
-
-        // Report Found route
-        Route::post('/assets/found', [AssetDetailsController::class, 'reportAssetFound'])
-            ->name('asset.found')
-            ->middleware('permission:asset:report-found');
-
-        // Dispose route
-        Route::post('/asset/dispose', [AssetDetailsController::class, 'disposeAsset'])
-            ->name('asset.dispose')
-            ->middleware('permission:asset:dispose');
 
         Route::get('/asset-depreciation/{assetId}', [AssetDepreciationController::class, 'getAssetDepreciation'])
             ->name('asset.depreciation.get')

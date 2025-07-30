@@ -904,9 +904,14 @@
                     // Build request data
                     const data = {
                         report_type: document.getElementById('report_type').value,
-                        notes: document.getElementById('notes').value || '',
                         items: []
                     };
+
+                    // Only include notes field if it has a value
+                    const notesValue = document.getElementById('notes').value.trim();
+                    if (notesValue) {
+                        data.notes = notesValue;
+                    }
 
                     // Collect items data
                     items.forEach((item, index) => {

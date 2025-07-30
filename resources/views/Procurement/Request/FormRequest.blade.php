@@ -370,11 +370,13 @@
                                 'X-Requested-With': 'XMLHttpRequest'
                             }
                         });
+
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
                         }
                         const data = await response.json();
                         const results = data.masterAssets || [];
+
                         loadingElements.forEach(loading => {
                             loading.style.display = 'none';
                         });
@@ -397,15 +399,23 @@
                     const loadMoreLoading = container.querySelector('.asset-master-load-more');
                     const hiddenInput = container.querySelector('.asset-master-id');
 
-                    if (!searchInput || !dropdown || !list || !initialLoading || !loadMoreLoading) return;
+                    // Essential elements check - only abort if critical elements are missing
+                    if (!searchInput || !dropdown || !list || !hiddenInput) {
+                        return;
+                    }
 
                     let page = 1;
                     let hasMore = true;
                     let isLoading = false;
                     let searchTerm = '';
 
+                    // Check if this is edit mode (has existing value)
+                    const isEditMode = hiddenInput.value && hiddenInput.value !== '';
+
                     async function loadAssetMasters(newSearchTerm, reset = true) {
-                        if (isLoading) return;
+                        if (isLoading) {
+                            return;
+                        }
 
                         isLoading = true;
 
@@ -414,11 +424,11 @@
                         if (reset) {
                             searchTerm = newSearchTerm;
                             list.innerHTML = '';
-                            initialLoading.style.display = 'block';
-                            loadMoreLoading.style.display = 'none';
+                            if (initialLoading) initialLoading.style.display = 'block';
+                            if (loadMoreLoading) loadMoreLoading.style.display = 'none';
                         } else {
-                            initialLoading.style.display = 'none';
-                            loadMoreLoading.style.display = 'block';
+                            if (initialLoading) initialLoading.style.display = 'none';
+                            if (loadMoreLoading) loadMoreLoading.style.display = 'block';
                         }
 
                         try {
@@ -456,9 +466,11 @@
                                     updateSelectedAssetMasterIds();
                                     document.querySelectorAll('.asset-master-list li[data-id="' + clickedId + '"]').forEach(otherLi => {
                                         const otherContainer = otherLi.closest('.asset-master-container');
-                                        const otherHidden = otherContainer.querySelector('.asset-master-id');
-                                        if (otherHidden.value != clickedId) {
-                                            otherLi.remove();
+                                        if (otherContainer && otherContainer !== container) {
+                                            const otherHidden = otherContainer.querySelector('.asset-master-id');
+                                            if (otherHidden && otherHidden.value != clickedId) {
+                                                otherLi.remove();
+                                            }
                                         }
                                     });
                                 });
@@ -476,9 +488,10 @@
                                 list.appendChild(noResults);
                             }
                         } catch (error) {
+                            console.error('Error loading asset masters:', error);
                         } finally {
-                            initialLoading.style.display = 'none';
-                            loadMoreLoading.style.display = 'none';
+                            if (initialLoading) initialLoading.style.display = 'none';
+                            if (loadMoreLoading) loadMoreLoading.style.display = 'none';
                             isLoading = false;
                         }
                     }
@@ -497,6 +510,7 @@
                         }
                     });
 
+                    // Add scroll listener for load more
                     dropdown.addEventListener('scroll', () => {
                         if (dropdown.scrollTop + dropdown.clientHeight >= dropdown.scrollHeight - 10 && hasMore && !isLoading) {
                             loadAssetMasters(searchTerm, false);
@@ -525,6 +539,7 @@
 
                 function handleAssetTypeChange(selector, itemEntry) {
                     const assetType = selector.value;
+
                     const assetNameContainer = itemEntry.querySelector('.asset-name-container');
                     const assetMasterContainer = itemEntry.querySelector('.asset-master-container');
                     const assetNameInput = itemEntry.querySelector('.asset-name');
@@ -610,53 +625,64 @@
                                     addItemEntry(0);
                                 }
 
-                                document.querySelectorAll('.item-entry').forEach((entry, index) => {
-                                    const detail = procurement.details[index];
-                                    if (detail) {
-                                        const unitPriceInput = entry.querySelector('.unit-price');
-                                        if (unitPriceInput) {
-                                            let unitPrice = detail.estimated_unit_price || '';
-                                            if (unitPrice !== '') {
-                                                unitPrice = parseFloat(unitPrice).toLocaleString('id-ID').replace(/,/g, '.');
+                                // Wait for all items to be added before setting up asset master search
+                                setTimeout(() => {
+                                    document.querySelectorAll('.item-entry').forEach((entry, index) => {
+                                        const detail = procurement.details[index];
+                                        if (detail) {
+                                            const unitPriceInput = entry.querySelector('.unit-price');
+                                            if (unitPriceInput) {
+                                                let unitPrice = detail.estimated_unit_price || '';
+                                                if (unitPrice !== '') {
+                                                    unitPrice = parseFloat(unitPrice).toLocaleString('id-ID').replace(/,/g, '.');
 
-                                                if (!unitPrice.includes(',')) {
-                                                    unitPrice += ',00';
+                                                    if (!unitPrice.includes(',')) {
+                                                        unitPrice += ',00';
+                                                    }
+
+                                                    unitPriceInput.value = unitPrice;
                                                 }
+                                            }
 
-                                                unitPriceInput.value = unitPrice;
+                                            // Setup asset type and dropdown for edit mode
+                                            const selector = entry.querySelector('.asset-type-selector');
+                                            const assetMasterContainer = entry.querySelector('.asset-master-container');
+
+                                            if (detail.asset_master_id) {
+                                                selector.value = 'existing';
+
+                                                // Show asset master container
+                                                const assetNameContainer = entry.querySelector('.asset-name-container');
+                                                assetNameContainer.classList.add('hidden');
+                                                assetMasterContainer.classList.remove('hidden');
+
+                                                // Set up the search input and hidden field
+                                                const assetMasterSearch = assetMasterContainer.querySelector('.asset-master-search');
+                                                const assetMasterId = assetMasterContainer.querySelector('.asset-master-id');
+
+                                                if (assetMasterSearch && assetMasterId) {
+                                                    assetMasterId.value = detail.asset_master_id;
+                                                    assetMasterSearch.value = detail.asset_name || 'Aset #' + detail.asset_master_id;
+
+                                                    // Re-setup asset master search for this container
+                                                    setupAssetMasterSearch(assetMasterContainer);
+                                                }
+                                            } else {
+                                                selector.value = 'new';
+                                                // Keep asset name container visible, hide master container
+                                                const assetNameContainer = entry.querySelector('.asset-name-container');
+                                                assetNameContainer.classList.remove('hidden');
+                                                assetMasterContainer.classList.add('hidden');
                                             }
                                         }
-                                    }
-                                });
+                                    });
 
-                                updateDeleteButtons();
-                                addAssetTypeSelectorListeners();
+                                    updateDeleteButtons();
+                                    addAssetTypeSelectorListeners();
+                                    updateSelectedAssetMasterIds();
+                                    initializeDeleteButtons();
+                                }, 100);
 
-                                document.querySelectorAll('.item-entry').forEach((entry, index) => {
-                                    const detail = procurement.details[index];
-                                    const selector = entry.querySelector('.asset-type-selector');
-
-                                    if (detail.asset_master_id) {
-                                        selector.value = 'existing';
-
-                                        const assetMasterContainer = entry.querySelector('.asset-master-container');
-                                        const assetMasterSearch = assetMasterContainer.querySelector('.asset-master-search');
-                                        const assetMasterId = assetMasterContainer.querySelector('.asset-master-id');
-
-                                        if (assetMasterSearch && assetMasterId) {
-                                            assetMasterId.value = detail.asset_master_id;
-                                            assetMasterSearch.value = detail.asset_name || 'Aset #' + detail.asset_master_id;
-                                            setupAssetMasterSearch(assetMasterContainer);
-                                        }
-                                    } else {
-                                        selector.value = 'new';
-                                    }
-
-                                    handleAssetTypeChange(selector, entry);
-                                });
-
-                                updateSelectedAssetMasterIds();
-                                initializeDeleteButtons();
                             } else {
                                 showSweetAlert('Gagal memuat data permintaan', 'error');
                             }
@@ -758,6 +784,13 @@
                                                                                                                             <span>Memuat daftar aset...</span>
                                                                                                                         </div>
                                                                                                                         <ul class="asset-master-list py-1"></ul>
+                                                                                                                        <div class="asset-master-load-more p-2 text-gray-500 text-center hidden">
+                                                                                                                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                                                            </svg>
+                                                                                                                            <span>Memuat lebih banyak aset...</span>
+                                                                                                                        </div>
                                                                                                                     </div>
                                                                                                                 </div>
                                                                                                             </div>
@@ -824,6 +857,7 @@
                     });
 
                     const assetMasterContainer = newItem.querySelector('.asset-master-container');
+
                     setupAssetMasterSearch(assetMasterContainer);
 
                     if (data && data.asset_master_id) {

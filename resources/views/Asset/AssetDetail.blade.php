@@ -35,7 +35,7 @@
                             </a>
                         @endif
                     @elseif($asset['current_status'] === 'available')
-                        <!-- When status is available: Check Out, Dispose, Lost, Edit buttons -->
+                        <!-- When status is available: Check Out and Edit buttons -->
                         @if(hasPermission('asset:checkout'))
                             <button type="button" id="checkoutAssetBtn"
                                 class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
@@ -44,26 +44,6 @@
                                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
                                 <span class="hidden md:inline">Pinjam</span>
-                            </button>
-                        @endif
-                        @if(hasPermission('asset:dispose'))
-                            <button type="button" id="disposeAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="hidden md:inline">Hapuskan</span>
-                            </button>
-                        @endif
-                        @if(hasPermission('asset:report-loss'))
-                            <button type="button" id="lostAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <span class="hidden md:inline">Hilang</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:edit'))
@@ -77,7 +57,7 @@
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'check out')
-                        <!-- When status is check out: Check In, Dispose, Lost, Edit buttons -->
+                        <!-- When status is check out: Check In and Edit buttons -->
                         @if(hasPermission('asset:checkout'))
                             <button type="button" id="checkinAssetBtn"
                                 class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
@@ -86,26 +66,6 @@
                                         d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                 </svg>
                                 <span class="hidden md:inline">Kembalikan</span>
-                            </button>
-                        @endif
-                        @if(hasPermission('asset:dispose'))
-                            <button type="button" id="disposeAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="hidden md:inline">Hapuskan</span>
-                            </button>
-                        @endif
-                        @if(hasPermission('asset:report-loss'))
-                            <button type="button" id="lostAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <span class="hidden md:inline">Hilang</span>
                             </button>
                         @endif
                         @if(hasPermission('asset:edit'))
@@ -119,17 +79,7 @@
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'lost')
-                        <!-- When status is lost: Found, Edit buttons -->
-                        @if(hasPermission('asset:report-found'))
-                            <button type="button" id="foundAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <span class="hidden md:inline">Ditemukan</span>
-                            </button>
-                        @endif
+                        <!-- When status is lost: Edit button only -->
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
                                 class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
@@ -141,16 +91,6 @@
                             </button>
                         @endif
                     @elseif($asset['current_status'] === 'under repair')
-                        @if(hasPermission('asset:dispose'))
-                            <button type="button" id="disposeAssetBtn"
-                                class="flex-shrink-0 flex items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-3 border-2 border-[#213268] rounded-lg text-[#213268] hover:bg-[#213268] hover:text-white transition-colors duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="hidden md:inline">Hapuskan</span>
-                            </button>
-                        @endif
                         <!-- When status is under repair: Edit button -->
                         @if(hasPermission('asset:edit'))
                             <button type="button" id="editAssetBtn"
@@ -1253,201 +1193,6 @@
         </div>
     @endif
 
-    <!-- Report Asset as Lost Modal -->
-    @if(hasPermission('asset:report-loss'))
-        <div id="reportLostModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-visible modal-container">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="reportLostModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Laporan Asset Hilang</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Form -->
-                        <form id="reportLostForm" method="POST" action="{{ route('asset.lost') }}" data-no-loading>
-                            @csrf
-                            <div class="p-6">
-                                <div class="space-y-4">
-                                    <!-- Hidden asset ID field -->
-                                    <input type="hidden" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
-
-                                    <!-- Loss Date -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Hilang <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" name="loss_date" id="loss_date" readonly tabindex="-1"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal hilang harus diisi
-                                        </div>
-                                    </div>
-
-                                    <!-- Loss Reason -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Alasan Hilang</label>
-                                        <textarea name="loss_reason" rows="3"
-                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Masukkan detail tentang alasan asset hilang"></textarea>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <button type="submit" id="submitLostReport"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                        Laporan Hilang
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- Found Asset Modal -->
-    @if(hasPermission('asset:report-found'))
-        <div id="foundAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-visible modal-container">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="foundAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Laporan Asset Ditemukan</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Form -->
-                        <form id="foundAssetForm" method="POST" action="{{ route('asset.found') }}" data-no-loading>
-                            @csrf
-                            <div class="p-6">
-                                <div class="space-y-4">
-                                    <!-- Hidden asset ID field -->
-                                    <input type="hidden" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
-
-                                    <!-- Notes -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Catatan Ditemukan</label>
-                                        <textarea name="found_notes" rows="3"
-                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Detail tempat dan cara asset ditemukan"></textarea>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <button type="submit" id="submitFound"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                        Laporan Ditemukan
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- Dispose Asset Modal -->
-    @if(hasPermission('asset:dispose'))
-        <div id="disposeAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-visible modal-container">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="disposeAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Penghapusan Asset</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Form -->
-                        <form id="disposeAssetForm" method="POST" action="{{ route('asset.dispose') }}" data-no-loading>
-                            @csrf
-                            <div class="p-6">
-                                <div class="space-y-4">
-                                    <!-- Hidden asset ID field -->
-                                    <input type="hidden" name="asset_id" value="{{ $asset['asset_id'] ?? '' }}">
-                                    <input type="hidden" name="transfer_type" value="DISPOSAL">
-
-                                    <!-- Dispose Date -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Tanggal Penghapusan <span
-                                                class="text-red-500">*</span></label>
-                                        <input type="text" name="dispose_date" id="dispose_date" readonly tabindex="-1"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268]"
-                                            value="{{ date('Y-m-d') }}" placeholder="Tanggal Hari Ini">
-                                    </div>
-
-                                    <!-- Disposal Method -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Metode Penghapusan <span
-                                                class="text-red-500">*</span></label>
-                                        <select name="disposal_method"
-                                            class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]">
-                                            <option value="SOLD">Terjual</option>
-                                            <option value="DONATED">Donasi</option>
-                                            <option value="RECYCLED">Daur Ulang</option>
-                                            <option value="DESTROYED">Hancurkan</option>
-                                            <option value="OTHER">Lainnya</option>
-                                        </select>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan pilih metode
-                                            penghapusan</div>
-                                    </div>
-
-                                    <!-- Disposal Reason -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Alasan Penghapusan <span
-                                                class="text-red-500">*</span></label>
-                                        <textarea name="disposal_reason" rows="3"
-                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Masukkan alasan penghapusan"></textarea>
-                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Silakan masukkan alasan
-                                            penghapusan</div>
-                                    </div>
-
-                                    <!-- Additional Notes -->
-                                    <div class="space-y-2">
-                                        <label class="block text-base font-medium text-[#666666]">Catatan Tambahan</label>
-                                        <textarea name="disposal_notes" rows="3"
-                                            class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-black focus:outline-none focus:border-[#213268]"
-                                            placeholder="Masukkan informasi tambahan tentang penghapusan"></textarea>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <button type="submit" id="submitDispose"
-                                        class="w-full h-[45px] bg-[#213268] text-white rounded-lg text-base hover:bg-[#152451] transform active:scale-[0.98] transition-all duration-200">
-                                        Penghapusan Asset
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <style>
         /* Flip card styling */
         .flip-card-container {
@@ -1725,9 +1470,7 @@
                     // Read-only date fields (with today's date)
                     const readonlyDateFields = [
                         'checkout_date',
-                        'return_date',
-                        'loss_date',
-                        'dispose_date'
+                        'return_date'
                     ];
 
                     readonlyDateFields.forEach(fieldId => {
@@ -1852,23 +1595,7 @@
                     });
                 @endif
 
-                @if(!hasPermission('asset:dispose'))
-                    document.querySelectorAll('#disposeAssetBtn').forEach(btn => {
-                        if (btn) btn.style.display = 'none';
-                    });
-                @endif
 
-                @if(!hasPermission('asset:report-loss'))
-                    document.querySelectorAll('#lostAssetBtn').forEach(btn => {
-                        if (btn) btn.style.display = 'none';
-                    });
-                @endif
-
-                @if(!hasPermission('asset:report-found'))
-                    document.querySelectorAll('#foundAssetBtn').forEach(btn => {
-                        if (btn) btn.style.display = 'none';
-                    });
-                @endif
                 }
 
             initializeButtons();
@@ -2057,15 +1784,7 @@
                         case 'checkinAssetModal':
                             resetCheckinForm(form);
                             break;
-                        case 'reportLostModal':
-                            resetLostForm(form);
-                            break;
-                        case 'foundAssetModal':
-                            resetFoundForm(form);
-                            break;
-                        case 'disposeAssetModal':
-                            resetDisposeForm(form);
-                            break;
+
                         default:
                             resetGenericForm(form);
                     }
@@ -2178,35 +1897,7 @@
                 }
             }
 
-            function resetLostForm(form) {
-                resetGenericForm(form);
 
-                // Reset date using Flatpickr if available
-                const dateField = document.getElementById('loss_date');
-                if (dateField && dateField._flatpickr) {
-                    const today = new Date();
-                    dateField._flatpickr.setDate(today);
-                } else if (dateField) {
-                    dateField.value = new Date().toISOString().split('T')[0];
-                }
-            }
-
-            function resetFoundForm(form) {
-                resetGenericForm(form);
-            }
-
-            function resetDisposeForm(form) {
-                resetGenericForm(form);
-
-                // Reset date using Flatpickr if available
-                const dateField = document.getElementById('dispose_date');
-                if (dateField && dateField._flatpickr) {
-                    const today = new Date();
-                    dateField._flatpickr.setDate(today);
-                } else if (dateField) {
-                    dateField.value = new Date().toISOString().split('T')[0];
-                }
-            }
 
             function fetchWithAuth(url, method, data, successCallback, errorCallback) {
                 const options = {
@@ -3313,12 +3004,6 @@
                             modalObj.form.action = "{{ route('asset.checkout') }}";
                         } else if (modalObj.form.id === 'checkinAssetForm') {
                             modalObj.form.action = "{{ route('asset.checkin') }}";
-                        } else if (modalObj.form.id === 'reportLostForm') {
-                            modalObj.form.action = "{{ route('asset.lost') }}";
-                        } else if (modalObj.form.id === 'foundAssetForm') {
-                            modalObj.form.action = "{{ route('asset.found') }}";
-                        } else if (modalObj.form.id === 'disposeAssetForm') {
-                            modalObj.form.action = "{{ route('asset.dispose') }}";
                         }
 
                         const closeBtn = modalObj.modal.querySelector('.close-modal');

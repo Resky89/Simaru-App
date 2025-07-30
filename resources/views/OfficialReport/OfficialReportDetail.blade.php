@@ -471,7 +471,29 @@
                             $hasAlreadyApproved = true;
                             }
                         }
+
+                        // Check if report has been approved by anyone
+                        $isApproved = ($official_report['approval_1_status'] == 'APPROVED' ||
+                                      $official_report['approval_2_status'] == 'APPROVED');
                     @endphp
+
+                    <!-- Basic Actions Card -->
+                    @if(hasPermission('official-report:edit') && !$isApproved)
+                        <div class="card bg-base-100 shadow-xl mb-6">
+                            <div class="card-body p-4 md:p-7">
+                                <h2 class="text-xl font-semibold text-[#213268] mb-4">Aksi Dasar</h2>
+                                <div class="space-y-3">
+                                    <a href="{{ route('official-report.edit', $official_report['official_report_id']) }}"
+                                       class="w-full block px-4 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit Berita Acara
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     @php
                         // Separate conditions for approve and reject buttons

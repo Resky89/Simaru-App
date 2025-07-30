@@ -17,7 +17,6 @@
             <!-- Filter for asset type -->
             <select id="asset-type-filter"
                 class="text-xs sm:text-sm border border-gray-300 rounded-md px-3 py-1.5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#213268] focus:border-transparent">
-                <option value="all">Semua Jenis</option>
                 <option value="medical">Medis</option>
                 <option value="non_medical">Non Medis</option>
             </select>

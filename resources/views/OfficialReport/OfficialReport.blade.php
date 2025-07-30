@@ -199,8 +199,11 @@
                                                     </svg>
                                                 </a>
 
-                                                @if(hasPermission('official-report:edit') && in_array($report['status'], ['PENDING', 'SUBMITTED']))
-                                                    <a href="{{ route('official-report.edit', $report['official_report_id']) }}"
+                                                @if(hasPermission('official-report:edit') &&
+                                                $report['status'] !== 'APPROVED' &&
+                                                (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
+                                                (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
+                                                                <a href="{{ route('official-report.edit', $report['official_report_id']) }}"
                                                         class="p-2 bg-[#FEF9CF] text-[#7B5804] rounded-md hover:bg-yellow-200 transition-colors"
                                                         title="Edit Berita Acara">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -212,9 +215,9 @@
                                                 @endif
 
                                                 @if(hasPermission('official-report:delete') &&
-                                    $report['status'] !== 'APPROVED' &&
-                                    (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
-                                    (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
+                                                $report['status'] !== 'APPROVED' &&
+                                                (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
+                                                (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
                                                     <button
                                                         class="delete-report-btn p-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
                                                         data-report-id="{{ $report['official_report_id'] }}"

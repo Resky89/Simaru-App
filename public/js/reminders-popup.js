@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // State
     let currentTab = 'calibration'; // calibration or maintenance
     let currentCategory = 'today';  // today, one_to_fourteen_days, etc.
-    let assetType = 'all';          // all, medical, non_medical
+    let assetType = 'medical';      // medical, non_medical
     let isRemindersLoaded = false;
     let isLoading = false;
     let isModalOpen = false;
@@ -377,9 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const page = currentPage[currentTab][currentCategory];
 
         const params = new URLSearchParams();
-        if (assetType !== 'all') {
-            params.append('asset_type', assetType);
-        }
+        params.append('asset_type', assetType);
         params.append('page', page);
         params.append('limit', itemsPerPage);
         params.append('category', currentCategory);

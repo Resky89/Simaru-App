@@ -835,7 +835,7 @@
                                             <li>Format file yang didukung: .xlsx, .xls, .csv</li>
                                         </ul>
                                         <div class="mt-3 flex justify-end">
-                                            <a href="{{ asset('docs/ImportAssetMasterTemplate.xlsx') }}" download
+                                            <a href="{{ asset('docs/ImportAsetMasterTemplate.xlsx') }}" download
                                                 class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-[#213268] rounded-md hover:bg-[#152451] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                                     xmlns="http://www.w3.org/2000/svg">
