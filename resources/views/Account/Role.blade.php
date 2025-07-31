@@ -864,6 +864,7 @@
                                 case 'dashboard': group = 'Dashboard'; break;
                                 case 'document': group = 'Dokumen'; break;
                                 case 'mobile': group = 'Aplikasi Mobile'; break;
+                                case 'official-report': group = 'Berita Acara'; break;
                                 case 'price-comparison': group = 'Perbandingan Harga'; break;
                                 case 'procurement': group = 'Permintaan Pengadaan'; break;
                                 case 'purchase-order': group = 'Pemesanan'; break;
@@ -1009,6 +1010,24 @@
                                     displayName = 'Lihat Keluhan';
                                 } else {
                                     displayName = 'Keluhan';
+                                }
+                            }
+                            // Khusus untuk berita acara/official-report
+                            else if (permission.permission_name.includes('official-report')) {
+                                if (permission.permission_name.includes('create')) {
+                                    displayName = 'Tambah Berita Acara';
+                                } else if (permission.permission_name.includes('edit')) {
+                                    displayName = 'Ubah Berita Acara';
+                                } else if (permission.permission_name.includes('delete')) {
+                                    displayName = 'Hapus Berita Acara';
+                                } else if (permission.permission_name.includes('approve')) {
+                                    displayName = 'Setujui Berita Acara';
+                                } else if (permission.permission_name.includes('reject')) {
+                                    displayName = 'Tolak Berita Acara';
+                                } else if (permission.permission_name.includes('view')) {
+                                    displayName = 'Lihat Berita Acara';
+                                } else {
+                                    displayName = 'Berita Acara';
                                 }
                             }
                             // Khusus untuk dokumen
