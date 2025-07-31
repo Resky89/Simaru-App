@@ -3510,10 +3510,10 @@
                                 })
                                 .then(data => {
                                     if (data.success) {
-                                        const statusCell = button.closest('tr').querySelector('td:nth-child(7) span');
+                                        const statusCell = button.closest('tr').querySelector('td:nth-child(6) span');
                                         if (statusCell) {
                                             statusCell.textContent = 'Dalam Proses';
-                                            statusCell.className = 'px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800';
+                                            statusCell.className = 'px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800 whitespace-nowrap';
                                         }
 
                                         button.setAttribute('data-status', 'in progress');
@@ -3728,9 +3728,28 @@
                                 if (data.success) {
                                     showToast(data.message || 'Laporan pemeliharaan berhasil dibuat', 'success');
 
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1500);
+                                    // Update status badge to "Selesai" immediately without page reload
+                                    const maintenanceId = document.getElementById('report_maintenance_id').value;
+                                    const createReportBtn = document.querySelector(`.create-report-btn[data-id="${maintenanceId}"]`);
+
+                                    if (createReportBtn) {
+                                        const currentRow = createReportBtn.closest('tr');
+                                        const statusCell = currentRow.querySelector('td:nth-child(6) span');
+
+                                        if (statusCell) {
+                                            statusCell.textContent = 'Selesai';
+                                            statusCell.className = 'px-2 py-1 rounded text-xs bg-green-100 text-green-800 whitespace-nowrap';
+                                        }
+
+                                        // Hide the create report button since maintenance is now finished
+                                        createReportBtn.style.display = 'none';
+
+                                        // Also hide edit button if it exists (maintenance is finished)
+                                        const editBtn = currentRow.querySelector('.edit-maintenance-btn');
+                                        if (editBtn) {
+                                            editBtn.style.display = 'none';
+                                        }
+                                    }
                                 } else {
                                     const submitBtn = this.querySelector('button[type="submit"]');
                                     resetButton(submitBtn);
