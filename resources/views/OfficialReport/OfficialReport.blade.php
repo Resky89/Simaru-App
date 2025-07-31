@@ -123,7 +123,24 @@
                                         </td>
                                         <!-- Tanggal Rilis -->
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
-                                            {{ $report['release_date'] !== 'N/A' ? $report['release_date'] : '-' }}
+                                            @if($report['release_date'] !== 'N/A' && $report['release_date'])
+                                                @php
+                                                    try {
+                                                        // Handle DD-MM-YYYY format
+                                                        if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $report['release_date'])) {
+                                                            $releaseDate = \Carbon\Carbon::createFromFormat('d-m-Y', $report['release_date']);
+                                                        } else {
+                                                            // Handle other formats
+                                                            $releaseDate = \Carbon\Carbon::parse($report['release_date']);
+                                                        }
+                                                        echo $releaseDate->locale('id')->isoFormat('D MMMM YYYY');
+                                                    } catch (\Exception $e) {
+                                                        echo $report['release_date'];
+                                                    }
+                                                @endphp
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <!-- Tipe -->
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
@@ -201,6 +218,7 @@
 
                                                 @if(hasPermission('official-report:edit') &&
                                                 $report['status'] !== 'APPROVED' &&
+                                                $report['status'] !== 'REJECTED' &&
                                                 (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
                                                 (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
                                                                 <a href="{{ route('official-report.edit', $report['official_report_id']) }}"
@@ -216,6 +234,7 @@
 
                                                 @if(hasPermission('official-report:delete') &&
                                                 $report['status'] !== 'APPROVED' &&
+                                                $report['status'] !== 'REJECTED' &&
                                                 (!isset($report['approval_1_status']) || $report['approval_1_status'] !== 'APPROVED') &&
                                                 (!isset($report['approval_2_status']) || $report['approval_2_status'] !== 'APPROVED'))
                                                     <button

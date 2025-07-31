@@ -478,7 +478,7 @@
                     @endphp
 
                     <!-- Basic Actions Card -->
-                    @if(hasPermission('official-report:edit') && !$isApproved)
+                    @if(hasPermission('official-report:edit') && !$isApproved && $official_report['status'] !== 'REJECTED')
                         <div class="card bg-base-100 shadow-xl mb-6">
                             <div class="card-body p-4 md:p-7">
                                 <h2 class="text-xl font-semibold text-[#213268] mb-4">Aksi Dasar</h2>
@@ -501,7 +501,11 @@
                                      ($official_report['status'] == 'SUBMITTED') &&
                                      hasPermission('official-report:approve');
 
+                        // Hide reject button if approval 1 is already approved
+                        $approval1IsApproved = ($official_report['approval_1_status'] == 'APPROVED');
+
                         $canReject = hasPermission('official-report:reject') &&
+                                    !$approval1IsApproved && // Don't show reject button if approval 1 is already approved
                                     (($official_report['status'] == 'SUBMITTED') ||
                                      ($hasAlreadyApproved && $official_report['status'] == 'APPROVED'));
                     @endphp
@@ -807,91 +811,12 @@
                                 </div>
                             `;
 
-                            // Check if this is the reject form - use JSON for reject
+                            // Skip reject form as it has custom handling
                             if (this.id === 'rejectOfficialReportForm') {
-                                const reportId = document.getElementById('rejectReportId').value;
+                                return;
+                            }
 
-                                const data = {
-                                    report_id: reportId
-                                };
-
-                                fetch(this.action, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-Requested-With': 'XMLHttpRequest',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                                    },
-                                    body: JSON.stringify(data)
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
-
-                                    if (data.success) {
-                                        const modal = form.closest('[id$="Modal"]');
-                                        closeModal(modal, modal.querySelector('[id$="ModalContent"]'));
-                                        clearModalForms(modal);
-                                        showToast(data.message || successMessage, 'success');
-
-                                        setTimeout(() => {
-                                            if (redirectToIndex) {
-                                                window.location.href = "{{ route('official-report.index') }}";
-                                            } else {
-                                                window.location.reload();
-                                            }
-                                        }, 1000);
-                                    } else {
-                                        // Parse error response with comprehensive error handling
-                                        const errorData = data.errors || [];
-                                        let errorMessage = data.message || 'Terjadi kesalahan saat memproses permintaan';
-
-                                        // Handle different error response formats - display directly without lists
-                                        if (typeof errorData === 'string') {
-                                            errorMessage = errorData;
-                                        } else if (Array.isArray(errorData)) {
-                                            if (errorData.length > 0) {
-                                                if (errorData[0].message) {
-                                                    errorMessage = errorData[0].message;
-                                                } else if (typeof errorData[0] === 'string') {
-                                                    errorMessage = errorData[0];
-                                                }
-                                            }
-                                        } else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
-                                            const firstError = Object.values(errorData)[0];
-                                            if (Array.isArray(firstError)) {
-                                                errorMessage = firstError[0];
-                                            } else if (typeof firstError === 'string') {
-                                                errorMessage = firstError;
-                                            }
-                                        }
-
-                                        showToast(errorMessage, 'error');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    submitBtn.disabled = false;
-                                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                    submitBtn.innerHTML = originalText;
-
-                                    let errorMessage = 'Terjadi kesalahan saat menghubungi server';
-
-                                    // Provide more specific error messages based on error type
-                                    if (error.message.includes('JSON')) {
-                                        errorMessage = 'Server mengembalikan response yang tidak valid. Silakan coba lagi atau hubungi administrator.';
-                                    } else if (error.message.includes('HTTP')) {
-                                        errorMessage = `Kesalahan server: ${error.message}. Silakan coba lagi.`;
-                                    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                                        errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
-                                    }
-
-                                    showToast(errorMessage, 'error');
-                                });
-                            } else {
-                                // Use FormData for other forms
+                            // Use FormData for other forms (approve form)
                                 const formData = new FormData(this);
 
                             fetch(this.action, {
@@ -968,7 +893,6 @@
 
                                 showToast(errorMessage, 'error');
                             });
-                            }
                         }
                     });
                 }
@@ -982,13 +906,15 @@
                         event.preventDefault();
 
                         const submitBtn = this.querySelector('button[type="submit"]');
+                        if (!submitBtn) return;
+
                         const originalText = submitBtn.innerHTML;
                         const isCancelApproval = submitBtn.textContent.includes('Batalkan');
                         const successMessage = isCancelApproval ?
                             'Persetujuan berhasil dibatalkan' :
                             'Berita acara berhasil ditolak';
 
-                        if (submitBtn) {
+                        // Show loading state
                             submitBtn.disabled = true;
                             submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                             submitBtn.innerHTML = `
@@ -998,23 +924,27 @@
                                 </div>
                             `;
 
-                            const reportId = document.getElementById('rejectReportId').value;
-                            const data = { report_id: reportId };
+                        const reportId = document.getElementById('rejectReportId').value;
+                        const data = { report_id: reportId };
 
-                            fetch(this.action, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                                },
-                                body: JSON.stringify(data)
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = originalText;
+                        fetch(this.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => {
+                            // Always try to parse JSON response, even if status is not ok
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                            submitBtn.innerHTML = originalText;
 
                                 if (data.success) {
                                     const modal = this.closest('[id$="Modal"]');
@@ -1026,17 +956,20 @@
                                         window.location.reload();
                                     }, 1000);
                                 } else {
-                                    // Parse error response
+                                    // Parse error response with comprehensive error handling (same as approve form)
                                     const errorData = data.errors || [];
                                     let errorMessage = data.message || 'Terjadi kesalahan saat memproses permintaan';
 
+                                    // Handle different error response formats - display directly without lists
                                     if (typeof errorData === 'string') {
                                         errorMessage = errorData;
-                                    } else if (Array.isArray(errorData) && errorData.length > 0) {
-                                        if (errorData[0].message) {
-                                            errorMessage = errorData[0].message;
-                                        } else if (typeof errorData[0] === 'string') {
-                                            errorMessage = errorData[0];
+                                    } else if (Array.isArray(errorData)) {
+                                        if (errorData.length > 0) {
+                                            if (errorData[0].message) {
+                                                errorMessage = errorData[0].message;
+                                            } else if (typeof errorData[0] === 'string') {
+                                                errorMessage = errorData[0];
+                                            }
                                         }
                                     } else if (typeof errorData === 'object' && Object.keys(errorData).length > 0) {
                                         const firstError = Object.values(errorData)[0];
@@ -1052,11 +985,15 @@
                             })
                             .catch(error => {
                                 console.error('Error:', error);
+
+                                // Reset button state
                                 submitBtn.disabled = false;
                                 submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                                 submitBtn.innerHTML = originalText;
 
                                 let errorMessage = 'Terjadi kesalahan saat menghubungi server';
+
+                                // Provide more specific error messages based on error type
                                 if (error.message.includes('JSON')) {
                                     errorMessage = 'Server mengembalikan response yang tidak valid. Silakan coba lagi atau hubungi administrator.';
                                 } else if (error.message.includes('HTTP')) {
@@ -1067,6 +1004,23 @@
 
                                 showToast(errorMessage, 'error');
                             });
+                    });
+                }
+
+                // Direct event listener for modal submit button as backup
+                const rejectModalSubmitBtn = document.getElementById('rejectModalSubmitBtn');
+                if (rejectModalSubmitBtn) {
+                    rejectModalSubmitBtn.addEventListener('click', function(event) {
+                        // Force form submission if not automatically triggered
+                        event.preventDefault();
+                        const form = document.getElementById('rejectOfficialReportForm');
+                        if (form) {
+                            // Create and dispatch a submit event
+                            const submitEvent = new Event('submit', {
+                                bubbles: true,
+                                cancelable: true
+                            });
+                            form.dispatchEvent(submitEvent);
                         }
                     });
                 }
@@ -1134,6 +1088,8 @@
                             border-color: #f56565 !important;
                             box-shadow: 0 0 0 1px #f56565 !important;
                         }
+
+
                     </style>
                 `);
 
