@@ -2367,6 +2367,16 @@
                         window.openModal = function (modal, content) {
                             if (!modal || !content) return;
 
+                            // Special check for printQR modal - prevent opening if no assets selected
+                            if (modal.id === 'printQRModal') {
+                                const checkedAssets = document.querySelectorAll('.asset-checkbox:checked');
+                                if (checkedAssets.length === 0) {
+                                    console.log('Preventing printQR modal from opening - no assets selected');
+                                    showToast('Silakan pilih setidaknya satu aset untuk mencetak kode QR.', 'error');
+                                    return; // Don't open the modal
+                                }
+                            }
+
                             modal.classList.remove('hidden');
                             setTimeout(() => {
                                 content.classList.add('opacity-100', 'scale-100', 'translate-y-0');
@@ -2963,20 +2973,24 @@
                                 });
                             }
 
-                            document.getElementById('printQRBtn')?.addEventListener('click', function () {
+                            document.getElementById('printQRBtn')?.addEventListener('click', function (e) {
+                                // Prevent any default behavior
+                                e.preventDefault();
+                                e.stopPropagation();
+
                                 const checkedAssets = document.querySelectorAll('.asset-checkbox:checked');
                                 const assetIds = Array.from(checkedAssets).map(checkbox => checkbox.getAttribute('data-asset-id'));
 
-                                if (assetIds.length === 0) {
-                                    showToast('Silakan pilih setidaknya satu aset untuk mencetak kode QR.', 'error');
-                                    return;
-                                }
-
+                                // Set the asset IDs for the form (openModal will validate if assets are selected)
                                 document.getElementById('printQRAssetIds').value = assetIds.join(',');
 
+                                // Try to open modal - openModal function will check if assets are selected
                                 const printQRModal = document.getElementById('printQRModal');
                                 const printQRModalContent = document.getElementById('printQRModalContent');
-                                openModal(printQRModal, printQRModalContent);
+
+                                if (printQRModal && printQRModalContent) {
+                                    openModal(printQRModal, printQRModalContent);
+                                }
                             });
 
                             document.getElementById('select-all-assets')?.addEventListener('change', function () {
@@ -4040,7 +4054,7 @@
                                     return null;
                                 };
 
-                                item.asset_name = getValue(['Nama Master Aset', 'asset name', 'nama aset', 'nama_aset', 'nama asset']);
+                                item.asset_name = getValue(['Nama Master Aset', 'asset name', 'nama aset', 'nama_aset', 'nama asset', 'Nama Aset Master']);
                                 item.serial_number = getValue(['Nomor Seri', 'serial number', 'serialnumber', 'serial', 'nomor serial']);
                                 item.brand_name = getValue(['Merk', 'brand name', 'brand', 'merk', 'nama merk']);
                                 item.model = getValue(['model', 'model', 'model', 'model']);

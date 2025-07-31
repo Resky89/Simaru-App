@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const isMobile = () => window.innerWidth < 640;
 
     // Interval translations
-    const intervalTranslations = {
+    /* const intervalTranslations = {
         'ONCE': 'Sekali',
         'DAILY': 'Harian',
         'WEEKLY': 'Mingguan',
@@ -65,12 +65,12 @@ document.addEventListener('DOMContentLoaded', function() {
         '4 MONTHS': '4 Bulan',
         '6 MONTHS': '6 Bulan',
         'YEARLY': 'Tahunan'
-    };
+    }; */
 
     // Helper function to translate intervals
-    function translateInterval(interval) {
+    /* function translateInterval(interval) {
         return intervalTranslations[interval] || interval;
-    }
+    } */
 
     // Format date to Indonesian format
     function formatDate(dateString) {
@@ -508,8 +508,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentTab === 'maintenance') {
                 rowHTML += `
                     <td class="px-4 py-3 text-sm text-gray-600">${item.assigned_to || '-'}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600">${translateInterval(item.interval) || '-'}</td>
                 `;
+                /* rowHTML += `
+                    <td class="px-4 py-3 text-sm text-gray-600">${translateInterval(item.interval) || '-'}</td>
+                `; */
             }
 
             row.innerHTML = rowHTML;
@@ -552,11 +554,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="info-label">Penanggung Jawab:</div>
                         <div class="info-value">${item.assigned_to || '-'}</div>
                     </div>
+                `;
+                /* cardContent += `
                     <div class="info-row">
                         <div class="info-label">Interval:</div>
                         <div class="info-value">${translateInterval(item.interval) || '-'}</div>
                     </div>
-                `;
+                `; */
             }
 
             cardContent += `</div>`;

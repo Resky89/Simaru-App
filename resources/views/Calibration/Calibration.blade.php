@@ -1182,6 +1182,31 @@
                     });
                 }
 
+                // Special flatpickr for edit modal without minDate restriction
+                function initFlatpickrEdit(dateInput, isReadonly = false) {
+                    if (!dateInput) return;
+
+                    return flatpickr(dateInput, {
+                        locale: 'id',
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "j F Y",
+                        disableMobile: true,
+                        allowInput: true,
+                        onReady: function(selectedDates, dateStr, instance) {
+                            if (instance.altInput) {
+                                instance.altInput.style.width = "100%";
+                                instance.altInput.style.display = "block";
+                                const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                                if (parentWrapper) {
+                                    parentWrapper.style.width = "100%";
+                                    parentWrapper.style.display = "block";
+                                }
+                            }
+                        }
+                    });
+                }
+
                 // Initialize date inputs
                 const dateInputs = ['planning_calibration_date', 'actual_calibration_date', 'next_calibration_date'];
                 dateInputs.forEach(id => {
@@ -3072,7 +3097,6 @@
 
                         const today = new Date().toISOString().split('T')[0];
                         const planningDateInput = document.getElementById('edit_planning_calibration_date');
-                        planningDateInput.setAttribute('min', today);
                         const errorMessage = document.querySelector('#editScheduleModal .error-message');
                         const dateErrorMessage = document.querySelector('#editScheduleModal .date-error-message');
                         if (errorMessage) errorMessage.classList.add('hidden');
@@ -3093,19 +3117,18 @@
                             .then(data => {
                                 if (data.success && data.data) {
                                     const calibration = data.data;
-                                    // Initialize flatpickr for planning date input
-                                const plannedDate = calibration.planning_calibration_date >= today ?
-                                    calibration.planning_calibration_date : today;
-                                const fpPlanning = initFlatpickr(planningDateInput);
-                                fpPlanning.setDate(plannedDate);
+                                    // Initialize flatpickr for planning date input without minDate restriction
+                                    const fpPlanning = initFlatpickrEdit(planningDateInput);
+                                    // Always show the original date from database, even if it's in the past
+                                    fpPlanning.setDate(calibration.planning_calibration_date);
                                 } else {
                                     console.error('Failed to get calibration data:', data);
-                                    planningDateInput.value = today;
+                                    planningDateInput.value = '';
                                 }
                             })
                             .catch(error => {
                                 console.error('Error fetching calibration data:', error);
-                                planningDateInput.value = today;
+                                planningDateInput.value = '';
                                 showToast(`Error loading calibration data: ${error.message}`, 'error');
                             });
 

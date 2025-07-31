@@ -186,7 +186,7 @@
         <thead>
             <tr>
                 <th>Aset</th>
-                <th>Interval</th>
+                {{-- <th>Interval</th> --}}
                 <th>Tanggal Mulai</th>
                 <th>Tanggal Selesai</th>
                 <th>Ditugaskan Kepada</th>
@@ -202,7 +202,7 @@
                         <div class="asset-name">{{ $maintenance['asset_name'] ?? '-' }}</div>
                         <div class="asset-code">Kode: {{ $maintenance['asset_code'] ?? '-' }}</div>
                     </td>
-                    <td>
+                    {{-- <td>
                         @php
                             $intervalText = '-';
                             $interval = $maintenance['interval'] ?? '';
@@ -229,7 +229,7 @@
                             }
                         @endphp
                         {{ $intervalText }}
-                    </td>
+                    </td> --}}
                     <td>{{ isset($maintenance['start_date']) ? translateMonth($maintenance['start_date']) : '-' }}</td>
                     <td>{{ isset($maintenance['end_date']) ? translateMonth($maintenance['end_date']) : '-' }}</td>
                     <td>{{ $maintenance['assigned_to_employee_name'] ?? $maintenance['assigned_to'] ?? '-' }}</td>

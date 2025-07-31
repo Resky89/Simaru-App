@@ -45,7 +45,8 @@
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="relative flex-grow">
                             <input type="text" id="searchInput"
-                                placeholder="Cari berdasarkan nama aset, interval, atau status..."
+                                placeholder="Cari berdasarkan nama aset atau status..."
+                                {{-- placeholder="Cari berdasarkan nama aset, interval, atau status..." --}}
                                 class="w-full h-[45px] px-4 pr-10 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +79,7 @@
                             <thead>
                                 <tr>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Aset</th>
-                                    <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Interval</th>
+                                    {{-- <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Interval</th> --}}
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Mulai</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Tanggal Selesai</th>
                                     <th class="bg-[#213268] text-white p-3 font-bold text-xs text-left">Ditugaskan Ke</th>
@@ -97,7 +98,7 @@
                                                 <span class="text-gray-500">Kode: {{ $maintenance['asset_code'] ?? '-' }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-3 text-xs border-t border-[#EEF1F4]">
+                                        {{-- <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             @php
                                                 $intervalText = '-';
                                                 $interval = $maintenance['interval'] ?? '';
@@ -124,7 +125,7 @@
                                                 }
                                             @endphp
                                             {{ $intervalText }}
-                                        </td>
+                                        </td> --}}
                                         <td class="p-3 text-xs border-t border-[#EEF1F4]">
                                             {{ isset($maintenance['start_date']) ? \Carbon\Carbon::parse($maintenance['start_date'])->locale('id')->isoFormat('D MMMM Y') : '-' }}
                                         </td>
@@ -366,7 +367,7 @@
 
                                         <!-- Schedule Dates -->
                                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4">
-                                            <div class="flex items-center gap-4">
+                                            {{-- <div class="flex items-center gap-4">
                                                 <div class="min-w-[150px]">
                                                     <label class="block text-base font-semibold text-[#213268]">
                                                         INTERVAL<span class="text-red-500">*</span>
@@ -389,7 +390,7 @@
                                                     </select>
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Interval harus dipilih</div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             <div class="flex items-center gap-4">
                                                 <div class="min-w-[150px]">
@@ -398,7 +399,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <input type="date" name="start_date" id="start_date"
+                                                    <input type="date" name="start_date" id="start_date" placeholder="Pilih tanggal"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                         >
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal mulai diperlukan</div>
@@ -412,7 +413,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <input type="date" name="end_date" id="end_date"
+                                                    <input type="date" name="end_date" id="end_date" placeholder="Pilih tanggal"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200"
                                                         >
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal selesai diperlukan</div>
@@ -745,7 +746,7 @@
 
                                         <!-- Schedule Information -->
                                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-4 mb-6">
-                                            <!-- Interval -->
+                                            {{-- <!-- Interval -->
                                             <div class="flex items-center gap-4">
                                                 <div class="min-w-[150px]">
                                                     <label for="edit_interval" class="block text-base font-semibold text-[#213268]">
@@ -768,7 +769,7 @@
                                                     </select>
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Interval harus dipilih</div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             <!-- Start Date -->
                                             <div class="flex items-center gap-4">
@@ -778,7 +779,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <input type="date" id="edit_start_date" name="start_date"
+                                                    <input type="date" id="edit_start_date" name="start_date" placeholder="Pilih tanggal"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal mulai diperlukan</div>
                                                 </div>
@@ -792,7 +793,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <input type="date" id="edit_end_date" name="end_date"
+                                                    <input type="date" id="edit_end_date" name="end_date" placeholder="Pilih tanggal"
                                                         class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                                                     <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal selesai diperlukan</div>
                                                 </div>
@@ -989,13 +990,13 @@
                                                             readonly>
                                                     </div>
 
-                                                    <!-- Interval -->
+                                                    {{-- <!-- Interval -->
                                                     <div>
                                                         <label class="block text-sm font-medium text-gray-700">INTERVAL</label>
                                                         <input type="text" id="report_interval_display"
                                                             class="mt-1 block w-full py-2 px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-600 focus:outline-none"
                                                             readonly>
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
                                             </div>
 
@@ -1011,7 +1012,7 @@
                                                             <label for="maintenance_date" class="block text-sm font-medium text-gray-700">
                                                             TANGGAL LAPORAN<span class="text-red-500">*</span>
                                                         </label>
-                                                        <input type="date" id="maintenance_date" name="maintenance_date"
+                                                        <input type="date" id="maintenance_date" name="maintenance_date" placeholder="Pilih tanggal"
                                                                 class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#213268] focus:border-[#213268]">
                                                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal laporan diperlukan</div>
                                                     </div>
@@ -1379,10 +1380,10 @@
                         startDatePicker.config.onChange = function(selectedDates, dateStr, instance) {
                             if (endDatePicker && selectedDates[0]) {
                                 endDatePicker.set('minDate', selectedDates[0]);
-                                const currentInterval = document.getElementById('interval').value;
+                                /* const currentInterval = document.getElementById('interval').value;
                                 if (currentInterval === 'DAILY' || currentInterval === 'ONCE') {
                                     endDatePicker.setDate(selectedDates[0]);
-                                }
+                                } */
                             }
                         };
                     }
@@ -1409,10 +1410,10 @@
                         editStartDatePicker.config.onChange = function(selectedDates, dateStr, instance) {
                             if (editEndDatePicker && selectedDates[0]) {
                                 editEndDatePicker.set('minDate', selectedDates[0]);
-                                const currentEditInterval = document.getElementById('edit_interval').value;
+                                /* const currentEditInterval = document.getElementById('edit_interval').value;
                                 if (currentEditInterval === 'DAILY' || currentEditInterval === 'ONCE') {
                                     editEndDatePicker.setDate(selectedDates[0]);
-                                }
+                                } */
                             }
                         };
                     }
@@ -1424,7 +1425,7 @@
                         editEndDatePicker.set('minDate', today);
                     }
 
-                    function toggleEndDateVisibility(intervalValue, formType = 'add') {
+                    /* function toggleEndDateVisibility(intervalValue, formType = 'add') {
                         const endDateField = formType === 'add'
                             ? document.getElementById('end_date').closest('.flex.items-center.gap-4')
                             : document.getElementById('edit_end_date').closest('.flex.items-center.gap-4');
@@ -1446,9 +1447,9 @@
                             endDateField.style.display = 'flex';
                             endDateInput.setAttribute('required', 'required');
                         }
-                    }
+                    } */
 
-                    const intervalSelect = document.getElementById('interval');
+                    /* const intervalSelect = document.getElementById('interval');
                     if (intervalSelect) {
                         intervalSelect.addEventListener('change', function() {
                             toggleEndDateVisibility(this.value, 'add');
@@ -1464,7 +1465,7 @@
                         editIntervalSelect.addEventListener('change', function() {
                             toggleEndDateVisibility(this.value, 'edit');
                         });
-                    }
+                    } */
 
                     function debounce(func, wait, immediate) {
                         let timeout;
@@ -1552,7 +1553,7 @@
                                     let readableField = error.path;
                                     if (error.path === 'start_date') readableField = 'Tanggal Mulai';
                                     else if (error.path === 'end_date') readableField = 'Tanggal Selesai';
-                                    else if (error.path === 'interval') readableField = 'Interval';
+                                    /* else if (error.path === 'interval') readableField = 'Interval'; */
                                     else if (error.path === 'assigned_to') readableField = 'Ditugaskan Kepada';
                                     else if (error.path === 'asset_ids') readableField = 'Aset';
                                     else if (error.path === 'maintenance_date') readableField = 'Tanggal Laporan';
@@ -2945,18 +2946,19 @@
                     document.getElementById('addMaintenanceForm')?.addEventListener('submit', function(e) {
                         e.preventDefault();
 
-                        const intervalField = document.getElementById('interval');
+                        /* const intervalField = document.getElementById('interval'); */
                         const startDateField = document.getElementById('start_date');
                         const endDateField = document.getElementById('end_date');
                         const userSearchField = document.getElementById('user_search');
 
-                        const isIntervalValid = validateField(intervalField);
+                        /* const isIntervalValid = validateField(intervalField); */
                         const isStartDateValid = validateField(startDateField);
 
                         let isEndDateValid = true;
-                        if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                        /* if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
                             isEndDateValid = validateField(endDateField);
-                        }
+                        } */
+                        isEndDateValid = validateField(endDateField);
 
                         const isUserValid = validateField(userSearchField);
 
@@ -2966,7 +2968,7 @@
                             showToast('Silakan pilih setidaknya satu aset', 'error');
                         }
 
-                        if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid || !isAssetsValid) {
+                        if (/* !isIntervalValid || */ !isStartDateValid || !isEndDateValid || !isUserValid || !isAssetsValid) {
                             showToast('Silakan isi semua field yang diperlukan', 'error');
 
                             const submitBtn = this.querySelector('button[type="submit"]');
@@ -2996,9 +2998,9 @@
                             delete jsonData.vendor_id;
                         }
 
-                        if (jsonData.interval === 'ONCE' || jsonData.interval === 'DAILY') {
+                        /* if (jsonData.interval === 'ONCE' || jsonData.interval === 'DAILY') {
                             delete jsonData.end_date;
-                        }
+                        } */
 
                         jsonData.asset_ids = selectedAssets.map(asset => {
                             const assetId = parseInt(asset.id, 10);
@@ -3219,7 +3221,7 @@
                                     const editMaintenanceId = document.getElementById('edit_maintenance_id');
                                     const editStartDate = document.getElementById('edit_start_date');
                                     const editEndDate = document.getElementById('edit_end_date');
-                                    const editInterval = document.getElementById('edit_interval');
+                                    /* const editInterval = document.getElementById('edit_interval'); */
                                     const editAssignedTo = document.getElementById('edit_assigned_to');
                                     const editUserSearch = document.getElementById('edit_user_search');
                                     const editVendorId = document.getElementById('edit_vendor_id');
@@ -3264,10 +3266,10 @@
                                         }
                                     }
 
-                                    if (maintenance.interval && editInterval) {
+                                    /* if (maintenance.interval && editInterval) {
                                         editInterval.value = maintenance.interval;
                                     toggleEndDateVisibility(maintenance.interval, 'edit');
-                                }
+                                } */
 
                                     if (maintenance.assigned_to && editAssignedTo && editUserSearch) {
                                         editAssignedTo.value = maintenance.assigned_to;
@@ -3320,22 +3322,23 @@
                             return;
                         }
 
-                        const intervalField = document.getElementById('edit_interval');
+                        /* const intervalField = document.getElementById('edit_interval'); */
                         const startDateField = document.getElementById('edit_start_date');
                         const endDateField = document.getElementById('edit_end_date');
                         const userSearchField = document.getElementById('edit_user_search');
 
-                        const isIntervalValid = validateField(intervalField);
+                        /* const isIntervalValid = validateField(intervalField); */
                         const isStartDateValid = validateField(startDateField);
 
                         let isEndDateValid = true;
-                        if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                        /* if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
                             isEndDateValid = validateField(endDateField);
-                        }
+                        } */
+                        isEndDateValid = validateField(endDateField);
 
                         const isUserValid = validateField(userSearchField);
 
-                        if (!isIntervalValid || !isStartDateValid || !isEndDateValid || !isUserValid) {
+                        if (/* !isIntervalValid || */ !isStartDateValid || !isEndDateValid || !isUserValid) {
                             showToast('Silakan isi semua field yang diperlukan', 'error');
 
                             const submitBtn = this.querySelector('button[type="submit"]');
@@ -3358,21 +3361,21 @@
                             return date.toISOString().split('T')[0];
                         };
 
-                        if (intervalField.value !== originalData.interval) {
+                        /* if (intervalField.value !== originalData.interval) {
                             formData.interval = intervalField.value;
-                        }
+                        } */
 
                         const originalStartDate = formatDate(originalData.start_date);
                         if (startDateField.value !== originalStartDate) {
                             formData.start_date = startDateField.value;
                         }
 
-                        if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') {
+                        /* if (intervalField.value !== 'ONCE' && intervalField.value !== 'DAILY') { */
                             const originalEndDate = formatDate(originalData.end_date);
                             if (endDateField.value !== originalEndDate) {
                                 formData.end_date = endDateField.value;
                             }
-                        }
+                        /* } */
 
                         const assignedTo = parseInt(document.getElementById('edit_assigned_to').value, 10);
                         if (assignedTo !== originalData.assigned_to) {
@@ -3614,7 +3617,7 @@
                                     document.getElementById('report_start_date_display').value = formatDate(maintenance.start_date);
                                     document.getElementById('report_end_date_display').value = formatDate(maintenance.end_date);
 
-                                    let intervalText = '-';
+                                    /* let intervalText = '-';
                                     const interval = maintenance.interval;
                                     if (interval === 'ONCE') intervalText = 'Sekali';
                                     else if (interval === 'DAILY') intervalText = 'Harian';
@@ -3627,7 +3630,7 @@
                                     else if (interval === '6 MONTHS') intervalText = '6 Bulan';
                                     else if (interval === 'YEARLY') intervalText = 'Tahunan';
 
-                                    document.getElementById('report_interval_display').value = intervalText;
+                                    document.getElementById('report_interval_display').value = intervalText; */
 
                                     document.getElementById('report_vendor_display').value = maintenance.vendor_name || '-';
 
@@ -3833,12 +3836,12 @@
                     });
                     }
 
-                    const editIntervalElement = document.getElementById('edit_interval');
+                    /* const editIntervalElement = document.getElementById('edit_interval');
                     if (editIntervalElement) {
                         editIntervalElement.addEventListener('change', function() {
                         validateField(this, true);
                     });
-                    }
+                    } */
 
                     const editStartDateElement = document.getElementById('edit_start_date');
                     if (editStartDateElement) {

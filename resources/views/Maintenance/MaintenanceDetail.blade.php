@@ -121,7 +121,7 @@
                         Jadwal Pemeliharaan
                     </h2>
                     <div class="space-y-4">
-                        <div class="flex flex-col">
+                        {{-- <div class="flex flex-col">
                             <span class="text-sm text-gray-500">Interval</span>
                             <span class="font-medium">
                                 @php
@@ -145,7 +145,7 @@
                                 @endphp
                                 {{ $intervalText }}
                             </span>
-                        </div>
+                        </div> --}}
                         <div class="flex flex-col">
                             <span class="text-sm text-gray-500">Tanggal Mulai</span>
                             <span

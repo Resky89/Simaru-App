@@ -761,6 +761,7 @@
                                                     <th class="p-3 text-left text-xs font-semibold">Nama Vendor</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Kontak Person</th>
                                                     <th class="p-3 text-left text-xs font-semibold">No. Telepon</th>
+                                                    <th class="p-3 text-left text-xs font-semibold">No. Telepon 2</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Email</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Website</th>
                                                     <th class="p-3 text-left text-xs font-semibold">Alamat</th>
@@ -1765,6 +1766,7 @@
                             .replace(/\s+/g, '_')
                             .replace(/[^a-z0-9_]/g, '');
                         headerMap[normalizedHeader] = index;
+                        console.log(`Header ${index}: "${header}" -> normalized: "${normalizedHeader}"`);
                     }
                 });
 
@@ -1790,10 +1792,23 @@
                     item.vendor_name = getValue(['vendor_name', 'vendor name', 'name', 'nama vendor', 'nama_vendor']);
                     item.contact_person = getValue(['contact_person', 'contact person', 'contactperson', 'kontak', 'kontak_person', 'cp']);
                     item.phone_number = getValue(['phone_number', 'phone number', 'phonenumber', 'no_telp', 'no telp', 'telepon', 'nomor_telepon', 'hp']);
-                    item.second_phone_number = getValue(['second_phone_number', 'second phone number', 'secondphonenumber', 'no_telp2', 'no telp2', 'telepon2', 'nomor_telepon2', 'hp2']);
+                    item.second_phone_number = getValue(['second_phone_number', 'second phone number', 'secondphonenumber', 'nomor telepon kedua', 'nomor_telepon_kedua', 'no_telp2', 'no telp2', 'telepon2', 'nomor_telepon2', 'hp2', 'telepon_kedua']);
                     item.email = getValue(['email', 'email_address', 'email address']);
                     item.website = getValue(['website', 'web', 'site', 'url']);
                     item.address = getValue(['address', 'alamat', 'location', 'lokasi']);
+
+                    // Debug log for first row to see what data is being read
+                    if (rowIndex === 0) {
+                        console.log('First row data mapping:', {
+                            vendor_name: item.vendor_name,
+                            contact_person: item.contact_person,
+                            phone_number: item.phone_number,
+                            second_phone_number: item.second_phone_number,
+                            email: item.email,
+                            website: item.website,
+                            address: item.address
+                        });
+                    }
 
                     if (!item.vendor_name) {
                         warnings.push(`Row ${rowIndex + 2}: Nama Vendor tidak boleh kosong`);
@@ -1851,10 +1866,23 @@
 
                     const fields = ['vendor_name', 'contact_person', 'phone_number', 'second_phone_number', 'email', 'website', 'address'];
 
+                    // Debug log for first item to see preview data
+                    if (index === 0) {
+                        console.log('Preview first item data:', item);
+                        console.log('Fields being displayed:', fields);
+                    }
+
                     fields.forEach(field => {
                         const cell = document.createElement('td');
                         cell.className = 'p-3 text-xs border-t border-[#EEF1F4]';
-                        cell.textContent = item[field] || '-';
+                        const value = item[field] || '-';
+                        cell.textContent = value;
+
+                        // Debug log for second_phone_number specifically
+                        if (field === 'second_phone_number' && index === 0) {
+                            console.log(`Second phone number value: "${value}"`);
+                        }
+
                         row.appendChild(cell);
                     });
 

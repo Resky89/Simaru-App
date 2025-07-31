@@ -677,6 +677,78 @@ class MaintenanceController extends Controller
             // Get maintenance data
             $maintenance = $result['data'];
 
+            // Handle asset image if present
+            if (!empty($maintenance['asset_image_path'])) {
+                try {
+                    $fileName = basename($maintenance['asset_image_path']);
+                    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
+
+                    if ($isImage) {
+                        // Construct proper path to the image
+                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+
+                        // Check if asset_image_path already includes /public
+                        if (strpos($maintenance['asset_image_path'], '/public') === 0) {
+                            $imagePath = $backendUrl . $maintenance['asset_image_path'];
+                        } else {
+                            $imagePath = $backendUrl . '/public' . $maintenance['asset_image_path'];
+                        }
+
+                        // Alternative path in case the above doesn't work
+                        $altImagePath = $backendUrl . '/public' . $fileName;
+
+                        // Try to get image data from the main path
+                        $imageData = @file_get_contents($imagePath);
+
+                        // If main path failed, try alternative path
+                        if ($imageData === false) {
+                            $imageData = @file_get_contents($altImagePath);
+                        }
+
+                        if ($imageData !== false) {
+                            $maintenance['asset_image_base64'] = base64_encode($imageData);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Continue without asset image if failed
+                    \Log::error('Failed to process asset image: ' . $e->getMessage());
+                }
+            }
+
+            // Handle maintenance report attachment image if present
+            if (isset($maintenance['maintenance_report']['attachment_path']) && !empty($maintenance['maintenance_report']['attachment_path'])) {
+                try {
+                    $fileName = basename($maintenance['maintenance_report']['attachment_path']);
+                    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
+
+                    if ($isImage) {
+                        // Construct proper path to the image
+                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                        $imagePath = $backendUrl . '/public/images/' . $fileName;
+
+                        // Alternative path
+                        $altImagePath = $backendUrl . '/public' . $maintenance['maintenance_report']['attachment_path'];
+
+                        // Try to get image data from the main path
+                        $imageData = @file_get_contents($imagePath);
+
+                        // If main path failed, try alternative path
+                        if ($imageData === false) {
+                            $imageData = @file_get_contents($altImagePath);
+                        }
+
+                        if ($imageData !== false) {
+                            $maintenance['maintenance_report']['attachment_picture_base64'] = base64_encode($imageData);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Continue without attachment image if failed
+                    \Log::error('Failed to process maintenance report attachment: ' . $e->getMessage());
+                }
+            }
+
             // Generate filename
             $timestamp = now()->format('YmdHis');
             $filename = "maintenance_detail_{$id}_{$timestamp}.pdf";

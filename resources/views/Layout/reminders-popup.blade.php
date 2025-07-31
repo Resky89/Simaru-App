@@ -170,9 +170,9 @@
                                 <th
                                     class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Penanggung Jawab</th>
-                                <th
+                                {{-- <th
                                     class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    Interval</th>
+                                    Interval</th> --}}
                             </tr>
                         </thead>
                         <tbody id="maintenance-table-body" class="bg-white divide-y divide-gray-200">

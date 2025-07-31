@@ -182,6 +182,23 @@
             object-fit: contain;
         }
 
+        .asset-image-container {
+            height: 120px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            vertical-align: middle;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .asset-image-container img {
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+        }
+
         .footer {
             margin-top: 20px;
             text-align: center;
@@ -313,6 +330,45 @@
         <!-- Asset Information Card -->
         <div class="card">
             <div class="card-title">Informasi Aset</div>
+
+            @php
+                $hasAssetImage = false;
+                $assetImageSrc = '';
+
+                // Check if we have base64 encoded image
+                if (!empty($calibration['asset_image_base64'])) {
+                    $hasAssetImage = true;
+
+                    // Determine image format from the original path if available
+                    $imageFormat = 'jpeg'; // default
+                    if (!empty($calibration['asset_image_path'])) {
+                        $fileExtension = strtolower(pathinfo($calibration['asset_image_path'], PATHINFO_EXTENSION));
+                        if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                            $imageFormat = $fileExtension === 'jpg' ? 'jpeg' : $fileExtension;
+                        }
+                    }
+
+                    $assetImageSrc = 'data:image/' . $imageFormat . ';base64,' . $calibration['asset_image_base64'];
+                }
+                // Fallback to image path (though this may not work in PDF context)
+                elseif (!empty($calibration['asset_image_path'])) {
+                    $hasAssetImage = true;
+                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $assetImageSrc = $backendUrl . '/public' . $calibration['asset_image_path'];
+                }
+            @endphp
+
+            <!-- Asset Image -->
+            <div class="asset-image-container">
+                @if($hasAssetImage)
+                    <img src="{{ $assetImageSrc }}" alt="Gambar Aset" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'line-height: 100px; color: #999; font-size: 11px;\'>Gambar tidak dapat ditampilkan</div>';">
+                @else
+                    <div style="line-height: 100px; color: #999; font-size: 11px;">
+                        Tidak ada gambar aset
+                    </div>
+                @endif
+            </div>
+
             <table class="detail-table">
                 <tr>
                     <th>Kode Aset</th>

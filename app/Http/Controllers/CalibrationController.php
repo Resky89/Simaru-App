@@ -523,6 +523,45 @@ class CalibrationController extends Controller
                 }
             }
 
+            // Handle asset image if present
+            if (!empty($calibrationData['asset_image_path'])) {
+                try {
+                    $fileName = basename($calibrationData['asset_image_path']);
+                    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                    $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
+
+                    if ($isImage) {
+                        // Construct proper path to the image
+                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+
+                        // Check if asset_image_path already includes /public
+                        if (strpos($calibrationData['asset_image_path'], '/public') === 0) {
+                            $imagePath = $backendUrl . $calibrationData['asset_image_path'];
+                        } else {
+                            $imagePath = $backendUrl . '/public' . $calibrationData['asset_image_path'];
+                        }
+
+                        // Alternative path in case the above doesn't work
+                        $altImagePath = $backendUrl . '/public' . $fileName;
+
+                        // Try to get image data from the main path
+                        $imageData = @file_get_contents($imagePath);
+
+                        // If main path failed, try alternative path
+                        if ($imageData === false) {
+                            $imageData = @file_get_contents($altImagePath);
+                        }
+
+                        if ($imageData !== false) {
+                            $calibrationData['asset_image_base64'] = base64_encode($imageData);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Continue without asset image if failed
+                    \Log::error('Failed to process asset image: ' . $e->getMessage());
+                }
+            }
+
             // Handle certificate file if present and is an image
             if (!empty($calibrationData['certificate_file_path'])) {
                 try {
