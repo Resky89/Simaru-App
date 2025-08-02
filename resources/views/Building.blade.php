@@ -905,13 +905,8 @@
 
                     forms.forEach(form => {
                         form.reset();
-
-                        const inputs = form.querySelectorAll('input, select, textarea');
-                        inputs.forEach(input => {
-                            input.classList.remove('border-red-500');
-                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                            if (errorElement) errorElement.classList.add('hidden');
-                        });
+                        // Use the new clearFieldErrors function
+                        clearFieldErrors(form);
                     });
 
                     if (modal.id === 'importBuildingModal') {
@@ -1111,26 +1106,35 @@
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Error
-                                let errorMessage = result.message || 'Terjadi kesalahan saat membuat gedung';
-
-                                // Handle validation errors
+                                // Show field-specific errors
                                 if (result.errors) {
-                                    const errors = result.errors;
-                                    Object.keys(errors).forEach(key => {
-                                        const input = document.getElementById(`add_${key}`);
-                                        if (input) {
-                                            input.classList.add('border-red-500');
-                                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                                            if (errorElement) {
-                                                errorElement.textContent = errors[key][0];
-                                                errorElement.classList.remove('hidden');
-                                            }
-                                        }
-                                    });
-                                }
+                                    showFieldErrors(this, result.errors);
 
-                                showToast(errorMessage, 'error');
+                                    // Extract only error messages for toast (without field paths)
+                                    let errorMessages = [];
+                                    if (Array.isArray(result.errors)) {
+                                        errorMessages = result.errors.map(error => error.message).filter(msg => msg);
+                                    } else if (typeof result.errors === 'object') {
+                                        Object.values(result.errors).forEach(value => {
+                                            if (Array.isArray(value)) {
+                                                errorMessages.push(...value);
+                                            } else {
+                                                errorMessages.push(value);
+                                            }
+                                        });
+                                    }
+
+                                    if (errorMessages.length > 0) {
+                                        const errorMessage = errorMessages.join('; ');
+                                        showToast(errorMessage, 'error');
+                                    } else {
+                                        showToast(result.message || 'Terjadi kesalahan saat membuat gedung', 'error');
+                                    }
+                                } else {
+                                    // Show general error message
+                                    const errorMessage = result.message || 'Terjadi kesalahan saat membuat gedung';
+                                    showToast(errorMessage, 'error');
+                                }
                             }
                         })
                         .catch(error => {
@@ -1202,30 +1206,35 @@
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Error
-                                let errorMessage = result.message || 'Terjadi kesalahan saat mengubah gedung';
-
-                                // Handle validation errors
+                                // Show field-specific errors
                                 if (result.errors) {
-                                    const errors = result.errors;
-                                    Object.keys(errors).forEach(key => {
-                                        let inputId = key;
-                                        if (key === 'building_name') inputId = 'editBuildingName';
-                                        else if (key === 'address') inputId = 'editAddress';
+                                    showFieldErrors(this, result.errors);
 
-                                        const input = document.getElementById(inputId);
-                                        if (input) {
-                                            input.classList.add('border-red-500');
-                                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                                            if (errorElement) {
-                                                errorElement.textContent = errors[key][0];
-                                                errorElement.classList.remove('hidden');
+                                    // Extract only error messages for toast (without field paths)
+                                    let errorMessages = [];
+                                    if (Array.isArray(result.errors)) {
+                                        errorMessages = result.errors.map(error => error.message).filter(msg => msg);
+                                    } else if (typeof result.errors === 'object') {
+                                        Object.values(result.errors).forEach(value => {
+                                            if (Array.isArray(value)) {
+                                                errorMessages.push(...value);
+                                            } else {
+                                                errorMessages.push(value);
                                             }
-                                        }
-                                    });
-                                }
+                                        });
+                                    }
 
-                                showToast(errorMessage, 'error');
+                                    if (errorMessages.length > 0) {
+                                        const errorMessage = errorMessages.join('; ');
+                                        showToast(errorMessage, 'error');
+                                    } else {
+                                        showToast(result.message || 'Terjadi kesalahan saat mengubah gedung', 'error');
+                                    }
+                                } else {
+                                    // Show general error message
+                                    const errorMessage = result.message || 'Terjadi kesalahan saat mengubah gedung';
+                                    showToast(errorMessage, 'error');
+                                }
                             }
                         })
                         .catch(error => {
@@ -1322,41 +1331,100 @@
                     }
                 }
 
-                const add_building_name = document.getElementById('add_building_name');
-                if (add_building_name) {
-                    add_building_name.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
+                // Function to clear all field errors
+                function clearFieldErrors(form) {
+                    if (!form) return;
+
+                    const fields = form.querySelectorAll('input, select, textarea');
+                    fields.forEach(field => {
+                        field.classList.remove('border-red-500');
+                        const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.classList.add('hidden');
+                            errorElement.textContent = '';
+                        }
                     });
                 }
 
-                const add_building_address = document.getElementById('add_building_address');
-                if (add_building_address) {
-                    add_building_address.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
+                // Function to show field errors from server response
+                function showFieldErrors(form, errors) {
+                    if (!form || !errors) return;
+
+                    // Clear existing errors first
+                    clearFieldErrors(form);
+
+                    // Handle different error formats
+                    let errorList = [];
+
+                    if (Array.isArray(errors)) {
+                        errorList = errors;
+                    } else if (typeof errors === 'object') {
+                        // Convert object errors to array format
+                        Object.entries(errors).forEach(([key, value]) => {
+                            if (Array.isArray(value)) {
+                                value.forEach(msg => {
+                                    errorList.push({ path: key, message: msg });
+                                });
+                            } else {
+                                errorList.push({ path: key, message: value });
+                            }
+                        });
+                    }
+
+                    // Apply errors to fields
+                    errorList.forEach(error => {
+                        let fieldName = error.path || error.field;
+                        let message = error.message;
+
+                        if (!fieldName || !message) return;
+
+                        // Find the field by name or id
+                        let field = form.querySelector(`[name="${fieldName}"]`) ||
+                                   form.querySelector(`#${fieldName}`) ||
+                                   form.querySelector(`#add_${fieldName}`) ||
+                                   form.querySelector(`#edit${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+
+                        if (field) {
+                            // Add error styling
+                            field.classList.add('border-red-500');
+
+                            // Find and update error message element
+                            const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                            if (errorElement) {
+                                errorElement.textContent = message;
+                                errorElement.classList.remove('hidden');
+                            }
+                        }
                     });
                 }
 
-                const editBuildingName = document.getElementById('editBuildingName');
-                if (editBuildingName) {
-                    editBuildingName.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
-                    });
+                // Function to clear field error on user interaction
+                function clearFieldError(field) {
+                    if (!field) return;
+                    field.classList.remove('border-red-500');
+                    const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                        errorElement.textContent = '';
+                    }
                 }
 
-                const editAddress = document.getElementById('editAddress');
-                if (editAddress) {
-                    editAddress.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
-                    });
-                }
+                // Add error clearing for form fields
+                const formFields = [
+                    { id: 'add_building_name', event: 'input' },
+                    { id: 'add_building_address', event: 'input' },
+                    { id: 'editBuildingName', event: 'input' },
+                    { id: 'editAddress', event: 'input' }
+                ];
+
+                formFields.forEach(fieldConfig => {
+                    const field = document.getElementById(fieldConfig.id);
+                    if (field) {
+                        field.addEventListener(fieldConfig.event, function () {
+                            clearFieldError(this);
+                        });
+                    }
+                });
 
                 // ===== IMPORT BUILDING FUNCTIONALITY =====
                 const importBuildingBtn = document.getElementById('importBuildingBtn');

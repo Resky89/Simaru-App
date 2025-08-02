@@ -35,7 +35,7 @@
                     <div class="form-control">
                         <label class="block text-base font-medium text-[#666666] mb-2">Tanggal Penerimaan <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" id="receipt_date" name="receipt_date" value="<?php echo date('Y-m-d'); ?>"
+                        <input type="text" id="receipt_date" name="receipt_date" value="{{ date('Y-m-d') }}"
                             placeholder="Pilih Tanggal"
                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#213268] focus:ring-2 focus:ring-[#213268] focus:ring-opacity-20 transition-all duration-200">
                         <div class="error-message text-red-500 text-sm mt-1 hidden">Tanggal penerimaan harus diisi
@@ -295,25 +295,78 @@
 
             // Initialize receipt date picker with Indonesian format
             const receiptDatePicker = flatpickr("#receipt_date", {
-                dateFormat: "d F Y",
-                locale: "id",
-                disableMobile: true,
-                allowInput: true,
-                maxDate: "today",
+                locale: 'id',
+                dateFormat: "Y-m-d",
                 altInput: true,
-                altFormat: "d F Y",
-                ariaDateFormat: "d F Y",
-                parseDate: (datestr, format) => {
-                    return new Date(datestr);
-                },
-                formatDate: (date, format, locale) => {
-                    if (format === "d F Y") {
+                altFormat: "j F Y",
+                static: true,
+                disableMobile: true,
+                allowInput: false,
+                clickOpens: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    if (instance.altInput) {
+                        instance.altInput.style.width = "100%";
+                        instance.altInput.style.display = "block";
+
+                        const parentWrapper = instance.altInput.closest('.flatpickr-wrapper');
+                        if (parentWrapper) {
+                            parentWrapper.style.width = "100%";
+                            parentWrapper.style.display = "block";
+                        }
+
+                        instance.altInput.className = document.getElementById('receipt_date').className;
+                    }
+
+                    if (selectedDates && selectedDates.length > 0) {
+                        const date = selectedDates[0];
                         const day = date.getDate();
-                        const month = locale.months.longhand[date.getMonth()];
+                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                        const month = monthsInIndonesian[date.getMonth()];
+                        const year = date.getFullYear();
+
+                        if (instance.altInput) {
+                            instance.altInput.value = `${day} ${month} ${year}`;
+                        }
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates && selectedDates.length > 0) {
+                        const date = selectedDates[0];
+                        const day = date.getDate();
+                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                        const month = monthsInIndonesian[date.getMonth()];
+                        const year = date.getFullYear();
+
+                        if (instance.altInput) {
+                            instance.altInput.value = `${day} ${month} ${year}`;
+                        }
+                    }
+                },
+                formatDate: (date, format) => {
+                    if (format === "Y-m-d") {
+                        const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                        const year = localDate.getFullYear();
+                        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(localDate.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    }
+
+                    if (format === "j F Y") {
+                        const day = date.getDate();
+                        const monthsInIndonesian = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                        const month = monthsInIndonesian[date.getMonth()];
                         const year = date.getFullYear();
                         return `${day} ${month} ${year}`;
                     }
+
                     return flatpickr.formatDate(date, format);
+                },
+                parseDate: (datestr, format) => {
+                    if (format === "Y-m-d") {
+                        const [year, month, day] = datestr.split("-").map(Number);
+                        return new Date(year, month - 1, day);
+                    }
+                    return flatpickr.parseDate(datestr, format);
                 }
             });
 
@@ -346,7 +399,6 @@
                     const day = date.getDate();
                     const month = months[date.getMonth()];
                     const year = date.getFullYear();
-                    const hours = date.getHours().toString().padStart(2, '0');
 
                     return `${day} ${month} ${year}`;
                 } catch (e) {
@@ -468,6 +520,15 @@
                 };
             }
 
+            // Helper function untuk membuat dropdown items
+            function createDropdownItem(text, className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer') {
+                const li = document.createElement('li');
+                li.className = className;
+                li.textContent = text;
+                return li;
+            }
+
+            // Event listeners untuk pencarian purchase order
             purchaseOrderNumber.addEventListener('focus', function () {
                 poDropdown.classList.remove('hidden');
                 if (poList.children.length === 0) {
@@ -497,10 +558,32 @@
             });
 
             const debouncedSearch = debounce(function (e) {
-                loadPurchaseOrders(e.target.value);
+                const searchTerm = e.target.value.trim();
+                // Reset pagination when searching
+                poList.dataset.page = "1";
+                poList.dataset.hasMoreData = "true";
+                loadPurchaseOrders(searchTerm);
+
+                // Show dropdown saat mengetik
+                poDropdown.classList.remove('hidden');
             }, 300);
 
             purchaseOrderNumber.addEventListener('input', debouncedSearch);
+
+            // Enter key handler untuk pencarian
+            purchaseOrderNumber.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const searchTerm = purchaseOrderNumber.value.trim();
+                    if (searchTerm) {
+                        poDropdown.classList.remove('hidden');
+                        // Reset pagination
+                        poList.dataset.page = "1";
+                        poList.dataset.hasMoreData = "true";
+                        loadPurchaseOrders(searchTerm);
+                    }
+                }
+            });
 
             async function loadPurchaseOrders(searchTerm) {
                 // Setup for lazy loading
@@ -509,6 +592,13 @@
                 let hasMoreData = poList.dataset.hasMoreData !== "false";
                 let resetList = page === 1 || poList.dataset.searchTerm !== searchTerm;
                 const loadMoreIndicator = document.getElementById('po_load_more');
+
+                // Reset page to 1 if search term changed
+                if (poList.dataset.searchTerm !== searchTerm) {
+                    page = 1;
+                    poList.dataset.page = "1";
+                    resetList = true;
+                }
 
                 // Save current search term
                 poList.dataset.searchTerm = searchTerm;
@@ -635,7 +725,9 @@
 
             if (searchBtn) {
                 searchBtn.addEventListener('click', function () {
-                    if (!purchaseOrderNumber.value.trim()) {
+                    const poCode = purchaseOrderNumber.value.trim();
+
+                    if (!poCode) {
                         showToast('Mohon masukkan nomor purchase order', 'error');
                         return;
                     }
@@ -645,14 +737,24 @@
                         return;
                     }
 
+                    // Show dropdown untuk hasil pencarian
+                    poDropdown.classList.remove('hidden');
+
+                    // Trigger pencarian dengan term saat ini
+                    if (!selectedPoId.value) {
+                        // Reset pagination dan load data
+                        poList.dataset.page = "1";
+                        poList.dataset.hasMoreData = "true";
+                        loadPurchaseOrders(poCode);
+                    }
+
                     const originalBtnText = searchBtn.innerHTML;
                     searchBtn.disabled = true;
                     searchBtn.innerHTML = `
-                                                <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            `;
+                        <div class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    `;
 
                     const poId = selectedPoId.value || null;
-                    const poCode = purchaseOrderNumber.value.trim();
 
                     if (poId) {
                         fetchPurchaseOrderDetails(parseInt(poId, 10))

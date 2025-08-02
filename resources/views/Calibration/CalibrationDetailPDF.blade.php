@@ -383,6 +383,10 @@
                     <td>{{ $calibration['brand_name'] ?? 'N/A' }}</td>
                 </tr>
                 <tr>
+                    <th>Model</th>
+                    <td>{{ $calibration['model'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
                     <th>Nomor Seri</th>
                     <td>{{ $calibration['serial_number'] ?? 'N/A' }}</td>
                 </tr>

@@ -47,7 +47,7 @@
                     $statusText = 'Baru';
                     $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
                     $statusDescription = 'Pemeliharaan baru dibuat dan belum dimulai';
-                } elseif ($status == 'in_progress') {
+                } elseif ($status == 'in progress') {
                     $statusClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
                     $statusText = 'Dalam Proses';
                     $statusIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />';
@@ -71,7 +71,7 @@
             </div>
 
             <!-- Main Content Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <!-- Asset Information Card -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                     <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
@@ -100,13 +100,46 @@
                             <span class="text-sm text-gray-500">Kode Aset</span>
                             <span class="font-medium">{{ $maintenance['asset_code'] ?? 'N/A' }}</span>
                         </div>
-                        @if(isset($maintenance['asset']) && isset($maintenance['asset']['location']))
-                            <div class="flex flex-col">
-                                <span class="text-sm text-gray-500">Lokasi</span>
-                                <span class="font-medium">{{ $maintenance['asset']['location']['room_name'] ?? 'N/A' }},
-                                    {{ $maintenance['asset']['location']['building_name'] ?? '' }}</span>
-                            </div>
-                        @endif
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Serial Number</span>
+                            <span class="font-medium">{{ $maintenance['serial_number'] ?? $maintenance['asset']['serial_number'] ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Brand</span>
+                            <span class="font-medium">{{ $maintenance['brand_name'] ?? $maintenance['asset']['brand_name'] ?? $maintenance['asset']['brand'] ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Model</span>
+                            <span class="font-medium">{{ $maintenance['model'] ?? $maintenance['asset']['model'] ?? 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information Card -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <h2 class="font-bold text-lg text-[#213268] border-b pb-2 mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Lokasi
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Gedung</span>
+                            <span class="font-medium">{{ $maintenance['location']['building_name'] ?? $maintenance['asset']['location']['building_name'] ?? 'N/A' }}</span>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Lantai</span>
+                            <span class="font-medium">{{ $maintenance['location']['floor_number'] ?? $maintenance['asset']['location']['floor_number'] ?? 'N/A' }}</span>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Ruangan</span>
+                            <span class="font-medium">{{ $maintenance['location']['room_name'] ?? $maintenance['asset']['location']['room_name'] ?? 'N/A' }}</span>
+                        </div>
                     </div>
                 </div>
 

@@ -196,10 +196,16 @@ class OfficialReportController extends Controller
             if (isset($validated['items']) && is_array($validated['items'])) {
                 $data['items'] = [];
                 foreach ($validated['items'] as $item) {
-                    $data['items'][] = [
+                    $itemData = [
                         'asset_id' => (int) $item['asset_id'],
-                        'item_notes' => $item['item_notes'] ?? null,
                     ];
+
+                    // Only include item_notes if it has a non-empty value
+                    if (isset($item['item_notes']) && !empty(trim($item['item_notes']))) {
+                        $itemData['item_notes'] = trim($item['item_notes']);
+                    }
+
+                    $data['items'][] = $itemData;
                 }
             }
 
@@ -309,10 +315,16 @@ class OfficialReportController extends Controller
             if (isset($validated['items']) && is_array($validated['items'])) {
                 $data['items'] = [];
                 foreach ($validated['items'] as $item) {
-                    $data['items'][] = [
+                    $itemData = [
                         'asset_id' => (int) $item['asset_id'],
-                        'item_notes' => $item['item_notes'] ?? null,
                     ];
+
+                    // Only include item_notes if it has a non-empty value
+                    if (isset($item['item_notes']) && !empty(trim($item['item_notes']))) {
+                        $itemData['item_notes'] = trim($item['item_notes']);
+                    }
+
+                    $data['items'][] = $itemData;
                 }
             }
 

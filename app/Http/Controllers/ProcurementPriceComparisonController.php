@@ -51,6 +51,12 @@ class ProcurementPriceComparisonController extends Controller
     public function store(Request $request)
     {
         try {
+            // Handle JSON request
+            if ($request->isJson() || $request->wantsJson()) {
+                $data = $request->json()->all();
+                $request->replace($data);
+            }
+
             // Ensure procurement_id is converted to integer
             $request->merge([
                 'procurement_id' => (int) $request->input('procurement_id')
@@ -67,13 +73,27 @@ class ProcurementPriceComparisonController extends Controller
                 'title' => 'required|string',
             ]);
 
-            return $this->storeResource(
+            $response = $this->storeResource(
                 $request,
                 '/price-comparison',
                 $validated,
                 'Perbandingan harga berhasil dibuat',
                 'procurement.price-comparison'
             );
+
+            // Ensure JSON response for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Perbandingan harga berhasil dibuat',
+                        'redirect_url' => $response->getTargetUrl()
+                    ]);
+                }
+                return $response;
+            }
+
+            return $response;
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -96,6 +116,12 @@ class ProcurementPriceComparisonController extends Controller
     public function createFromDetail(Request $request)
     {
         try {
+            // Handle JSON request
+            if ($request->isJson() || $request->wantsJson()) {
+                $data = $request->json()->all();
+                $request->replace($data);
+            }
+
             // Validate request
             $validated = $request->validate([
                 'procurement_id' => 'required|integer',
@@ -476,18 +502,38 @@ class ProcurementPriceComparisonController extends Controller
     public function update($id, Request $request)
     {
         try {
+            // Handle JSON request
+            if ($request->isJson() || $request->wantsJson()) {
+                $data = $request->json()->all();
+                $request->replace($data);
+            }
+
             // Validate request
             $validated = $request->validate([
                 'title' => 'required|string',
             ]);
 
-            return $this->updateResource(
+            $response = $this->updateResource(
                 $request,
                 "/price-comparison/{$id}",
                 $validated,
                 'Perbandingan harga berhasil diperbarui',
                 'procurement.price-comparison'
             );
+
+            // Ensure JSON response for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Perbandingan harga berhasil diperbarui',
+                        'redirect_url' => $response->getTargetUrl()
+                    ]);
+                }
+                return $response;
+            }
+
+            return $response;
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,

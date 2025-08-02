@@ -329,7 +329,7 @@
             $statusClass = 'status-banner-new';
             $statusText = 'BARU';
             $statusDescription = 'Pemeliharaan baru dibuat dan belum dimulai';
-        } elseif ($status == 'in_progress') {
+        } elseif ($status == 'in progress') {
             $statusClass = 'status-banner-in-progress';
             $statusText = 'DALAM PROSES';
             $statusDescription = 'Pemeliharaan sedang dalam proses pengerjaan';
@@ -408,16 +408,37 @@
                     <td>{{ $maintenance['asset_id'] ?? 'N/A' }}</td>
                 </tr>
                 @endif
-                @if(isset($maintenance['asset']) && isset($maintenance['asset']['location']))
+                <tr>
+                    <th>Serial Number</th>
+                    <td>{{ $maintenance['serial_number'] ?? $maintenance['asset']['serial_number'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Brand</th>
+                    <td>{{ $maintenance['brand_name'] ?? $maintenance['asset']['brand_name'] ?? $maintenance['asset']['brand'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Model</th>
+                    <td>{{ $maintenance['model'] ?? $maintenance['asset']['model'] ?? 'N/A' }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Location Information Card -->
+        <div class="card">
+            <div class="card-title">Lokasi</div>
+            <table class="detail-table">
                 <tr>
                     <th>Gedung</th>
-                    <td>{{ $maintenance['asset']['location']['building_name'] ?? 'N/A' }}</td>
+                    <td>{{ $maintenance['location']['building_name'] ?? $maintenance['asset']['location']['building_name'] ?? 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Lantai</th>
+                    <td>{{ $maintenance['location']['floor_number'] ?? $maintenance['asset']['location']['floor_number'] ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>Ruangan</th>
-                    <td>{{ $maintenance['asset']['location']['room_name'] ?? 'N/A' }}</td>
+                    <td>{{ $maintenance['location']['room_name'] ?? $maintenance['asset']['location']['room_name'] ?? 'N/A' }}</td>
                 </tr>
-                @endif
             </table>
         </div>
 

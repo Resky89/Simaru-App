@@ -899,12 +899,13 @@
                         return;
                     }
 
-                    const formData = new FormData();
-                    formData.append('title', comparisonTitle.value);
-                    formData.append('procurement_id', parseInt(selectedRequestId.value, 10));
+                    const requestData = {
+                        title: comparisonTitle.value,
+                        procurement_id: parseInt(selectedRequestId.value, 10)
+                    };
 
                     if (isEditMode) {
-                        formData.append('_method', 'PUT');
+                        requestData._method = 'PUT';
                     }
 
                     isSubmitting = true;
@@ -921,9 +922,12 @@
 
                     fetch(endpoint, {
                         method: isEditMode ? 'POST' : 'POST',
-                        body: formData,
+                        body: JSON.stringify(requestData),
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
                         .then(response => {

@@ -275,7 +275,7 @@ class MaintenanceController extends Controller
                 'asset_ids.*' => 'required|integer',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after_or_equal:start_date',
-                'interval' => 'required|string',
+                // 'interval' => 'required|string',
                 'assigned_to' => 'required|integer',
                 'vendor_id' => 'nullable|integer'
             ]);
@@ -291,7 +291,7 @@ class MaintenanceController extends Controller
                 'asset_ids' => $assetIds,
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
-                'interval' => $request->input('interval'),
+                // 'interval' => $request->input('interval'),
                 'assigned_to' => (int) $request->input('assigned_to')
             ];
 
@@ -329,15 +329,11 @@ class MaintenanceController extends Controller
                 'asset_ids' => 'required|array',
                 'asset_ids.*' => 'required|integer',
                 'start_date' => 'required|date',
-                'interval' => 'required|string',
+                'end_date' => 'nullable|date|',
+                // 'interval' => 'required|string',
                 'assigned_to' => 'required|integer',
                 'vendor_id' => 'nullable|integer'
             ];
-
-            // Only require end_date for intervals other than ONCE and DAILY
-            if (!in_array($interval, ['ONCE', 'DAILY'])) {
-                $validationRules['end_date'] = 'required|date|after_or_equal:start_date';
-            }
 
             $validator = \Validator::make($request->all(), $validationRules);
 
@@ -367,14 +363,13 @@ class MaintenanceController extends Controller
             $requestData = [
                 'asset_ids' => $assetIds,
                 'start_date' => $request->input('start_date'),
-                'interval' => $request->input('interval'),
+                // 'interval' => $request->input('interval'),
                 'assigned_to' => (int) $request->input('assigned_to')
             ];
 
-            // Only add end_date for non-ONCE and non-DAILY intervals
-            // Or if it was explicitly provided
-            if (!in_array($interval, ['ONCE', 'DAILY']) || $request->has('end_date')) {
-                $requestData['end_date'] = $request->input('end_date') ?? $request->input('start_date');
+            // Add end_date if it was provided
+            if ($request->has('end_date') && !empty($request->input('end_date'))) {
+                $requestData['end_date'] = $request->input('end_date');
             }
 
             // Only add vendor_id if it's present and not empty
@@ -411,20 +406,14 @@ class MaintenanceController extends Controller
             // Define basic validation rules
             $validationRules = [
                 'start_date' => 'nullable|date',
-                'interval' => 'nullable|string|in:ONCE,DAILY,WEEKLY,2 WEEKS,MONTHLY,2 MONTHS,3 MONTHS,4 MONTHS,6 MONTHS,YEARLY',
+                'end_date' => 'nullable|date',
+                // 'interval' => 'nullable|string|in:ONCE,DAILY,WEEKLY,2 WEEKS,MONTHLY,2 MONTHS,3 MONTHS,4 MONTHS,6 MONTHS,YEARLY',
                 'assigned_to' => 'nullable|integer',
                 'vendor_id' => 'nullable|integer',
                 'status' => 'nullable|string|in:new,in progress,finished',
                 'notes' => 'nullable|string',
                 'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png'
             ];
-
-            // Add end_date validation based on interval
-            if ($interval && !in_array($interval, ['ONCE', 'DAILY'])) {
-                $validationRules['end_date'] = 'nullable|date|after_or_equal:start_date';
-            } else {
-                $validationRules['end_date'] = 'nullable|date';
-            }
 
             $validator = \Validator::make($request->all(), $validationRules);
 

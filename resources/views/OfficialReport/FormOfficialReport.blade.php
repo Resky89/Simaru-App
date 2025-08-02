@@ -936,10 +936,17 @@
                                 return;
                             }
 
-                            data.items.push({
-                                asset_id: parsedAssetId,
-                                item_notes: itemNotes.value || ''
-                            });
+                            const itemData = {
+                                asset_id: parsedAssetId
+                            };
+
+                            // Only include item_notes if it has a non-empty value
+                            const notesValue = itemNotes.value?.trim();
+                            if (notesValue) {
+                                itemData.item_notes = notesValue;
+                            }
+
+                            data.items.push(itemData);
                         }
                     });
 

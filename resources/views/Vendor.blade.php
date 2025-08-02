@@ -393,6 +393,7 @@
                                         <input type="text" name="contact_person" id="add_contact_person"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak Person harus diisi</div>
                                     </div>
 
                                     <!-- Phone Number Input -->
@@ -403,6 +404,7 @@
                                         <input type="tel" name="phone_number" id="add_phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon tidak valid</div>
                                     </div>
 
                                     <!-- Second Phone Number Input -->
@@ -413,6 +415,7 @@
                                         <input type="tel" name="second_phone_number" id="add_second_phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon 2 tidak valid</div>
                                     </div>
 
                                     <!-- Email Input -->
@@ -421,6 +424,7 @@
                                         <input type="email" name="email" id="add_email"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Format Email tidak valid</div>
                                     </div>
 
                                     <!-- Website Input -->
@@ -429,6 +433,7 @@
                                         <input type="url" name="website" id="add_website"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Format Website tidak valid</div>
                                     </div>
 
                                     <!-- Address Input -->
@@ -437,6 +442,7 @@
                                         <textarea name="address" id="add_address" rows="3"
                                             class="w-full px-4 py-2 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini"></textarea>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Alamat tidak valid</div>
                                     </div>
 
                                     <!-- Submit Button -->
@@ -501,6 +507,7 @@
                                         <input type="text" id="editContactPerson" name="contact_person"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Kontak Person harus diisi</div>
                                     </div>
 
                                     <!-- Phone Number Input -->
@@ -511,10 +518,10 @@
                                         <input type="text" id="editPhoneNumber" name="phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon tidak valid</div>
                                     </div>
 
                                     <!-- Second Phone Number Input -->
-
                                     <div class="space-y-2">
                                         <label class="block text-base font-semibold text-[#666666]">
                                             Nomor Telepon 2
@@ -522,6 +529,7 @@
                                         <input type="tel" id="editSecondPhoneNumber" name="second_phone_number"
                                             class="w-full h-[45px] px-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200"
                                             placeholder="Ketik di sini">
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Nomor Telepon 2 tidak valid</div>
                                     </div>
 
                                     <!-- Email Input -->
@@ -550,6 +558,7 @@
                                         <textarea id="editAddress" name="address"
                                             class="w-full p-4 border border-[#CCCCCC] rounded-lg text-[#666666] focus:outline-none focus:border-[#203268] focus:ring-2 focus:ring-[#203268] focus:ring-opacity-20 transition-all duration-200 min-h-[100px]"
                                             placeholder="Ketik di sini"></textarea>
+                                        <div class="error-message text-red-500 text-sm mt-1 hidden">Alamat tidak valid</div>
                                     </div>
 
                                     <!-- Submit Button -->
@@ -971,13 +980,8 @@
                 const forms = modal.querySelectorAll('form');
                 forms.forEach(form => {
                     form.reset();
-
-                    const inputs = form.querySelectorAll('input, select, textarea');
-                    inputs.forEach(input => {
-                        input.classList.remove('border-red-500');
-                        const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
-                    });
+                    // Use the new clearFieldErrors function
+                    clearFieldErrors(form);
                 });
 
                 if (modal.id === 'importVendorModal') {
@@ -1003,11 +1007,8 @@
                     const form = document.getElementById('createVendorForm');
                     if (form) {
                         form.reset();
-                        const errorElements = form.querySelectorAll('.error-message');
-                        errorElements.forEach(el => el.classList.add('hidden'));
-
-                        const inputs = form.querySelectorAll('input, textarea');
-                        inputs.forEach(input => input.classList.remove('border-red-500'));
+                        // Use the new clearFieldErrors function
+                        clearFieldErrors(form);
                     }
 
                     const submitBtn = document.getElementById('submitVendorBtn');
@@ -1212,50 +1213,35 @@
                                     window.location.reload();
                                 }, 1000);
                             } else {
-                                // Reset all error messages
-                                document.querySelectorAll('.error-message').forEach(el => {
-                                    el.classList.add('hidden');
-                                });
-                                document.querySelectorAll('input, select, textarea').forEach(field => {
-                                    field.classList.remove('border-red-500');
-                                });
+                                // Show field-specific errors
+                                if (data.errors) {
+                                    showFieldErrors(createVendorForm, data.errors);
 
-                                // Display field-specific errors
-                                if (data.errors && typeof data.errors === 'object') {
-                                    Object.keys(data.errors).forEach(key => {
-                                        let field;
-
-                                        // Map field names to form elements
-                                        if (key === 'vendor_name') {
-                                            field = document.getElementById('add_vendor_name');
-                                        } else if (key === 'contact_person') {
-                                            field = document.getElementById('add_contact_person');
-                                        } else if (key === 'phone_number') {
-                                            field = document.getElementById('add_phone_number');
-                                        } else if (key === 'email') {
-                                            field = document.getElementById('add_email');
-                                        } else if (key === 'website') {
-                                            field = document.getElementById('add_website');
-                                        }
-
-                                        if (field) {
-                                            field.classList.add('border-red-500');
-                                            const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
-
-                                            if (errorElement) {
-                                                const errorMsg = Array.isArray(data.errors[key])
-                                                    ? data.errors[key][0]
-                                                    : data.errors[key];
-
-                                                errorElement.textContent = errorMsg;
-                                                errorElement.classList.remove('hidden');
+                                    // Extract only error messages for toast (without field paths)
+                                    let errorMessages = [];
+                                    if (Array.isArray(data.errors)) {
+                                        errorMessages = data.errors.map(error => error.message).filter(msg => msg);
+                                    } else if (typeof data.errors === 'object') {
+                                        Object.values(data.errors).forEach(value => {
+                                            if (Array.isArray(value)) {
+                                                errorMessages.push(...value);
+                                            } else {
+                                                errorMessages.push(value);
                                             }
-                                        }
-                                    });
-                                }
+                                        });
+                                    }
 
-                                // Show general error message
-                                showToast(data.message || 'Gagal menambahkan vendor', 'error');
+                                    if (errorMessages.length > 0) {
+                                        const errorMessage = errorMessages.join('; ');
+                                        showToast(errorMessage, 'error');
+                                    } else {
+                                        showToast(data.message || 'Gagal menambahkan vendor', 'error');
+                                    }
+                                } else {
+                                    // Show general error message
+                                    const errorMessage = data.message || 'Gagal menambahkan vendor';
+                                    showToast(errorMessage, 'error');
+                                }
                             }
                         })
                         .catch(error => {
@@ -1333,48 +1319,35 @@
                                         window.location.reload();
                                     }, 1000);
                                 } else {
-                                    // Reset all error messages
-                                    document.querySelectorAll('.error-message').forEach(el => {
-                                        el.classList.add('hidden');
-                                    });
-                                    document.querySelectorAll('input, select, textarea').forEach(field => {
-                                        field.classList.remove('border-red-500');
-                                    });
+                                    // Show field-specific errors
+                                    if (data.errors) {
+                                        showFieldErrors(this, data.errors);
 
-                                    // Display field-specific errors
-                                    if (data.errors && typeof data.errors === 'object') {
-                                        Object.keys(data.errors).forEach(key => {
-                                            let field;
-                                            // Map field names to form elements
-                                            if (key === 'vendor_name') {
-                                                field = document.getElementById('editVendorName');
-                                            } else if (key === 'contact_person') {
-                                                field = document.getElementById('editContactPerson');
-                                            } else if (key === 'phone_number') {
-                                                field = document.getElementById('editPhoneNumber');
-                                            } else if (key === 'email') {
-                                                field = document.getElementById('editEmail');
-                                            } else if (key === 'website') {
-                                                field = document.getElementById('editWebsite');
-                                            }
-
-                                            if (field) {
-                                                field.classList.add('border-red-500');
-                                                const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
-
-                                                if (errorElement) {
-                                                    const errorMsg = Array.isArray(data.errors[key])
-                                                        ? data.errors[key][0]
-                                                        : data.errors[key];
-
-                                                    errorElement.textContent = errorMsg;
-                                                    errorElement.classList.remove('hidden');
+                                        // Extract only error messages for toast (without field paths)
+                                        let errorMessages = [];
+                                        if (Array.isArray(data.errors)) {
+                                            errorMessages = data.errors.map(error => error.message).filter(msg => msg);
+                                        } else if (typeof data.errors === 'object') {
+                                            Object.values(data.errors).forEach(value => {
+                                                if (Array.isArray(value)) {
+                                                    errorMessages.push(...value);
+                                                } else {
+                                                    errorMessages.push(value);
                                                 }
-                                            }
-                                        });
-                                    }
+                                            });
+                                        }
 
-                                    showToast(data.message || 'Gagal memperbarui vendor', 'error');
+                                        if (errorMessages.length > 0) {
+                                            const errorMessage = errorMessages.join('; ');
+                                            showToast(errorMessage, 'error');
+                                        } else {
+                                            showToast(data.message || 'Gagal memperbarui vendor', 'error');
+                                        }
+                                    } else {
+                                        // Show general error message
+                                        const errorMessage = data.message || 'Gagal memperbarui vendor';
+                                        showToast(errorMessage, 'error');
+                                    }
                                 }
                             })
                             .catch(error => {
@@ -1446,6 +1419,84 @@
                 }
             }
 
+            // Function to clear all field errors
+            function clearFieldErrors(form) {
+                if (!form) return;
+
+                const fields = form.querySelectorAll('input, select, textarea');
+                fields.forEach(field => {
+                    field.classList.remove('border-red-500');
+                    const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                        errorElement.textContent = '';
+                    }
+                });
+            }
+
+            // Function to show field errors from server response
+            function showFieldErrors(form, errors) {
+                if (!form || !errors) return;
+
+                // Clear existing errors first
+                clearFieldErrors(form);
+
+                // Handle different error formats
+                let errorList = [];
+
+                if (Array.isArray(errors)) {
+                    errorList = errors;
+                } else if (typeof errors === 'object') {
+                    // Convert object errors to array format
+                    Object.entries(errors).forEach(([key, value]) => {
+                        if (Array.isArray(value)) {
+                            value.forEach(msg => {
+                                errorList.push({ path: key, message: msg });
+                            });
+                        } else {
+                            errorList.push({ path: key, message: value });
+                        }
+                    });
+                }
+
+                // Apply errors to fields
+                errorList.forEach(error => {
+                    let fieldName = error.path || error.field;
+                    let message = error.message;
+
+                    if (!fieldName || !message) return;
+
+                    // Find the field by name or id
+                    let field = form.querySelector(`[name="${fieldName}"]`) ||
+                               form.querySelector(`#${fieldName}`) ||
+                               form.querySelector(`#add_${fieldName}`) ||
+                               form.querySelector(`#edit${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+
+                    if (field) {
+                        // Add error styling
+                        field.classList.add('border-red-500');
+
+                        // Find and update error message element
+                        const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = message;
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+                });
+            }
+
+            // Function to clear field error on user interaction
+            function clearFieldError(field) {
+                if (!field) return;
+                field.classList.remove('border-red-500');
+                const errorElement = field.closest('.space-y-2')?.querySelector('.error-message');
+                if (errorElement) {
+                    errorElement.classList.add('hidden');
+                    errorElement.textContent = '';
+                }
+            }
+
             const addFormFields = [
                 document.getElementById('add_vendor_name'),
                 document.getElementById('add_contact_person'),
@@ -1458,9 +1509,7 @@
             addFormFields.forEach(field => {
                 if (field) {
                     field.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
+                        clearFieldError(this);
                     });
                 }
             });
@@ -1477,9 +1526,7 @@
             editFormFields.forEach(field => {
                 if (field) {
                     field.addEventListener('input', function () {
-                        this.classList.remove('border-red-500');
-                        const errorElement = this.closest('.space-y-2').querySelector('.error-message');
-                        if (errorElement) errorElement.classList.add('hidden');
+                        clearFieldError(this);
                     });
                 }
             });

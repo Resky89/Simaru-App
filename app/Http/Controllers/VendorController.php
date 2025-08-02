@@ -52,8 +52,8 @@ class VendorController extends Controller
                 'contact_person' => 'nullable|string',
                 'phone_number' => 'nullable|string',
                 'second_phone_number' => 'nullable|string',
-                'email' => 'nullable|string|email',
-                'website' => 'nullable|string|url',
+                'email' => 'nullable|string',
+                'website' => 'nullable|string',
                 'address' => 'nullable|string'
             ]);
 
@@ -132,8 +132,8 @@ class VendorController extends Controller
                 'contact_person' => 'nullable|string',
                 'phone_number' => 'nullable|string',
                 'second_phone_number' => 'nullable|string',
-                'email' => 'nullable|string|email',
-                'website' => 'nullable|string|url',
+                'email' => 'nullable|string',
+                'website' => 'nullable|string',
                 'address' => 'nullable|string'
             ]);
 

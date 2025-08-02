@@ -128,6 +128,11 @@
                         </div>
 
                         <div class="flex flex-col">
+                            <span class="text-sm text-gray-500">Model</span>
+                            <span class="font-medium">{{ $calibration['model'] ?? 'N/A' }}</span>
+                        </div>
+
+                        <div class="flex flex-col">
                             <span class="text-sm text-gray-500">Nomor Seri</span>
                             <span class="font-medium">{{ $calibration['serial_number'] ?? 'N/A' }}</span>
                         </div>

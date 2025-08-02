@@ -1114,7 +1114,14 @@
                             if (!validateField(document.getElementById('priority'))) isValid = false;
                             if (!validateField(document.getElementById('justification'))) isValid = false;
 
-                            itemContainer.querySelectorAll('.item-entry').forEach((item, index) => {
+                            // Check if there's at least one item
+                            const itemEntries = itemContainer.querySelectorAll('.item-entry');
+                            if (itemEntries.length === 0) {
+                                showSweetAlert('Setidaknya satu item aset harus ditambahkan.', 'error');
+                                isValid = false;
+                            }
+
+                            itemEntries.forEach((item, index) => {
                                 const assetTypeSelector = item.querySelector('.asset-type-selector');
                                 if (!validateField(assetTypeSelector)) isValid = false;
 
@@ -1166,6 +1173,12 @@
 
                             data.details = [];
 
+                            console.log('Form data before processing:', {
+                                title: data.title,
+                                priority: data.priority,
+                                justification: data.justification
+                            });
+
                             itemContainer.querySelectorAll('.item-entry').forEach((item, index) => {
                                 const detailObj = {};
                                 const assetTypeSelector = item.querySelector('.asset-type-selector');
@@ -1197,6 +1210,8 @@
                                 data.details.push(detailObj);
                             });
 
+                            console.log('Final data to be sent:', data);
+
                             const isUpdate = procurementId ? true : false;
                             const url = isUpdate
                                 ? `/procurement/request/${procurementId}`
@@ -1204,16 +1219,32 @@
                             const method = isUpdate ? 'PUT' : 'POST';
                             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+                            console.log('Request details:', {
+                                url: url,
+                                method: method,
+                                isUpdate: isUpdate,
+                                hasCSRFToken: !!csrfToken
+                            });
+
                             fetch(url, {
                                 method: method,
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': csrfToken
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
                                 },
                                 body: JSON.stringify(data)
                             })
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                                    }
+                                    return response.json();
+                                })
                                 .then(result => {
+                                    console.log('API Response:', result);
+
                                     if (result.success) {
                                         showSweetAlert(
                                             isUpdate ? 'Pengadaan berhasil diperbarui' : 'Pengadaan berhasil dibuat',
@@ -1236,8 +1267,9 @@
                                         submitButton.innerHTML = originalButtonText;
 
                                         const errorData = result.errors || {};
+                                        const errorMessage = result.message || 'Terjadi kesalahan saat memproses permintaan Anda';
 
-                                        let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda:';
+                                        let displayMessage = errorMessage;
                                         let errorList = [];
 
                                         if (Array.isArray(errorData)) {
@@ -1282,23 +1314,38 @@
                                         }
 
                                         if (errorList.length > 0) {
-                                            errorMessage += '<ul class="mt-2 list-disc pl-5">';
+                                            displayMessage += '<ul class="mt-2 list-disc pl-5">';
                                             errorList.forEach(err => {
-                                                errorMessage += `<li>${err}</li>`;
+                                                displayMessage += `<li>${err}</li>`;
                                             });
-                                            errorMessage += '</ul>';
+                                            displayMessage += '</ul>';
                                         }
 
-                                        showSweetAlert(errorMessage, 'error');
+                                        showSweetAlert(displayMessage, 'error');
                                     }
                                 })
                                 .catch(error => {
-                                    console.error('Error:', error);
+                                    console.error('Network/Fetch Error:', error);
                                     isSubmitting = false;
                                     submitButton.disabled = false;
                                     submitButton.innerHTML = originalButtonText;
 
-                                    showSweetAlert('Terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.', 'error');
+                                    let errorMessage = 'Terjadi kesalahan saat memproses permintaan Anda.';
+
+                                    if (error.message.includes('HTTP 422')) {
+                                        errorMessage = 'Data yang dikirim tidak valid. Silakan periksa kembali formulir Anda.';
+                                    } else if (error.message.includes('HTTP 500')) {
+                                        errorMessage = 'Terjadi kesalahan server. Silakan coba lagi dalam beberapa saat.';
+                                    } else if (error.message.includes('HTTP 403')) {
+                                        errorMessage = 'Anda tidak memiliki izin untuk melakukan aksi ini.';
+                                    } else if (error.message.includes('Failed to fetch') || error.message.includes('Network')) {
+                                        errorMessage = 'Koneksi jaringan bermasalah. Silakan periksa koneksi internet Anda.';
+                                    }
+
+                                    showSweetAlert(errorMessage, 'error', {
+                                        title: 'Gagal Memproses Permintaan',
+                                        footer: 'Jika masalah berlanjut, silakan hubungi administrator sistem'
+                                    });
                                 });
                         });
 

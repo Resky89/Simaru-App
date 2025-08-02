@@ -75,6 +75,13 @@ class ProcurementRequestController extends Controller
     public function store(Request $request)
     {
         try {
+            // Debug incoming request
+            \Log::info('Procurement store request received:', [
+                'data' => $request->all(),
+                'content_type' => $request->header('Content-Type'),
+                'method' => $request->method()
+            ]);
+
             // Validate request data
             $validated = $request->validate([
                 'title' => 'required|string',
@@ -85,6 +92,8 @@ class ProcurementRequestController extends Controller
                 'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
                 'details.*.quantity' => 'required|integer',
                 'details.*.estimated_unit_price' => 'required|numeric',
+                'details.*.specifications' => 'nullable|string',
+                'details.*.notes' => 'nullable|string',
             ]);
 
             // Process details to ensure proper types
@@ -93,15 +102,22 @@ class ProcurementRequestController extends Controller
                 $details = array_values($validated['details']);
                 $validated['details'] = [];
 
-                foreach ($details as $detail) {
+                foreach ($details as $index => $detail) {
                     $processedDetail = [];
 
-                    // Process asset_name or asset_master_id
-                    if (isset($detail['asset_name'])) {
-                        $processedDetail['asset_name'] = $detail['asset_name'];
+                    // Validate that either asset_name or asset_master_id is provided
+                    if (empty($detail['asset_name']) && empty($detail['asset_master_id'])) {
+                        $validator = validator([], []);
+                        $validator->errors()->add("details.{$index}.asset_name", 'Either asset name or asset master ID must be provided');
+                        throw new \Illuminate\Validation\ValidationException($validator);
                     }
 
-                    if (isset($detail['asset_master_id'])) {
+                    // Process asset_name or asset_master_id
+                    if (!empty($detail['asset_name'])) {
+                        $processedDetail['asset_name'] = trim($detail['asset_name']);
+                    }
+
+                    if (!empty($detail['asset_master_id'])) {
                         $processedDetail['asset_master_id'] = (int) $detail['asset_master_id'];
                     }
 
@@ -110,18 +126,20 @@ class ProcurementRequestController extends Controller
                     $processedDetail['estimated_unit_price'] = (float) $detail['estimated_unit_price'];
 
                     // Process optional fields
-                    if (isset($detail['specifications'])) {
-                        $processedDetail['specifications'] = $detail['specifications'];
+                    if (!empty($detail['specifications'])) {
+                        $processedDetail['specifications'] = trim($detail['specifications']);
                     }
 
-                    if (isset($detail['notes'])) {
-                        $processedDetail['notes'] = $detail['notes'];
+                    if (!empty($detail['notes'])) {
+                        $processedDetail['notes'] = trim($detail['notes']);
                     }
 
                     // Add to details array
                     $validated['details'][] = $processedDetail;
                 }
             }
+
+            \Log::info('Sending data to API:', ['validated_data' => $validated]);
 
             return $this->storeResource(
                 $request,
@@ -131,14 +149,27 @@ class ProcurementRequestController extends Controller
                 'procurement.request'
             );
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error in procurement store:', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
+                'message' => 'Terdapat kesalahan validasi pada data yang dikirim'
             ], 422);
         } catch (\Exception $e) {
+            \Log::error('Exception in procurement store:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'errors' => ['exception' => ['Gagal membuat pengadaan: ' . $e->getMessage()]],
+                'message' => 'Terjadi kesalahan server saat memproses permintaan'
             ], 500);
         }
     }
@@ -176,7 +207,7 @@ class ProcurementRequestController extends Controller
                 'details' => 'required|array',
                 'details.*.asset_name' => 'required_without:details.*.asset_master_id|string',
                 'details.*.asset_master_id' => 'required_without:details.*.asset_name|integer',
-                'details.*.quantity' => 'required|integer',
+                'details.*.quantity' => 'required|integer|',
                 'details.*.estimated_unit_price' => 'required|numeric',
                 'details.*.specifications' => 'nullable|string',
                 'details.*.notes' => 'nullable|string',
@@ -188,15 +219,22 @@ class ProcurementRequestController extends Controller
                 $details = array_values($validated['details']);
                 $validated['details'] = [];
 
-                foreach ($details as $detail) {
+                foreach ($details as $index => $detail) {
                     $processedDetail = [];
 
-                    // Process asset_name or asset_master_id
-                    if (isset($detail['asset_name'])) {
-                        $processedDetail['asset_name'] = $detail['asset_name'];
+                    // Validate that either asset_name or asset_master_id is provided
+                    if (empty($detail['asset_name']) && empty($detail['asset_master_id'])) {
+                        $validator = validator([], []);
+                        $validator->errors()->add("details.{$index}.asset_name", 'Either asset name or asset master ID must be provided');
+                        throw new \Illuminate\Validation\ValidationException($validator);
                     }
 
-                    if (isset($detail['asset_master_id'])) {
+                    // Process asset_name or asset_master_id
+                    if (!empty($detail['asset_name'])) {
+                        $processedDetail['asset_name'] = trim($detail['asset_name']);
+                    }
+
+                    if (!empty($detail['asset_master_id'])) {
                         $processedDetail['asset_master_id'] = (int) $detail['asset_master_id'];
                     }
 
@@ -205,12 +243,12 @@ class ProcurementRequestController extends Controller
                     $processedDetail['estimated_unit_price'] = (float) $detail['estimated_unit_price'];
 
                     // Process optional fields
-                    if (isset($detail['specifications'])) {
-                        $processedDetail['specifications'] = $detail['specifications'];
+                    if (!empty($detail['specifications'])) {
+                        $processedDetail['specifications'] = trim($detail['specifications']);
                     }
 
-                    if (isset($detail['notes'])) {
-                        $processedDetail['notes'] = $detail['notes'];
+                    if (!empty($detail['notes'])) {
+                        $processedDetail['notes'] = trim($detail['notes']);
                     }
 
                     // Add to details array
@@ -226,14 +264,29 @@ class ProcurementRequestController extends Controller
                 'procurement.request'
             );
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error in procurement update:', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
                 'success' => false,
                 'errors' => $e->errors(),
+                'message' => 'Terdapat kesalahan validasi pada data yang dikirim'
             ], 422);
         } catch (\Exception $e) {
+            \Log::error('Exception in procurement update:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+                'procurement_id' => $id
+            ]);
+
             return response()->json([
                 'success' => false,
                 'errors' => ['exception' => ['Gagal memperbarui pengadaan: ' . $e->getMessage()]],
+                'message' => 'Terjadi kesalahan server saat memproses permintaan'
             ], 500);
         }
     }
