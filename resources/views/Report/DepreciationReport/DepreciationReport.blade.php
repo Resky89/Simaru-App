@@ -424,6 +424,30 @@
                                 .error-message ul li:last-child {
                                     margin-bottom: 0;
                                 }
+
+                                /* Ensure date field has consistent size with other fields */
+                                #month_picker {
+                                    height: 42px !important;
+                                    min-height: 42px !important;
+                                    padding: 8px 12px !important;
+                                    box-sizing: border-box !important;
+                                }
+
+                                /* Override Flatpickr styles to maintain consistency */
+                                #month_picker.flatpickr-input {
+                                    height: 42px !important;
+                                    min-height: 42px !important;
+                                    padding: 8px 12px !important;
+                                    border: 1px solid #D8DAE5 !important;
+                                    border-radius: 6px !important;
+                                    font-size: inherit !important;
+                                    line-height: 1.5 !important;
+                                }
+
+                                /* Ensure the flatpickr wrapper doesn't change the field size */
+                                .flatpickr-wrapper {
+                                    width: 100% !important;
+                                }
                             </style>
                         `);
 
@@ -489,7 +513,17 @@
                             static: true,
                             disableMobile: true,
                             allowInput: false,
-                            altInput: true
+                            altInput: true,
+                            onReady: function(selectedDates, dateStr, instance) {
+                                // Ensure consistent field size after Flatpickr initialization
+                                setTimeout(() => {
+                                    const input = instance.input;
+                                    input.style.height = '42px';
+                                    input.style.minHeight = '42px';
+                                    input.style.padding = '8px 12px';
+                                    input.style.boxSizing = 'border-box';
+                                }, 100);
+                            }
                         });
 
                         // Set initial value if provided in URL

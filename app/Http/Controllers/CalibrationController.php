@@ -393,7 +393,7 @@ class CalibrationController extends Controller
      * Export calibrations to PDF.
      *
      * @param Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function exportCalibrationPDF(Request $request)
     {
@@ -488,7 +488,7 @@ class CalibrationController extends Controller
      * Export calibration detail to PDF.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View
      */
     public function exportCalibrationDetailPDF($id)
     {
@@ -827,8 +827,9 @@ class CalibrationController extends Controller
             // Build query parameters
             $queryParams = [];
 
-            // Add asset_type filter if provided
-            if (!empty($assetType)) {
+            // Add asset_type filter only if it's non_medical
+            // For medical equipment, don't include the parameter
+            if (!empty($assetType) && $assetType === 'non_medical') {
                 $queryParams['asset_type'] = $assetType;
             }
 
