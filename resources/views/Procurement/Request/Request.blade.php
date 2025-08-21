@@ -102,7 +102,7 @@
                                     @endif
                                 </td>
                                 <td class="p-3 text-xs border-t border-[#EEF1F4] text-center">
-                                    <span class="px-2 py-1 rounded-full text-xs
+                                    <span class="px-2 py-1 rounded text-xs inline-block w-full text-center whitespace-nowrap
                                         @if($procurement['status'] == 'Submitted') bg-blue-100 text-blue-800
                                         @elseif($procurement['status'] == 'Under Review') bg-yellow-100 text-yellow-800
                                         @elseif($procurement['status'] == 'Approved') bg-green-100 text-green-800
