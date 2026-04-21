@@ -512,22 +512,8 @@
 
     <!-- Add Asset Modal -->
     @if(hasPermission('asset:create'))
-        <div id="addAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="addAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-4 border-b">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH ASET</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="addAssetModal" title="TAMBAH ASET" maxWidth="sm:max-w-[700px]">
+
 
                         <!-- Add Asset Form -->
                         <form action="{{ route('assets.store') }}" method="POST" id="addAssetForm" data-no-loading novalidate>
@@ -928,30 +914,14 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     <!-- Edit Asset Modal -->
     @if(hasPermission('asset:edit'))
-        <div id="editAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="editAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-4 border-b">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">UBAH ASET</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="editAssetModal" title="UBAH ASET" maxWidth="sm:max-w-[700px]">
+
 
                         <!-- Edit Asset Form -->
                         <form id="editAssetForm" method="POST" data-no-loading novalidate>
@@ -1355,30 +1325,14 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     <!-- Delete Asset Modal -->
     @if(hasPermission('asset:delete'))
-        <div id="deleteAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="deleteAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS ASET</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="deleteAssetModal" title="HAPUS ASET">
+
 
                         <!-- Form -->
                         <form id="deleteAssetForm" method="POST" data-no-loading>
@@ -1409,10 +1363,8 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     @if(session('success'))
@@ -1482,22 +1434,8 @@
     @endif
 
     <!-- Print QR Modal -->
-    <div id="printQRModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-        <div class="fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                    id="printQRModalContent">
-                    <!-- Header -->
-                    <div class="flex justify-between items-center p-6 pb-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">CETAK QR CODE</h2>
-                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
+    <x-modal id="printQRModal" title="CETAK QR CODE">
+
 
                     <!-- Form -->
                     <form id="printQRForm" action="{{ route('assets.qr.print-direct') }}" method="post" data-no-loading
@@ -1538,29 +1476,13 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                
+        </x-modal>
 
     <!-- Import Asset Modal -->
     @if(hasPermission('asset:import'))
-        <div id="importAssetModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="importAssetModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPOR ASET</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="importAssetModal" title="IMPOR ASET" maxWidth="sm:max-w-[700px]">
+
 
                         <!-- Step 1: File Selection -->
                         <div id="import-step-1" class="block">
@@ -1732,10 +1654,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     @push('scripts')

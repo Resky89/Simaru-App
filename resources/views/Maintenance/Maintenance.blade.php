@@ -338,23 +338,8 @@
 
             <!-- Add Maintenance Modal -->
             @if(hasPermission('maintenance:create'))
-                <div id="addMaintenanceModal" class="fixed inset-0 z-50 hidden">
-                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                    <div class="fixed inset-0 z-50 overflow-y-auto">
-                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[850px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                id="addMaintenanceModalContent">
-                                <!-- Header -->
-                                <div class="flex justify-between items-center p-6 pb-0">
-                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Tambah Jadwal Pemeliharaan Baru</h2>
-                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                        data-modal="addMaintenanceModal">
-                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                <x-modal id="addMaintenanceModal" title="Tambah Jadwal Pemeliharaan Baru" maxWidth="sm:max-w-[850px]">
+
 
                                 <!-- Form -->
                                 <div class="p-6">
@@ -542,10 +527,8 @@
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            
+        </x-modal>
             @endif
 
             <!-- Asset Selection Modal -->
@@ -651,23 +634,8 @@
 
             <!-- Delete Confirmation Modal -->
             @if(hasPermission('maintenance:delete'))
-                <div id="deleteMaintenanceModal" class="fixed inset-0 z-50 hidden">
-                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                    <div class="fixed inset-0 z-50 overflow-y-auto">
-                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                id="deleteMaintenanceModalContent">
-                                <!-- Header -->
-                                <div class="flex justify-between items-center p-6 pb-0">
-                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS PEMELIHARAAN</h2>
-                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                        data-modal="deleteMaintenanceModal">
-                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                <x-modal id="deleteMaintenanceModal" title="HAPUS PEMELIHARAAN">
+
 
                                 <!-- Form -->
                                 <form id="deleteMaintenanceForm" data-no-loading>
@@ -693,31 +661,14 @@
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            
+        </x-modal>
             @endif
 
             <!-- Edit Maintenance Modal -->
             @if(hasPermission('maintenance:edit'))
-                <div id="editMaintenanceModal" class="fixed inset-0 z-50 hidden">
-                    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                    <div class="fixed inset-0 z-50 overflow-y-auto">
-                        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                            <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                id="editMaintenanceModalContent">
-                                <!-- Header -->
-                                <div class="flex justify-between items-center p-6 pb-0">
-                                    <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">Ubah Jadwal Pemeliharaan</h2>
-                                    <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                        data-modal="editMaintenanceModal">
-                                        <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                <x-modal id="editMaintenanceModal" title="Ubah Jadwal Pemeliharaan" maxWidth="sm:max-w-[700px]">
+
 
                                 <!-- Form -->
                                 <div class="p-6">
@@ -864,31 +815,14 @@
                                         </div>
                                     </form>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            
+        </x-modal>
             @endif
 
             @if(hasPermission('maintenance-report:medical') || hasPermission('maintenance-report:non-medical'))
                     <!-- Create Maintenance Report Modal -->
-                    <div id="createReportModal" class="fixed inset-0 z-50 hidden">
-                        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-                        <div class="fixed inset-0 z-50 overflow-y-auto">
-                            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                                <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[800px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                                    id="createReportModalContent">
-                                    <!-- Header -->
-                                    <div class="flex justify-between items-center p-6 pb-0">
-                                        <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">BUAT LAPORAN PEMELIHARAAN</h2>
-                                        <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                            data-modal="createReportModal">
-                                            <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
+                    <x-modal id="createReportModal" title="BUAT LAPORAN PEMELIHARAAN" maxWidth="sm:max-w-[800px]">
+
 
                                     <!-- Form -->
                                     <div class="p-6">
@@ -1087,10 +1021,8 @@
                                             </div>
                                         </form>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                
+        </x-modal>
                 </div>
             @endif
 

@@ -116,23 +116,8 @@
 
     <!-- Add Transaction Modal -->
     @if(hasPermission('asset:transaction:create'))
-        <div id="addTransactionModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="addTransactionModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH TRANSAKSI BARU</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="addTransactionModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="addTransactionModal" title="TAMBAH TRANSAKSI BARU">
+
 
                         <!-- Form -->
                         <form id="addTransactionForm" action="{{ route('asset-transactions.store') }}" method="POST"
@@ -232,31 +217,14 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     <!-- Edit Transaction Modal -->
     @if(hasPermission('asset:transaction:edit'))
-        <div id="editTransactionModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="editTransactionModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT TRANSAKSI</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="editTransactionModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="editTransactionModal" title="EDIT TRANSAKSI">
+
 
                         <!-- Form -->
                         <form id="editTransactionForm"
@@ -359,31 +327,14 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     <!-- Delete Transaction Modal -->
     @if(hasPermission('asset:transaction:delete'))
-        <div id="deleteTransactionModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="deleteTransactionModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS TRANSAKSI</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                                data-modal="deleteTransactionModal">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="deleteTransactionModal" title="HAPUS TRANSAKSI">
+
 
                         <!-- Content -->
                         <form id="deleteTransactionForm"
@@ -416,10 +367,8 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 </div>
 

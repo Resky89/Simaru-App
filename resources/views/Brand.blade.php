@@ -250,22 +250,8 @@
 
     @if(hasPermission('brand:create'))
         <!-- Modal Add Brand -->
-        <div id="addBrandModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="addBrandModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">TAMBAH MERK</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="addBrandModal" title="TAMBAH MERK">
+
 
                         <!-- Form -->
                         <div class="p-6">
@@ -293,30 +279,14 @@
                                 </div>
                             </form>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     @if(hasPermission('brand:edit'))
         <!-- Modal Edit Brand -->
-        <div id="editBrandModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="editBrandModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">EDIT MERK</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="editBrandModal" title="EDIT MERK">
+
 
                         <!-- Form -->
                         <div class="p-6">
@@ -341,30 +311,14 @@
                                 </div>
                             </form>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     @if(hasPermission('brand:delete'))
         <!-- Delete Brand Modal -->
-        <div id="deleteBrandModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[500px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="deleteBrandModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">HAPUS MERK</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="deleteBrandModal" title="HAPUS MERK">
+
 
                         <!-- Content -->
                         <div class="p-6">
@@ -396,30 +350,14 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     @if(hasPermission('brand:import'))
         <!-- Import Brand Modal -->
-        <div id="importBrandModal" class="fixed inset-0 z-50 hidden">
-            <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"></div>
-            <div class="fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                    <div class="relative transform overflow-hidden rounded-[15px] bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-[700px] scale-95 opacity-0 translate-y-4 sm:translate-y-0 duration-300"
-                        id="importBrandModalContent">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-6 pb-0">
-                            <h2 class="text-xl sm:text-2xl font-semibold text-[#213268]">IMPORT MERK</h2>
-                            <button class="close-modal p-2 hover:bg-gray-100 rounded-full transition-colors duration-200">
-                                <svg class="w-6 h-6 text-[#757575]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
+        <x-modal id="importBrandModal" title="IMPORT MERK" maxWidth="sm:max-w-[700px]">
+
 
                         <!-- Step 1: File Selection -->
                         <div id="import-brand-step-1" class="block">
@@ -575,10 +513,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    
+        </x-modal>
     @endif
 
     <script>
