@@ -599,7 +599,7 @@ class ComplainRepairController extends Controller
              // Convert complaint image to base64 if exists
              if (!empty($complaint['complaint_picture_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $imagePath = $backendUrl . '/public/images/' . basename($complaint['asset_image_path']);
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
@@ -613,7 +613,7 @@ class ComplainRepairController extends Controller
             // Convert complaint image to base64 if exists
             if (!empty($complaint['complaint_picture_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $imagePath = $backendUrl . '/public/images/' . basename($complaint['complaint_picture_path']);
                     $imageData = file_get_contents($imagePath);
                     if ($imageData !== false) {
@@ -627,7 +627,7 @@ class ComplainRepairController extends Controller
             // Convert repair image to base64 if exists
             if (!empty($complaint['repair']) && !empty($complaint['repair']['repair_picture_path'])) {
                 try {
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $repairImagePath = $backendUrl . '/public/images/' . basename($complaint['repair']['repair_picture_path']);
                     $repairImageData = file_get_contents($repairImagePath);
                     if ($repairImageData !== false) {

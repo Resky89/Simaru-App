@@ -532,7 +532,7 @@ class CalibrationController extends Controller
 
                     if ($isImage) {
                         // Construct proper path to the image
-                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                        $backendUrl = api_url();
 
                         // Check if asset_image_path already includes /public
                         if (strpos($calibrationData['asset_image_path'], '/public') === 0) {
@@ -571,7 +571,7 @@ class CalibrationController extends Controller
 
                     if ($isImage) {
                         // Construct proper path to the image
-                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                        $backendUrl = api_url();
 
                         // Check if certificate_file_path already includes /public
                         if (strpos($calibrationData['certificate_file_path'], '/public') === 0) {

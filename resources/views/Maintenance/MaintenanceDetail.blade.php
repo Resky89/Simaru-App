@@ -319,7 +319,7 @@
                             <span class="text-sm text-gray-500 block mb-3">Lampiran</span>
                             <div class="flex justify-center">
                                 <div class="max-w-md">
-                                    <img src="https://web-magangunbin2025.rsummi.co.id/api/public/images/{{ basename($maintenance['maintenance_report']['attachment_path']) }}"
+                                    <img src="{{ api_public_url('images/' . basename($maintenance['maintenance_report']['attachment_path'])) }}"
                                         alt="Maintenance Report Image"
                                         class="max-w-full h-auto rounded-lg border border-gray-200 shadow-md"
                                         style="max-height: 350px;"

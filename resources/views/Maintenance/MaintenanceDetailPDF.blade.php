@@ -377,7 +377,7 @@
                 // Fallback to image path (though this may not work in PDF context)
                 elseif (!empty($maintenance['asset_image_path'])) {
                     $hasAssetImage = true;
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $assetImageSrc = $backendUrl . '/public' . $maintenance['asset_image_path'];
                 }
             @endphp
@@ -504,7 +504,7 @@
                 @php
                     $filePath = $maintenance['document_file_path'];
                     $fileName = basename($filePath);
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $fileUrl = $backendUrl . '/public' . $filePath;
                 @endphp
                 <p style="margin: 0;">

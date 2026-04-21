@@ -15,11 +15,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register API base URL configuration
         $this->app->singleton('api.baseUrl', function ($app) {
-            return env('API_BASE_URL', 'https://web-magangunbin2025.rsummi.co.id/api');
+            return env('API_BASE_URL');
         });
 
         // Configure API service
-        config(['services.api.base_url' => env('API_BASE_URL', 'https://web-magangunbin2025.rsummi.co.id/api')]);
+        config(['services.api.base_url' => env('API_BASE_URL')]);
     }
 
     /**

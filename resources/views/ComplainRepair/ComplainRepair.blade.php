@@ -1752,13 +1752,13 @@
                             document.getElementById('repairReporterName').value = complaint.reporter_name || 'Tidak diketahui';
 
                             if (complaint.asset_image_path) {
-                                document.getElementById('repair_asset_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public${complaint.asset_image_path}`;
+                                document.getElementById('repair_asset_image').src = `{{ api_public_url() }}${complaint.asset_image_path}`;
                             } else {
                                 document.getElementById('repair_asset_image').src = `{{ asset('images/no-image.png') }}`;
                             }
 
                             if (complaint.complaint_picture_path) {
-                                document.getElementById('repair_complaint_image').src = `{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/${complaint.complaint_picture_path.split('/').pop()}`;
+                                document.getElementById('repair_complaint_image').src = `{{ api_public_url('images') }}/${complaint.complaint_picture_path.split('/').pop()}`;
                             } else {
                                 document.getElementById('repair_complaint_image').src = `{{ asset('images/no-image.png') }}`;
                             }

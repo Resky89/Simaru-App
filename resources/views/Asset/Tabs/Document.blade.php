@@ -796,7 +796,7 @@
                     if (doc.full_path) {
                         previewUrl = doc.full_path;
                     } else if (doc.file_path) {
-                        previewUrl = `https://web-magangunbin2025.rsummi.co.id/api/public${doc.file_path}`;
+                        previewUrl = `{{ api_public_url() }}${doc.file_path}`;
                     }
 
                     let badgeHtml = '';

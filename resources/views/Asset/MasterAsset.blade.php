@@ -1450,7 +1450,7 @@
                                     const imgElement = document.querySelector('#edit-image-container img');
                                     if (imgElement) {
                                         try {
-                                            const baseUrl = "https://web-magangunbin2025.rsummi.co.id/api/public";
+                                            const baseUrl = "{{ api_public_url() }}";
 
                                             let imageUrl = asset.reference_image_path;
 

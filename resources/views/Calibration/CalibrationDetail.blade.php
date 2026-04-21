@@ -343,7 +343,7 @@
 
                         @if($isImage)
                             <div class="mb-4 w-full flex justify-center">
-                                <img src="https://web-magangunbin2025.rsummi.co.id/api/public{{ $filePath }}" alt="Sertifikat"
+                                <img src="{{ api_public_url($filePath) }}" alt="Sertifikat"
                                     class="max-w-md w-full object-contain rounded-lg shadow-md" style="max-height: 350px;"
                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                             </div>
@@ -355,7 +355,7 @@
                                 </svg>
                                 <div>
                                     <p class="font-medium">{{ $fileName }}</p>
-                                    <a href="https://web-magangunbin2025.rsummi.co.id/api/public{{ $filePath }}" target="_blank"
+                                    <a href="{{ api_public_url($filePath) }}" target="_blank"
                                         class="text-blue-600 hover:underline text-sm">
                                         Lihat Dokumen
                                     </a>

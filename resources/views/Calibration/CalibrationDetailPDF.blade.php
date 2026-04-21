@@ -353,7 +353,7 @@
                 // Fallback to image path (though this may not work in PDF context)
                 elseif (!empty($calibration['asset_image_path'])) {
                     $hasAssetImage = true;
-                    $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                    $backendUrl = api_url();
                     $assetImageSrc = $backendUrl . '/public' . $calibration['asset_image_path'];
                 }
             @endphp
@@ -509,7 +509,7 @@
             $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif']);
 
             // Build the file URL using config
-            $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+            $backendUrl = api_url();
             $fileUrl = $backendUrl . '/public' . $filePath;
         @endphp
 

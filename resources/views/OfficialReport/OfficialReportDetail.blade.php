@@ -168,7 +168,7 @@
                                                 <div class="flex-shrink-0">
                                                     @php
                                                         $assetImageUrl = '';
-                                                        $backendUrl = config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api');
+                                                        $backendUrl = api_url();
 
                                                         // First check for asset_image_path (preferred)
                                                         if (isset($item['asset']['asset_image_path']) && $item['asset']['asset_image_path']) {

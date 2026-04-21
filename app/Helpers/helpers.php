@@ -56,3 +56,35 @@ if (!function_exists('logAccessAttempt')) {
         return PermissionHelper::logAccessAttempt($permissionRequired, $resourceName);
     }
 }
+
+if (!function_exists('api_url')) {
+    /**
+     * Generate URL for the API backend
+     *
+     * @param string $path
+     * @return string
+     */
+    function api_url($path = '')
+    {
+        $baseUrl = config('app.backend_url', env('BACKEND_URL', env('API_BASE_URL', 'http://localhost:9000/api')));
+        $baseUrl = rtrim($baseUrl, '/');
+        
+        if ($path) {
+            return $baseUrl . '/' . ltrim($path, '/');
+        }
+        return $baseUrl;
+    }
+}
+
+if (!function_exists('api_public_url')) {
+    /**
+     * Generate URL for the public assets in the API backend
+     *
+     * @param string $path
+     * @return string
+     */
+    function api_public_url($path = '')
+    {
+        return api_url('public/' . ltrim($path, '/'));
+    }
+}

@@ -97,7 +97,7 @@
                     @if(!empty($complaint['complaint_picture_path']))
                         <div
                             class="flex-grow flex items-center justify-center bg-gray-50 p-2 border rounded-lg overflow-hidden">
-                            <img src="{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/{{ basename($complaint['complaint_picture_path']) }}"
+                            <img src="{{ api_public_url('images/' . basename($complaint['complaint_picture_path'])) }}"
                                 alt="Gambar Keluhan" class="w-full object-contain rounded-lg" style="max-height: 350px;"
                                 onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                         </div>
@@ -128,7 +128,7 @@
                     <!-- Asset Image -->
                     <div
                         class="w-full h-40 bg-white mb-4 rounded-lg border border-gray-200 overflow-hidden relative flex items-center justify-center">
-                        <img src="{{ isset($complaint['asset_image_path']) ? config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') . '/public' . $complaint['asset_image_path'] : asset('images/placeholder.png') }}"
+                        <img src="{{ isset($complaint['asset_image_path']) ? api_public_url($complaint['asset_image_path']) : asset('images/placeholder.png') }}"
                             alt="Asset Image" class="w-full h-full object-contain p-2"
                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('object-contain', 'p-4');">
                     </div>
@@ -223,7 +223,7 @@
                             @if(!empty($complaint['repair']['repair_picture_path']))
                                 <div
                                     class="flex-grow flex items-center justify-center bg-gray-50 p-2 border rounded-lg overflow-hidden">
-                                    <img src="{{ config('app.backend_url', 'https://web-magangunbin2025.rsummi.co.id/api') }}/public/images/{{ basename($complaint['repair']['repair_picture_path']) }}"
+                                    <img src="{{ api_public_url('images/' . basename($complaint['repair']['repair_picture_path'])) }}"
                                         alt="Repair Image" class="w-full object-contain rounded-lg" style="max-height: 350px;"
                                         onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}'; this.classList.add('p-4');">
                                 </div>
