@@ -16,8 +16,7 @@ class ApiService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.api.base_url', env('API_BASE_URL', 'http://localhost:9000/api'));
-        $this->baseUrl = rtrim($this->baseUrl, '/');
+        $this->baseUrl = rtrim(env('API_BASE_URL', 'http://localhost:9000/api'), '/');
         $this->client = new Client([
             'timeout' => 30,
             'http_errors' => false, // We'll handle errors ourselves
@@ -225,8 +224,7 @@ class ApiService
         }
 
         try {
-            $client = new Client();
-            $response = $client->post(config('services.api.base_url') . '/auth/verify-token', [
+            $response = $this->client->post($this->baseUrl . '/auth/verify-token', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken
                 ],
@@ -291,8 +289,7 @@ class ApiService
         Log::info('Attempting to refresh token with refresh token from ApiService');
 
         try {
-            $client = new Client();
-            $response = $client->post(config('services.api.base_url') . '/auth/refresh-token', [
+            $response = $this->client->post($this->baseUrl . '/auth/refresh-token', [
                 'json' => [
                     'refresh_token' => $refreshToken,
                     // Some APIs expect 'refreshToken' instead
@@ -495,12 +492,9 @@ class ApiService
             }
 
             // If no permissions in JWT token, fetch from API as fallback
-            $client = new Client();
-            $apiBaseUrl = config('services.api.base_url');
-
             Log::info('Refreshing user permissions from API after token refresh');
 
-            $response = $client->get("{$apiBaseUrl}/permissions/by-roles", [
+            $response = $this->client->get("{$this->baseUrl}/permissions/by-roles", [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken
                 ],

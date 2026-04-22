@@ -249,7 +249,7 @@
                                 Menampilkan 0 sampai 0 dari 0 data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeRequestPerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeItemPerPage(this.value)">
                             <option value="10" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($procurements_pagination['per_page']) && $procurements_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>

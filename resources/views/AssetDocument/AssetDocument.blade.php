@@ -271,7 +271,7 @@
                                 Menampilkan 1 sampai {{ count($documents ?? []) }} dari {{ count($documents ?? []) }} data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeDocumentPerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeItemPerPage(this.value)">
                             <option value="10" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($documents_pagination['per_page']) && $documents_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>

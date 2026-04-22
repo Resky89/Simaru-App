@@ -289,7 +289,7 @@
                             </span>
                             <select id="roomPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changeRoomPerPage(this.value)">
+                                onchange="changeItemPerPage(this.value)">
                                 <option value="10" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                 <option value="25" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                 <option value="50" {{ isset($rooms_pagination['per_page']) && $rooms_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -936,14 +936,7 @@
                         });
                     @endif
 
-                window.changeRoomPerPage = function (limit) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('limit', limit);
-                    url.searchParams.set('page', 1);
-                    window.location.href = url.toString();
-                }
-
-                const searchInput = document.getElementById('searchInput');
+            const searchInput = document.getElementById('searchInput');
                 const sortOrder = document.getElementById('sortOrder');
 
                 function applyFilters() {
@@ -981,23 +974,7 @@
                 const importRoomModal = document.getElementById('importRoomModal');
                 const closeButtons = document.querySelectorAll('.close-modal');
 
-                function openModal(modal, content) {
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                    }, 10);
-                }
-
-                function closeModal(modal, content) {
-                    content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                    content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 300);
-                }
-
-                // Variables for building lazy loading
+            // Variables for building lazy loading
                 let addBuildingPage = 1;
                 let isLoadingAddBuildings = false;
                 let hasMoreAddBuildings = true;

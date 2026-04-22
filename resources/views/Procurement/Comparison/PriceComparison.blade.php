@@ -219,7 +219,7 @@
                                 Menampilkan 0 sampai 0 dari 0 data
                             @endif
                         </span>
-                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeComparisonPerPage(this.value)">
+                        <select id="perPageSelect" class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm" onchange="changeItemPerPage(this.value)">
                             <option value="10" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                             <option value="25" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                             <option value="50" {{ isset($comparisons_pagination['limit']) && $comparisons_pagination['limit'] == 50 ? 'selected' : '' }}>50 per halaman</option>

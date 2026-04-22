@@ -66,7 +66,7 @@ if (!function_exists('api_url')) {
      */
     function api_url($path = '')
     {
-        $baseUrl = config('app.backend_url', env('BACKEND_URL', env('API_BASE_URL', 'http://localhost:9000/api')));
+        $baseUrl = config('app.backend_url', env('BACKEND_URL', env('API_BASE_URL', 'http://localhost:9000/')));
         $baseUrl = rtrim($baseUrl, '/');
         
         if ($path) {
@@ -85,6 +85,6 @@ if (!function_exists('api_public_url')) {
      */
     function api_public_url($path = '')
     {
-        return api_url('public/' . ltrim($path, '/'));
+        return api_url('public' . ltrim($path, '/'));
     }
 }

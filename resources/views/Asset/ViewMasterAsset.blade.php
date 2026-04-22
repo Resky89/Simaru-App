@@ -1,4 +1,3 @@
-
 @extends('Layout.app')
 
 @section('title', 'Detail Aset Master')
@@ -409,6 +408,7 @@
                 </div>
             
         </x-modal>
+    @endif
 @endsection
 
 @push('scripts')

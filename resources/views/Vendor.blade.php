@@ -334,7 +334,7 @@
                             </span>
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changeVendorPerPage(this.value)">
+                                onchange="changeItemPerPage(this.value)">
                                 <option value="10" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                 <option value="25" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                 <option value="50" {{ isset($vendors_pagination['per_page']) && $vendors_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -806,109 +806,6 @@
             @if(session('error'))
                 showToast("{{ session('error') }}", 'error');
             @endif
-
-            window.changeVendorPerPage = function(limit) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('limit', limit);
-                url.searchParams.set('page', 1);
-                window.location.href = url.toString();
-            }
-
-            function openModal(modal, content) {
-                if (!modal || !content) {
-                    console.error('Modal or content element not found');
-                    return;
-                }
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            window.changePage = function (page) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('page', page);
-                window.location.href = url.toString();
-            }
-
-            function closeModal(modal, content) {
-                if (!modal || !content) {
-                    console.error('Modal or content element not found');
-                    return;
-                }
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-
-                    if (modal.id === 'importVendorModal') {
-                        const fileInput = document.getElementById('vendor_excel_file');
-                        if (fileInput) fileInput.value = '';
-
-                        const fileNameContainer = document.getElementById('vendor-excel-file-name');
-                        if (fileNameContainer) fileNameContainer.classList.add('hidden');
-
-                        const previewBtn = document.getElementById('vendor-preview-btn');
-                        if (previewBtn) previewBtn.disabled = true;
-
-                        const errorMsg = document.getElementById('vendor-excel-error');
-                        if (errorMsg) {
-                            errorMsg.textContent = '';
-                            errorMsg.classList.add('hidden');
-                        }
-
-                        const loading = document.getElementById('vendor-excel-loading');
-                        if (loading) loading.classList.add('hidden');
-
-                        const step1 = document.getElementById('import-vendor-step-1');
-                        const step2 = document.getElementById('import-vendor-step-2');
-
-                        if (step1) step1.classList.remove('hidden');
-                        if (step2) step2.classList.add('hidden');
-
-                        const previewTable = document.getElementById('vendor-preview-table-body');
-                        if (previewTable) previewTable.innerHTML = '';
-
-                        const warningsContainer = document.getElementById('vendor-preview-warnings');
-                        const warningsList = document.getElementById('vendor-warning-list');
-
-                        if (warningsContainer) warningsContainer.classList.add('hidden');
-                        if (warningsList) warningsList.innerHTML = '';
-                    }
-                    else if (modal.id === 'addVendorModal') {
-                        const form = document.getElementById('createVendorForm');
-                        if (form) {
-                            form.reset();
-
-                            const inputs = form?.querySelectorAll('input, textarea, select');
-                            inputs?.forEach(input => {
-                                input.classList.remove('border-red-500');
-                                const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                                if (errorElement) errorElement.classList.add('hidden');
-                            });
-
-                            const submitBtn = form.querySelector('button[type="submit"]');
-                            if (submitBtn) {
-                                submitBtn.disabled = false;
-                                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                                submitBtn.innerHTML = 'Simpan';
-                            }
-                        }
-                    }
-                    else if (modal.id === 'editVendorModal') {
-                        const form = document.getElementById('editVendorForm');
-                        if (form) form.reset();
-
-                        const inputs = form?.querySelectorAll('input, textarea, select');
-                        inputs?.forEach(input => {
-                            input.classList.remove('border-red-500');
-                            const errorElement = input.closest('.space-y-2')?.querySelector('.error-message');
-                            if (errorElement) errorElement.classList.add('hidden');
-                        });
-                    }
-                }, 300);
-            }
 
             function clearModalForms(modal) {
                 if (!modal) return;

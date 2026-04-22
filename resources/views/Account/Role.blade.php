@@ -198,7 +198,7 @@
                             </span>
                             <select id="rolePerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changeRolePerPage(this.value)">
+                                onchange="changeItemPerPage(this.value)">
                                 <option value="10" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 10 ? 'selected' : '' }}>10 data per halaman</option>
                                 <option value="25" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 25 ? 'selected' : '' }}>25 data per halaman</option>
                                 <option value="50" {{ isset($roles_pagination['per_page']) && $roles_pagination['per_page'] == 50 ? 'selected' : '' }}>50 data per halaman</option>
@@ -497,145 +497,6 @@
     </div>
 
     <script>
-        window.showToast = function (message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.id = type + 'Notification' + Date.now();
-            notification.className = 'fixed top-4 right-4 p-4 rounded shadow-md z-50 animate-slide-in-right max-w-md overflow-y-auto max-h-[80vh]';
-            notification.role = 'alert';
-
-            const hasHTML = typeof message === 'string' && /<[a-z][\s\S]*>/i.test(message);
-            const isArray = Array.isArray(message);
-
-            if (type === 'success') {
-                notification.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
-                notification.innerHTML = `
-                            <div class="flex items-start">
-                                <div class="py-1">
-                                    <svg class="h-6 w-6 text-green-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Berhasil!</p>
-                                    <div>${message}</div>
-                                </div>
-                                <span class="ml-4 cursor-pointer" onclick="this.parentElement.parentElement.remove()">×</span>
-                            </div>
-                        `;
-            } else {
-                notification.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700', 'overflow-auto');
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'flex items-start';
-
-                const iconContainer = document.createElement('div');
-                iconContainer.className = 'py-1 flex-shrink-0';
-                iconContainer.innerHTML = `
-                            <svg class="h-6 w-6 text-red-500 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        `;
-
-                const contentContainer = document.createElement('div');
-                contentContainer.className = 'flex-grow max-w-xs sm:max-w-sm md:max-w-md';
-
-                const title = document.createElement('p');
-                title.className = 'font-bold';
-                title.textContent = 'Gagal!';
-                contentContainer.appendChild(title);
-
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'error-message';
-
-                if (isArray) {
-                    let htmlContent = '<ul class="mt-2 ml-4 list-disc">';
-                    message.forEach(item => {
-                        htmlContent += `<li>${item}</li>`;
-                    });
-                    htmlContent += '</ul>';
-                    messageContainer.innerHTML = htmlContent;
-                } else if (hasHTML) {
-                    messageContainer.innerHTML = message;
-                } else {
-                    messageContainer.textContent = message;
-                }
-
-                contentContainer.appendChild(messageContainer);
-
-                const closeBtn = document.createElement('span');
-                closeBtn.className = 'ml-4 cursor-pointer flex-shrink-0';
-                closeBtn.textContent = '×';
-                closeBtn.onclick = function () {
-                    notification.remove();
-                };
-
-                wrapper.appendChild(iconContainer);
-                wrapper.appendChild(contentContainer);
-                wrapper.appendChild(closeBtn);
-                notification.appendChild(wrapper);
-            }
-
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.head.insertAdjacentHTML('beforeend', `
-                        <style>
-                            @keyframes slideInRight {
-                                from { transform: translateX(100%); }
-                                to { transform: translateX(0); }
-                            }
-                            .animate-slide-in-right {
-                                animation: slideInRight 0.3s ease-out forwards;
-                            }
-
-                            .error-message ul {
-                                margin-top: 0.5rem;
-                                padding-left: 1.5rem;
-                                list-style-type: disc;
-                            }
-                            .error-message ul li {
-                                margin-bottom: 0.25rem;
-                            }
-                            .error-message ul li:last-child {
-                                margin-bottom: 0;
-                            }
-
-                            /* Tooltip styles */
-                            .tooltip-container {
-                                position: relative;
-                            }
-
-                            .tooltip-container:hover::after {
-                                content: attr(data-tooltip);
-                                position: absolute;
-                                bottom: 100%;
-                                left: 50%;
-                                transform: translateX(-50%);
-                                z-index: 100;
-                                white-space: normal;
-                                background: #213268;
-                                color: white;
-                                padding: 4px 8px;
-                                border-radius: 4px;
-                                font-size: 11px;
-                                width: max-content;
-                                max-width: 200px;
-                                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                                opacity: 0;
-                                animation: fade-in 0.2s ease forwards;
-                            }
-
-                            @keyframes fade-in {
-                                to { opacity: 1; }
-                            }
-                        </style>
-                    `);
 
             // Add tooltip functionality
             document.addEventListener('mouseover', function(e) {
@@ -696,39 +557,10 @@
                     showToast("{{ session('error') }}", 'error');
                 @endif
 
-            window.changeRolePerPage = function (limit) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('limit', limit);
-                url.searchParams.set('page', 1);
-                window.location.href = url.toString();
-            }
-
             const addRoleModal = document.getElementById('addRoleModal');
             const editRoleModal = document.getElementById('editRoleModal');
             const deleteRoleModal = document.getElementById('deleteRoleModal');
             const closeButtons = document.querySelectorAll('.close-modal');
-
-            function openModal(modal, content) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            function closeModal(modal, content) {
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    if (modal.id === 'addRoleModal') {
-                        resetAddRoleForm();
-                    } else if (modal.id === 'editRoleModal') {
-                        resetEditRoleForm();
-                    } else if (modal.id === 'deleteRoleModal') {
-                        resetDeleteRoleForm();
-                    }
-                }, 300);
-            }
 
             // Function to reset add role form
             function resetAddRoleForm() {
@@ -1576,11 +1408,7 @@
                 }
             }
 
-            window.changePage = function (page) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('page', page);
-                window.location.href = url.toString();
-            };
+            ;
 
             const addRoleFormValidation = document.getElementById('addRoleForm');
             if (addRoleFormValidation) {

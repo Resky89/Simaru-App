@@ -518,11 +518,8 @@
                 }
 
                 // Pagination functions
-                window.changePage = function (page) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('page', page);
-                    window.location.href = url.toString();
-                };
+
+            ;
 
                 window.changePerPage = function (limit) {
                     const url = new URL(window.location.href);

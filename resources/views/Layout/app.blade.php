@@ -502,6 +502,9 @@
         window.AppManager.init();
     </script>
 
+    <!-- Include Global Helpers JavaScript -->
+    <script src="{{ asset('js/helpers.js') }}"></script>
+
     <!-- Include Reminders Popup JavaScript -->
     <script src="{{ asset('js/reminders-popup.js') }}"></script>
 </body>

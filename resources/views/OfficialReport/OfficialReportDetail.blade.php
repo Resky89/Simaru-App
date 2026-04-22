@@ -648,25 +648,8 @@
                 @endif
 
                 // Modal functions
-                function openModal(modal, content) {
-                    if (!modal || !content) return;
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                        content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                    }, 10);
-                }
 
-                function closeModal(modal, content) {
-                    if (!modal || !content) return;
-                    content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                    content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                    setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 300);
-                }
-
-                function clearModalForms(modal) {
+            function clearModalForms(modal) {
                     if (!modal) return;
                     const forms = modal.querySelectorAll('form');
                     forms.forEach(form => {

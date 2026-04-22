@@ -357,7 +357,7 @@
                                 </span>
                                 <select id="perPageSelect"
                                     class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                    onchange="changeMasterAssetPerPage(this.value)">
+                                    onchange="changeItemPerPage(this.value)">
                                     <option value="10" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                     <option value="25" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                     <option value="50" {{ isset($masterAssets_pagination['per_page']) && $masterAssets_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -1796,11 +1796,7 @@
                 document.querySelectorAll('.calibration-status')[1].textContent = this.checked ? 'Ya' : 'Tidak';
             });
 
-            window.changePage = function (page) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('page', page);
-                window.location.href = url.toString();
-            };
+            ;
 
             window.changeMasterAssetPerPage = function (perPage) {
                 const url = new URL(window.location.href);

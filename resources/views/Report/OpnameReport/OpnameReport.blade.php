@@ -171,7 +171,7 @@
                             </span>
                             <select id="perPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changeOpnamePerPage(this.value)">
+                                onchange="changeItemPerPage(this.value)">
                                 <option value="10" {{ isset($pagination['per_page']) && $pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                 <option value="25" {{ isset($pagination['per_page']) && $pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                 <option value="50" {{ isset($pagination['per_page']) && $pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -192,14 +192,7 @@
                     window.location.href = url.toString();
                 }
 
-                window.changeOpnamePerPage = function (limit) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('limit', limit);
-                    url.searchParams.set('page', 1);
-                    window.location.href = url.toString();
-                }
-
-                const searchInput = document.getElementById('searchInput');
+            const searchInput = document.getElementById('searchInput');
                 const sortOrder = document.getElementById('sortOrder');
 
                 let searchTimeout;

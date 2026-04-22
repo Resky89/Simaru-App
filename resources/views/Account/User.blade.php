@@ -226,7 +226,7 @@
                             </span>
                             <select id="userPerPageSelect"
                                 class="px-2 h-8 border border-[#D8DAE5] rounded text-[#213268] text-sm"
-                                onchange="changeUserPerPage(this.value)">
+                                onchange="changeItemPerPage(this.value)">
                                 <option value="10" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 10 ? 'selected' : '' }}>10 per halaman</option>
                                 <option value="25" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 25 ? 'selected' : '' }}>25 per halaman</option>
                                 <option value="50" {{ isset($users_pagination['per_page']) && $users_pagination['per_page'] == 50 ? 'selected' : '' }}>50 per halaman</option>
@@ -604,13 +604,6 @@
                 if (sortValue) {
                     sortOrder.value = sortValue;
                 }
-            }
-
-            window.changeUserPerPage = function (limit) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('limit', limit);
-                url.searchParams.set('page', 1);
-                window.location.href = url.toString();
             }
 
             setupRoleSearch('add-roles-input', 'add-roles-dropdown', 'add-selected-roles-display', 'add-role-hidden-inputs');
@@ -1062,28 +1055,6 @@
             const editUserModal = document.getElementById('editUserModal');
             const deleteUserModal = document.getElementById('deleteUserModal');
             const closeButtons = document.querySelectorAll('.close-modal');
-
-            function openModal(modal, content) {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
-                    content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
-                }, 10);
-            }
-
-            function closeModal(modal, content) {
-                content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
-                content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-
-                    if (modal.id === 'addUserModal') {
-                        resetForm('addUserForm');
-                    } else if (modal.id === 'editUserModal') {
-                        resetForm('editUserForm');
-                    }
-                }, 300);
-            }
 
             function resetForm(formId) {
                 const form = document.getElementById(formId);
